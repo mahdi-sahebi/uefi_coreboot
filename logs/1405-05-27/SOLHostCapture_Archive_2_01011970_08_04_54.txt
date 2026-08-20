@@ -1,0 +1,12 @@
+S: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 s
