@@ -1,0 +1,13 @@
+extract regions
+extract payload
+
+verify bootfirmware volume
+
+verify the peim and extract from the firmware volume
+
+
+verify coreboot HOB(not statically)
+
+verify the .fmd form our server
+
+

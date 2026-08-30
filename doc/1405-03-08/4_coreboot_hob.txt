@@ -1,0 +1,520 @@
+The HOB list is stored at `mHobList` (DXE global variable) and `gHobList` (PEI). These are dynamic pointers. The key string "HOBLIST address in DXE" tells us the payload logs the HOB address.
+
+Since you can't dump from a running system, let's check if coreboot printed the HOB location to the console. The `coreboot_1405-03-08.rom` filename suggests a build date. Do you have a serial log or console output from when this ROM was booted? Let's check if there's a log file:
+
+```bash
+ls -la /home/mahdi/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/analysis/
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ cbfstool coreboot.rom print
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1067545 none
+cpu_microcode_blob.bin         0x104b00   microcode     1782784 none
+intel_fit                      0x2b7f80   intel_fit          80 none
+fallback/romstage              0x2b8000   stage           49160 none
+fallback/ramstage              0x2c40c0   stage          125826 LZMA (277148 decompressed)
+config                         0x2e2d00   raw              4299 LZMA (14955 decompressed)
+revision                       0x2e3e40   raw               878 none
+build_info                     0x2e4200   raw               130 none
+fallback/dsdt.aml              0x2e4300   raw             18414 none
+(empty)                        0x2e8b80   null             3044 none
+fspm.bin                       0x2e9780   fsp           3375104 none
+fsps.bin                       0x621800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x64ec80   stage           30128 none
+(empty)                        0x6562c0   null          8950948 none
+fspt.bin                       0xedf780   fsp             32768 none
+(empty)                        0xee7800   null            69540 none
+bootblock                      0xef87c0   bootblock       28672 none
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ 
+# Look for FSP-related binaries that might contain HOB data
+/home/mahdi/repositories/coreboot/util/cbfstool/cbfstool coreboot.rom print | grep -i fsp
+fspm.bin                       0x2e9780   fsp           3375104 none
+fsps.bin                       0x621800   fsp            185328 LZ4  (393216 decompressed)
+fspt.bin                       0xedf780   fsp             32768 none
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ # Since you have ifdtool, check the flash descriptor
+/home/mahdi/repositories/coreboot/util/ifdtool/ifdtool -d flashregion_0_flashdescriptor.bin > flash_layout.txt
+Warning: No platform specified. Output may be incomplete
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ ifdtool -d flashregion_0_flashdescriptor.bin > flash_layout.txt
+Warning: No platform specified. Output may be incomplete
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ i^Ctool -d flashregion_0_flashdescriptor.bin > flash_layout.txt
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ ifdtool -d flashregion_0_flashdescriptor.bin > flash_layout.txt
+Warning: No platform specified. Output may be incomplete
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ cat flash_layout.txt
+File flashregion_0_flashdescriptor.bin is 4096 bytes
+Peculiar firmware descriptor, assuming Ibex Peak compatibility.
+PCH Revision: 5 series Ibex Peak
+FLMAP0:    0x00040003
+  NR:      0
+  FRBA:    0x40
+  NC:      1
+  FCBA:    0x30
+FLMAP1:    0x50100608
+  ISL:     0x50
+  FPSBA:   0x100
+  NM:      2
+  FMBA:    0x80
+FLMAP2:    0x00000230
+  PSL:     0x0002
+  FMSBA:   0x300
+FLUMAP1:   0xc0ff32df
+  Intel ME VSCC Table Length (VTL):        50
+  Intel ME VSCC Table Base Address (VTBA): 0x000df0
+
+ME VSCC table:
+  JID0:  0x0000471f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x47
+    SPI Component Device ID 1:          0x00
+  VSCC0: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID1:  0x001630ef
+    SPI Component Vendor ID:            0xef
+    SPI Component Device ID 0:          0x30
+    SPI Component Device ID 1:          0x16
+  VSCC1: 0x20052005
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID2:  0x004125bf
+    SPI Component Vendor ID:            0xbf
+    SPI Component Device ID 0:          0x25
+    SPI Component Device ID 1:          0x41
+  VSCC2: 0x20092009
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        Yes
+    Lower Write Granularity:            1 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        Yes
+    Upper Write Granularity:            1 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID3:  0x0000471f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x47
+    SPI Component Device ID 1:          0x00
+  VSCC3: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID4:  0x0001451f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x45
+    SPI Component Device ID 1:          0x01
+  VSCC4: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID5:  0x0000461f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x46
+    SPI Component Device ID 1:          0x00
+  VSCC5: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID6:  0x001420c2
+    SPI Component Vendor ID:            0xc2
+    SPI Component Device ID 0:          0x20
+    SPI Component Device ID 1:          0x14
+  VSCC6: 0x20052005
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID7:  0x001520c2
+    SPI Component Vendor ID:            0xc2
+    SPI Component Device ID 0:          0x20
+    SPI Component Device ID 1:          0x15
+  VSCC7: 0x20052005
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+
+OEM Section:
+00: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+10: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+20: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+30: ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff ff
+
+Found Region Section
+FLREG0:    0x00000000
+  Flash Region 0 (Flash Descriptor): 00000000 - 00000fff 
+FLREG1:    0x3fff3000
+  Flash Region 1 (BIOS): 00000000 - 00ffffff 
+FLREG2:    0x2fef0003
+  Flash Region 2 (Intel ME): 00003000 - 00feffff 
+FLREG3:    0x00020001
+  Flash Region 3 (GbE): 00001000 - 00002fff 
+FLREG4:    0x00007fff
+  Flash Region 4 (Platform Data): 00fff000 - 00000fff (unused)
+
+Found Component Section
+FLCOMP     0x249c30f7
+  Dual Output Fast Read Support:       not supported
+  Read ID/Read Status Clock Frequency: 50MHz
+  Write/Erase Clock Frequency:         50MHz
+  Fast Read Clock Frequency:           50MHz
+  Fast Read Support:                   supported
+  Read Clock Frequency:                17MHz
+  Component 2 Density:                 32MB
+  Component 1 Density:                 64MB
+FLILL      0x00000000
+  Invalid Instruction 3: 0x00
+  Invalid Instruction 2: 0x00
+  Invalid Instruction 1: 0x00
+  Invalid Instruction 0: 0x00
+FLPB       0x00000000
+  Flash Partition Boundary Address: 0x000000
+
+Found PCH Strap Section
+PCHSTRP0  : 0x00aa000f
+PCHSTRP1  : 0x00000000
+PCHSTRP2  : 0x00aa000f
+PCHSTRP3  : 0x00000000
+PCHSTRP4  : 0x00aa000f
+PCHSTRP5  : 0x00000000
+PCHSTRP6  : 0x00aa000f
+PCHSTRP7  : 0x00000000
+PCHSTRP8  : 0x00000008
+PCHSTRP9  : 0x000001c0
+PCHSTRP10 : 0x00000000
+PCHSTRP11 : 0x00000000
+PCHSTRP12 : 0x00000000
+PCHSTRP13 : 0x00000000
+PCHSTRP14 : 0x00000000
+PCHSTRP15 : 0x00000000
+PCHSTRP16 : 0x0000030f
+PCHSTRP17 : 0x00000000
+PCHSTRP18 : 0x22222222
+PCHSTRP19 : 0x22222222
+PCHSTRP20 : 0x22222222
+PCHSTRP21 : 0x00000022
+PCHSTRP22 : 0x00000000
+PCHSTRP23 : 0x0a060000
+PCHSTRP24 : 0xf80200cf
+PCHSTRP25 : 0x06010665
+PCHSTRP26 : 0x00000000
+PCHSTRP27 : 0x00600304
+PCHSTRP28 : 0x80500000
+PCHSTRP29 : 0x00005500
+PCHSTRP30 : 0x00c00000
+PCHSTRP31 : 0x00005550
+PCHSTRP32 : 0x00002158
+PCHSTRP33 : 0x00000020
+PCHSTRP34 : 0x00080000
+PCHSTRP35 : 0x00000000
+PCHSTRP36 : 0x48000100
+PCHSTRP37 : 0x00010000
+PCHSTRP38 : 0x00000000
+PCHSTRP39 : 0x00000000
+PCHSTRP40 : 0x00010000
+PCHSTRP41 : 0x16000100
+PCHSTRP42 : 0x00010000
+PCHSTRP43 : 0x00000000
+PCHSTRP44 : 0x00000000
+PCHSTRP45 : 0x00030000
+PCHSTRP46 : 0x17000100
+PCHSTRP47 : 0x00010000
+PCHSTRP48 : 0x00000000
+PCHSTRP49 : 0x00000000
+PCHSTRP50 : 0x00010000
+PCHSTRP51 : 0x00000100
+PCHSTRP52 : 0x00000000
+PCHSTRP53 : 0x00000000
+PCHSTRP54 : 0x00000000
+PCHSTRP55 : 0x00010000
+PCHSTRP56 : 0x00000100
+PCHSTRP57 : 0x00000000
+PCHSTRP58 : 0x00000000
+PCHSTRP59 : 0x00000000
+PCHSTRP60 : 0x00010000
+PCHSTRP61 : 0x00000100
+PCHSTRP62 : 0x00000000
+PCHSTRP63 : 0x00000000
+PCHSTRP64 : 0x00000000
+PCHSTRP65 : 0x00010000
+PCHSTRP66 : 0x00000064
+PCHSTRP67 : 0x00000001
+PCHSTRP68 : 0x00000064
+PCHSTRP69 : 0x00000001
+PCHSTRP70 : 0x0000ff0f
+PCHSTRP71 : 0x00000000
+PCHSTRP72 : 0x00000001
+PCHSTRP73 : 0x7566661a
+PCHSTRP74 : 0x77777777
+PCHSTRP75 : 0x77711117
+PCHSTRP76 : 0x00000007
+PCHSTRP77 : 0xf1058091
+PCHSTRP78 : 0xfdfdfdf1
+PCHSTRP79 : 0x00000000
+AltMeDisable bit is not set
+
+Found Master Section
+FLMSTR1:   0x05a0fb00 (Host CPU/BIOS)
+  Platform Data Region Write Access: disabled
+  GbE Region Write Access:           disabled
+  Intel ME Region Write Access:      enabled
+  Host CPU/BIOS Region Write Access: disabled
+  Flash Descriptor Write Access:     enabled
+  Platform Data Region Read Access:  disabled
+  GbE Region Read Access:            disabled
+  Intel ME Region Read Access:       disabled
+  Host CPU/BIOS Region Read Access:  disabled
+  Flash Descriptor Read Access:      disabled
+  Requester ID:                      0xfb00
+
+FLMSTR2:   0x00c02d88 (Intel ME)
+  Platform Data Region Write Access: disabled
+  GbE Region Write Access:           disabled
+  Intel ME Region Write Access:      disabled
+  Host CPU/BIOS Region Write Access: disabled
+  Flash Descriptor Write Access:     disabled
+  Platform Data Region Read Access:  disabled
+  GbE Region Read Access:            disabled
+  Intel ME Region Read Access:       disabled
+  Host CPU/BIOS Region Read Access:  disabled
+  Flash Descriptor Read Access:      disabled
+  Requester ID:                      0x2d88
+
+FLMSTR3:   0x00800800 (GbE)
+  Platform Data Region Write Access: disabled
+  GbE Region Write Access:           disabled
+  Intel ME Region Write Access:      disabled
+  Host CPU/BIOS Region Write Access: disabled
+  Flash Descriptor Write Access:     disabled
+  Platform Data Region Read Access:  disabled
+  GbE Region Read Access:            disabled
+  Intel ME Region Read Access:       disabled
+  Host CPU/BIOS Region Read Access:  disabled
+  Flash Descriptor Read Access:      disabled
+  Requester ID:                      0x0800
+
+Found Processor Strap Section
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+????:      0xffffffff
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ cbfstool coreboot.rom extract -n fsps.bin -f fsps_extracted.bin -m x86
+Found file fsps.bin at 0x621800, type fsp, compressed 185328, size 393216
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings fsps_extracted.bin | grep -E '[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}' | head -20
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ xxd fsps_extracted.bin | grep "6d6f 7448 2d6c 6546"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ xxd fsps_extracted.bin | grep "486f 6d6d"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ od -A x -t x1z fsps_extracted.bin | grep -i "48 6f 6d 6d"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C fsps_extracted.bin | grep "48 74 6f 6d"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C coreboot.rom | grep "48 74 6f 6d"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ cbfstool coreboot.rom extract -n fallback/ramstage -f ramstage_decompressed.bin -m x86
+Found file fallback/ramstage at 0x2c40c0, type stage, compressed 125826, size 277148
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings ramstage_decompressed.bin | grep -i hob
+FSP_HOB_CXLNODE_GUID not found: CXL may not be installed
+HOB        
+9.1: FSP_RESERVED_MEMORY_RESOURCE_HOB missing!
+FSP_NON_VOLATILE_STORAGE_HOB missing!
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C ramstage_decompressed.bin | grep -i "fsp\|hob" | head -10
+00017280  0f 94 c0 83 c4 1c c3 83  ec 18 68 46 53 50 52 e8  |..........hFSPR.|
+000265b0  46 53 50 48 74 09 52 50  68 9f 38 03 04 eb cc 85  |FSPHt.RPh.8.....|
+00026970  ff ff ff 89 f0 e8 58 f6  ff ff 3d 46 53 50 48 74  |......X...=FSPHt|
+00026a00  f0 e8 cc f5 ff ff 83 c4  10 3d 46 53 50 50 74 0c  |.........=FSPPt.|
+0002d3b0  50 5f 48 4f 42 5f 43 58  4c 4e 4f 44 45 5f 47 55  |P_HOB_CXLNODE_GU|
+0002e890  63 00 46 53 50 49 00 73  72 63 2f 73 6f 63 2f 69  |c.FSPI.src/soc/i|
+0002ffb0  50 41 43 45 20 00 46 53  50 20 4d 45 4d 4f 52 59  |PACE .FSP MEMORY|
+0002ffc0  20 00 46 53 50 20 52 55  4e 54 49 4d 45 00 46 53  | .FSP RUNTIME.FS|
+0002fff0  20 20 00 48 4f 42 20 20  20 20 20 20 20 20 00 49  |  .HOB        .I|
+00030230  48 45 20 20 00 46 53 50  20 4c 4f 47 4f 20 20 20  |HE  .FSP LOGO   |
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C fsps_extracted.bin | head -20
+00000000  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+00000010  78 e5 8c 8c 3d 8a 1c 4f  99 35 89 61 85 c3 2d d3  |x...=..O.5.a..-.|
+00000020  00 00 06 00 00 00 00 00  5f 46 56 48 ff fe 04 00  |........_FVH....|
+00000030  48 00 09 e6 60 00 00 02  60 00 00 00 00 10 00 00  |H...`...`.......|
+00000040  00 00 00 00 00 00 00 00  ff ff ff ff ff ff ff ff  |................|
+00000050  ff ff ff ff ff ff ff ff  f4 aa f0 00 2c 00 00 f8  |............,...|
+00000060  3d 67 38 16 e6 ef 0b 40  95 1f ab ac 2c b3 1c 60  |=g8....@....,..`|
+00000070  14 00 00 00 ff ff ff ff  be 40 27 91 84 22 34 47  |.........@'.."4G|
+00000080  b9 71 84 b0 27 35 3f 0c  87 aa 01 00 9c 00 00 f8  |.q..'5?.........|
+00000090  84 00 00 19 46 53 50 48  58 00 00 00 00 00 23 06  |....FSPHX.....#.|
+000000a0  95 01 01 01 24 53 50 52  2d 53 50 24 00 00 06 00  |....$SPR-SP$....|
+000000b0  00 00 ba ff 02 00 03 30  8c 01 00 00 68 00 00 00  |.......0....h...|
+000000c0  00 00 00 00 00 00 00 00  00 00 00 00 b8 02 00 00  |................|
+000000d0  00 00 00 00 00 00 00 00  c2 02 00 00 00 00 00 00  |................|
+000000e0  03 00 00 00 00 00 00 00  00 00 00 00 46 53 50 45  |............FSPE|
+000000f0  18 00 00 00 01 00 49 4e  54 45 4c 43 01 00 00 00  |......INTELC....|
+00000100  00 00 00 00 46 53 50 50  0c 00 01 00 00 00 00 00  |....FSPP........|
+00000110  00 00 00 00 ff ff ff ff  78 35 09 d9 eb 08 df 44  |........x5.....D|
+00000120  b9 d8 d0 c1 d3 d5 5d 96  47 aa 01 00 56 00 00 f8  |......].G...V...|
+00000130  3e 00 00 19 54 68 69 73  20 46 53 50 20 73 75 70  |>...This FSP sup|
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C fsps_extracted.bin -s 0x90 -n 128
+00000090  84 00 00 19 46 53 50 48  58 00 00 00 00 00 23 06  |....FSPHX.....#.|
+000000a0  95 01 01 01 24 53 50 52  2d 53 50 24 00 00 06 00  |....$SPR-SP$....|
+000000b0  00 00 ba ff 02 00 03 30  8c 01 00 00 68 00 00 00  |.......0....h...|
+000000c0  00 00 00 00 00 00 00 00  00 00 00 00 b8 02 00 00  |................|
+000000d0  00 00 00 00 00 00 00 00  c2 02 00 00 00 00 00 00  |................|
+000000e0  03 00 00 00 00 00 00 00  00 00 00 00 46 53 50 45  |............FSPE|
+000000f0  18 00 00 00 01 00 49 4e  54 45 4c 43 01 00 00 00  |......INTELC....|
+00000100  00 00 00 00 46 53 50 50  0c 00 01 00 00 00 00 00  |....FSPP........|
+00000110
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings ramstage_decompressed.bin | grep -i cbmem
+Could not find cbmem region
+*** Pre-CBMEM ramstage console overflowed, log truncated! ***
+Could not add CBMEM for coreboot table.
+CBMEM pointer/size not found!
+CBMEM ROOT 
+PPI: Failed to add CBMEM
+Failed to read %s version from cbmem.
+%s: Out of CBMEM IDs.
+%s: Failed to allocate CBMEM.
+ACPI tables overflowed and corrupted CBMEM!
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ hexdump -C fsps_extracted.bin -s 0x148 -n 256
+00000148  65 20 66 6f 6c 6c 6f 77  69 6e 67 3a 0d 0a 53 50  |e following:..SP|
+00000158  52 2d 53 50 2c 20 6d 61  78 20 73 6f 63 6b 65 74  |R-SP, max socket|
+00000168  20 34 0d 0a 0d 0a ff ff  18 9b cd e3 8c 99 76 4f  | 4............vO|
+00000178  b6 5e 98 b1 54 e5 44 6f  e5 aa 01 00 84 00 00 f8  |.^..T.Do........|
+00000188  6c 00 00 19 53 50 52 55  50 44 5f 53 01 00 00 00  |l...SPRUPD_S....|
+00000198  00 00 00 00 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+000001a8  00 00 00 00 01 00 00 00  4f 36 ff 3f 00 00 00 00  |........O6.?....|
+000001b8  00 00 00 30 00 37 00 00  00 00 00 00 00 00 00 00  |...0.7..........|
+000001c8  00 00 01 02 00 00 00 00  01 01 01 00 01 00 01 00  |................|
+000001d8  00 01 02 01 00 00 00 00  00 00 00 00 00 00 00 00  |................|
+000001e8  00 00 00 00 00 00 00 00  00 00 aa 55 ff ff ff ff  |...........U....|
+000001f8  cd 1a ab 53 b1 ed 3a 4e  a2 c7 97 8d 72 1d 17 9d  |...S..:N....r...|
+00000208  bd aa 03 00 60 05 00 f8  04 00 00 19 44 05 00 12  |....`.......D...|
+00000218  56 5a 4c 01 03 0b a8 01  3a 02 00 00 20 02 00 00  |VZL.....:... ...|
+00000228  98 00 ba ff 00 00 00 00  a0 06 00 00 14 00 00 00  |................|
+00000238  50 05 00 00 54 00 00 00  2e 74 65 78 74 00 00 00  |P...T....text...|
+00000248
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings fallback_payload.elf | grep -i "hob list\|HOBL\|hoblist" | head -10
+HobLib.c
+(SecHobListLength & 0x7) == 0
+PeiInstallSecHobData fail: SecHobListLength - 0x%08x
+  temporary memory heap used for HobList: %d bytes.
+HobLib.c
+HobLib.c
+HobLib.c
+HobLib.c
+HobLib.c
+HobLib.c
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings fallback_payload.elf | grep -i "GetHobList\|HobList\|hob.list" | head -20
+(SecHobListLength & 0x7) == 0
+PeiInstallSecHobData fail: SecHobListLength - 0x%08x
+  temporary memory heap used for HobList: %d bytes.
+gHobList != ((void *) 0)
+NewHobList != ((void *) 0)
+HOBLIST address in DXE = 0x%p
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings fallback_payload.elf | grep -i "GetHobList\|HobList\|hob.list" | head -20
+(SecHobListLength & 0x7) == 0
+PeiInstallSecHobData fail: SecHobListLength - 0x%08x
+  temporary memory heap used for HobList: %d bytes.
+gHobList != ((void *) 0)
+NewHobList != ((void *) 0)
+HOBLIST address in DXE = 0x%p
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mHobList != ((void *) 0)
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ 
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,237 @@
+The last code is executed is in Ia32/DxeLoadFunc.c:
+```
+ mde_9_vga_sprintf(4, "DJ-4c-%x-%x,%x-%x",//DJ-4c-
+      gLidtDescriptor.Base,//62fff008
+      gLidtDescriptor.Limit,//1ff
+      BaseOfStack,//63443000
+      STACK_SIZE//0
+    );
+
+    AsmEnablePaging64 (
+      SYS_CODE64_SEL,
+      DxeCoreEntryPoint,
+      (EFI_PHYSICAL_ADDRESS)(UINTN)(HobList.Raw),
+      0,
+      TopOfStack
+      );
+```
+
+**✅ Clear diagnosis from your last print**
+
+### Current status
+
+You are inside `HandOffToDxeCore()` in the **IA32** version of the file:
+
+`MdeModulePkg/Core/DxeIplPeim/Ia32/DxeLoadFunc.c`
+
+The last successful VGA line is:
+
+```
+DJ-4c-62fff008-1ff,63443000-0
+```
+
+Immediately after that the code executes:
+
+```c
+AsmEnablePaging64 (
+  SYS_CODE64_SEL,
+  DxeCoreEntryPoint,          // 0x6347e3ee
+  (EFI_PHYSICAL_ADDRESS)(UINTN)(HobList.Raw),
+  0,
+  TopOfStack                  // 0x63462fe0
+);
+```
+
+The next print (`DJ-4d-...`) is **never reached**.  
+→ The system freezes **inside `AsmEnablePaging64`** (or in the very first instructions of the DXE Core after the mode switch).
+
+---
+
+### Answers to your questions
+
+**1. Is it valid that `Ia32/DxeLoadFunc.c` is executed instead of the X64 version?**
+
+**Yes, this is completely normal and correct.**
+
+- PEI phase always runs in 32-bit mode.
+- The IA32 version of `HandOffToDxeCore` is the one that decides whether to stay in 32-bit or switch to long mode.
+- You entered the long-mode path because `FeaturePcdGet(PcdDxeIplSwitchToLongMode)` returned TRUE.
+
+**2. Is the problem about `STACK_SIZE = 0`?**
+
+**No.**
+
+- `#define STACK_SIZE 0x20000` is correct.
+- From the addresses you printed:
+  - `BaseOfStack = 0x63443000`
+  - `TopOfStack  = 0x63462fe0`
+- Calculation: `0x63443000 + 0x20000 - 32 = 0x63462fe0` → perfect match.
+- The `//0` you wrote in the comments was just a mis-reading of the screen. The stack size is fine.
+
+**3. Why do we see nothing after this point?**
+
+The hang is inside the 32→64 bit transition (`AsmEnablePaging64`).
+
+Most likely causes (in order of probability for this platform):
+
+| Priority | Cause | Explanation |
+|----------|------|-------------|
+| 1 | Page tables created by `CreateIdentityMappingPageTables` are wrong | Most common on coreboot + Xeon SP |
+| 2 | GDT (`gGdt`) is incorrect for long mode | You load it with `AsmWriteGdtr(&gGdt)` |
+| 3 | DXE Core is built as IA32 but long-mode switch is enabled (or vice-versa) | Entry point `0x6347e3ee` looks 32-bit |
+| 4 | HOB list pointer becomes invalid after paging is enabled | |
+| 5 | IDT setup for long mode is broken | You just finished building it |
+
+---
+
+### Immediate next actions
+
+**A. Confirm the architecture of the DXE Core**
+
+In your build directory run:
+
+```bash
+# Find the DXE Core file
+find payloads/external/edk2 -name "DxeCore*" -o -name "*DxeCore*.efi"
+
+# Check if it is 32-bit or 64-bit
+file <path-to-DxeCore.efi>
+readelf -h <path-to-DxeCore.efi> | grep -E "Class|Machine"
+```
+
+**B. Temporary debug – force the 32-bit path (for testing)**
+
+In `Ia32/DxeLoadFunc.c`, temporarily force the non-long-mode path:
+
+```c
+// Change this line:
+if (FeaturePcdGet (PcdDxeIplSwitchToLongMode)) {
+// To:
+if (FALSE && FeaturePcdGet (PcdDxeIplSwitchToLongMode)) {
+```
+
+Rebuild and test.  
+If the system continues further with the 32-bit path, then the problem is specifically in the long-mode transition / page tables / GDT.
+
+**C. Add one more print right before the fatal call**
+
+Just before `AsmEnablePaging64`:
+
+```c
+mde_9_vga_sprintf(4, "BEFORE64-%08X-%08X-%08X",
+    (UINT32)DxeCoreEntryPoint,
+    (UINT32)(UINTN)HobList.Raw,
+    (UINT32)TopOfStack);
+mde_9_delay_s(3);
+```
+
+---
+
+**Please do the following and report back:**
+
+1. Result of `file` / `readelf` on the DXE Core image.
+2. Whether forcing the 32-bit path (`if (FALSE && ...)`) lets the boot continue.
+3. The exact last line you see after adding the `BEFORE64-...` print.
+
+This will tell us immediately whether the problem is the long-mode switch itself or the DXE Core image.
+
+
+
+
+
+
+
+
+
+
+
+
+//////////////////
+- Done -
+Build end time: 05:42:06, Aug.09 2026
+Build total time: 00:01:12
+
+Success!
+Created CBFS (capacity = 15464420 bytes)
+Created CBFS (capacity = 1048548 bytes)
+    BOOTBLOCK
+    CBFS       cbfs_master_header
+    CBFS       fspt.bin
+Image SIZE 67108864
+    CBFS       fallback/payload
+    CBFS       cpu_microcode_blob.bin
+    CBFS       intel_fit
+    CBFS       fallback/romstage
+Image SIZE 67108864
+    CBFS       fallback/ramstage
+    CBFS       config
+    CBFS       revision
+    CBFS       build_info
+    CBFS       fallback/dsdt.aml
+    CBFS       fspm.bin
+Image SIZE 67108864
+    CBFS       fsps.bin
+    CBFS       fallback/postcar
+    DD         Adding Intel Firmware Descriptor
+    IFDTOOL    set AltMeDisable/HAP bit
+File build/coreboot.pre is 67108864 bytes
+Setting the HAP bit to disable Intel ME...
+Writing new image to build/coreboot.pre
+    IFDTOOL    me.bin -> coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+File 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin is 16699392 bytes
+Adding 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin as the Intel ME section of build/coreboot.pre
+Writing new image to build/coreboot.pre
+    IFDTOOL    Unlocking Management Engine
+File build/coreboot.pre is 67108864 bytes
+Writing new image to build/coreboot.pre
+    UPDATE-FIT set FIT pointer to table
+    UPDATE-FIT Microcode
+    CBFS       coreboot.rom
+
+    FIT table:
+    Index  Type                 Addr             Size    
+         0 Microcode            0xff27b630      0x00000000
+         1 Microcode            0xff314230      0x00000000
+         2 Microcode            0xff3a4e30      0x00000000
+
+    CBFSLAYOUT  coreboot.rom
+
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'SMMSTORE' (preserve, size 262144, offset 50331648)
+'BOOTSPLASH' (CBFS, size 1048576, offset 50593792)
+'COREBOOT' (CBFS, size 15464448, offset 51644416)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.
+    CBFSPRINT  coreboot.rom
+
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1289529 none
+cpu_microcode_blob.bin         0x13ae00   microcode     1782784 none
+intel_fit                      0x2ee240   intel_fit          80 none
+fallback/romstage              0x2ee2c0   stage           49672 none
+fallback/ramstage              0x2fa540   stage          125002 LZMA (283964 decompressed)
+config                         0x318e00   raw              4082 LZMA (13952 decompressed)
+revision                       0x319e40   raw               860 none
+build_info                     0x31a1c0   raw               125 none
+fallback/dsdt.aml              0x31a280   raw             18414 none
+(empty)                        0x31eac0   null             3300 none
+fspm.bin                       0x31f7c0   fsp           3375104 none
+fsps.bin                       0x657800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x684c40   stage           31792 none
+(empty)                        0x68c8c0   null          8466148 none
+fspt.bin                       0xe9f7c0   fsp             32768 none
+(empty)                        0xea7800   null            69540 none
+bootblock                      0xeb87c0   bootblock       28672 none
+
+Built asrock/spc741d8 (SPC741D8-2L2T/BCM)
+
+
+
