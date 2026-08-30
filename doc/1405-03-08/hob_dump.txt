@@ -1,0 +1,19 @@
+usage: /home/mahdi/repositories/coreboot/util/cbmem/cbmem [-cCltTLxVvh?]
+
+   -c | --console:                   print cbmem console
+   -1 | --oneboot:                   print cbmem console for last boot only
+   -2 | --2ndtolast:                 print cbmem console for the boot that came before the last one only
+   -B | --loglevel:                  maximum loglevel to print; prefix `+` (e.g. -B +INFO) to also print lines that have no level
+   -C | --coverage:                  dump coverage information
+   -l | --list:                      print cbmem table of contents
+   -x | --hexdump:                   print hexdump of cbmem area
+   -r | --rawdump ID:                print rawdump of specific ID (in hex) of cbtable
+   -t | --timestamps:                print timestamp information
+   -T | --parseable-timestamps:      print parseable timestamps
+   -S | --stacked-timestamps:        print stacked timestamps (e.g. for flame graph tools)
+   -a | --add-timestamp ID:          append timestamp with ID
+   -L | --tcpa-log                   print TPM log
+   -V | --verbose:                   verbose (debugging) output
+   -v | --version:                   print the version
+   -h | --help:                      print this help
+

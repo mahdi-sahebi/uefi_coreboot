@@ -49,3 +49,4 @@ void bootblock_mainboard_early_init(void)
 	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART1);
 	aspeed_enable_serial(ast_serial_dev, CONFIG_TTYS0_BASE);
 }
+

@@ -1,0 +1,108 @@
+
+
+
+No serial and SOL data.
+
+
+
+
+
+
+/////////////////////////////
+// VGA:
+SMM-0-63562000-0-10000,-4-10000-ff000000
+1b-40000-ff000000-20000-10000,10000
+2b-ff000000-0-10000-0,ff020000,0
+3a-5d11c653
+4a-0-80000010-82700c-0
+
+
+//////////////////
+- Done -
+Build end time: 01:55:42, Aug.01 2026
+Build total time: 00:01:14
+
+Success!
+Created CBFS (capacity = 15464420 bytes)
+Created CBFS (capacity = 1048548 bytes)
+    BOOTBLOCK
+    CBFS       cbfs_master_header
+    CBFS       fspt.bin
+Image SIZE 67108864
+    CBFS       fallback/payload
+    CBFS       cpu_microcode_blob.bin
+    CBFS       intel_fit
+    CBFS       fallback/romstage
+Image SIZE 67108864
+    CBFS       fallback/ramstage
+    CBFS       config
+    CBFS       revision
+    CBFS       build_info
+    CBFS       fallback/dsdt.aml
+    CBFS       fspm.bin
+Image SIZE 67108864
+    CBFS       fsps.bin
+    CBFS       fallback/postcar
+    DD         Adding Intel Firmware Descriptor
+    IFDTOOL    set AltMeDisable/HAP bit
+File build/coreboot.pre is 67108864 bytes
+Setting the HAP bit to disable Intel ME...
+Writing new image to build/coreboot.pre
+    IFDTOOL    me.bin -> coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+File 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin is 16699392 bytes
+Adding 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin as the Intel ME section of build/coreboot.pre
+Writing new image to build/coreboot.pre
+    IFDTOOL    Unlocking Management Engine
+File build/coreboot.pre is 67108864 bytes
+Writing new image to build/coreboot.pre
+    UPDATE-FIT set FIT pointer to table
+    UPDATE-FIT Microcode
+    CBFS       coreboot.rom
+
+    FIT table:
+    Index  Type                 Addr             Size    
+         0 Microcode            0xff27b0f0      0x00000000
+         1 Microcode            0xff313cf0      0x00000000
+         2 Microcode            0xff3a48f0      0x00000000
+
+    CBFSLAYOUT  coreboot.rom
+
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'SMMSTORE' (preserve, size 262144, offset 50331648)
+'BOOTSPLASH' (CBFS, size 1048576, offset 50593792)
+'COREBOOT' (CBFS, size 15464448, offset 51644416)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.
+    CBFSPRINT  coreboot.rom
+
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1288178 none
+cpu_microcode_blob.bin         0x13a8c0   microcode     1782784 none
+intel_fit                      0x2edd00   intel_fit          80 none
+fallback/romstage              0x2edd80   stage           49672 none
+fallback/ramstage              0x2fa000   stage          125016 LZMA (283964 decompressed)
+config                         0x3188c0   raw              4089 LZMA (13957 decompressed)
+revision                       0x319900   raw               865 none
+build_info                     0x319cc0   raw               130 none
+fallback/dsdt.aml              0x319d80   raw             18414 none
+(empty)                        0x31e5c0   null              484 none
+fspm.bin                       0x31e7c0   fsp           3375104 none
+fsps.bin                       0x656800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x683c40   stage           31792 none
+(empty)                        0x68b8c0   null          8470244 none
+fspt.bin                       0xe9f7c0   fsp             32768 none
+(empty)                        0xea7800   null            73636 none
+bootblock                      0xeb97c0   bootblock       24576 none
+
+Built asrock/spc741d8 (SPC741D8-2L2T/BCM)
+
+
+

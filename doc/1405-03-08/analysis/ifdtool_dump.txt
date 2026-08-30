@@ -1,0 +1,109 @@
+Warning: No platform specified. Output may be incomplete
+File logs/1405-03-08/coreboot.rom is 67108864 bytes
+Peculiar firmware descriptor, assuming Ibex Peak compatibility.
+PCH Revision: 5 series Ibex Peak
+FLMAP0:    0x00040003
+  NR:      0
+  FRBA:    0x40
+  NC:      1
+  FCBA:    0x30
+FLMAP1:    0x50100608
+  ISL:     0x50
+  FPSBA:   0x100
+  NM:      2
+  FMBA:    0x80
+FLMAP2:    0x00000230
+  PSL:     0x0002
+  FMSBA:   0x300
+FLUMAP1:   0xc0ff32df
+  Intel ME VSCC Table Length (VTL):        50
+  Intel ME VSCC Table Base Address (VTBA): 0x000df0
+
+ME VSCC table:
+  JID0:  0x0000471f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x47
+    SPI Component Device ID 1:          0x00
+  VSCC0: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID1:  0x001630ef
+    SPI Component Vendor ID:            0xef
+    SPI Component Device ID 0:          0x30
+    SPI Component Device ID 1:          0x16
+  VSCC1: 0x20052005
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID2:  0x004125bf
+    SPI Component Vendor ID:            0xbf
+    SPI Component Device ID 0:          0x25
+    SPI Component Device ID 1:          0x41
+  VSCC2: 0x20092009
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x50
+    Lower Write Status Required:        Yes
+    Lower Write Granularity:            1 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x50
+    Upper Write Status Required:        Yes
+    Upper Write Granularity:            1 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID3:  0x0000471f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x47
+    SPI Component Device ID 1:          0x00
+  VSCC3: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID4:  0x0001451f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x45
+    SPI Component Device ID 1:          0x01
+  VSCC4: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper Write Enable on Write Status: 0x06
+    Upper Write Status Required:        No
+    Upper Write Granularity:            64 bytes
+    Upper Block / Sector Erase Size:    4KB
+  JID5:  0x0000461f
+    SPI Component Vendor ID:            0x1f
+    SPI Component Device ID 0:          0x46
+    SPI Component Device ID 1:          0x00
+  VSCC5: 0x20152015
+    Lower Erase Opcode:                 0x20
+    Lower Write Enable on Write Status: 0x06
+    Lower Write Status Required:        No
+    Lower Write Granularity:            64 bytes
+    Lower Block / Sector Erase Size:    4KB
+    Upper Erase Opcode:                 0x20
+    Upper
