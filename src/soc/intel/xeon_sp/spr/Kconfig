@@ -81,7 +81,7 @@ config FSP_M_RC_HEAP_SIZE
 
 config STACK_SIZE
 	hex
-	default 0x4000
+	default 0x18000
 
 config FSP_TEMP_RAM_SIZE
 	hex
