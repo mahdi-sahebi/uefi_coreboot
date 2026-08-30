@@ -1,0 +1,132 @@
+
+
+
+
+
+
+
+/////////////////////////////
+// 1405-02-30-2 Dispatcher
+Dis-MI:0,S:8fe94,PDDT:0,GHOB:0
+TS-c:260,PDDT:80ec8,S:0
+a-PI:0,PMTRFV:0,HITBM:0,PSPSB:0
+
+PDR-,0,0,1
+NCHb-8fa30,0,CVH:80D28,Fp:8161A8,CPC:0
+FIc-2-0-0-8161A8-829FE8-8FCFC,6
+PLId-8000000E,8fa34-829FE8-8FA00-0-800000
+8c-0-1-0-1-0-0-0
+
+Pb-80EC8
+Delayedis-80EC8,0-0,989680
+
+
+
+
+
+End of DelayedDispath
+
+
+
+
+
+
+
+// 1405-02-30
+Dis-MI:0,S:8fe94,PDDT:0,GHOB:0
+TS-c:260,PDDT:80EC8,S:0
+a-PI:0,PMTRFV:0,HITBM:0,PSPSB:0
+
+PDR-,0,0,1
+NCHb-,8fa30,0,CVH:80D28,Fp:8161A8,CPC:0
+FIc-2-0-0,8161A8,829FE8-8fcfc,6
+PLId-8000000e,8fa34-829fe8-8fa00-0-800000
+8c-0-1-0-1-0-0-0
+
+
+Pb-80ec8
+
+
+
+
+
+//////////////////
+- Done -
+Build end time: 20:37:43, May.20 2026
+Build total time: 00:01:38
+
+Success!
+Created CBFS (capacity = 15726564 bytes)
+Created CBFS (capacity = 1048548 bytes)
+    BOOTBLOCK
+    CBFS       cbfs_master_header
+    CBFS       fspt.bin
+Image SIZE 67108864
+    CBFS       fallback/payload
+    CBFS       cpu_microcode_blob.bin
+    CBFS       intel_fit
+    CBFS       fallback/romstage
+Image SIZE 67108864
+    CBFS       fallback/ramstage
+    CBFS       config
+    CBFS       revision
+    CBFS       build_info
+    CBFS       fallback/dsdt.aml
+    CBFS       fspm.bin
+Image SIZE 67108864
+    CBFS       fsps.bin
+    CBFS       fallback/postcar
+    DD         Adding Intel Firmware Descriptor
+    IFDTOOL    me.bin -> coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+File 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin is 16699392 bytes
+Adding 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin as the Intel ME section of build/coreboot.pre
+Writing new image to build/coreboot.pre
+    UPDATE-FIT set FIT pointer to table
+    UPDATE-FIT Microcode
+    CBFS       coreboot.rom
+
+    FIT table:
+    Index  Type                 Addr             Size    
+         0 Microcode            0xff205420      0x00000000
+         1 Microcode            0xff29e020      0x00000000
+         2 Microcode            0xff32ec20      0x00000000
+
+    CBFSLAYOUT  coreboot.rom
+
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'BOOTSPLASH' (CBFS, size 1048576, offset 50331648)
+'COREBOOT' (CBFS, size 15726592, offset 51382272)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.
+    CBFSPRINT  coreboot.rom
+
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1067711 none
+cpu_microcode_blob.bin         0x104bc0   microcode     1782784 none
+intel_fit                      0x2b8040   intel_fit          80 none
+fallback/romstage              0x2b80c0   stage           49160 none
+fallback/ramstage              0x2c4180   stage          125835 LZMA (277148 decompressed)
+config                         0x2e2dc0   raw              4299 LZMA (14955 decompressed)
+revision                       0x2e3f00   raw               878 none
+build_info                     0x2e42c0   raw               130 none
+fallback/dsdt.aml              0x2e43c0   raw             18414 none
+(empty)                        0x2e8c40   null             2852 none
+fspm.bin                       0x2e9780   fsp           3375104 none
+fsps.bin                       0x621800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x64ec80   stage           30128 none
+(empty)                        0x6562c0   null          8950948 none
+fspt.bin                       0xedf780   fsp             32768 none
+(empty)                        0xee7800   null            69540 none
+bootblock                      0xef87c0   bootblock       28672 none
+
+Built asrock/spc741d8 (SPC741D8-2L2T/BCM)
+
+

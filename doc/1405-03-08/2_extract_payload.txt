@@ -1,0 +1,568 @@
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ cbfstool coreboot.rom extract -n fallback/payload -f fallback_payload.elf -m x86
+Found file fallback/payload at 0x80, type simple elf, compressed 1067545, size 1067545
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ ls -la fallback_payload.elf 
+-rw-rw-r-- 1 mahdi mahdi 14884864 May 29 21:16 fallback_payload.elf
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ file fallback_payload.elf 
+fallback_payload.elf: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), statically linked, stripped
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ xxd fallback_payload.elf | head -50
+00000000: 7f45 4c46 0101 0100 0000 0000 0000 0000  .ELF............
+00000010: 0200 0300 0100 0000 8025 8000 fc00 0000  .........%......
+00000020: 3400 0000 0000 0000 3400 2000 0100 2800  4.......4. ...(.
+00000030: 0500 0100 0000 0000 0000 0000 0000 0000  ................
+00000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000050: 0000 0000 0000 0000 0000 0000 0100 0000  ................
+00000060: 0300 0000 0000 0000 0000 0000 1c01 0000  ................
+00000070: 2200 0000 0000 0000 0000 0000 0000 0000  "...............
+00000080: 0000 0000 0b00 0000 0300 0000 0000 0000  ................
+00000090: 0000 0000 0010 0000 0010 0000 0000 0000  ................
+000000a0: 0000 0000 0100 0000 0000 0000 1300 0000  ................
+000000b0: 0000 0000 0000 0000 0000 0000 0020 0000  ............. ..
+000000c0: 0000 0000 0000 0000 0000 0000 0400 0000  ................
+000000d0: 1000 0000 1b00 0000 0100 0000 0700 0000  ................
+000000e0: 0000 8000 0020 0000 0000 e300 0000 0000  ..... ..........
+000000f0: 0000 0000 0000 0000 0000 0000 0100 0000  ................
+00000100: 0020 0000 0000 8000 0000 8000 0000 e300  . ..............
+00000110: 0000 e300 0700 0000 0000 0000 002e 7368  ..............sh
+00000120: 7374 7274 6162 002e 7374 7274 6162 002e  strtab..strtab..
+00000130: 7379 6d74 6162 0065 6c66 6f75 7400 0000  symtab.elfout...
+00000140: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000150: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000160: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000170: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000180: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000190: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000200: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000210: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000220: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000230: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000240: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000250: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000260: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000270: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000280: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000290: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000300: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000310: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ xxd fallback_payload.elf | grep "7f 45 4c 46"
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ binwalk fallback_payload.elf 
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+0             0x0             ELF, 32-bit LSB executable, Intel 80386, version 1 (SYSV)
+8192          0x2000          UEFI PI Firmware Volume, volume size: 589824, header size: 0, revision: 0, EFI Firmware File System v2, GUID: 8C8CE578-8A3D-4F1C-3599-896185C32DD3
+8352          0x20A0          Microsoft executable, portable (PE)
+20828         0x515C          Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+36864         0x9000          Microsoft executable, portable (PE)
+93802         0x16E6A         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+99496         0x184A8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+114688        0x1C000         Microsoft executable, portable (PE)
+132655        0x2062F         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+139812        0x22224         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+155648        0x26000         Microsoft executable, portable (PE)
+168024        0x29058         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+184320        0x2D000         Microsoft executable, portable (PE)
+200856        0x31098         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+217088        0x35000         Microsoft executable, portable (PE)
+242064        0x3B190         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+258048        0x3F000         Microsoft executable, portable (PE)
+270480        0x42090         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+286720        0x46000         Microsoft executable, portable (PE)
+299140        0x49084         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+315392        0x4D000         Microsoft executable, portable (PE)
+338221        0x5292D         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+344476        0x5419C         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+360448        0x58000         Microsoft executable, portable (PE)
+372816        0x5B050         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+389120        0x5F000         Microsoft executable, portable (PE)
+405664        0x630A0         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+421888        0x67000         Microsoft executable, portable (PE)
+446269        0x6CF3D         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+451024        0x6E1D0         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+466944        0x72000         Microsoft executable, portable (PE)
+522718        0x7F9DE         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+523936        0x7FEA0         SHA256 hash constants, little endian
+529248        0x81360         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+544768        0x85000         Microsoft executable, portable (PE)
+557164        0x8806C         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+573440        0x8C000         Microsoft executable, portable (PE)
+585816        0x8F058         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+598016        0x92000         UEFI PI Firmware Volume, volume size: 14286848, header size: 0, revision: 0, EFI Firmware File System v2, GUID: 8C8CE578-8A3D-4F1C-3599-896185C32DD3
+598212        0x920C4         Microsoft executable, portable (PE)
+755034        0xB855A         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+908776        0xDDDE8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+913968        0xDF230         Microsoft executable, portable (PE)
+934790        0xE4386         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+939708        0xE56BC         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+946828        0xE728C         Microsoft executable, portable (PE)
+958299        0xE9F5B         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+963784        0xEB4C8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+971564        0xED32C         Microsoft executable, portable (PE)
+985402        0xF093A         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+988568        0xF1598         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+992188        0xF23BC         Microsoft executable, portable (PE)
+1004541       0xF53FD         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1009280       0xF6680         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1012788       0xF7434         Microsoft executable, portable (PE)
+1052999       0x101147        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1063848       0x103BA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1070236       0x10549C        Microsoft executable, portable (PE)
+1133513       0x114BC9        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1163952       0x11C2B0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1168776       0x11D588        Microsoft executable, portable (PE)
+1201958       0x125726        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1212756       0x128154        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1218104       0x129638        Microsoft executable, portable (PE)
+1335885       0x14624D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1378700       0x15098C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1386108       0x15267C        Microsoft executable, portable (PE)
+1524120       0x174198        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1610216       0x1891E8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1615596       0x18A6EC        Microsoft executable, portable (PE)
+1691351       0x19CED7        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1710264       0x1A18B8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1718264       0x1A37F8        Microsoft executable, portable (PE)
+1756744       0x1ACE48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1769188       0x1AFEE4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1775724       0x1B186C        Microsoft executable, portable (PE)
+1789052       0x1B4C7C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1792680       0x1B5AA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1800404       0x1B78D4        Microsoft executable, portable (PE)
+1808665       0x1B9919        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1813136       0x1BAA90        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1820996       0x1BC944        Microsoft executable, portable (PE)
+1828582       0x1BE6E6        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1833736       0x1BFB08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1841580       0x1C19AC        Microsoft executable, portable (PE)
+1852077       0x1C42AD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1852620       0x1C44CC        CRC32 polynomial table, little endian
+1854472       0x1C4C08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1862172       0x1C6A1C        Microsoft executable, portable (PE)
+1874359       0x1C99B7        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1879568       0x1CAE10        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1886896       0x1CCAB0        Microsoft executable, portable (PE)
+1895497       0x1CEC49        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1899644       0x1CFC7C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1903412       0x1D0B34        Microsoft executable, portable (PE)
+1915277       0x1D398D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1920672       0x1D4EA0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1928144       0x1D6BD0        Microsoft executable, portable (PE)
+1943581       0x1DA81D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1949244       0x1DBE3C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1952804       0x1DCC24        Microsoft executable, portable (PE)
+1969758       0x1E0E5E        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1974136       0x1E1F78        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1981632       0x1E3CC0        Microsoft executable, portable (PE)
+2001913       0x1E8BF9        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2006708       0x1E9EB4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2010436       0x1EAD44        Microsoft executable, portable (PE)
+2057555       0x1F6553        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2071384       0x1F9B58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2076084       0x1FADB4        Microsoft executable, portable (PE)
+2085084       0x1FD0DC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2088792       0x1FDF58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2096660       0x1FFE14        Microsoft executable, portable (PE)
+2136190       0x20987E        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2148840       0x20C9E8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2154108       0x20DE7C        Microsoft executable, portable (PE)
+2162293       0x20FE75        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2166848       0x211040        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2174700       0x212EEC        Microsoft executable, portable (PE)
+2291837       0x22F87D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2307072       0x233400        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2314112       0x234F80        Microsoft executable, portable (PE)
+2418402       0x24E6E2        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2430364       0x25159C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2437192       0x253048        Microsoft executable, portable (PE)
+2511027       0x2650B3        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2528364       0x26946C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2535612       0x26B0BC        Microsoft executable, portable (PE)
+2546618       0x26DBBA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2552552       0x26F2E8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2556196       0x270124        Microsoft executable, portable (PE)
+2572205       0x273FAD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2577416       0x275408        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2585000       0x2771A8        Microsoft executable, portable (PE)
+2595385       0x279A39        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2601940       0x27B3D4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3166740       0x305214        Microsoft executable, portable (PE)
+3177921       0x307DC1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3184896       0x309900        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3191436       0x30B28C        Microsoft executable, portable (PE)
+3215820       0x3111CC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3225864       0x313908        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3232552       0x315328        Microsoft executable, portable (PE)
+3243405       0x317D8D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3245332       0x318514        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3249012       0x319374        Microsoft executable, portable (PE)
+3258108       0x31B6FC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3261920       0x31C5E0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3269604       0x31E3E4        Microsoft executable, portable (PE)
+3343713       0x330561        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3354056       0x332DC8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3359848       0x334468        Microsoft executable, portable (PE)
+3406083       0x33F903        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3419060       0x342BB4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3425468       0x3444BC        Microsoft executable, portable (PE)
+3451839       0x34ABBF        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3459232       0x34C8A0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3466508       0x34E50C        Microsoft executable, portable (PE)
+3478566       0x351426        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3483728       0x352850        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3491396       0x354644        Microsoft executable, portable (PE)
+3512737       0x3599A1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3516752       0x35A950        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3524484       0x35C784        Microsoft executable, portable (PE)
+3536873       0x35F7E9        bix header, header size: 64 bytes, header CRC: 0x4C8D0D, created: 1991-10-26 23:53:36, image size: 1216971648 bytes, Data Address: 0x48, Entry Point: 0x8D0D6C09, data CRC: 0xC744, image type: Standalone Program, compression type: none, image name: ""
+3538811       0x35FF7B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3541512       0x360A08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3549132       0x3627CC        Microsoft executable, portable (PE)
+3564684       0x36648C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3570600       0x367BA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3577884       0x36981C        Microsoft executable, portable (PE)
+3605277       0x37031D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3613208       0x372218        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3618924       0x37386C        Microsoft executable, portable (PE)
+3635594       0x37798A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3646048       0x37A260        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3652020       0x37B9B4        Microsoft executable, portable (PE)
+3680714       0x3829CA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3686528       0x384080        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3693052       0x3859FC        Microsoft executable, portable (PE)
+3702764       0x387FEC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3705872       0x388C10        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3713612       0x38AA4C        Microsoft executable, portable (PE)
+3731138       0x38EEC2        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3734952       0x38FDA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3742372       0x391AA4        Microsoft executable, portable (PE)
+3758644       0x395A34        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3763624       0x396DA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3771116       0x398AEC        Microsoft executable, portable (PE)
+3795749       0x39EB25        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3800560       0x39FDF0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3808060       0x3A1B3C        Microsoft executable, portable (PE)
+3816091       0x3A3A9B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3821688       0x3A5078        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3828612       0x3A6B84        Microsoft executable, portable (PE)
+3841212       0x3A9CBC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3845672       0x3AAE28        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3853268       0x3ACBD4        Microsoft executable, portable (PE)
+3876292       0x3B25C4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3883208       0x3B40C8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3890204       0x3B5C1C        Microsoft executable, portable (PE)
+3932043       0x3BFF8B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3940624       0x3C2110        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3947636       0x3C3C74        Microsoft executable, portable (PE)
+3990671       0x3CE48F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4001808       0x3D1010        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4009156       0x3D2CC4        Microsoft executable, portable (PE)
+4025009       0x3D6AB1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4030296       0x3D7F58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4037892       0x3D9D04        Microsoft executable, portable (PE)
+4079692       0x3E404C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4087920       0x3E6070        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4095308       0x3E7D4C        Microsoft executable, portable (PE)
+4126015       0x3EF53F        bix header, header size: 64 bytes, header CRC: 0x493946, created: 1991-07-04 14:21:29, image size: 1291976704 bytes, Data Address: 0x49BD0800, Entry Point: 0x0, data CRC: 0x80488B, image name: "D"
+4135036       0x3F187C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4141384       0x3F3148        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4148636       0x3F4D9C        Microsoft executable, portable (PE)
+4189364       0x3FECB4        Microsoft executable, portable (PE)
+4209776       0x403C70        Unix path: /usr/local/edk2-vUDK2018/Build/Refind/RELEASE_GCC5/X64/RefindPkg/filesystems/ext2/DEBUG/ext2.dll
+4210044       0x403D7C        Object signature in DER format (PKCS header length: 4, sequence length: 1596
+4210213       0x403E25        Certificate in DER format (x509 v3), header length: 4, sequence length: 827
+4211732       0x404414        Microsoft executable, portable (PE)
+4258988       0x40FCAC        Microsoft executable, portable (PE)
+4279848       0x414E28        Unix path: /usr/local/edk2-vUDK2018/Build/Refind/RELEASE_GCC5/X64/RefindPkg/filesystems/ext4/DEBUG/ext4.dll
+4280180       0x414F74        Object signature in DER format (PKCS header length: 4, sequence length: 1596
+4280349       0x41501D        Certificate in DER format (x509 v3), header length: 4, sequence length: 827
+4281844       0x4155F4        Microsoft executable, portable (PE)
+4323477       0x41F895        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4332256       0x421AE0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4339268       0x423644        Microsoft executable, portable (PE)
+4367387       0x42A41B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4377160       0x42CA48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4384388       0x42E684        Microsoft executable, portable (PE)
+4405909       0x433A95        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4410056       0x434AC8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4417460       0x4367B4        Microsoft executable, portable (PE)
+4443935       0x43CF1F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4446760       0x43DA28        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4454628       0x43F8E4        Microsoft executable, portable (PE)
+4485691       0x44723B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4492144       0x448B70        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4499988       0x44AA14        Microsoft executable, portable (PE)
+4546814       0x4560FE        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4558152       0x458D48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4565828       0x45AB44        Microsoft executable, portable (PE)
+4598554       0x462B1A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4607704       0x464ED8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4615292       0x466C7C        Microsoft executable, portable (PE)
+4637261       0x46C24D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4642480       0x46D6B0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4648372       0x46EDB4        Microsoft executable, portable (PE)
+4662806       0x472616        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4665400       0x473038        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4673276       0x474EFC        Microsoft executable, portable (PE)
+4694009       0x479FF9        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4698736       0x47B270        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4706372       0x47D044        Microsoft executable, portable (PE)
+4720996       0x480964        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4723400       0x4812C8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4731052       0x4830AC        Microsoft executable, portable (PE)
+4744577       0x486581        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4745612       0x48698C        SHA256 hash constants, little endian
+4748176       0x487390        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4755732       0x489114        Microsoft executable, portable (PE)
+4828745       0x49AE49        PEM certificate
+4830111       0x49B39F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4830708       0x49B5F4        SHA256 hash constants, little endian
+4836240       0x49CB90        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4841868       0x49E18C        Microsoft executable, portable (PE)
+4850548       0x4A0374        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4854648       0x4A1378        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4858364       0x4A21FC        Microsoft executable, portable (PE)
+4868713       0x4A4A69        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4871176       0x4A5408        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4878932       0x4A7254        Microsoft executable, portable (PE)
+4909651       0x4AEA53        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4917256       0x4B0808        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4924164       0x4B2304        Microsoft executable, portable (PE)
+4994826       0x4C370A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5004420       0x4C5C84        SHA256 hash constants, little endian
+5013144       0x4C7E98        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5018600       0x4C93E8        Microsoft executable, portable (PE)
+5040397       0x4CE90D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5053060       0x4D1A84        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5059820       0x4D34EC        Microsoft executable, portable (PE)
+5098538       0x4DCC2A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5116448       0x4E1220        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5121468       0x4E25BC        Microsoft executable, portable (PE)
+5198804       0x4F53D4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageCoreLi
+5200163       0x4F5923        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5202998       0x4F6436        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageCoreLi
+5206701       0x4F72AD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageOpalLi
+5222584       0x4FB0B8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5228192       0x4FC6A0        Microsoft executable, portable (PE)
+5268394       0x5063AA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5273184       0x507660        SHA256 hash constants, little endian
+5281396       0x509674        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5289900       0x50B7AC        Microsoft executable, portable (PE)
+5326016       0x5144C0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5329164       0x51510C        SHA256 hash constants, little endian
+5338136       0x517418        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+5343304       0x518848        Microsoft executable, portable (PE)
+5383199       0x52241F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+5386280       0x523028        CRC32 polynomial table, little endian
+5388764       0x5239DC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings fallback_payload.elf | head -50
+.shstrtab
+.strtab
+.symtab
+elfout
+_FVH
+.text
+`.data
+.reloc
+[^_]
+<[^_]
+9MZu
+:VZu
+t)f=d
+t#f=L
+MTOCt
+RSDSt
+NB10u
+[^_]
+WVSS
+Z[^_]
+RRhAB
+t&QQ
+[^_]
+RPWVhQ'
+SQhr'
+w<RRSQVh
+w PQSQVh
+QSQj
+SQVh,(
+;MZu
+>VZu
+[^_]
+[^_]
+PSQR
+ZY[X
+<null string>
+<null time>
+<null guid>
+%08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x
+%02d/%02d/%04d  %02d:%02d
+%08X
+                                                                                                    
+EDK II SePh2-start
+FIB:0x%X, 0x%X, 0x%X, 0x%X, 0x%X
+EFI_NOT_FOUND-0: 0x%X, 0x%X
+EFI_NOT_FOUND-1: 0x%X, 0x%X
+EFI_NOT_FOUND-2: 0x%X, 0x%X
+EFI_NOT_FOUND-3: 0x%X, 0x%X
+EFI_NOT_FOUND-4: 0x%X, 0x%X, 0x%X
+EFI_NOT_FOUND-5: 0x%X, 0x%X, 0x%X, 0x%X
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Error: Need to specify architecture for ELF extraction
+
+```bash
+# Extract with architecture specified (x86 32-bit)
+cbfstool coreboot.rom extract -n fallback/payload -f fallback_payload.elf -m x86
+
+# Alternative: Use raw extraction (no ELF header conversion)
+cbfstool coreboot.rom extract -n fallback/payload -f fallback_payload.raw -r COREBOOT
+
+# Check what raw file contains
+file fallback_payload.raw
+
+# If raw extraction works, then convert to ELF manually or analyze raw
+```
+
+### If raw extraction works:
+```bash
+# Examine raw binary
+xxd fallback_payload.raw | head -50
+
+# Check for ELF header (7f 45 4c 46)
+xxd fallback_payload.raw | grep "7f 45 4c 46"
+
+# Check for UEFI signatures in raw
+binwalk fallback_payload.raw
+
+# Search for strings
+strings fallback_payload.raw | head -50
+```
+
+### Alternative: Use dump option
+```bash
+# Dump the file without processing
+cbfstool coreboot.rom read -r COREBOOT -f coreboot_region.bin
+
+# Then extract payload from the CBFS dump using offset from print
+# From your earlier output: fallback/payload at offset 0x80
+dd if=coreboot_region.bin of=fallback_payload.bin bs=1 skip=$((0x80)) count=1067545
+
+# Check what we got
+file fallback_payload.bin
+xxd fallback_payload.bin | head -20
+```
+
+**Try the raw extraction or dd method and confirm what you get.**
+
+
+
+
+
+
+
+
+
+
+
+## Confirmed: fallback_payload.elf Successfully Extracted
+
+Your output shows successful extraction:
+
+### ✅ Extraction Results:
+```
+fallback_payload.elf: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), statically linked, stripped
+Size: 14,884,864 bytes (14.8 MB)
+```
+
+### ✅ Key Findings from binwalk:
+1. **UEFI PI Firmware Volume at 0x2000** - Volume size 589,824 bytes
+2. **UEFI PI Firmware Volume at 0x92000** - Volume size 14,286,848 bytes (main FV)
+3. **Multiple Microsoft PE executables** throughout
+4. Build paths show: `DasharoPayloadPkgX64/RELEASE_COREBOOT/`
+
+### ✅ Key Findings from strings:
+- `_FVH` - Firmware Volume Header signature
+- `EDK II SePh2-start` - EDK II Security Phase 2 start (PEI phase indicator)
+- GUID format strings present
+- UEFI status codes (`EFI_NOT_FOUND`, etc.)
+
+### Critical Observation:
+**This is a valid UEFI payload with standard FV structure.** The PEI Core should be inside the UEFI Firmware Volume at offset `0x92000` (598,016 decimal).
+
+---
+
+## Next Step: Extract PEIMs from the Firmware Volume
+
+```bash
+# Extract the main FV starting at 0x92000
+dd if=fallback_payload.elf of=main_fv.bin bs=1 skip=$((0x92000)) count=$((0xDA0000))
+
+# Verify it's a valid FV
+xxd main_fv.bin | head -5
+
+# Use UEFIExtract if available, or binwalk -e
+binwalk -e main_fv.bin
+
+# Search for PEI Core GUID in the FV
+strings main_fv.bin | grep -i "pei" | head -30
+```
+
+**Confirm when ready to extract the PEI Core and individual PEIMs.**
+
+
+
