@@ -1,0 +1,20 @@
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1067545 none
+cpu_microcode_blob.bin         0x104b00   microcode     1782784 none
+intel_fit                      0x2b7f80   intel_fit          80 none
+fallback/romstage              0x2b8000   stage           49160 none
+fallback/ramstage              0x2c40c0   stage          126605 LZMA (278952 decompressed)
+config                         0x2e3000   raw              4298 LZMA (14955 decompressed)
+revision                       0x2e4140   raw               878 none
+build_info                     0x2e4500   raw               130 none
+fallback/dsdt.aml              0x2e4600   raw             18414 none
+(empty)                        0x2e8e80   null             2276 none
+fspm.bin                       0x2e9780   fsp           3375104 none
+fsps.bin                       0x621800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x64ec80   stage           30128 none
+(empty)                        0x6562c0   null          8950948 none
+fspt.bin                       0xedf780   fsp             32768 none
+(empty)                        0xee7800   null            69540 none
+bootblock                      0xef87c0   bootblock       28672 none

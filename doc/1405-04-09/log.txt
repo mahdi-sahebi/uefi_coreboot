@@ -1,0 +1,111 @@
+/////////////////////////////
+// 1405-04-09
+0082d2be:55 89 e5 57 56 53 83 ec 5c e8 ec fc ff ff 8a 15
+0082d2ce:40 f0 82 00 80 e2 01 74 3d 85 c0 74 39 e8 b4 ed
+0082d2de:ff ff 84 c0 74 18 57 68 07 00 00 80 68 d8 dc 82
+0082d2ee:00 68 00 00 00 80 e8 5b fa ff ff 83 c4 10 56 68
+0082d2fe:98 db 82 00 68 e3 00 00 00 68 fc dc 82 00 e8 97
+0082d30e:f7 ff ff 83 c4 10 e8 f9 fc ff ff 8a 15 40 f0 82
+0082d31e:00 80 e2 01 74 3d 85 c0 74 39 e8 67 ed ff ff 84
+0082d32e:c0 74 18 53 68 07 00 00 80 68 d8 dc 82 00 68 00
+PLIc-8fa34-829fe8-8fa00-0-800000
+PLId-8000000E,8fa34-829fe8-8fa00-0-800000
+a-1,8000001a,0,2,1
+DelayedDs-80310,0-0,989680
+
+
+End of peim entry
+16-
+17c-0-1-0-1-0-0-0
+
+
+n-0,1,0,0
+
+
+
+
+////////////////// Build
+...
+- Done -
+Build end time: 04:33:24, Jul.01 2026
+Build total time: 00:01:47
+
+Success!
+Created CBFS (capacity = 16775140 bytes)
+    BOOTBLOCK
+    CBFS       cbfs_master_header
+    CBFS       fspt.bin
+Image SIZE 67108864
+    CBFS       fallback/payload
+    CBFS       cpu_microcode_blob.bin
+    CBFS       intel_fit
+    CBFS       fallback/romstage
+Image SIZE 67108864
+    CBFS       fallback/ramstage
+    CBFS       config
+    CBFS       revision
+    CBFS       build_info
+    CBFS       fallback/dsdt.aml
+    CBFS       fspm.bin
+Image SIZE 67108864
+    CBFS       fsps.bin
+    CBFS       fallback/postcar
+    DD         Adding Intel Firmware Descriptor
+    IFDTOOL    set AltMeDisable/HAP bit
+File build/coreboot.pre is 67108864 bytes
+Setting the HAP bit to disable Intel ME...
+Writing new image to build/coreboot.pre
+    IFDTOOL    me.bin -> coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+File 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin is 16699392 bytes
+Adding 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin as the Intel ME section of build/coreboot.pre
+Writing new image to build/coreboot.pre
+    IFDTOOL    Unlocking Management Engine
+File build/coreboot.pre is 67108864 bytes
+Writing new image to build/coreboot.pre
+    UPDATE-FIT set FIT pointer to table
+    UPDATE-FIT Microcode
+    CBFS       coreboot.rom
+
+    FIT table:
+    Index  Type                 Addr             Size    
+         0 Microcode            0xff13ac70      0x00000000
+         1 Microcode            0xff1d3870      0x00000000
+         2 Microcode            0xff264470      0x00000000
+
+    CBFSLAYOUT  coreboot.rom
+
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'COREBOOT' (CBFS, size 16775168, offset 50333696)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.
+    CBFSPRINT  coreboot.rom
+
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1287006 none
+cpu_microcode_blob.bin         0x13a440   microcode     1782784 none
+intel_fit                      0x2ed880   intel_fit          80 none
+fallback/romstage              0x2ed900   stage           48904 none
+fallback/ramstage              0x2f9880   stage          119805 LZMA (271008 decompressed)
+config                         0x316d00   raw              3969 LZMA (13490 decompressed)
+revision                       0x317cc0   raw               865 none
+build_info                     0x318080   raw               130 none
+fallback/dsdt.aml              0x318140   raw             18414 none
+(empty)                        0x31c980   null             3620 none
+fspm.bin                       0x31d7c0   fsp           3375104 none
+fsps.bin                       0x655800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x682c40   stage           31048 none
+(empty)                        0x68a600   null          9785764 none
+fspt.bin                       0xfdf7c0   fsp             32768 none
+(empty)                        0xfe7800   null            73636 none
+bootblock                      0xff97c0   bootblock       24576 none
+
+Built asrock/spc741d8 (SPC741D8-2L2T/BCM)
+

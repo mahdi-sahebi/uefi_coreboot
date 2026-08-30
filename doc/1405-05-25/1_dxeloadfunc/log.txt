@@ -1,0 +1,185 @@
+//////////// VGA
+
+
+
+
+//////////// build
+Fd File Name:UEFIPAYLOAD (/home/uefi/workspace/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/FV/UEFIPAYLOAD.fd)
+
+Generate Region at Offset 0x0
+   Region Size = 0x90000
+   Region Name = FV
+
+Generating PEIFV FV
+##
+Generate Region at Offset 0x90000
+   Region Size = 0xDA0000
+   Region Name = FV
+
+Generating DXEFV FV
+#########
+GUID cross reference file can be found at /home/uefi/workspace/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/FV/Guid.xref
+
+FV Space Information
+PEIFV [89%Full] 589824 (0x90000) total, 528424 (0x81028) used, 61400 (0xefd8) free
+DXEFV [39%Full] 14286848 (0xda0000) total, 5699072 (0x56f600) used, 8587776 (0x830a00) free
+Build report can be found at /home/uefi/workspace/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/UEFIPAYLOAD.txt
+
+- Done -
+Build end time: 03:52:52, Aug.16 2026
+Build total time: 00:00:59
+
+echo "Success!"; \
+
+Success!
+mv /home/uefi/workspace/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/FV/UEFIPAYLOAD.fd \
+	../../../build/UEFIPAYLOAD.fd
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp create -M build/fmap.fmap -r COREBOOT,BOOTSPLASH
+Created CBFS (capacity = 15464420 bytes)
+Created CBFS (capacity = 1048548 bytes)
+printf "    BOOTBLOCK\n"
+    BOOTBLOCK
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/cbfs/fallback/bootblock.bin -n bootblock -t bootblock  -b -28672   
+printf "    CBFS       cbfs_master_header\n"
+    CBFS       cbfs_master_header
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/mainboard/asrock/spc741d8/cbfs-file.zmY8v2.out -n cbfs_master_header -t "cbfs header"   -r COREBOOT  -b 0  
+printf "    CBFS       fspt.bin\n"
+    CBFS       fspt.bin
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/Fsp_T.fd -n fspt.bin -t fsp   -r COREBOOT  -b 0xfffe0000 --xip  
+Image SIZE 67108864
+printf "    CBFS       fallback/payload\n"
+    CBFS       fallback/payload
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add-payload -f build/UEFIPAYLOAD.fd -n fallback/payload  -c LZMA  -r COREBOOT    
+printf "    CBFS       cpu_microcode_blob.bin\n"
+    CBFS       cpu_microcode_blob.bin
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/cpu_microcode_blob.bin -n cpu_microcode_blob.bin -t microcode   -r COREBOOT -a 16  
+printf "    CBFS       intel_fit\n"
+    CBFS       intel_fit
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/mainboard/asrock/spc741d8/cbfs-file.RsZBh1.out -n intel_fit -t intel_fit   -r COREBOOT -a 16  
+printf "    CBFS       fallback/romstage\n"
+    CBFS       fallback/romstage
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add-stage -f build/cbfs/fallback/romstage.elf -n fallback/romstage  -c none  -r COREBOOT   -S ".car.data,.data" --xip 
+Image SIZE 67108864
+printf "    CBFS       fallback/ramstage\n"
+    CBFS       fallback/ramstage
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add-stage -f build/cbfs/fallback/ramstage.elf -n fallback/ramstage  -c LZMA  -r COREBOOT    
+printf "    CBFS       config\n"
+    CBFS       config
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/mainboard/asrock/spc741d8/cbfs-file.OSKHMZ.out -n config -t raw -c LZMA  -r COREBOOT    
+printf "    CBFS       revision\n"
+    CBFS       revision
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/build.h -n revision -t raw   -r COREBOOT    
+printf "    CBFS       build_info\n"
+    CBFS       build_info
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/build_info -n build_info -t raw   -r COREBOOT    
+printf "    CBFS       fallback/dsdt.aml\n"
+    CBFS       fallback/dsdt.aml
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/dsdt.aml -n fallback/dsdt.aml -t raw -c none  -r COREBOOT    
+printf "    CBFS       fspm.bin\n"
+    CBFS       fspm.bin
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/Fsp_M.fd -n fspm.bin -t fsp   -r COREBOOT   --xip  
+Image SIZE 67108864
+printf "    CBFS       fsps.bin\n"
+    CBFS       fsps.bin
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add -f build/Fsp_S.fd -n fsps.bin -t fsp -c LZ4  -r COREBOOT    
+printf "    CBFS       fallback/postcar\n"
+    CBFS       fallback/postcar
+build/util/cbfstool/cbfstool build/coreboot.pre.tmp add-stage -f build/cbfs/fallback/postcar.elf -n fallback/postcar  -c none  -r COREBOOT    
+true
+mv build/coreboot.pre.tmp build/coreboot.pre
+printf "    DD         Adding Intel Firmware Descriptor\n"
+    DD         Adding Intel Firmware Descriptor
+dd if="3rdparty/blobs/mainboard/asrock/spc741d8/descriptor.bin" \
+	of=build/coreboot.pre conv=notrunc >/dev/null 2>&1
+printf "    IFDTOOL    set AltMeDisable/HAP bit\n"
+    IFDTOOL    set AltMeDisable/HAP bit
+build/util/ifdtool/ifdtool \
+	-p "lbg" \
+	--altmedisable 1 \
+	-O build/coreboot.pre \
+	build/coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+Setting the HAP bit to disable Intel ME...
+Writing new image to build/coreboot.pre
+printf "    IFDTOOL    me.bin -> coreboot.pre\n"
+    IFDTOOL    me.bin -> coreboot.pre
+build/util/ifdtool/ifdtool \
+	-p "lbg" \
+	-i ME:3rdparty/blobs/mainboard/asrock/spc741d8/me.bin \
+	-O build/coreboot.pre \
+	build/coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+File 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin is 16699392 bytes
+Adding 3rdparty/blobs/mainboard/asrock/spc741d8/me.bin as the Intel ME section of build/coreboot.pre
+Writing new image to build/coreboot.pre
+printf "    IFDTOOL    Unlocking Management Engine\n"
+    IFDTOOL    Unlocking Management Engine
+build/util/ifdtool/ifdtool \
+-p "lbg" -u \
+-O build/coreboot.pre \
+build/coreboot.pre
+File build/coreboot.pre is 67108864 bytes
+Writing new image to build/coreboot.pre
+    UPDATE-FIT set FIT pointer to table
+build/util/cbfstool/ifittool -f build/coreboot.pre -F -n intel_fit -r COREBOOT -c
+    UPDATE-FIT Microcode
+build/util/cbfstool/ifittool -f build/coreboot.pre -a -n cpu_microcode_blob.bin -t 1 -s 4 -r COREBOOT
+    CBFS       coreboot.rom
+dd if=/dev/zero bs=67108864 count=1 2> /dev/null | tr '\000' '\377' > build/coreboot.rom.tmp
+dd if=build/coreboot.pre of=build/coreboot.rom.tmp bs=8192 conv=notrunc 2> /dev/null
+build/util/cbfstool/ifittool -f build/coreboot.rom.tmp -D -r COREBOOT
+
+    FIT table:
+    Index  Type                 Addr             Size    
+         0 Microcode            0xff27b8f0      0x00000000
+         1 Microcode            0xff3144f0      0x00000000
+         2 Microcode            0xff3a50f0      0x00000000
+
+mv build/coreboot.rom.tmp build/coreboot.rom
+    CBFSLAYOUT  coreboot.rom
+
+build/util/cbfstool/cbfstool build/coreboot.rom layout
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'SMMSTORE' (preserve, size 262144, offset 50331648)
+'BOOTSPLASH' (CBFS, size 1048576, offset 50593792)
+'COREBOOT' (CBFS, size 15464448, offset 51644416)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.
+    CBFSPRINT  coreboot.rom
+
+build/util/cbfstool/cbfstool build/coreboot.rom print -r COREBOOT
+FMAP REGION: COREBOOT
+Name                           Offset     Type           Size   Comp
+cbfs_master_header             0x0        cbfs header        32 none
+fallback/payload               0x80       simple elf    1290215 none
+cpu_microcode_blob.bin         0x13b0c0   microcode     1782784 none
+intel_fit                      0x2ee500   intel_fit          80 none
+fallback/romstage              0x2ee580   stage           49672 none
+fallback/ramstage              0x2fa800   stage          125006 LZMA (283964 decompressed)
+config                         0x3190c0   raw              4086 LZMA (13958 decompressed)
+revision                       0x31a100   raw               866 none
+build_info                     0x31a4c0   raw               131 none
+fallback/dsdt.aml              0x31a580   raw             18414 none
+(empty)                        0x31edc0   null             2532 none
+fspm.bin                       0x31f7c0   fsp           3375104 none
+fsps.bin                       0x657800   fsp            185328 LZ4  (393216 decompressed)
+fallback/postcar               0x684c40   stage           31792 none
+(empty)                        0x68c8c0   null          8466148 none
+fspt.bin                       0xe9f7c0   fsp             32768 none
+(empty)                        0xea7800   null            69540 none
+bootblock                      0xeb87c0   bootblock       28672 none
+printf "\nBuilt %s (%s)\n" asrock/spc741d8 "SPC741D8-2L2T/BCM"
+
+Built asrock/spc741d8 (SPC741D8-2L2T/BCM)
+if [ -f "" ]; then \
+	printf "\nccache statistics\n"; \
+	 --show-log-stats -v; \
+fi
+
+
+
