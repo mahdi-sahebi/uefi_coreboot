@@ -39,9 +39,6 @@ compile_commands.json
 .vscode/
 .clangd
 
-# Cross-compile toolkits
-xgcc/
-tarballs/
 
 # editor backup files, temporary files, IDE project files
 *~

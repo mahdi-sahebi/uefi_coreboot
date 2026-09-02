@@ -1,0 +1,59 @@
+[0;34mWelcome to the [0;31mcoreboot[0;34m cross toolchain builder v2025-10-19_4a3cc37cbd [0m
+
+Building toolchain using 8 thread(s).
+
+Target architecture is i386-elf
+
+[0;31mWARNING[0m
+No compatible Ada compiler (GNAT) found. You can continue without
+Ada support, but this will limit the features of [0;34mcoreboot[0m (e.g.
+native graphics initialization won't be available on most Intel
+boards).
+
+Usually, you can install GNAT with your package management system
+(the package is called `gnat` or `gcc-ada`). It has to match the
+`gcc` package in version. If there are multiple versions of GCC in-
+stalled, you can point this script to the matching version through
+the `CC` and `CXX` environment variables.
+
+e.g. on Ubuntu 14.04, if `gcc` is `gcc-4.8`:
+    apt-get install gnat-4.8 && make crossgcc
+
+on Ubuntu 16.04, if `gcc` is `gcc-5`:
+    apt-get install gnat-5 && make crossgcc
+
+Press Ctrl-C to abort, Enter to continue... 30s29s28s27s26s25s24s23sDownloading and verifying tarballs ...
+ * gmp-6.3.0.tar.xz (cached)... [1;32mhash verified (b4043dd2964ab1a858109da85c44de224384f352)[0m
+ * mpfr-4.2.2.tar.xz (cached)... [1;32mhash verified (a63a264b273a652e27518443640e69567da498ce)[0m
+ * mpc-1.3.1.tar.gz (cached)... [1;32mhash verified (bac1c1fa79f5602df1e29e4684e103ad55714e02)[0m
+ * binutils-2.45.tar.xz (cached)... [1;32mhash verified (09fd8a50a95be4a94412fe3847d16280996679c5)[0m
+ * gcc-14.2.0.tar.xz (cached)... [1;32mhash verified (d91ecc3d20ce6298bd95f9b09cc51dc6d3c73ae3)[0m
+Downloaded tarballs ... [0;32mok[0m
+Unpacking and patching ...
+ * gmp-6.3.0.tar.xz
+   o gmp-6.3.0_fix-c23-prototypes.patch
+   o gmp-6.3.0_generic-build.patch
+ * mpfr-4.2.2.tar.xz
+ * mpc-1.3.1.tar.gz
+ * binutils-2.45.tar.xz
+   o binutils-2.45_as-ipxe.patch
+   o binutils-2.45_no-makeinfo.patch
+ * gcc-14.2.0.tar.xz
+   o gcc-14.2.0_asan_shadow_offset_callback.patch
+   o gcc-14.2.0_gnat.patch
+   o gcc-14.2.0_libcpp.patch
+   o gcc-14.2.0_libgcc.patch
+   o gcc-14.2.0_musl_poisoned_calloc.patch
+   o gcc-14.2.0_rv32iafc.patch
+Unpacked and patched ... [0;32mok[0m
+Building packages ...
+Building GMP v6.3.0 for host ... [0;32mok[0m
+Building MPFR v4.2.2 for host ... [0;32mok[0m
+Building MPC v1.3.1 for host ... [0;32mok[0m
+Building BINUTILS v2.45 for target ... [0;32mok[0m
+Building GCC v14.2.0 for target ... [0;32mok[0m
+Packages built ... [0;32mok[0m
+Copied EDK2 tools template ... [0;32mok[0m
+Cleaning up temporary files... [0;32mok[0m
+
+[0;32mYou can now run i386-elf cross GCC from /home/uefi/workspace/uefi_coreboot/util/crossgcc/xgcc.[0m
