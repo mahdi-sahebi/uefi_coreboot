@@ -17,6 +17,14 @@ make crossgcc -j$(nproc) MPCSOURCE=https://ftp.gnu.org/gnu/mpc/mpc-1.3.1.tar.gz
 ```
 
 
+## Build IASL (Recommended)
+
+```
+make iasl
+make -j8
+```
+
+
 
 ## Step 3: Verify Installation
 
