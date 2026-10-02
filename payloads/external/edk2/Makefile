@@ -201,6 +201,9 @@ ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION_DEFAULT_ENABLE),y)
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirectionDefaultState=TRUE
 endif
 ifeq ($(CONFIG_EDK2_HAVE_2ND_UART),y)
+ifeq ($(CONFIG_EDK2_DUAL_SERIAL_DEBUG),y)
+BUILD_STR += -D GX_DUAL_SERIAL_DEBUG=TRUE
+endif
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdHave2ndUart=TRUE
 ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION2_DEFAULT_ENABLE),y)
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirection2DefaultState=TRUE
