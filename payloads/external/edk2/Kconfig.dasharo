@@ -249,6 +249,15 @@ config EDK2_HAVE_2ND_UART
 	help
 	  Enable support for two serial ports in edk2.
 
+config EDK2_DUAL_SERIAL_DEBUG
+	bool "Mirror EDK2 warning and error logs to both UARTs"
+	depends on EDK2_SERIAL_SUPPORT
+	depends on EDK2_HAVE_2ND_UART
+	default n
+	help
+	  Mirror the classic UefiPayload 16550 diagnostics to both legacy I/O
+	  UARTs. Secondary-port polling is bounded so an absent UART cannot stall.
+
 config EDK2_DASHARO_SERIAL_REDIRECTION2_DEFAULT_ENABLE
 	bool "Enable second serial port console redirection by default"
 	depends on EDK2_SERIAL_SUPPORT
