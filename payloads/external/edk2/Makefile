@@ -544,13 +544,18 @@ $(EDK2_PATH): $(WORKSPACE)
 		fi; \
 		echo "    Fetching new commits from $(CONFIG_EDK2_REPOSITORY)"; \
 		git fetch origin 2>/dev/null; \
-		if ! git rev-parse --verify -q $(CONFIG_EDK2_TAG_OR_REV)^{object} >/dev/null; then \
+		EDK2_REV="$(CONFIG_EDK2_TAG_OR_REV)"; \
+		if ! git rev-parse --verify -q "$$EDK2_REV^{object}" >/dev/null && \
+		   git rev-parse --verify -q "origin/$$EDK2_REV^{object}" >/dev/null; then \
+			EDK2_REV="origin/$$EDK2_REV"; \
+		fi; \
+		if ! git rev-parse --verify -q "$$EDK2_REV^{object}" >/dev/null; then \
 			echo "    $(CONFIG_EDK2_TAG_OR_REV) is not a valid git reference"; \
 			exit 1; \
 		fi; \
 		if git status --ignore-submodules=dirty | grep -q -e clean -e "nothing added"; then \
-			echo "    Checking out $(project_name) revision $(CONFIG_EDK2_TAG_OR_REV)"; \
-			git checkout --detach $(CONFIG_EDK2_TAG_OR_REV) -f; \
+			echo "    Checking out $(project_name) revision $$EDK2_REV"; \
+			git checkout --detach "$$EDK2_REV" -f; \
 			git submodule update --checkout --recursive; \
 		else \
 			echo "    Working directory not clean; will not overwrite"; \
