@@ -121,6 +121,7 @@ endif
 
 choice
 	prompt "edk2 build"
+	default EDK2_DEBUG if BOARD_ASROCK_SPC741D8
 	default EDK2_RELEASE
 	help
 	  Select whether to generate a debug or release build for
@@ -175,6 +176,7 @@ config EDK2_BOOTSPLASH_FILE
 
 config EDK2_BOOT_MANAGER_ESCAPE
 	bool "Use Escape key for Boot Manager"
+	default y if BOARD_ASROCK_SPC741D8
 	default n
 	help
 	  Use Escape as the hot-key to access the Boot Manager. This replaces
@@ -182,6 +184,7 @@ config EDK2_BOOT_MANAGER_ESCAPE
 
 config EDK2_BOOT_TIMEOUT
 	int "Set the timeout for boot menu prompt"
+	default 10 if BOARD_ASROCK_SPC741D8
 	default 2
 	help
 	  The length of time in seconds for which the boot splash/menu prompt will be displayed.
@@ -229,6 +232,7 @@ config EDK2_FULL_SCREEN_SETUP
 
 config EDK2_HAVE_EFI_SHELL
 	bool "Include EFI Shell"
+	default y if BOARD_ASROCK_SPC741D8
 	default n
 	help
 	  Include the EFI shell Binary
@@ -263,6 +267,7 @@ config EDK2_SD_MMC_TIMEOUT
 
 config EDK2_SERIAL_SUPPORT
 	bool "Support serial output"
+	default y if BOARD_ASROCK_SPC741D8
 	default y if EDK2_DEBUG
 	default n
 	help
@@ -332,6 +337,7 @@ config EDK2_USE_LAPIC_TIMER
 
 config EDK2_CUSTOM_BUILD_PARAMS
 	string "edk2 additional custom build parameters"
+	default "--pcd gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel=0x80000000 --pcd gEfiMdePkgTokenSpaceGuid.PcdFixedDebugPrintErrorLevel=0x80000000" if BOARD_ASROCK_SPC741D8
 	default ""
 	help
 	  edk2 has build options that are not modified by coreboot, and these can be

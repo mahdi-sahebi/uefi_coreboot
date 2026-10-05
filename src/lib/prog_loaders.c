@@ -26,6 +26,7 @@
 #include <arch/cpu.h>
 #include <commonlib/helpers.h>
 #include <console/console.h>
+#include <delay.h>
 #include <mode_switch.h>
 #include <program_loading.h>
 #include <symbols.h>
@@ -142,6 +143,7 @@ void vga_cb_write_at_offset(unsigned int line, unsigned int offset, const char *
 void vga_cb_print(unsigned int line, const char *string)
 {
 	vga_cb_write_at_offset(line, 0, string);
+	udelay(500000);
 }
 
 void vga_cb_sprintf(
@@ -220,6 +222,7 @@ void vga_cb_hex_dump(const unsigned char *addr, unsigned int len, int start_row)
             vga_cb_write_at_offset(row, offset_pos + j, buf);
         }
     }
+	udelay(500000);
 }
 
 
@@ -663,15 +666,15 @@ void payload_load(void)
 	void *mapping;
 
 	timestamp_add_now(TS_LOAD_PAYLOAD);
-	printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_load\n");
-	vga_cb_print(1, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_load");
+	printk(BIOS_ERR, "[GX] module=Coreboot status=entry phase=payload_load\n");
+	vga_cb_print(1, "[GX] module=Coreboot status=entry phase=payload_load");
 
 	if (prog_locate_hook(payload))
 		goto out;
 
 	payload->cbfs_type = CBFS_TYPE_QUERY;
-	printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=entry phase=cbfs_payload_lookup\n");
-	vga_cb_print(2, "[GX] module=Coreboot event=checkpoint status=entry phase=cbfs_payload_lookup");
+	printk(BIOS_ERR, "[GX] module=Coreboot status=entry phase=cbfs_payload_lookup\n");
+	vga_cb_print(2, "[GX] module=Coreboot status=entry phase=cbfs_payload_lookup");
 	mapping = cbfs_type_map(prog_name(payload), NULL, &payload->cbfs_type);
 
 	if (!mapping) {
@@ -682,14 +685,14 @@ void payload_load(void)
 
 	switch (prog_cbfs_type(payload)) {
 	case CBFS_TYPE_SELF: /* Simple ELF */
-		printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_selfload\n");
-		vga_cb_print(3, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_selfload");
+		printk(BIOS_ERR, "[GX] module=Coreboot status=entry phase=payload_selfload\n");
+		vga_cb_print(3, "[GX] module=Coreboot status=entry phase=payload_selfload");
 		selfload_mapped(payload, mapping, BM_MEM_RAM);
 		break;
 	case CBFS_TYPE_FIT_PAYLOAD: /* Flattened image tree */
 		if (CONFIG(PAYLOAD_FIT_SUPPORT)) {
-			printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_fit_load\n");
-			vga_cb_print(3, "[GX] module=Coreboot event=checkpoint status=entry phase=payload_fit_load");
+			printk(BIOS_ERR, "[GX] module=Coreboot status=entry phase=payload_fit_load\n");
+			vga_cb_print(3, "[GX] module=Coreboot status=entry phase=payload_fit_load");
 			fit_payload(payload, mapping);
 			break;
 		}
@@ -714,7 +717,7 @@ void payload_load(void)
 
 		vga_line_write(0, "[MN]                           payload_load() - Payload not loaded.");
 	} else {
-		printk(BIOS_DEBUG, "[GX] module=Coreboot event=exit status=success phase=payload_load entry=%p\n",
+		printk(BIOS_ERR, "[GX] module=Coreboot event=exit status=success phase=payload_load entry=%p\n",
 			prog_entry(payload));
 		vga_cb_print(4, "[GX] module=Coreboot event=exit status=success phase=payload_load");
 	}
@@ -1150,14 +1153,12 @@ void verify_memory_for_payload(void)
 
 
 
-#include <delay.h>
-
 void payload_run(void)
 {
     struct prog *payload = &global_payload;
 
     boot_successful();
-	printk(BIOS_DEBUG, "[GX] module=Coreboot event=handoff status=entry phase=payload_run entry=%p\n",
+	printk(BIOS_ERR, "[GX] module=Coreboot event=handoff status=entry phase=payload_run entry=%p\n",
 		prog_entry(payload));
 	vga_cb_print(5, "[GX] module=Coreboot event=handoff status=entry phase=payload_run");
     printk(BIOS_INFO, "Jumping to boot code at %p\n", prog_entry(payload));
@@ -1193,7 +1194,7 @@ void payload_run(void)
     /* Now call the payload with the correct argument (HOB pointer) */
 	uint32_t entry = pointer_to_uint32_safe(prog_entry(payload));
 	uint32_t arg   = pointer_to_uint32_safe(hob_list);
-	printk(BIOS_DEBUG, "[GX] module=Coreboot event=handoff status=ready phase=edk2_payload entry=0x%x hob=0x%x\n",
+	printk(BIOS_ERR, "[GX] module=Coreboot event=handoff status=ready phase=edk2_payload entry=0x%x hob=0x%x\n",
 		entry, arg);
 	vga_cb_print(6, "[GX] module=Coreboot event=handoff status=ready phase=edk2_payload");
 
