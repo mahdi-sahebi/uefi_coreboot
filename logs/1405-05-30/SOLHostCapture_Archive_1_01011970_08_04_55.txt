@@ -1,0 +1,1514 @@
+ family 06, model 8f, stepping 08[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #78 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #118 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #12 initialized[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #120 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #95 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #75 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #81 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #97 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #102 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #96 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #108 initialized[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #3 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #103 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #91 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #111 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #7 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #85 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #122 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #82 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #110 initialized[0m
+[0m[INFO ]  CPU #121 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #86 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #106 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #104 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #89 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  CPU #125 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #93 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #76 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #105 initialized[0m
+[0m[INFO ]  CPU #22 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #113 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #98 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #123 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #70 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #124 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #112 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #94 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #90 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #73 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #119 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #80 initialized[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #10 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #77 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #84 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #79 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #117 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #107 initialized[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #109 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #74 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #6 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #71 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #100 initialized[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  CPU: vendor Intel device 806f8[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[0m[DEBUG]  CPU: family 06, model 8f, stepping 08[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[1;4;5;7m[EMERG]  ASSERTION ERROR: file 'src/soc/intel/xeon_sp/spr/cpu.c', line 75[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #116 initialized[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #127 initialized[0m
+[0m[DEBUG]  Clearing out pending MCEs[0m
+[0m[DEBUG]  IA32_FEATURE_CONTROL status: locked[0m
+[0m[INFO ]  CPU #126 initialized[0m
+[0m[INFO ]  bsp_do_flight_plan done after 13046 msecs.[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  cpu: frequency set to 0[0m
+[0m[DEBUG]  Enabling SMIs.[0m
+[0m[DEBUG]  Locking SMM enable.[0m
+[0m[DEBUG]  CPU_CLUSTER: 0 init finished in 14283 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:00.0 init[0m
+[0m[DEBUG]  PCI: 00:00:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:00.1 init[0m
+[0m[DEBUG]  PCI: 00:00:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:00.2 init[0m
+[0m[DEBUG]  PCI: 00:00:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:00.3 init[0m
+[0m[DEBUG]  PCI: 00:00:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:00.4 init[0m
+[0m[DEBUG]  PCI: 00:00:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:14.0 init[0m
+[0m[DEBUG]  PCI: 00:00:14.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:14.2 init[0m
+[0m[DEBUG]  PCI: 00:00:14.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:14.4 init[0m
+[0m[DEBUG]  PCI: 00:00:14.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:15.0 init[0m
+[0m[DEBUG]  PCI: 00:00:15.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:16.0 init[0m
+[0m[DEBUG]  PCI: 00:00:16.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:17.0 init[0m
+[0m[DEBUG]  PCI: 00:00:17.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:18.0 init[0m
+[0m[DEBUG]  PCI: 00:00:18.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:19.0 init[0m
+[0m[DEBUG]  PCI: 00:00:19.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:1f.0 init[0m
+[0m[DEBUG]  PCI: 00:00:1f.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:1f.3 init[0m
+[0m[DEBUG]  PCI: 00:00:1f.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:00:1f.4 init[0m
+[0m[DEBUG]  PCI: 00:00:1f.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:02:00.0 init[0m
+[0m[INFO ]  ASpeed AST2050: initializing video device -------------------[0m
+[0m[INFO ]  ASpeed AST2050: initializing video device --234-----------------[0m
+[0m[INFO ]  ast_detect_chip: VGA not enabled on entry, requesting chip POST[0m
+[0m[INFO ]  ast_detect_config_mode: P2A bridge disabled, using default configuration[0m
+[0m[INFO ]  ast_detect_chip: AST 2600 detected[0m
+[0m[INFO ]  ast_detect_chip: Analog VGA only[0m
+[0m[INFO ]  ast_driver_load: dram MCLK=396 MHz type=1 bus_width=16 size=01000000[0m
+[0m[INFO ]  ASpeed VGA text mode initialized mmmmmmmmmmmmmmmmmmmmmmmm[0m
+[0m[INFO ]  ASpeed VGA text mode initialized mmmmmm234234mmmmmmmmmmmmmmmmmm[0m
+[0m[DEBUG]  PCI: 00:02:00.0 init finished in 71 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 0ca2.0 init[0m
+[0m[DEBUG]  IPMI: PNP KCS 0xca2[0m
+[0m[INFO ]  Get BMC self test result...No Error[0m
+[7m[ERROR]  ipmi_kcs_read_message: wrong state: 0xc1[0m
+[7m[ERROR]  IPMI: ipmi_get_device_id response truncated[0m
+[0m[INFO ]  IPMI: Found man_id 0x000000, prod_id 0x0202[0m
+[0m[INFO ]  IPMI: Version 2.0[0m
+[0m[DEBUG]  PNP: 0ca2.0 init finished in 36 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.2 init[0m
+[0m[DEBUG]  PNP: 004e.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.3 init[0m
+[0m[DEBUG]  PNP: 004e.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.4 init[0m
+[0m[DEBUG]  PNP: 004e.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.5 init[0m
+[0m[DEBUG]  Keyboard init...[0m
+[7m[ERROR]  Couldn't cleanup the keyboard controller buffers[0m
+[7m[ERROR]  Status (0x64): 0xff, Buffer (0x60): 0xff[0m
+[0m[DEBUG]  PNP: 004e.5 init finished in 422 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.7 init[0m
+[0m[DEBUG]  PNP: 004e.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.d init[0m
+[0m[DEBUG]  PNP: 004e.d init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PNP: 004e.e init[0m
+[0m[DEBUG]  PNP: 004e.e init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:00.0 init[0m
+[0m[DEBUG]  PCI: 00:16:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:00.1 init[0m
+[0m[DEBUG]  PCI: 00:16:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:00.2 init[0m
+[0m[DEBUG]  PCI: 00:16:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:00.3 init[0m
+[0m[DEBUG]  PCI: 00:16:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:00.4 init[0m
+[0m[DEBUG]  PCI: 00:16:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:16:01.0 init[0m
+[0m[DEBUG]  PCI: 00:16:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:00.0 init[0m
+[0m[DEBUG]  PCI: 00:29:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:00.1 init[0m
+[0m[DEBUG]  PCI: 00:29:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:00.2 init[0m
+[0m[DEBUG]  PCI: 00:29:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:00.3 init[0m
+[0m[DEBUG]  PCI: 00:29:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:00.4 init[0m
+[0m[DEBUG]  PCI: 00:29:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:29:01.0 init[0m
+[0m[DEBUG]  PCI: 00:29:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:00.0 init[0m
+[0m[DEBUG]  PCI: 00:3c:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:00.1 init[0m
+[0m[DEBUG]  PCI: 00:3c:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:00.2 init[0m
+[0m[DEBUG]  PCI: 00:3c:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:00.3 init[0m
+[0m[DEBUG]  PCI: 00:3c:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:00.4 init[0m
+[0m[DEBUG]  PCI: 00:3c:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3c:01.0 init[0m
+[0m[DEBUG]  PCI: 00:3c:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:3d:00.0 init[0m
+[0m[DEBUG]  PCI: 00:3d:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:00.0 init[0m
+[0m[DEBUG]  PCI: 00:4f:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:00.1 init[0m
+[0m[DEBUG]  PCI: 00:4f:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:00.2 init[0m
+[0m[DEBUG]  PCI: 00:4f:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:00.3 init[0m
+[0m[DEBUG]  PCI: 00:4f:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:00.4 init[0m
+[0m[DEBUG]  PCI: 00:4f:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:4f:01.0 init[0m
+[0m[DEBUG]  PCI: 00:4f:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:00.0 init[0m
+[0m[DEBUG]  PCI: 00:62:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:00.1 init[0m
+[0m[DEBUG]  PCI: 00:62:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:00.2 init[0m
+[0m[DEBUG]  PCI: 00:62:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:00.3 init[0m
+[0m[DEBUG]  PCI: 00:62:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:00.4 init[0m
+[0m[DEBUG]  PCI: 00:62:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:01.0 init[0m
+[0m[DEBUG]  PCI: 00:62:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:62:05.0 init[0m
+[0m[DEBUG]  PCI: 00:62:05.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:00.0 init[0m
+[0m[DEBUG]  PCI: 00:75:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:00.1 init[0m
+[0m[DEBUG]  PCI: 00:75:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:00.2 init[0m
+[0m[DEBUG]  PCI: 00:75:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:00.3 init[0m
+[0m[DEBUG]  PCI: 00:75:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:00.4 init[0m
+[0m[DEBUG]  PCI: 00:75:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:01.0 init[0m
+[0m[DEBUG]  PCI: 00:75:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:03.0 init[0m
+[0m[DEBUG]  PCI: 00:75:03.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:75:03.1 init[0m
+[0m[DEBUG]  PCI: 00:75:03.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:00.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:00.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:00.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:00.3 init[0m
+[0m[DEBUG]  PCI: 00:7e:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:00.5 init[0m
+[0m[DEBUG]  PCI: 00:7e:00.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:01.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:01.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:01.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:01.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:01.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:01.3 init[0m
+[0m[DEBUG]  PCI: 00:7e:01.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:02.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:02.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:02.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:02.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:02.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:02.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:02.3 init[0m
+[0m[DEBUG]  PCI: 00:7e:02.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:03.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:03.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:03.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:03.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:03.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:03.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:03.3 init[0m
+[0m[DEBUG]  PCI: 00:7e:03.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:05.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:05.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:05.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:05.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:05.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:05.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:06.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:06.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:06.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:06.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:06.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:06.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:07.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:07.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:07.1 init[0m
+[0m[DEBUG]  PCI: 00:7e:07.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:07.2 init[0m
+[0m[DEBUG]  PCI: 00:7e:07.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:0c.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:0c.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:0d.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:0d.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:0e.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:0e.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:0f.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:0f.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:1a.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:1a.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:1b.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:1b.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:1c.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:1c.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7e:1d.0 init[0m
+[0m[DEBUG]  PCI: 00:7e:1d.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:00.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:00.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:01.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:01.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:02.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:02.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:03.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:03.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0a.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:0a.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0b.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:0b.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0c.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:0c.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.0 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.0 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.2 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.2 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.3 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.3 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.6 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.6 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:0d.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:0d.7 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1d.1 init[0m
+[0m[DEBUG]  PCI: 00:7f:1d.1 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1e.1 init[0m
+[0m[INFO ]  PCI: 00:7f:1e.1: init registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.1 init finished in 4 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1e.2 init[0m
+[0m[INFO ]  PCI: 00:7f:1e.2: init registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.2 init finished in 4 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1e.4 init[0m
+[0m[DEBUG]  PCI: 00:7f:1e.4 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1e.5 init[0m
+[0m[DEBUG]  PCI: 00:7f:1e.5 init finished in 0 msecs[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[INFO ]  POST: 0x75[0m
+[0m[DEBUG]  PCI: 00:7f:1e.7 init[0m
+[0m[DEBUG]  PCI: 00:7f:1e.7 init finished in 0 msecs[0m
+[0m[INFO ]  Devices initialized[0m
+[0m[DEBUG]  BS: BS_DEV_INIT run times (exec / console): 10891 / 6474 ms[0m
+[7m[ERROR]  pc80_tpm_probe: No TPM device found[0m
+[7m[ERROR]  tlcl_lib_init: TIS probe failed[0m
+[7m[ERROR]  TPM Error (0x486): Can't initialize.[0m
+[0m[INFO ]  POST: 0xed[0m
+[0m[DEBUG]  BS: BS_DEV_INIT exit times (exec / console): 0 / 18 ms[0m
+[0m[DEBUG]  FMAP: area SI_DESC found @ 0 (4096 bytes)[0m
+[0m[DEBUG]  Descriptor is writeable[0m
+[1;4m[WARN ]  EFIVARS: No Firmware Volume header present[0m
+[1;4m[WARN ]  EFIVARS: Failed to validate firmware header[0m
+[0m[DEBUG]  BS: BS_POST_DEVICE entry times (exec / console): 2 / 22 ms[0m
+[0m[INFO ]  POST: 0x76[0m
+[0m[INFO ]  Finalize devices...[0m
+[0m[DEBUG]  PCI: 00:00:1f.4 final[0m
+[0m[DEBUG]  PCI: 00:7f:1d.0 final[0m
+[0m[DEBUG]  PCI: 00:7f:1e.0 final[0m
+[0m[INFO ]  PCI: 00:7f:1e.0: locking registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.1 final[0m
+[0m[INFO ]  PCI: 00:7f:1e.1: locking registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.2 final[0m
+[0m[INFO ]  PCI: 00:7f:1e.2: locking registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.3 final[0m
+[0m[INFO ]  PCI: 00:7f:1e.3: locking registers[0m
+[0m[DEBUG]  PCI: 00:7f:1e.6 final[0m
+[0m[INFO ]  PCI: 00:7f:1e.6: locking registers[0m
+[0m[INFO ]  Devices finalized[0m
+[0m[INFO ]  Timestamp - device setup done: 161399486893[0m
+[0m[DEBUG]  BS: BS_POST_DEVICE run times (exec / console): 0 / 69 ms[0m
+[0m[INFO ]  POST: 0x77[0m
+[0m[INFO ]  Timestamp - cbmem post: 161433466885[0m
+[0m[DEBUG]  BS: BS_OS_RESUME_CHECK run times (exec / console): 0 / 8 ms[0m
+[0m[DEBUG]  BS: BS_WRITE_TABLES entry times (exec / console): 1 / 0 ms[0m
+[0m[INFO ]  POST: 0x79[0m
+[0m[INFO ]  Timestamp - write tables: 161484317489[0m
+[0m[INFO ]  POST: 0x9c[0m
+[0m[INFO ]  CBFS: Found 'fallback/dsdt.aml' @0x31d580 size 0x47ee[0m
+[1;4m[WARN ]  CBFS: 'fallback/slic' not found.[0m
+[0m[INFO ]  ACPI: Writing ACPI tables at 63521000.[0m
+[0m[DEBUG]  ACPI:    * FACS[0m
+[0m[DEBUG]  SCI is IRQ 9, GSI 9[0m
+[0m[DEBUG]  ACPI:    * FACP[0m
+[0m[DEBUG]  ACPI: added table 1/32, length now 44[0m
+[0m[DEBUG]  Found 2 CPU(s) with 32/64 physical/logical core(s) each.[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 status 0xe00[0m
+[0m[DEBUG]  PSS: 1300MHz power 126879 control 0xd00 status 0xd00[0m
+[0m[DEBUG]  PSS: 1200MHz power 115627 control 0xc00 status 0xc00[0m
+[0m[DEBUG]  PSS: 1100MHz power 104613 control 0xb00 status 0xb00[0m
+[0m[DEBUG]  PSS: 1000MHz power 94033 control 0xa00 status 0xa00[0m
+[0m[DEBUG]  PSS: 900MHz power 83588 control 0x900 status 0x900[0m
+[0m[DEBUG]  PSS: 800MHz power 73273 control 0x800 status 0x800[0m
+[0m[INFO ]  Turbo is available and visible[0m
+[0m[DEBUG]  PSS: 2101MHz power 225000 control 0x0 status 0x0[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2100MHz power 225000 control 0x1500 status 0x1500[0m
+[0m[DEBUG]  PSS: 2000MHz power 211629 control 0x1400 status 0x1400[0m
+[0m[DEBUG]  PSS: 1900MHz power 198721 control 0x1300 status 0x1300[0m
+[0m[DEBUG]  PSS: 1800MHz power 186268 control 0x1200 status 0x1200[0m
+[0m[DEBUG]  PSS: 1700MHz power 173651 control 0x1100 status 0x1100[0m
+[0m[DEBUG]  PSS: 1600MHz power 161465 control 0x1000 status 0x1000[0m
+[0m[DEBUG]  PSS: 1500MHz power 149725 control 0xf00 status 0xf00[0m
+[0m[DEBUG]  PSS: 1400MHz power 138011 control 0xe00 stat
