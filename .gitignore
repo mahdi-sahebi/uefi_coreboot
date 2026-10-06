@@ -10,7 +10,6 @@ build/
 coreboot-builds/
 coreboot-builds*/
 generated/
-build/
 uefiextract
 UEFIExtract_NE_A68_x64_linux.zip
 
