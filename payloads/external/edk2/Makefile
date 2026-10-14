@@ -32,9 +32,8 @@ PAYLOAD_NAME=DasharoPayloadPkg
 ifeq ($(CONFIG_EDK2_UEFIPAYLOAD),y)
 BUILD_STR += -p $(PAYLOAD_NAME)/$(PAYLOAD_NAME).dsc
 endif
-BUILD_STR += -t GCC
+BUILD_STR += -t COREBOOT
 BUILD_STR += -D BOOTLOADER=COREBOOT
-BUILD_STR += -D EDK2_WORKSPACE=$(WORKSPACE)
 ifneq ($(V),1)
 BUILD_STR += -q
 ifeq ($(CONFIG_EDK2_UEFIPAYLOAD),y)
@@ -484,11 +483,6 @@ BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=0
-else
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=40
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=128
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=40
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=128
 endif
 
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId="COREv4"
@@ -658,8 +652,12 @@ prep: $(EDK2_PATH) $(EDK2_PLATFORMS_PATH) clean checktools logo root_key gop_dri
 	cd $(WORKSPACE); \
 		source $(EDK2_PATH)/edksetup.sh; \
 		unset CC; $(MAKE) -C $(EDK2_PATH)/BaseTools 2>&1; \
+		grep -q "COREBOOT" $(EDK2_PATH)/Conf/tools_def.txt; \
+		if [ $$? -ne 0 ]; then \
+			cat ../tools_def.txt >> $(EDK2_PATH)/Conf/tools_def.txt; \
+		fi; \
 
-$(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd: \
+$(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd: \
 	prep print
 	cd $(WORKSPACE); \
 		source $(EDK2_PATH)/edksetup.sh; \
@@ -696,8 +694,8 @@ $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/IA32/$(PAYLOAD_NAM
 			-t COREBOOT -D BOOTLOADER=COREBOOT -D SHIMLAYER=TRUE \
 			-y $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/ShimLayer.txt
 
-$(PAYLOAD_NAME): $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd
-	mv $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd \
+$(PAYLOAD_NAME): $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd
+	mv $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd \
 		../../../build/UEFIPAYLOAD.fd
 
 UniversalPayload: $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/IA32/$(PAYLOAD_NAME)/ShimLayer/ShimLayer/DEBUG/ShimLayer.dll
