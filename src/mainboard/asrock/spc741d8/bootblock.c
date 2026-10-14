@@ -246,8 +246,7 @@ void bootblock_mainboard_early_init(void)
 	 */
 	
 
-	/* Route coreboot's console to AST SUART2, the documented G4DEL SOL port. */
-	const pnp_devfn_t ast_sol_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART2);
-	aspeed_enable_serial(ast_sol_dev, CONFIG_TTYS0_BASE);
-	aspeed_enable_uart_pin(ast_sol_dev);
+	/* Route the console through the known-good AST SUART1 path. */
+	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART1);
+	aspeed_enable_serial(ast_serial_dev, CONFIG_TTYS0_BASE);
 }
