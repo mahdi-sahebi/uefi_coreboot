@@ -43,7 +43,7 @@ static void aspeed_ast2050_init(struct device *dev)
 		printk(BIOS_INFO, "ASpeed VGA text mode initialized\n");
 
 		/* if we don't have console, at least print something... */
-		vga_line_write(0, "ASpeed VGA text mode initialized");
+		vga_line_write(0, "[GX-CB] AST2050 VGA text mode initialized");
 	} else if (CONFIG(GENERIC_LINEAR_FRAMEBUFFER)) {
 		ast_driver_framebuffer_init(&drm_dev, 0);
 		printk(BIOS_INFO, "ASpeed high resolution framebuffer initialized\n");
