@@ -10,7 +10,6 @@ menu "PXE Options"
 
 choice
 	prompt "PXE ROM to use"
-	default BUILD_IPXE if EDK2_ENABLE_IPXE
 	default PXE_ROM
 
 config PXE_ROM
@@ -35,7 +34,6 @@ config PXE_ROM_FILE
 
 config PXE_ROM_ID
 	string "network card PCI IDs"
-	depends on !IPXE_BUILD_EFI
 	default "10ec,8168"
 	help
 	  The comma-separated PCI vendor and device ID that would associate
@@ -56,12 +54,12 @@ choice
 	default IPXE_STABLE
 
 config IPXE_STABLE
-	bool "2026.02"
+	bool "2025.03"
 	help
 	  iPXE uses a rolling release with no stable version, for
 	  reproducibility, use the last commit of a given month as the
 	  'stable' version.
-	  This is iPXE from the end of February, 2026.
+	  This is iPXE from the end of March, 2025.
 
 config IPXE_MASTER
 	bool "master"
@@ -74,8 +72,7 @@ config IPXE_SERIAL_CONSOLE
 	bool "Enable iPXE serial console"
 	default n if PAYLOAD_EDK2 && EDK2_ENABLE_IPXE
 	default n if PAYLOAD_SEABIOS && SEABIOS_ADD_SERCON_PORT_FILE
-	default y if CONSOLE_SERIAL
-	default n
+	default y
 	help
 	  Enable/disable iPXE serial console. Since SeaBIOS supports serial
 	  console this option might be helpful to avoid duplicated output.
@@ -120,15 +117,6 @@ config IPXE_TRUST_CMD
 	  Enable imgverify and imgtrust commands, which allow you to verify
 	  digital signature of file prior loading it, and restrict to loading
 	  trusted files only.
-
-config IPXE_BUILD_EFI
-	bool "Build iPXE for EFI target"
-	depends on PAYLOAD_EDK2
-	default y if EDK2_ENABLE_IPXE
-	default n
-	help
-	  Build iPXE for EFI target, enabling it to be executed from EDK2. If not
-	  selected, iPXE will be built for use with legacy BIOS.
 
 config IPXE_CUSTOM_BUILD_ID
 	string "iPXE custom build_id variable"

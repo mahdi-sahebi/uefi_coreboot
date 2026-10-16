@@ -382,10 +382,6 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *supd)
 	s_cfg->PchPmSlpS0Vm070VSupport = config->PchPmSlpS0Vm070VSupport;
 	s_cfg->PchPmSlpS0Vm075VSupport = config->PchPmSlpS0Vm075VSupport;
 
-	/* S0ix */
-	config->s0ix_enable = get_uint_option("s0ix_enable", config->s0ix_enable);
-	s_cfg->PchPmSlpS0Enable = config->s0ix_enable;
-
 	/* Lan */
 	s_cfg->PchLanEnable = is_devfn_enabled(PCH_DEVFN_GBE);
 	if (s_cfg->PchLanEnable) {
@@ -437,6 +433,9 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *supd)
 	/* WOL */
 	s_cfg->PchPmPcieWakeFromDeepSx = config->LanWakeFromDeepSx;
 	s_cfg->PchPmWolEnableOverride = config->WolEnableOverride;
+
+	/* S0ix */
+	s_cfg->PchPmSlpS0Enable = config->s0ix_enable;
 
 	/* disable Legacy PME */
 	memset(s_cfg->PcieRpPmSci, 0, sizeof(s_cfg->PcieRpPmSci));
@@ -632,7 +631,7 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *supd)
 	 * the `Heci1Disabled` UPD to `0`.
 	 */
 	s_cfg->Heci1Disabled = 0;
-	s_cfg->Device4Enable = is_devfn_enabled(SA_DEVFN_TS);
+	s_cfg->Device4Enable = config->Device4Enable;
 
 	/* Teton Glacier hybrid storage support */
 	s_cfg->TetonGlacierMode = config->TetonGlacierMode;
@@ -726,15 +725,6 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *supd)
 	 */
 	s_cfg->SpiFlashCfgLockDown = lockdown_by_fsp;
 #endif
-	/*
-	 * IA32_DEBUG_INTERFACE_MSR has to be locked by coreboot,
-	 * because FSP does not do it unless DebugInterfaceEnable is 1.
-	 * But to use Intel TXT, the debug interface has to be disabled,
-	 * so let coreboot handle the IA32_DEBUG_INTERFACE_MSR programming.
-	 */
-	supd->FspsConfig.DebugInterfaceEnable = 0;
-	supd->FspsTestConfig.DebugInterfaceEnable = 0;
-	supd->FspsTestConfig.DebugInterfaceLockEnable = 0;
 
 #if !CONFIG(SOC_INTEL_COMETLAKE)
 	s_cfg->VrPowerDeliveryDesign = config->VrPowerDeliveryDesign;
@@ -809,7 +799,7 @@ __weak void mainboard_silicon_init_params(FSPS_UPD *supd)
 }
 
 /* Handle FSP logo params */
-void soc_load_logo_by_fsp(FSPS_UPD *supd)
+void soc_load_logo(FSPS_UPD *supd)
 {
 	size_t logo_size;
 	supd->FspsConfig.LogoPtr = (uintptr_t)bmp_load_logo(&logo_size);

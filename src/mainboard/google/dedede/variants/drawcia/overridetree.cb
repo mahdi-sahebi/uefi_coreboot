@@ -8,7 +8,7 @@ end
 chip soc/intel/jasperlake
 
 	# PCIe RP LTR configuration
-	register "PcieRpLtrEnable[7]" = "true"
+	register "PcieRpLtrEnable[7]" = "1"
 
 	# USB Port Configuration
 	register "usb2_ports[5]" = "USB2_PORT_MID(OC_SKIP)"     # Camera
@@ -152,7 +152,7 @@ chip soc/intel/jasperlake
 						register "desc" = ""LTE""
 						register "type" = "UPC_TYPE_INTERNAL"
 						register "group" = "ACPI_PLD_GROUP(2, 2)"
-						register "has_power_resource" = "true"
+						register "has_power_resource" = "1"
 						register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_H17)"
 						register "reset_off_delay_ms" = "20"
 						register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A10)"
@@ -231,29 +231,32 @@ chip soc/intel/jasperlake
 				register "hid" = ""ELAN0001""
 				register "desc" = ""ELAN Touchscreen""
 				register "irq" = "ACPI_IRQ_LEVEL_LOW(GPP_D4_IRQ)"
+				register "detect" = "1"
 				register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D5)"
 				register "reset_delay_ms" = "20"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D6)"
 				register "enable_delay_ms" = "1"
-				register "has_power_resource" = "true"
-				device i2c 10 alias elan0001 on end
+				register "has_power_resource" = "1"
+				device i2c 10 on end
 			end
 			chip drivers/i2c/hid
 				register "generic.hid" = ""GTCH7503""
 				register "generic.desc" = ""G2TOUCH Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_D4_IRQ)"
+				register "generic.detect" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D5)"
 				register "generic.reset_delay_ms" = "50"
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D6)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
 				register "hid_desc_reg_offset" = "0x01"
-				device i2c 40 alias gtch7503 on end
+				device i2c 40 on end
 			end
 			chip drivers/i2c/hid
 				register "generic.hid" = ""GDIX0000""
 				register "generic.desc" = ""Goodix Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_D4_IRQ)"
+				register "generic.detect" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D5)"
 				register "generic.reset_delay_ms" = "120"
 				register "generic.reset_off_delay_ms" = "2"
@@ -261,12 +264,13 @@ chip soc/intel/jasperlake
 				register "generic.enable_delay_ms" = "12"
 				register "generic.has_power_resource" = "1"
 				register "hid_desc_reg_offset" = "0x01"
-				device i2c 0x5d alias gdix0000 on end
+				device i2c 0x5d on end
 			end
 			chip drivers/i2c/hid
 				register "generic.hid" = ""ELAN2513""
 				register "generic.desc" = ""ELAN Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_D4_IRQ)"
+				register "generic.detect" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D5)"
 				register "generic.reset_delay_ms" = "20"
 				register "generic.reset_off_delay_ms" = "2"
@@ -276,19 +280,20 @@ chip soc/intel/jasperlake
 				register "generic.stop_delay_ms" = "130"
 				register "generic.has_power_resource" = "1"
 				register "hid_desc_reg_offset" = "0x01"
-				device i2c 15 alias elan2513 on end
+				device i2c 15 on end
 			end
 			chip drivers/i2c/hid
 				register "generic.hid" = ""WDHT0002""
 				register "generic.desc" = ""WDT Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_D4_IRQ)"
+				register "generic.detect" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D5)"
 				register "generic.reset_delay_ms" = "130"
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D6)"
 				register "generic.enable_delay_ms" = "10"
 				register "generic.has_power_resource" = "1"
 				register "hid_desc_reg_offset" = "0x20"
-				device i2c 2c alias wdht0002 on end
+				device i2c 2c on end
 			end
 		end # I2C 2
 		device pci 15.3 on
@@ -301,18 +306,14 @@ chip soc/intel/jasperlake
 
 				register "ssdb.lanes_used" = "4"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_JSL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "2"
 				register "link_freq[0]" = "360000000"
 				register "link_freq[1]" = "180000000"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "low_power_probe" = "1"
 
 				#Controls
@@ -348,7 +349,7 @@ chip soc/intel/jasperlake
 				register "chip_name" = ""DW AF DAC""
 				register "device_type" = "INTEL_ACPI_CAMERA_VCM"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "vcm_compat" = ""dongwoon,dw9714""
 				register "low_power_probe" = "1"
 
@@ -378,7 +379,7 @@ chip soc/intel/jasperlake
 				register "nvm_compat" = ""atmel,24c08""
 				register "low_power_probe" = "1"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_D14" #power_enable_1p2
 				#_ON

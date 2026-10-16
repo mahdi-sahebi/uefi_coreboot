@@ -11,17 +11,6 @@ ifneq ($(V),)
 OPT_DEBUG_AMDFWTOOL = --debug
 endif
 
-ifeq ($(CONFIG_SBOM_AMD_PSP_FW),y)
-OPT_SBOM_DIR = --sbom-dir $(obj)/sbom/amdfw
-# The PSP blobs have no SPDX license, so record the redistribution terms they
-# are covered by. Quoted because the href usually carries a '#' fragment, and
-# strip_quotes is idempotent whether or not src/sbom normalised it already.
-sbom-amd-blob-license := $(call strip_quotes, $(CONFIG_SBOM_AMD_BLOB_LICENSE))
-ifneq ($(sbom-amd-blob-license),)
-OPT_SBOM_DIR += --sbom-license "$(sbom-amd-blob-license)"
-endif
-endif
-
 ifneq ($(CONFIG_AMDFW_CONFIG_FILE), )
 FIRMWARE_LOCATION=$(shell grep -e FIRMWARE_LOCATION $(CONFIG_AMDFW_CONFIG_FILE) | awk '{print $$2}')
 
@@ -49,26 +38,23 @@ AMDFW_CFG_WITH_PATH = $(shell echo "$(AMDFW_CFG_FILES)" | tr ' ' '\n' | grep "/"
 DEP_FILES = $(patsubst %,$(FIRMWARE_LOCATION)/%, $(AMDFW_CFG_IN_FW_LOC)) \
 	$(AMDFW_CFG_WITH_PATH)
 
+amd_microcode_bins += $(wildcard ${FIRMWARE_LOCATION}/*U?odePatch*.bin)
+
 ifeq ($(CONFIG_RESET_VECTOR_IN_RAM),y)
-# Even though the target is called bootblock.bin it's way more than that,
-# but the name is mandatory for the 'add_bootblock' directive below.
-# On AMD the bootblock resides within the AMD FW as part of the
-# Bios Directory Tables (BDT), thus about 1% of this file is actually the bootblock.
+$(objcbfs)/bootblock.bin: $(obj)/amdfw.rom $(obj)/fmap_config.h
+	cp $< $@
 
 amdfw_region_start=$(subst $(spc),,FMAP_SECTION_$(call regions-for-file,apu/amdfw)_START)
 amdfw_offset=$(call int-subtract, \
 	$(CONFIG_AMD_FWM_POSITION) \
-	$(call get_fmap_value,$(amdfw_region_start)))
-
-ifneq ($(CONFIG_BOOTBLOCK_IN_CBFS),y)
-$(objcbfs)/bootblock.bin: $(obj)/amdfw.rom $(obj)/fmap_config.h
-	cp $< $@
+	$(call int-subtract, \
+	$(call get_fmap_value,$(amdfw_region_start)) \
+	$(call get_fmap_value,FMAP_SECTION_FLASH_START)))
 
 add_bootblock = \
 	$(CBFSTOOL) $(1) add -f $(2) -n apu/amdfw -t amdfw \
-	-b $(amdfw_offset) -r $(call regions-for-file,apu/amdfw) \
+        -b $(amdfw_offset) -r $(call regions-for-file,apu/amdfw) \
 	$(CBFSTOOL_ADD_CMD_OPTIONS)
-endif
 
 endif # ifeq ($(CONFIG_RESET_VECTOR_IN_RAM),y)
 

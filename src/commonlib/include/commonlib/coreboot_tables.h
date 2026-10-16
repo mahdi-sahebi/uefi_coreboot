@@ -90,16 +90,13 @@ enum {
 	LB_TAG_EFI_FW_INFO		= 0x0045,
 	LB_TAG_CAPSULE			= 0x0046,
 	LB_TAG_CFR_ROOT			= 0x0047,
-	LB_TAG_ROOT_BRIDGE_INFO		= 0x0048,
 	LB_TAG_LOGO			= 0x00a0,
-	LB_TAG_BOOT_INFO		= 0x00a1,
 	/* The following options are CMOS-related */
 	LB_TAG_CMOS_OPTION_TABLE	= 0x00c8,
 	LB_TAG_OPTION			= 0x00c9,
 	LB_TAG_OPTION_ENUM		= 0x00ca,
 	LB_TAG_OPTION_DEFAULTS		= 0x00cb,
 	LB_TAG_OPTION_CHECKSUM		= 0x00cc,
-	LB_TAG_BOOT_MODE		= 0x00cd,
 };
 
 /* All table entry base addresses and sizes must be 4-byte aligned. */
@@ -146,7 +143,6 @@ struct lb_memory_range {
 #define LB_MEM_NVS		 4	/* ACPI NVS Memory */
 #define LB_MEM_UNUSABLE		 5	/* Unusable address space */
 #define LB_MEM_VENDOR_RSVD	 6	/* Vendor Reserved */
-#define LB_MEM_TAG		 7	/* Armv9 tag storage for MTE */
 #define LB_MEM_TABLE		16    /* Ram configuration tables are kept in */
 #define LB_MEM_SOFT_RESERVED	0xefffffff /* Specific purpose memory */
 };
@@ -285,8 +281,7 @@ enum lb_fb_orientation {
 
 struct lb_framebuffer_flags {
 	uint8_t has_external_display : 1;
-	uint8_t has_dual_pipe : 1;
-	uint8_t reserved : 6;
+	uint8_t reserved : 7;
 };
 
 struct lb_framebuffer {
@@ -365,15 +360,7 @@ struct lb_spi_flash {
 	uint32_t size;
 	uint32_t flash_size;
 	uint32_t sector_size;
-	/*
-	 * Note: `erase_cmd` was previously a uint32_t. It's now uint8_t because only
-	 * the lowest byte was used, ensuring backward compatibility with older coreboot
-	 * tables and allowing reuse of the remaining bytes.
-	 */
-	uint8_t erase_cmd;
-#define LB_SPI_FLASH_FLAG_IN_4BYTE_ADDR_MODE    (1 << 0)
-	uint8_t flags;
-	uint16_t reserved;
+	uint32_t erase_cmd;
 	/*
 	 * Number of mmap windows used by the platform to decode addresses between SPI flash
 	 * space and host address space. This determines the number of entries in mmap_table.
@@ -553,17 +540,11 @@ struct lb_smmstorev2 {
 	uint32_t size;
 	uint32_t num_blocks;		/* Number of writable blocks in SMM */
 	uint32_t block_size;		/* Size of a block in byte. Default: 64 KiB */
-	uint32_t mmap_addr_deprecated;	/* 32-bit MMIO address of the store for read only access.
-					   Prefer 'mmap_addr' for new software.
-					   Zero when the address won't fit into 32-bits. */
+	uint32_t mmap_addr;		/* MMIO address of the store for read only access */
 	uint32_t com_buffer;		/* Physical address of the communication buffer */
 	uint32_t com_buffer_size;	/* Size of the communication buffer in bytes */
 	uint8_t apm_cmd;		/* The command byte to write to the APM I/O port */
 	uint8_t unused[3];		/* Set to zero */
-	lb_uint64_t mmap_addr;		/* 64-bit MMIO address of the store for read only access.
-					   Introduced after the initial implementation. Users of
-					   this table must check the 'size' field to detect if its
-					   written out by coreboot. */
 };
 
 enum lb_tpm_ppi_tpm_version {
@@ -622,27 +603,8 @@ struct lb_efi_fw_info {
 struct lb_cfr {
 	uint32_t tag;
 	uint32_t size;
-	uint32_t version;
 	uint32_t checksum;	/* Checksum of the variable payload. */
 	/* struct lb_cfr_option_form		forms[] */
-};
-
-enum boot_mode_t {
-	LB_BOOT_MODE_NORMAL,
-	LB_BOOT_MODE_LOW_BATTERY,
-	LB_BOOT_MODE_OFFMODE_CHARGING,
-};
-
-/*
- * Boot Mode: Pass the platform boot mode information to payload about
- * booting in low-battery mode or off-mode charging. This information
- * is useful for payload to implement charger driver.
- */
-struct lb_boot_mode {
-	uint32_t tag;
-	uint32_t size;
-
-	enum boot_mode_t boot_mode;
 };
 
 /*
@@ -651,16 +613,6 @@ struct lb_boot_mode {
  */
 struct bootlogo_header {
 	uint64_t size;
-} __packed;
-
-/*
- * Passing extra information about the current boot to payload.
- */
-struct lb_boot_info {
-	uint32_t tag;
-	uint32_t size;
-	uint8_t is_disk_capsules_boot; /* Boolean. */
-	uint8_t pad[3];
 } __packed;
 
 #endif

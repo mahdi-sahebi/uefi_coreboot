@@ -16,7 +16,6 @@
 #include <intelblocks/gpio.h>
 #include <intelblocks/tco.h>
 #include <option.h>
-#include <reset.h>
 #include <security/vboot/vboot_common.h>
 #include <soc/pci_devs.h>
 #include <soc/pm.h>
@@ -617,8 +616,7 @@ void vboot_platform_prepare_reboot(void)
 	pmc_write_pm1_control(pm1_cnt);
 }
 
-/* Helper function to perform poweroff operation using PMC chipset register. */
-static void pmc_control_poweroff(void)
+void poweroff(void)
 {
 	pmc_enable_pm1_control(SLP_EN | (SLP_TYP_S5 << SLP_TYP_SHIFT));
 
@@ -629,19 +627,6 @@ static void pmc_control_poweroff(void)
 	 */
 	if (!ENV_SMM)
 		halt();
-}
-
-void poweroff(void)
-{
-	if (!ENV_ROMSTAGE_OR_BEFORE) {
-		pmc_control_poweroff();
-	} else if (CONFIG(HAVE_EARLY_POWEROFF_SUPPORT)) {
-		platform_do_early_poweroff();
-	} else {
-		printk(BIOS_EMERG, "This platform cannot be powered off until the silicon"
-			" initialization is complete, hanging!\n");
-		halt();
-	}
 }
 
 void pmc_gpe_init(void)
@@ -672,9 +657,8 @@ void pmc_gpe_init(void)
 	 * Route the GPIOs to the GPE0 block. Determine that all values
 	 * are different, and if they aren't use the reset values.
 	 */
-	if (dw0 == dw1 || dw1 == dw2 || dw0 == dw2) {
-		printk(BIOS_WARNING, "PMC: Duplicate GPE DW register values detected; "
-		       "using default GPE route from MISCCFG register\n");
+	if (dw0 == dw1 || dw1 == dw2) {
+		printk(BIOS_INFO, "PMC: Using default GPE route.\n");
 		gpio_cfg = read32p(pmc_bar + GPIO_GPE_CFG);
 
 		dw0 = (gpio_cfg >> GPE0_DW_SHIFT(0)) & GPE0_DWX_MASK;

@@ -25,7 +25,6 @@
 #include <smmstore.h>
 #include <types.h>
 #include <version.h>
-#include <dasharo/options.h>
 
 #if CONFIG(USE_OPTION_TABLE)
 #include <option_table.h>
@@ -275,7 +274,6 @@ static void add_cbmem_pointers(struct lb_header *header)
 		{CBMEM_ID_FMAP, LB_TAG_FMAP},
 		{CBMEM_ID_VBOOT_WORKBUF, LB_TAG_VBOOT_WORKBUF},
 		{CBMEM_ID_TYPE_C_INFO, LB_TAG_TYPE_C_INFO},
-		{CBMEM_ID_RB_INFO, LB_TAG_ROOT_BRIDGE_INFO},
 		{CBMEM_ID_TIANOCORE_LOGO, LB_TAG_LOGO},
 	};
 	int i;
@@ -498,13 +496,6 @@ static void lb_add_acpi_rsdp(struct lb_header *head)
 	acpi_rsdp->rsdp_pointer = get_coreboot_rsdp();
 }
 
-/*
- * Not all platform would need to fill in the boot mode information.
- * This is useful for platform that would like to implement battery
- * charging solution in AP firmware.
- */
-void __weak lb_add_boot_mode(struct lb_header *header) { /* NOOP */ }
-
 size_t write_coreboot_forwarding_table(uintptr_t entry, uintptr_t target)
 {
 	struct lb_header *head;
@@ -516,17 +507,6 @@ size_t write_coreboot_forwarding_table(uintptr_t entry, uintptr_t target)
 	lb_forward(head, (struct lb_header *)target);
 
 	return (uintptr_t)lb_table_fini(head) - entry;
-}
-
-static void lb_add_boot_info(struct lb_header *header)
-{
-	struct lb_boot_info *boot_info;
-
-	boot_info = (struct lb_boot_info *)lb_new_record(header);
-	boot_info->tag = LB_TAG_BOOT_INFO;
-	boot_info->size = sizeof(*boot_info);
-
-	boot_info->is_disk_capsules_boot = dasharo_is_disk_capsules_boot();
 }
 
 static uintptr_t write_coreboot_table(uintptr_t rom_table_end)
@@ -610,8 +590,6 @@ static uintptr_t write_coreboot_table(uintptr_t rom_table_end)
 	if (CONFIG(DRIVERS_EFI_FW_INFO))
 		lb_efi_fw_info(head);
 
-	lb_add_boot_info(head);
-
 	/* Add board-specific table entries, if any. */
 	lb_board(head);
 
@@ -638,8 +616,6 @@ static uintptr_t write_coreboot_table(uintptr_t rom_table_end)
 
 	if (CONFIG(HAVE_ACPI_TABLES))
 		lb_add_acpi_rsdp(head);
-
-	lb_add_boot_mode(head);
 
 	/* Remember where my valid memory ranges are */
 	return lb_table_fini(head);

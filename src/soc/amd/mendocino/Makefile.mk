@@ -11,7 +11,6 @@ all-y		+= i2c.c
 
 # all_x86-y adds the compilation unit to all stages that run on the x86 cores
 all_x86-y	+= gpio.c
-all_x86-y	+= i3c.c
 all_x86-y	+= uart.c
 
 bootblock-y	+= early_fch.c
@@ -124,7 +123,7 @@ PSP_APOB_BASE=$(CONFIG_PSP_APOB_DRAM_ADDRESS)
 
 # type = 0x62
 PSP_BIOSBIN_FILE=$(obj)/amd_biospsp.img
-PSP_ELF_FILE=$(objcbfs)/bootblock_fixed_data.elf
+PSP_ELF_FILE=$(objcbfs)/bootblock.elf
 PSP_BIOSBIN_SIZE=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$5}')
 PSP_BIOSBIN_DEST=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$3}')
 
@@ -158,8 +157,12 @@ PSP_VERSTAGE_SIG_FILE=$(call strip_quotes,$(CONFIG_PSP_VERSTAGE_SIGNING_TOKEN))
 endif # CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK
 
 ifeq ($(CONFIG_SEPARATE_SIGNED_PSPFW),y)
-SIGNED_AMDFW_A_POSITION=$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_A_START)
-SIGNED_AMDFW_B_POSITION=$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_B_START)
+SIGNED_AMDFW_A_POSITION=$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_A_START) \
+	$(call get_fmap_value,FMAP_SECTION_FLASH_START))
+SIGNED_AMDFW_B_POSITION=$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_B_START) \
+	$(call get_fmap_value,FMAP_SECTION_FLASH_START))
 SIGNED_AMDFW_A_FILE=$(obj)/amdfw_a.rom.body.signed
 SIGNED_AMDFW_B_FILE=$(obj)/amdfw_b.rom.body.signed
 endif # CONFIG_SEPARATE_SIGNED_PSPFW
@@ -246,8 +249,7 @@ AMDFW_COMMON_ARGS=$(OPT_PSP_APCB_FILES) \
 		$(OPT_EFS_SPI_MICRON_FLAG) \
 		--config $(CONFIG_AMDFW_CONFIG_FILE) \
 		--flashsize $(CONFIG_ROM_SIZE) \
-		$(OPT_RECOVERY_AB_SINGLE_COPY) \
-		$(OPT_SBOM_DIR)
+		$(OPT_RECOVERY_AB_SINGLE_COPY)
 
 # If vBOOT is not enabled, we want the MP2 firmware in the common AMDFW
 ifeq ($(CONFIG_VBOOT),)
@@ -265,7 +267,7 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$(DEP_FILES) \
 			$(AMDFWTOOL) \
 			$(obj)/fmap_config.h \
-			$(objcbfs)/bootblock_fixed_data.elf # this target also creates the .map file
+			$(objcbfs)/bootblock.elf # this target also creates the .map file
 	rm -f $@
 	@printf "    AMDFWTOOL  $(subst $(obj)/,,$(@))\n"
 	$(AMDFWTOOL) \
@@ -285,13 +287,6 @@ $(PSP_BIOSBIN_FILE): $(PSP_ELF_FILE)
 	rm -f $@
 	$(OBJCOPY_bootblock) -O binary $< $@
 else
-#
-# Extracts everything from the ELF's first PT_LOAD area and compresses it.
-# This discards everything before PT_LOAD, every symbol, debug information
-# and relocations. The generated binary is expected to run at PSP_BIOSBIN_DEST
-# with a maximum size of PSP_BIOSBIN_SIZE. The entrypoint is fixed at
-# PSP_BIOSBIN_DEST + PSP_BIOSBIN_SIZE - 0x10.
-#
 $(PSP_BIOSBIN_FILE): $(PSP_ELF_FILE) $(AMDCOMPRESS)
 	rm -f $@
 	@printf "    AMDCOMPRS  $(subst $(obj)/,,$(@))\n"

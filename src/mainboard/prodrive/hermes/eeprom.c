@@ -6,7 +6,6 @@
 #include <delay.h>
 #include <device/pci_ops.h>
 #include <device/smbus_host.h>
-#include <endian.h>
 #include <soc/intel/common/block/smbus/smbuslib.h>
 #include <string.h>
 #include <types.h>
@@ -164,7 +163,7 @@ bool eeprom_read_buffer(void *blob, size_t read_offset, size_t size)
 		u8 tmp[2] = {0};
 
 		ret = do_smbus_process_call(SMBUS_IO_BASE, I2C_ADDR_EEPROM, 0,
-			htobe16(read_offset + i), (uint16_t *)&tmp[0]);
+			swab16(read_offset + i), (uint16_t *)&tmp[0]);
 		if (ret < 0)
 			break;
 

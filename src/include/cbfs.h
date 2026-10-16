@@ -126,8 +126,6 @@ static inline void *cbfs_unverified_area_cbmem_alloc(const char *area, const cha
  * method succeeds or fails.
  */
 void cbfs_preload(const char *name);
-/* Wait for all preloaded CBFS contexts to complete their operations. */
-void cbfs_preload_wait_for_all(void);
 
 /* Removes a previously allocated CBFS mapping. Should try to unmap mappings in strict LIFO
    order where possible, since mapping backends often don't support more complicated cases. */
@@ -140,18 +138,15 @@ enum cb_err cbfs_prog_stage_load(struct prog *prog);
    and instead use cbfs_alloc() so the file only needs to be looked up once. */
 static inline size_t cbfs_get_size(const char *name);
 static inline size_t cbfs_ro_get_size(const char *name);
-static inline size_t cbfs_unverified_area_get_size(const char *area, const char *name);
 
 /* Returns the type of a CBFS file, or CBFS_TYPE_NULL on error. Use cbfs_type_load() instead of
    this where possible to avoid looking up the file more than once. */
 static inline enum cbfs_type cbfs_get_type(const char *name);
 static inline enum cbfs_type cbfs_ro_get_type(const char *name);
-static inline enum cbfs_type cbfs_unverified_area_get_type(const char *area, const char *name);
 
 /* Check whether a CBFS file exists. */
 static inline bool cbfs_file_exists(const char *name);
 static inline bool cbfs_ro_file_exists(const char *name);
-static inline bool cbfs_unverified_area_file_exists(const char *area, const char *name);
 
 
 /**********************************************************************************************
@@ -200,15 +195,11 @@ enum cb_err cbfs_init_boot_device(const struct cbfs_boot_device *cbd,
 enum cb_err _cbfs_boot_lookup(const char *name, bool force_ro,
 			      union cbfs_mdata *mdata, struct region_device *rdev);
 
-enum cb_err _cbfs_unverified_area_lookup(const char *area, const char *name,
-			      union cbfs_mdata *mdata, struct region_device *rdev);
-
 void *_cbfs_alloc(const char *name, cbfs_allocator_t allocator, void *arg,
 		  size_t *size_out, bool force_ro, enum cbfs_type *type);
 
 void *_cbfs_unverified_area_alloc(const char *area, const char *name,
-				  cbfs_allocator_t allocator, void *arg, size_t *size_out,
-				  enum cbfs_type *type);
+				  cbfs_allocator_t allocator, void *arg, size_t *size_out);
 
 struct _cbfs_default_allocator_arg {
 	void *buf;
@@ -249,14 +240,7 @@ static inline void *cbfs_unverified_area_alloc(const char *area, const char *nam
 					       cbfs_allocator_t allocator, void *arg,
 					       size_t *size_out)
 {
-	return _cbfs_unverified_area_alloc(area, name, allocator, arg, size_out, NULL);
-}
-
-static inline void *cbfs_unverified_area_type_alloc(const char *area, const char *name,
-						    cbfs_allocator_t allocator, void *arg,
-						    size_t *size_out, enum cbfs_type *type)
-{
-	return _cbfs_unverified_area_alloc(area, name, allocator, arg, size_out, type);
+	return _cbfs_unverified_area_alloc(area, name, allocator, arg, size_out);
 }
 
 static inline void *cbfs_map(const char *name, size_t *size_out)
@@ -282,7 +266,7 @@ static inline void *cbfs_ro_type_map(const char *name, size_t *size_out, enum cb
 static inline void *cbfs_unverified_area_map(const char *area, const char *name,
 					     size_t *size_out)
 {
-	return _cbfs_unverified_area_alloc(area, name, NULL, NULL, size_out, NULL);
+	return _cbfs_unverified_area_alloc(area, name, NULL, NULL, size_out);
 }
 
 static inline size_t _cbfs_load(const char *name, void *buf, size_t size, bool force_ro,
@@ -321,7 +305,7 @@ static inline size_t cbfs_unverified_area_load(const char *area, const char *nam
 					       void *buf, size_t size)
 {
 	struct _cbfs_default_allocator_arg arg = { .buf = buf, .buf_size = size };
-	if (_cbfs_unverified_area_alloc(area, name, _cbfs_default_allocator, &arg, &size, NULL))
+	if (_cbfs_unverified_area_alloc(area, name, _cbfs_default_allocator, &arg, &size))
 		return size;
 	else
 		return 0;
@@ -355,7 +339,7 @@ static inline void *cbfs_unverified_area_cbmem_alloc(const char *area, const cha
 						     uint32_t cbmem_id, size_t *size_out)
 {
 	return _cbfs_unverified_area_alloc(area, name, _cbfs_cbmem_allocator,
-					   (void *)(uintptr_t)cbmem_id, size_out, NULL);
+					   (void *)(uintptr_t)cbmem_id, size_out);
 }
 
 static inline size_t cbfs_get_size(const char *name)
@@ -372,15 +356,6 @@ static inline size_t cbfs_ro_get_size(const char *name)
 	union cbfs_mdata mdata;
 	struct region_device rdev;
 	if (_cbfs_boot_lookup(name, true, &mdata, &rdev) != CB_SUCCESS)
-		return 0;
-	return be32toh(mdata.h.len);
-}
-
-static inline size_t cbfs_unverified_area_get_size(const char *area, const char *name)
-{
-	union cbfs_mdata mdata;
-	struct region_device rdev;
-	if (_cbfs_unverified_area_lookup(area, name, &mdata, &rdev) != CB_SUCCESS)
 		return 0;
 	return be32toh(mdata.h.len);
 }
@@ -403,15 +378,6 @@ static inline enum cbfs_type cbfs_ro_get_type(const char *name)
 	return be32toh(mdata.h.type);
 }
 
-static inline enum cbfs_type cbfs_unverified_area_get_type(const char *area, const char *name)
-{
-	union cbfs_mdata mdata;
-	struct region_device rdev;
-	if (_cbfs_unverified_area_lookup(area, name, &mdata, &rdev) != CB_SUCCESS)
-		return CBFS_TYPE_NULL;
-	return be32toh(mdata.h.type);
-}
-
 static inline bool cbfs_file_exists(const char *name)
 {
 	union cbfs_mdata mdata;
@@ -426,15 +392,6 @@ static inline bool cbfs_ro_file_exists(const char *name)
 	union cbfs_mdata mdata;
 	struct region_device rdev;
 	if (_cbfs_boot_lookup(name, true, &mdata, &rdev) != CB_SUCCESS)
-		return false;
-	return true;
-}
-
-static inline bool cbfs_unverified_area_file_exists(const char *area, const char *name)
-{
-	union cbfs_mdata mdata;
-	struct region_device rdev;
-	if (_cbfs_unverified_area_lookup(area, name, &mdata, &rdev) != CB_SUCCESS)
 		return false;
 	return true;
 }

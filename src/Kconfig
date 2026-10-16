@@ -149,9 +149,8 @@ config UTIL_GENPARSER
 
 choice
 	prompt "Option backend to use"
-	default USE_CBFS_FILE_OPTION_BACKEND if HAVE_CBFS_FILE_OPTION_BACKEND
 	default USE_MAINBOARD_SPECIFIC_OPTION_BACKEND if HAVE_MAINBOARD_SPECIFIC_OPTION_BACKEND
-	default USE_OPTION_TABLE if NVRAMCUI_SECONDARY_PAYLOAD || MAINBOARD_NEEDS_CMOS_OPTIONS
+	default USE_OPTION_TABLE if NVRAMCUI_SECONDARY_PAYLOAD
 	default USE_UEFI_VARIABLE_STORE if DRIVERS_EFI_VARIABLE_STORE && \
 		PAYLOAD_EDK2 && SMMSTORE_V2
 
@@ -164,12 +163,6 @@ config USE_OPTION_TABLE
 	help
 	  Enable this option if coreboot shall read options from the "CMOS"
 	  NVRAM instead of using hard-coded values.
-
-config USE_CBFS_FILE_OPTION_BACKEND
-	bool "Use CBFS files for configuration values"
-	help
-	  Enable this option if coreboot shall read options from files in CBFS.
-	  Options can be set using `cbfstool add-int -n option/<option-name> -i value`.
 
 config USE_UEFI_VARIABLE_STORE
 	bool "Use UEFI variable-store in SPI flash as option backend"
@@ -481,13 +474,6 @@ config BOOTSPLASH_FILE
 	  The minimum necessary ImageMagick command line seems to be:
 	  $ convert input.img -colorspace YCC -sampling-factor 4:2:0 bootsplash.jpg
 
-config BOOTSPLASH_REGION_LOGO_FILE
-	string "Path to the image to be placed as logo.bmp into the BOOTSPLASH region"
-	help
-		Same as BOOTSPLASH_FILE, but instead of placing the file in the coreboot
-		CBFS as bootsplash.bmp, it's placed into the separate BOOTSPLASH fmap region
-		as logo.bmp.
-
 config BOOTSPLASH_CONVERT
 	bool "Pre-process bootsplash file with ImageMagick"
 	depends on BOOTSPLASH_IMAGE
@@ -641,30 +627,29 @@ config FMDFILE
 	  When an fmd is specified, it overrides the default format.
 
 config CBFS_SIZE
-	hex "Size of coreboot owned area in ROM"
+	hex "Size of CBFS filesystem in ROM"
 	depends on FMDFILE = ""
 	# Default value set at the end of the file
 	help
-	  This is the part of ROM (Read-Only Memory) actually managed by coreboot,
-	  located at the end of the ROM on x86 systems and at the start of the ROM
-	  everywhere else. It defaults to span the whole ROM on all systems except for
-	  Intel systems that use an Intel Flash Descriptor. It can be overridden to
-	  make coreboot live alongside other vendor blobs like Intel's IFD (Intel
-	  Flash Descriptor), ME (Management Engine), and TXE (Trusted Execution
-	  Engine) binaries. This symbol is only used to generate a default FMAP
-	  (Flash Memory Map) and is unused when a .fmd file is provided
-	  via CONFIG_FMDFILE.
+	  This is the part of the ROM actually managed by CBFS, located at the
+	  end of the ROM (passed through cbfstool -o) on x86 and at the start
+	  of the ROM (passed through cbfstool -s) everywhere else. It defaults
+	  to span the whole ROM on all but Intel systems that use an Intel Firmware
+	  Descriptor.  It can be overridden to make coreboot live alongside other
+	  components like ChromeOS's vboot/FMAP or Intel's IFD / ME / TXE
+	  binaries. This symbol should only be used to generate a default FMAP and
+	  is unused when a non-default fmd file is provided via CONFIG_FMDFILE.
 
 endmenu
 
 # load site-local kconfig to allow user specific defaults and overrides
 source "site-local/Kconfig"
 
-config SYSTEM_TYPE_ALL_IN_ONE
+config SYSTEM_TYPE_LAPTOP
 	default n
 	bool
 
-config SYSTEM_TYPE_CONVERTIBLE
+config SYSTEM_TYPE_TABLET
 	default n
 	bool
 
@@ -672,22 +657,7 @@ config SYSTEM_TYPE_DETACHABLE
 	default n
 	bool
 
-config SYSTEM_TYPE_LAPTOP
-	default n
-	bool
-
-config SYSTEM_TYPE_MINIPC
-	default n
-	bool
-	help
-	  For devices like chromebox, mac-mini etc. These devices
-	  without built-in display and operates on AC supply alone.
-
-config SYSTEM_TYPE_SERVER
-	default n
-	bool
-
-config SYSTEM_TYPE_TABLET
+config SYSTEM_TYPE_CONVERTIBLE
 	default n
 	bool
 
@@ -871,20 +841,6 @@ config HAVE_MAINBOARD_SPECIFIC_OPTION_BACKEND
 	  to access the values for runtime-configurable options. For example, a
 	  custom BMC interface or an EEPROM with an externally-imposed layout.
 
-config HAVE_CBFS_FILE_OPTION_BACKEND
-	bool
-	default y if CHROMEOS && PLATFORM_USES_FSP2_0
-	default n
-	help
-	  Select this option if the platform uses CBFS file-based option backend
-	  for storing configuration values at run time.
-
-	  This feature allows for storing and retrieving configuration data
-	  within a dedicated file inside the CBFS.
-
-	  At present this feature is typically used by ChromeOS devices that
-	  use Intel's Firmware Support Package (FSP).
-
 config HAVE_OPTION_TABLE
 	bool
 	default n
@@ -898,12 +854,6 @@ config CMOS_LAYOUT_FILE
 	default "src/mainboard/\$(MAINBOARDDIR)/cmos.layout"
 	depends on HAVE_OPTION_TABLE
 
-config MAINBOARD_NEEDS_CMOS_OPTIONS
-	bool
-	help
-	  Select this option if a mainboard depends on storing options in CMOS
-	  for the implementation of some feature.
-
 config PCI_IO_CFG_EXT
 	bool
 	default n
@@ -912,21 +862,6 @@ config IOAPIC
 	bool
 	default y if SMP
 	default n
-
-config IOAPIC_8BIT_ID
-	bool
-	default n
-	depends on IOAPIC
-	help
-	  Select this option if the hardware support 8bit long IOAPIC IDs.
-
-config IOAPIC_PREDEFINED_ID
-	bool
-	default n
-	depends on IOAPIC
-	help
-	  Select this option if coreboot should keep IOAPIC IDs programmed
-	  by silicon vendor initialization code.
 
 config USE_WATCHDOG_ON_BOOT
 	bool
@@ -1573,9 +1508,6 @@ config BOOTSPLASH_FILE
 	depends on BOOTSPLASH_IMAGE
 	default "bootsplash.jpg"
 
-config BOOTSPLASH_REGION_LOGO_FILE
-	default "3rdparty/dasharo-blobs/protectli/bootsplash.bmp" if VENDOR_PROTECTLI
-
 config BOOTSPLASH_CONVERT_QUALITY
 	depends on BOOTSPLASH_CONVERT
 	default 80
@@ -1608,12 +1540,3 @@ config HAVE_RAMSTAGE
 
 config SEPARATE_ROMSTAGE
 	default y
-
-config POSTPONE_SPI_ACCESS
-	bool
-	help
-	  Enable this option to postpone SPI access to later boot phase
-	  (BS_PAYLOAD_BOOT) to prevent flash write access delays caused by
-	  simultaneous accesses from other SPI masters like CSE. This symptom
-	  was found in Intel SoCs (Panther Lake and Wildcat Lake) but it can be
-	  used other SOCs.

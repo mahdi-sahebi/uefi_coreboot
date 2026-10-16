@@ -5,8 +5,7 @@
 #include <mipi/panel.h>
 #include <types.h>
 
-enum cb_err mipi_panel_parse_init_commands(const void *buf, mipi_cmd_func_t cmd_func,
-					   void *user_data)
+enum cb_err mipi_panel_parse_init_commands(const void *buf, mipi_cmd_func_t cmd_func)
 {
 	const struct panel_init_command *init = buf;
 	enum mipi_dsi_transaction type;
@@ -70,7 +69,7 @@ enum cb_err mipi_panel_parse_init_commands(const void *buf, mipi_cmd_func_t cmd_
 			return CB_ERR;
 		}
 
-		enum cb_err ret = cmd_func(type, init->data, len, user_data);
+		enum cb_err ret = cmd_func(type, init->data, len);
 		if (ret != CB_SUCCESS)
 			return ret;
 		buf += len;

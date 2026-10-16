@@ -83,7 +83,10 @@ void tpm1_log_dump(void)
 	printk(BIOS_INFO, "\n");
 }
 
-void tpm1_log_add_table_entry(const char *name, uint32_t pcr, const struct tpm_digest *digests)
+void tpm1_log_add_table_entry(const char *name, const uint32_t pcr,
+			      enum vb2_hash_algorithm digest_algo,
+			      const uint8_t *digest,
+			      const size_t digest_len)
 {
 	struct tpm_1_log_table *tclt;
 	struct tpm_1_log_entry *tce;
@@ -99,14 +102,8 @@ void tpm1_log_add_table_entry(const char *name, uint32_t pcr, const struct tpm_d
 		return;
 	}
 
-	if (digests[0].hash_type != VB2_HASH_SHA1) {
-		printk(BIOS_WARNING, "TPM LOG: digest is of unsupported type: %s\n",
-		       vb2_get_hash_algorithm_name(digests[0].hash_type));
-		return;
-	}
-
-	if (digests[1].hash_type != VB2_HASH_INVALID) {
-		printk(BIOS_WARNING, "TPM LOG: TPM 1 can't handle multiple banks\n");
+	if (digest_algo != VB2_HASH_SHA1) {
+		printk(BIOS_WARNING, "TPM LOG: unsupported hash algorithm\n");
 		return;
 	}
 
@@ -121,7 +118,7 @@ void tpm1_log_add_table_entry(const char *name, uint32_t pcr, const struct tpm_d
 	tce->pcr = htole32(pcr);
 	tce->event_type = htole32(EV_ACTION);
 
-	memcpy(tce->digest, digests[0].hash, TPM_1_LOG_DIGEST_MAX_LENGTH);
+	memcpy(tce->digest, digest, digest_len);
 
 	tce->data_length = htole32(TPM_1_LOG_DATA_MAX_LENGTH);
 	strncpy((char *)tce->data, name, sizeof(tce->data) - 1);
@@ -140,8 +137,8 @@ void tpm1_preram_log_clear(void)
 	tclt->vendor.num_entries = htole16(0);
 }
 
-int tpm1_log_get(int entry_idx, int *pcr, struct tpm_digest *digests, const char **event_name,
-		 uint32_t *event_type)
+int tpm1_log_get(int entry_idx, int *pcr, const uint8_t **digest_data,
+		 enum vb2_hash_algorithm *digest_algo, const char **event_name)
 {
 	struct tpm_1_log_table *tclt;
 	struct tpm_1_log_entry *tce;
@@ -155,13 +152,10 @@ int tpm1_log_get(int entry_idx, int *pcr, struct tpm_digest *digests, const char
 
 	tce = &tclt->entries[entry_idx];
 
-	digests[0].hash_type = VB2_HASH_SHA1;
-	digests[0].hash = tce->digest;
-	digests[1].hash_type = VB2_HASH_INVALID;
-
 	*pcr = le32toh(tce->pcr);
+	*digest_data = tce->digest;
+	*digest_algo = VB2_HASH_SHA1;
 	*event_name = (char *)tce->data;
-	*event_type = le32toh(tce->event_type);
 	return 0;
 }
 

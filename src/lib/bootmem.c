@@ -14,8 +14,6 @@ static int table_written;
 static struct memranges bootmem;
 static struct memranges bootmem_os;
 
-static const char *bootmem_range_string(const enum bootmem_type tag);
-
 static int bootmem_is_initialized(void)
 {
 	return initialized;
@@ -55,8 +53,6 @@ static uint32_t bootmem_to_lb_tag(const enum bootmem_type tag)
 		return LB_MEM_TABLE;
 	case BM_MEM_SOFT_RESERVED:
 		return LB_MEM_SOFT_RESERVED;
-	case BM_MEM_TAG:
-		return LB_MEM_TAG;
 	default:
 		printk(BIOS_ERR, "Unsupported tag %u\n", tag);
 		return LB_MEM_RESERVED;
@@ -110,24 +106,6 @@ void bootmem_add_range(uint64_t start, uint64_t size,
 	};
 }
 
-int bootmem_add_range_from(uint64_t start, uint64_t size, const enum bootmem_type new_tag,
-			   const enum bootmem_type from_tag)
-{
-	if (new_tag == from_tag)
-		return -1;
-
-	if (!bootmem_region_targets_type(start, size, from_tag)) {
-		printk(BIOS_ERR, "%s: Failed to add the range [%#llx, %#llx)"
-		       " from tag %s to %s\n", __func__, start, start + size,
-		       bootmem_range_string(from_tag), bootmem_range_string(new_tag));
-		return -1;
-	}
-
-	bootmem_add_range(start, size, new_tag);
-
-	return 0;
-}
-
 void bootmem_write_memory_table(struct lb_memory *mem)
 {
 	const struct range_entry *r;
@@ -168,7 +146,6 @@ static const struct range_strings type_strings[] = {
 	{ BM_MEM_SOFT_RESERVED, "SOFT RESERVED" },
 	{ BM_MEM_RAMSTAGE, "RAMSTAGE" },
 	{ BM_MEM_PAYLOAD, "PAYLOAD" },
-	{ BM_MEM_TAG, "TAG STORAGE" },
 };
 
 static const char *bootmem_range_string(const enum bootmem_type tag)

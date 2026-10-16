@@ -38,7 +38,7 @@ romstage-y += ../common/gpio_eint_v1.c ../common/gpio.c gpio.c
 romstage-y += ../common/mmu_operations.c mmu_operations.c
 romstage-y += ../common/pll.c pll.c
 romstage-y += ../common/pmic_wrap.c pmic_wrap.c mt6358.c
-romstage-y += ../common/rtc.c ../common/rtc_pwrap_ops.c ../common/rtc_osc_init.c rtc.c
+romstage-y += ../common/rtc.c ../common/rtc_osc_init.c rtc.c
 romstage-$(CONFIG_SPI_FLASH) += ../common/spi.c spi.c
 romstage-y += ../common/i2c.c i2c.c
 romstage-y += ../common/timer.c
@@ -49,15 +49,14 @@ ramstage-$(CONFIG_ARM64_USE_ARM_TRUSTED_FIRMWARE) += ../common/bl31.c
 ramstage-y += emi.c
 ramstage-y += ../common/auxadc.c
 ramstage-y += ../common/ddp.c ddp.c
-ramstage-y += ../common/dsi_common.c ../common/dsi_v1.c ../common/mtk_mipi_dphy.c
-ramstage-y += ../common/mtk_mipi_dphy_v1.c
+ramstage-y += ../common/dsi.c ../common/mtk_mipi_dphy.c
 ramstage-y += ../common/gpio_eint_v1.c ../common/gpio.c gpio.c
 ramstage-y += ../common/i2c.c i2c.c
 ramstage-y += ../common/mcu.c
 ramstage-y += ../common/mmu_operations.c mmu_operations.c
 ramstage-y += ../common/mtcmos.c mtcmos.c
 ramstage-y += ../common/pmic_wrap.c
-ramstage-y += ../common/rtc.c ../common/rtc_pwrap_ops.c ../common/rtc_osc_init.c rtc.c
+ramstage-y += ../common/rtc.c ../common/rtc_osc_init.c rtc.c
 ramstage-y += soc.c
 ramstage-$(CONFIG_SPI_FLASH) += ../common/spi.c spi.c
 ramstage-y += spm.c
@@ -97,6 +96,6 @@ CPPFLAGS_common += -Isrc/soc/mediatek/mt8183/include
 CPPFLAGS_common += -Isrc/soc/mediatek/common/include
 
 $(objcbfs)/bootblock.bin: $(objcbfs)/bootblock.raw.bin
-	./util/mediatek/gen-bl-img.py mt8183 emmc $< $@
+	./util/mtkheader/gen-bl-img.py mt8183 emmc $< $@
 
 endif

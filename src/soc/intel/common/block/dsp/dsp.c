@@ -10,18 +10,9 @@ static struct device_operations dsp_dev_ops = {
 	.enable_resources       = pci_dev_enable_resources,
 	.ops_pci                = &pci_dev_ops_pci,
 	.scan_bus               = scan_static_bus,
-	.final                  = pci_dev_request_bus_master,
 };
 
 static const unsigned short pci_device_ids[] = {
-	PCI_DID_INTEL_WCL_AUDIO_1,
-	PCI_DID_INTEL_WCL_AUDIO_2,
-	PCI_DID_INTEL_WCL_AUDIO_3,
-	PCI_DID_INTEL_WCL_AUDIO_4,
-	PCI_DID_INTEL_WCL_AUDIO_5,
-	PCI_DID_INTEL_WCL_AUDIO_6,
-	PCI_DID_INTEL_WCL_AUDIO_7,
-	PCI_DID_INTEL_WCL_AUDIO_8,
 	PCI_DID_INTEL_PTL_H_AUDIO_1,
 	PCI_DID_INTEL_PTL_H_AUDIO_2,
 	PCI_DID_INTEL_PTL_H_AUDIO_3,
@@ -54,8 +45,6 @@ static const unsigned short pci_device_ids[] = {
 	PCI_DID_INTEL_MTL_AUDIO_6,
 	PCI_DID_INTEL_MTL_AUDIO_7,
 	PCI_DID_INTEL_MTL_AUDIO_8,
-	PCI_DID_INTEL_ARL_AUDIO,
-	PCI_DID_INTEL_ARP_S_AUDIO,
 	PCI_DID_INTEL_RPP_P_AUDIO,
 	PCI_DID_INTEL_RPP_S_AUDIO_1,
 	PCI_DID_INTEL_RPP_S_AUDIO_2,

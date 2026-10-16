@@ -315,7 +315,7 @@ chip soc/intel/jasperlake
 				register "reset_delay_ms" = "20"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D6)"
 				register "enable_delay_ms" = "1"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				device i2c 10 on
 					probe TS_SOURCE TS_UNPROVISIONED
 					probe TS_SOURCE TS_ELAN_0001
@@ -330,7 +330,7 @@ chip soc/intel/jasperlake
 				register "reset_delay_ms" = "100"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D6)"
 				register "enable_delay_ms" = "50"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				device i2c 39 on
 					probe TS_SOURCE TS_UNPROVISIONED
 					probe TS_SOURCE TS_RAYD_0001
@@ -347,15 +347,13 @@ chip soc/intel/jasperlake
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_JSL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "DEFAULT_LINK_FREQ"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "1" #IMGCLKOUT_1
 				register "clk_panel.clks[0].freq" = "1" #19.2 Mhz
@@ -393,18 +391,14 @@ chip soc/intel/jasperlake
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_JSL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "2"
 				register "link_freq[0]" = "720000000"
 				register "link_freq[1]" = "360000000"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "1" #IMGCLKOUT_1
 				register "clk_panel.clks[0].freq" = "1" #19.2 Mhz

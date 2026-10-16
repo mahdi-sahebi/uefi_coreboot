@@ -54,17 +54,23 @@ static bool early_init_native(enum raminit_boot_mode bootmode)
 	return cpu_replaced;
 }
 
-static void save_mrc_data(void)
+#define MRC_CACHE_VERSION 1
+
+struct mrc_data {
+	const void *buffer;
+	size_t buffer_len;
+};
+
+static void save_mrc_data(struct mrc_data *md)
 {
-	mrc_cache_stash_data(MRC_TRAINING_DATA, reg_frame_rev(),
-			     reg_frame_ptr(), reg_frame_size());
+	mrc_cache_stash_data(MRC_TRAINING_DATA, MRC_CACHE_VERSION, md->buffer, md->buffer_len);
 }
 
 static struct mrc_data prepare_mrc_cache(void)
 {
 	struct mrc_data md = {0};
 	md.buffer = mrc_cache_current_mmap_leak(MRC_TRAINING_DATA,
-						reg_frame_rev(),
+						MRC_CACHE_VERSION,
 						&md.buffer_len);
 	return md;
 }
@@ -88,15 +94,14 @@ static void raminit_reset(void)
 }
 
 static enum raminit_boot_mode do_actual_raminit(
+	struct mrc_data *md,
 	const bool s3resume,
 	const bool cpu_replaced,
 	const enum raminit_boot_mode orig_bootmode)
 {
-	struct mrc_data md = prepare_mrc_cache();
-
 	enum raminit_boot_mode bootmode = orig_bootmode;
 
-	bool save_data_valid = md.buffer && md.buffer_len == reg_frame_size();
+	bool save_data_valid = md->buffer && md->buffer_len == USHRT_MAX; /** TODO: sizeof() **/
 
 	if (s3resume) {
 		if (bootmode == BOOTMODE_COLD) {
@@ -149,7 +154,7 @@ static enum raminit_boot_mode do_actual_raminit(
 	assert(save_data_valid != (bootmode == BOOTMODE_COLD));
 	if (save_data_valid) {
 		printk(BIOS_INFO, "Using cached memory parameters\n");
-		memcpy(reg_frame_ptr(), md.buffer, reg_frame_size());
+		die("RAMINIT: Fast boot is not yet implemented\n");
 	}
 	printk(RAM_DEBUG, "Initial bootmode: %s\n", bm_names[orig_bootmode]);
 	printk(RAM_DEBUG, "Current bootmode: %s\n", bm_names[bootmode]);
@@ -163,7 +168,7 @@ static enum raminit_boot_mode do_actual_raminit(
 	return bootmode;
 }
 
-void perform_raminit(const bool s3resume)
+void perform_raminit(const int s3resume)
 {
 	/*
 	 * See, this function's name is a lie. There are more things to
@@ -176,10 +181,12 @@ void perform_raminit(const bool s3resume)
 	wait_txt_clear();
 	wrmsr(0x2e6, (msr_t) {.lo = 0, .hi = 0});
 
-	const enum raminit_boot_mode bootmode =
-			do_actual_raminit(s3resume, cpu_replaced, orig_bootmode);
+	struct mrc_data md = prepare_mrc_cache();
 
-	report_memory_config();
+	const enum raminit_boot_mode bootmode =
+			do_actual_raminit(&md, s3resume, cpu_replaced, orig_bootmode);
+
+	/** TODO: report_memory_config **/
 
 	if (intel_early_me_uma_size() > 0) {
 		/*
@@ -192,6 +199,8 @@ void perform_raminit(const bool s3resume)
 		else
 			me_status = ME_INIT_STATUS_SUCCESS;
 
+		/** TODO: Remove this once raminit is implemented **/
+		me_status = ME_INIT_STATUS_ERROR;
 		intel_early_me_init_done(me_status);
 	}
 
@@ -206,15 +215,7 @@ void perform_raminit(const bool s3resume)
 
 	/* Save training data on non-S3 resumes */
 	if (!s3resume)
-		save_mrc_data();
+		save_mrc_data(&md);
 
-	/*
-	 * To avoid passing pointers around too much, get the SPD data
-	 * from the saved data. It will always be present: a cold boot
-	 * populates saved data from training results, and a fast boot
-	 * or a S3 resume reads the saved data from the MRC cache.
-	 */
-	const uint8_t *spd_data[NUM_CHANNELS][NUM_SLOTS] = { 0 };
-	reg_frame_get_spd_data(spd_data);
-	setup_sdram_meminfo(spd_data);
+	/** TODO: setup_sdram_meminfo **/
 }

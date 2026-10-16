@@ -3,10 +3,10 @@
 #include <arch/null_breakpoint.h>
 #include <arch/stack_canary_breakpoint.h>
 #include <bootsplash.h>
+#include <bootstate.h>
 #include <cbfs.h>
 #include <cbmem.h>
 #include <commonlib/fsp.h>
-#include <cpu/x86/mtrr.h>
 #include <stdlib.h>
 #include <console/console.h>
 #include <fsp/api.h>
@@ -14,12 +14,7 @@
 #include <mrc_cache.h>
 #include <program_loading.h>
 #include <soc/intel/common/reset.h>
-#if CONFIG(SOC_AMD_COMMON)
-#include <amdblocks/vbt.h>
-#endif
-#if CONFIG(SOC_INTEL_COMMON)
 #include <soc/intel/common/vbt.h>
-#endif
 #include <stage_cache.h>
 #include <string.h>
 #include <timestamp.h>
@@ -97,7 +92,6 @@ static void do_silicon_init(struct fsp_header *hdr)
 	fsp_multi_phase_init_fn multi_phase_si_init;
 	struct fsp_multi_phase_params multi_phase_params;
 	struct fsp_multi_phase_get_number_of_phases_params multi_phase_get_number;
-	int temp_mtrr_index = -1;
 
 	supd = (FSPS_UPD *)(uintptr_t)(hdr->cfg_region_offset + hdr->image_base);
 
@@ -125,15 +119,9 @@ static void do_silicon_init(struct fsp_header *hdr)
 	/* Give SoC/mainboard a chance to populate entries */
 	platform_fsp_silicon_init_params_cb(upd);
 
-	if (CONFIG(BMP_LOGO) && CONFIG(USE_COREBOOT_FOR_BMP_RENDERING))
-		temp_mtrr_index = soc_mark_gfx_memory();
-
-	/*
-	 * Populate UPD entries for the logo if the platform utilizes
-	 * the FSP's capability for rendering bitmap (BMP) images.
-	 */
-	if (CONFIG(BMP_LOGO) && !CONFIG(USE_COREBOOT_FOR_BMP_RENDERING))
-		soc_load_logo_by_fsp(upd);
+	/* Populate logo related entries */
+	if (CONFIG(BMP_LOGO))
+		soc_load_logo(upd);
 
 	/* Call SiliconInit */
 	silicon_init = (void *)(uintptr_t)(hdr->image_base +
@@ -160,17 +148,6 @@ static void do_silicon_init(struct fsp_header *hdr)
 
 	fsp_debug_after_silicon_init(status);
 	fsps_return_value_handler(FSP_SILICON_INIT_API, status);
-
-	/* Only applies for SoC platforms prior to FSP 2.2 specification. */
-	if (!CONFIG(PLATFORM_USES_FSP2_2) && CONFIG(BMP_LOGO)) {
-		if (CONFIG(USE_COREBOOT_FOR_BMP_RENDERING))
-			soc_load_logo_by_coreboot();
-		/*
-		 * This applies regardless of whether FSP or coreboot handled
-		 * the rendering.
-		 */
-		timestamp_add_now(TS_FIRMWARE_SPLASH_RENDERED);
-	}
 
 	/* Reinitialize CPUs if FSP-S has done MP Init */
 	if (CONFIG(USE_INTEL_FSP_MP_INIT) && !fsp_is_multi_phase_init_enabled())
@@ -219,26 +196,6 @@ static void do_silicon_init(struct fsp_header *hdr)
 	}
 	timestamp_add_now(TS_FSP_MULTI_PHASE_SI_INIT_END);
 	post_code(POSTCODE_FSP_MULTI_PHASE_SI_INIT_EXIT);
-
-	if (CONFIG(BMP_LOGO)) {
-		/*
-		 * If a BMP logo is enabled (`BMP_LOGO`) and the platform is
-		 * configured to skip the FSP for rendering logo bitmap
-		 * (`USE_COREBOOT_FOR_BMP_RENDERING`), then call the coreboot
-		 * native function to handle BMP logo loading and display.
-		 */
-		if (CONFIG(USE_COREBOOT_FOR_BMP_RENDERING))
-			soc_load_logo_by_coreboot();
-		/*
-		 * This applies regardless of whether FSP or coreboot handled
-		 * the rendering.
-		 */
-		timestamp_add_now(TS_FIRMWARE_SPLASH_RENDERED);
-
-		/* Clear temporary Write Combine (WC) MTRR */
-		if (temp_mtrr_index >= 0)
-			clear_var_mtrr(temp_mtrr_index);
-	}
 
 	/* Reinitialize CPUs if FSP-S has done MP Init */
 	if (CONFIG(USE_INTEL_FSP_MP_INIT))
@@ -297,9 +254,6 @@ void fsp_silicon_init(void)
 	fsps_load();
 	do_silicon_init(&fsps_hdr);
 
-	if (platform_is_low_battery_shutdown_needed())
-		do_low_battery_poweroff();
-
 	if (CONFIG(CACHE_MRC_SETTINGS) && CONFIG(FSP_NVS_DATA_POST_SILICON_INIT))
 		save_memory_training_data();
 
@@ -307,4 +261,12 @@ void fsp_silicon_init(void)
 		fsp_display_timestamp();
 }
 
-__weak void soc_load_logo_by_fsp(FSPS_UPD *supd) { }
+__weak void soc_load_logo(FSPS_UPD *supd) { }
+
+static void release_logo(void *arg_unused)
+{
+	if (CONFIG(BMP_LOGO))
+		bmp_release_logo();
+}
+
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_EXIT, release_logo, NULL);

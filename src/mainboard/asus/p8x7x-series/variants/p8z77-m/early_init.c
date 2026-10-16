@@ -10,9 +10,8 @@
 
 #include <option.h>
 
-#define SERIAL_DEV PNP_DEV(CONFIG_SUPERIO_PNP_BASE, NCT6779D_SP1)
-#define GPIO0_DEV  PNP_DEV(CONFIG_SUPERIO_PNP_BASE, NCT6779D_WDT1_GPIO01_V)
-#define ACPI_DEV   PNP_DEV(CONFIG_SUPERIO_PNP_BASE, NCT6779D_ACPI)
+#define SERIAL_DEV PNP_DEV(0x2e, NCT6779D_SP1)
+#define GPIO0_DEV  PNP_DEV(0x2e, NCT6779D_WDT1_GPIO01_V)
 
 void bootblock_mainboard_early_init(void)
 {
@@ -26,11 +25,6 @@ void bootblock_mainboard_early_init(void)
 	pnp_write_config(GPIO0_DEV, 0x30, 0x02);
 	pnp_write_config(GPIO0_DEV, 0xe0, 0x7f);
 	pnp_write_config(GPIO0_DEV, 0xe1, 0x00);
-
-	pnp_set_logical_device(ACPI_DEV);
-	pnp_write_config(ACPI_DEV, 0xe4, 0x10); /* Enable 3VSBSW#, needed for S3 suspend */
-	pnp_write_config(ACPI_DEV, 0xe7, 0x11); /* HWM reset by LRESET#, 0.5s S3 delay */
-	pnp_write_config(ACPI_DEV, 0xf2, 0x5d); /* Enable RSTOUT[0-2]# and PME */
 
 	nuvoton_pnp_exit_conf_state(GPIO0_DEV);
 

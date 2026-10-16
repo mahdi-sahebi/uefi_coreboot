@@ -48,7 +48,7 @@ _Static_assert(SMM_BLOCK_SIZE <= FMAP_SECTION_SMMSTORE_SIZE,
  * crash/reboot could clear out all variables.
  */
 
-static int smmstore_use_full_flash = 0;
+static int use_full_flash;
 static int has_capsules = -1;
 
 int smmstore_preprocess_cmd(uint8_t *cmd, void *param)
@@ -63,11 +63,11 @@ int smmstore_preprocess_cmd(uint8_t *cmd, void *param)
 			 */
 			return has_capsules;
 		} else if (has_capsules == 1 && *cmd & SMMSTORE_CMD_USE_FULL_FLASH) {
-			smmstore_use_full_flash = 1;
+			use_full_flash = 1;
+			*cmd &= ~SMMSTORE_CMD_USE_FULL_FLASH;
 		} else {
-			smmstore_use_full_flash = 0;
+			use_full_flash = 0;
 		}
-		*cmd &= ~SMMSTORE_CMD_USE_FULL_FLASH;
 	}
 
 	return 0;
@@ -75,7 +75,7 @@ int smmstore_preprocess_cmd(uint8_t *cmd, void *param)
 
 static enum cb_err lookup_store_region(struct region *region)
 {
-	if (CONFIG(DRIVERS_EFI_UPDATE_CAPSULES) && smmstore_use_full_flash) {
+	if (CONFIG(DRIVERS_EFI_UPDATE_CAPSULES) && use_full_flash) {
 		const struct region_device *rdev = boot_device_rw();
 
 		if (rdev == NULL)
@@ -131,17 +131,10 @@ static int lookup_store(struct region_device *rstore)
 	return rdev_chain(rstore, rdev, 0, region_device_sz(rdev));
 }
 
-static int done = 0;
-
-/* Used by AMD ROM Armor when enforced to update store region ops */
-void smmstore_lookup_region_reinit(void)
-{
-	done = 0;
-}
-
+ /* this function is non reentrant */
 int smmstore_lookup_region(struct region_device *rstore)
 {
-
+	static int done;
 	static int ret;
 	static struct region_device rdev;
 

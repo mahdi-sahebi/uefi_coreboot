@@ -4,12 +4,6 @@ ifeq ($(CONFIG_POSTCAR_STAGE),y)
 $(eval $(call init_standard_toolchain,postcar))
 endif
 
-ifeq ($(CONFIG_ARCH_X86),y)
-ifneq ($(CONFIG_NO_SMM),y)
-$(eval $(call init_standard_toolchain,smm))
-endif
-endif
-
 ################################################################################
 # i386 specific tools
 NVRAMTOOL:=$(objutil)/nvramtool/nvramtool
@@ -165,10 +159,7 @@ romstage-y += postcar_loader.c
 romstage-$(CONFIG_COLLECT_TIMESTAMPS_TSC) += timestamp.c
 romstage-$(CONFIG_HAVE_CF9_RESET) += cf9_reset.c
 romstage-$(CONFIG_COOP_MULTITASKING) += thread.c
-ifeq ($(CONFIG_COOP_MULTITASKING),y)
-romstage-$(CONFIG_ARCH_ROMSTAGE_X86_32) += thread_switch_32.S
-romstage-$(CONFIG_ARCH_ROMSTAGE_X86_64) += thread_switch_64.S
-endif # CONFIG_COOP_MULTITASKING
+romstage-$(CONFIG_COOP_MULTITASKING) += thread_switch.S
 romstage-y += car.ld
 
 romstage-srcs += $(wildcard $(src)/mainboard/$(MAINBOARDDIR)/romstage.c)
@@ -257,10 +248,7 @@ ramstage-y += rdrand.c
 ramstage-$(CONFIG_GENERATE_SMBIOS_TABLES) += smbios.c
 ramstage-y += tables.c
 ramstage-$(CONFIG_COOP_MULTITASKING) += thread.c
-ifeq ($(CONFIG_COOP_MULTITASKING),y)
-ramstage-$(CONFIG_ARCH_RAMSTAGE_X86_32) += thread_switch_32.S
-ramstage-$(CONFIG_ARCH_RAMSTAGE_X86_64) += thread_switch_64.S
-endif # CONFIG_COOP_MULTITASKING
+ramstage-$(CONFIG_COOP_MULTITASKING) += thread_switch.S
 ramstage-$(CONFIG_COLLECT_TIMESTAMPS_TSC) += timestamp.c
 ramstage-$(CONFIG_HAVE_ACPI_RESUME) += wakeup.S
 ramstage-$(CONFIG_HAVE_CF9_RESET) += cf9_reset.c

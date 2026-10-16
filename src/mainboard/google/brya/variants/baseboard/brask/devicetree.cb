@@ -18,7 +18,7 @@ chip soc/intel/alderlake
 	register "s0ix_enable" = "true"
 
 	# DPTF enable
-	register "dptf_enable" = "true"
+	register "dptf_enable" = "1"
 
 	register "tcc_offset" = "10"     # TCC of 90
 
@@ -111,7 +111,6 @@ chip soc/intel/alderlake
 		device ref tbt_pcie_rp0 on end
 		device ref tbt_pcie_rp1 on end
 		device ref tbt_pcie_rp2 on end
-		device ref gna on end
 		device ref tcss_xhci on end
 		device ref tcss_dma0 on end
 		device ref tcss_dma1 on end

@@ -29,7 +29,7 @@ tpm_result_t tlcl_lib_init(void)
 	init_done = true;
 
 	tlcl_tis_sendrecv = NULL;
-	if (CONFIG(CRB_TPM) || CONFIG(AMD_CRB_FTPM))
+	if (CONFIG(CRB_TPM))
 		tlcl_tis_sendrecv = crb_tis_probe(&tlcl_tpm_family);
 	if (CONFIG(MEMORY_MAPPED_TPM) && tlcl_tis_sendrecv == NULL)
 		tlcl_tis_sendrecv = pc80_tis_probe(&tlcl_tpm_family);
@@ -41,13 +41,6 @@ tpm_result_t tlcl_lib_init(void)
 	if (tlcl_tis_sendrecv == NULL) {
 		printk(BIOS_ERR, "%s: TIS probe failed\n", __func__);
 		tlcl_tpm_family = TPM_UNKNOWN;
-		/*
-		 * Allow recursion for AMD fTPM, because the tlcl_lib_init
-		 * could have failed due to measured boot before PSP MMIO was
-		 * ready.
-		 */
-		if (CONFIG(AMD_CRB_FTPM))
-			init_done = false;
 	} else if (tlcl_tpm_family != TPM_1 && tlcl_tpm_family != TPM_2) {
 		printk(BIOS_ERR, "%s: TIS probe returned incorrect TPM family: %d\n", __func__,
 		       tlcl_tpm_family);

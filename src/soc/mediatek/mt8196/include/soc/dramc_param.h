@@ -13,7 +13,7 @@
 #include <stdint.h>
 #include <sys/types.h>
 
-#define DRAMC_PARAM_HEADER_VERSION 5
+#define DRAMC_PARAM_HEADER_VERSION 4
 
 struct sdram_params {
 	/* rank, cbt */
@@ -21,7 +21,7 @@ struct sdram_params {
 	u32 dram_cbt_mode;
 
 	u16 delay_cell_timex100;
-	u8 u18ph_dly[CHANNEL_MAX];
+	u8 u18ph_dly;
 
 	/* duty */
 	s8 duty_clk_delay[CHANNEL_MAX][RANK_MAX];
@@ -91,7 +91,7 @@ struct sdram_params {
 	/* tx oe */
 	u8 tx_oe_dq_mck[CHANNEL_MAX][RANK_MAX][DQS_NUMBER_LP5];
 	u8 tx_oe_dq_ui[CHANNEL_MAX][RANK_MAX][DQS_NUMBER_LP5];
-	u16 tx_oe_offset[DQS_NUMBER_LP5];
+	u16 tx_oe_offset[CHANNEL_MAX][RANK_MAX];
 };
 
 struct dramc_data {
@@ -104,5 +104,11 @@ struct dramc_param {
 	void (*do_putc)(unsigned char c);
 	struct dramc_data dramc_datas;
 };
+
+struct dramc_param *get_dramc_param_from_blob(void *blob);
+void dump_param_header(const void *blob);
+int validate_dramc_param(const void *blob);
+int is_valid_dramc_param(const void *blob);
+int initialize_dramc_param(void *blob);
 
 #endif  /* __SOC_MEDIATEK_MT8196_DRAMC_PARAM_H__ */

@@ -242,33 +242,10 @@
 #define GPE_DW_SHIFT		8
 #define GPE_DW_MASK		0xfff00
 #define PAD_OWN_REG_0		0x130
-#define GPI_INT_STS_0		0x300
-#define GPI_INT_EN_0		0x310
-#if CONFIG(SOC_INTEL_WILDCATLAKE)
-#define PAD_CFG_LOCK_REG_0	0x250
-#define HOSTSW_OWN_REG_0	0x270
-#define GPI_GPE_STS_0		0x320
-#define GPI_GPE_EN_0		0x330
-#define GPI_SMI_STS_0		0x344
-#define GPI_SMI_EN_0		0x354
-#define GPI_NMI_STS_0		0x364
-#define GPI_NMI_EN_0		0x374
-#define PAD_CFG_BASE		0x700
-#define GPP_V_START_OFFSET		0x700
-#define GPP_C_START_OFFSET		0x880
-#define GPP_F_START_OFFSET		0x700
-#define GPP_E_START_OFFSET		0x8a0
-#define GPP_RSVD_START_OFFSET	0x780
-#define GPP_H_START_OFFSET		0x700
-#define GPP_A_START_OFFSET		0x8d0
-#define GPP_VGPIO3_START_OFFSET		0xA90
-#define GPP_S_START_OFFSET		0x700
-#define GPP_B_START_OFFSET		0x700
-#define GPP_D_START_OFFSET		0x8b0
-#define GPP_VGPIO_START_OFFSET		0xA50
-#else
 #define PAD_CFG_LOCK_REG_0	0x290
 #define HOSTSW_OWN_REG_0	0x2c0
+#define GPI_INT_STS_0		0x300
+#define GPI_INT_EN_0		0x310
 #define GPI_GPE_STS_0		0x330
 #define GPI_GPE_EN_0		0x350
 #define GPI_SMI_STS_0		0x370
@@ -288,7 +265,7 @@
  * ref doc: Panther Lake H GPIO Implementation Summary (#817954)
  */
 #define GPP_E_START_OFFSET		0x9a0
-#define GPP_RSVD_START_OFFSET	0x800
+#define GPP_CPUJTAG_START_OFFSET	0x800
 #define GPP_H_START_OFFSET		0x8f0
 #define GPP_A_START_OFFSET		0xab0
 #define GPP_VGPIO3_START_OFFSET		0xc70
@@ -296,6 +273,5 @@
 #define GPP_B_START_OFFSET		0x800
 #define GPP_D_START_OFFSET		0x9b0
 #define GPP_VGPIO_START_OFFSET		0xb60
-#endif
 
 #endif //_SOC_PANTHERLAKE_GPIO_DEFS_H_

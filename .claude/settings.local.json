@@ -1,0 +1,37 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(ls -la /home/mahdi/repositories/reconstruction/server/ 2>/dev/null)",
+      "Read(//home/mahdi/repositories/reconstruction/server/**)",
+      "Bash(ls -la /home/mahdi/repositories/reconstruction/ 2>/dev/null)",
+      "Read(//home/mahdi/repositories/reconstruction/**)",
+      "Bash(grep -E \"y$\")",
+      "Bash(grep \"=y$\" /home/mahdi/repositories/coreboot/dasharo/coreboot/build/auto.conf)",
+      "Bash(build/util/ifdtool --extract /home/mahdi/repositories/reconstruction/server/server.bin --output /tmp/ifd_extract)",
+      "Read(//tmp/**)",
+      "Bash(build/util/ifdtool/ifdtool -x /home/mahdi/repositories/reconstruction/server/server.bin)",
+      "Bash(file /home/mahdi/repositories/reconstruction/server/flashregion_*.bin)",
+      "Bash(build/util/cbfstool build/coreboot.rom print)",
+      "Bash(git -C /home/mahdi/repositories/coreboot/dasharo/coreboot log asrock_spc741d8_v0.9.0 --oneline -5)",
+      "Bash(git -C /home/mahdi/repositories/coreboot/dasharo/coreboot show asrock_spc741d8_v0.9.0 --stat)",
+      "Bash(build/util/cbfstool build/coreboot.rom print -r COREBOOT)",
+      "Bash(make -C util/cbfstool)",
+      "Bash(make -C util/ifdtool)",
+      "Bash(util/ifdtool/ifdtool -h)",
+      "Bash(util/cbfstool/cbfstool --help)",
+      "Bash(util/ifdtool/ifdtool -d /home/mahdi/repositories/reconstruction/server/server.bin)",
+      "Bash(util/cbfstool/cbfstool build/coreboot.rom print -r COREBOOT)",
+      "Bash(util/cbfstool/cbfstool /home/mahdi/repositories/reconstruction/UEFIPAYLOAD.fd print)",
+      "Bash(util/cbfstool/cbfstool /home/mahdi/repositories/reconstruction/build_1/final_hybrid.rom print -r COREBOOT)",
+      "Bash(util/cbfstool/cbfstool /home/mahdi/repositories/reconstruction/build_1/final_hybrid.rom layout)",
+      "Bash(git checkout *)",
+      "Bash(git submodule *)",
+      "Bash(git -C payloads/external/edk2/workspace remote -v)",
+      "Bash(git -C payloads/external/edk2/workspace/dasharo log --oneline -3)",
+      "Bash(python3 -c ' *)",
+      "Bash(grep -v '^$')",
+      "Bash(git -C payloads/external/edk2/workspace/dasharo rev-parse HEAD)",
+      "Bash(ln -sf dasharo Dasharo)"
+    ]
+  }
+}

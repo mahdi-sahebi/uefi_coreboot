@@ -1,6 +1,0 @@
-## SPDX-License-Identifier: GPL-2.0-only
-
-## SPDX-License-Identifier: GPL-2.0-only
-
-config BOARD_MSI_PRO_B850_P
-	bool "PRO B850-P (WIFI)"

@@ -90,10 +90,7 @@ static void crb_tpm_fill_ssdt(const struct device *dev)
 
 	acpi_device_write_uid(dev);
 
-	if (CONFIG(HAVE_INTEL_PTT) && ptt_active())
-		acpigen_write_STA(ACPI_STATUS_DEVICE_ALL_ON);
-	else
-		acpigen_write_STA(ACPI_STATUS_DEVICE_ALL_OFF);
+	acpigen_write_STA(ACPI_STATUS_DEVICE_ALL_ON);
 
 	/* Resources */
 	acpigen_write_name("_CRS");
@@ -103,7 +100,7 @@ static void crb_tpm_fill_ssdt(const struct device *dev)
 	acpigen_write_resourcetemplate_footer();
 
 	if (!CONFIG(CHROMEOS) && CONFIG(TPM_PPI))
-		tpm_ppi_acpi_fill_ssdt(dev, NULL, 0);
+		tpm_ppi_acpi_fill_ssdt(dev);
 
 	acpigen_pop_len(); /* Device */
 }
@@ -120,7 +117,7 @@ static const char *crb_tpm_acpi_name(const struct device *dev)
 }
 
 #if CONFIG(GENERATE_SMBIOS_TABLES) && CONFIG(TPM2)
-static tpm_result_t tpm_crb_get_cap(uint32_t property, uint32_t *value)
+static tpm_result_t tpm_get_cap(uint32_t property, uint32_t *value)
 {
 	TPMS_CAPABILITY_DATA cap_data;
 	int i;
@@ -144,7 +141,7 @@ static tpm_result_t tpm_crb_get_cap(uint32_t property, uint32_t *value)
 	return TPM_CB_FAIL;
 }
 
-static int smbios_write_type43_tpm_crb(struct device *dev, int *handle, unsigned long *current)
+static int smbios_write_type43_tpm(struct device *dev, int *handle, unsigned long *current)
 {
 	struct crb_tpm_info info;
 	uint32_t tpm_manuf, tpm_family;
@@ -164,24 +161,24 @@ static int smbios_write_type43_tpm_crb(struct device *dev, int *handle, unsigned
 	}
 
 	/* Vendor ID is the value returned by TPM2_GetCapabiltiy TPM_PT_MANUFACTURER */
-	if (tpm_crb_get_cap(TPM_PT_MANUFACTURER, &tpm_manuf)) {
+	if (tpm_get_cap(TPM_PT_MANUFACTURER, &tpm_manuf)) {
 		printk(BIOS_DEBUG, "TPM2_GetCap TPM_PT_MANUFACTURER failed\n");
 		return 0;
 	}
 
 	tpm_manuf = be32toh(tpm_manuf);
 
-	if (tpm_crb_get_cap(TPM_PT_FIRMWARE_VERSION_1, &fw_ver1)) {
+	if (tpm_get_cap(TPM_PT_FIRMWARE_VERSION_1, &fw_ver1)) {
 		printk(BIOS_DEBUG, "TPM2_GetCap TPM_PT_FIRMWARE_VERSION_1 failed\n");
 		return 0;
 	}
 
-	if (tpm_crb_get_cap(TPM_PT_FIRMWARE_VERSION_2, &fw_ver2)) {
+	if (tpm_get_cap(TPM_PT_FIRMWARE_VERSION_2, &fw_ver2)) {
 		printk(BIOS_DEBUG, "TPM2_GetCap TPM_PT_FIRMWARE_VERSION_2 failed\n");
 		return 0;
 	}
 
-	if (tpm_crb_get_cap(TPM_PT_FAMILY_INDICATOR, &tpm_family)) {
+	if (tpm_get_cap(TPM_PT_FAMILY_INDICATOR, &tpm_family)) {
 		printk(BIOS_DEBUG, "TPM2_GetCap TPM_PT_FAMILY_INDICATOR failed\n");
 		return 0;
 	}
@@ -210,12 +207,17 @@ static struct device_operations __maybe_unused crb_ops = {
 	.acpi_fill_ssdt = crb_tpm_fill_ssdt,
 #endif
 #if CONFIG(GENERATE_SMBIOS_TABLES) && CONFIG(TPM2)
-	.get_smbios_data	= smbios_write_type43_tpm_crb,
+	.get_smbios_data	= smbios_write_type43_tpm,
 #endif
 };
 
 static void enable_dev(struct device *dev)
 {
+	if (crb_tis_probe(NULL) == NULL) {
+		dev->enabled = 0;
+		return;
+	}
+
 #if !DEVTREE_EARLY
 	dev->ops = &crb_ops;
 #endif

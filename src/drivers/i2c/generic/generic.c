@@ -141,8 +141,7 @@ void i2c_generic_fill_ssdt(const struct device *dev,
 			config->enable_off_delay_ms,
 			&config->stop_gpio,
 			config->stop_delay_ms,
-			config->stop_off_delay_ms,
-			config->use_gpio_for_status
+			config->stop_off_delay_ms
 		};
 		acpi_device_add_power_res(&power_res_params);
 	}

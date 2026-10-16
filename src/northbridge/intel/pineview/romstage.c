@@ -27,9 +27,8 @@ __weak void mb_pirq_setup(void)
 void mainboard_romstage_entry(void)
 {
 	u8 spd_addrmap[4] = {};
-	int boot_path;
-	bool cbmem_was_initted;
-	bool s3resume = false;
+	int boot_path, cbmem_was_initted;
+	int s3resume = 0;
 
 	/* Do some early chipset init, necessary for RAM init to work */
 	i82801gx_early_init();

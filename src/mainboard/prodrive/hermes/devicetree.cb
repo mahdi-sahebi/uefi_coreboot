@@ -23,7 +23,7 @@ chip soc/intel/cannonlake
 	register "SataPortsHotPlug[6]" = "1"
 	register "SataPortsHotPlug[7]" = "1"
 
-	register "PchHdaDspEnable" = "false"
+	register "PchHdaDspEnable" = "0"
 	register "PchHdaAudioLinkHda" = "1"
 
 	register "PcieClkSrcUsage[0]" = "20"		# PCIe Slot1
@@ -171,51 +171,59 @@ chip soc/intel/cannonlake
 		device ref uart2 hidden end # in ACPI mode
 		device ref pcie_rp21 on
 			smbios_slot_desc "SlotTypePciExpressGen3X16" "SlotLengthOther" "SLOT1" "SlotDataBusWidth4X"
-			register "PcieRpLtrEnable[20]" = "true"
-			register "PcieRpSlotImplemented[20]" = "true"
+			register "PcieRpEnable[20]" = "1"
+			register "PcieRpLtrEnable[20]" = "1"
+			register "PcieRpSlotImplemented[20]" = "1"
 			register "PcieRpMaxPayload[20]" = "RpMaxPayload_256"
 			register "PcieRpAdvancedErrorReporting[20]" = "1"
 			register "PcieRpAspm[20]" = "AspmDisabled"
 		end
 		device ref pcie_rp1 on
 			smbios_slot_desc "SlotTypePciExpressGen3X16" "SlotLengthOther" "SLOT3" "SlotDataBusWidth4X"
-			register "PcieRpLtrEnable[0]" = "true"
-			register "PcieRpSlotImplemented[0]" = "true"
+			register "PcieRpEnable[0]" = "1"
+			register "PcieRpLtrEnable[0]" = "1"
+			register "PcieRpSlotImplemented[0]" = "1"
 			register "PcieRpMaxPayload[0]" = "RpMaxPayload_256"
 			register "PcieRpAdvancedErrorReporting[0]" = "1"
 			register "PcieRpAspm[0]" = "AspmDisabled"
 		end
 		device ref pcie_rp5 on	# PHY 3
-			register "PcieRpLtrEnable[4]" = "true"
+			register "PcieRpEnable[4]" = "1"
+			register "PcieRpLtrEnable[4]" = "1"
 			device pci 00.0 on
 				smbios_dev_info 3
 			end
 		end
 		device ref pcie_rp6 on	# PHY 4
-			register "PcieRpLtrEnable[5]" = "true"
+			register "PcieRpEnable[5]" = "1"
+			register "PcieRpLtrEnable[5]" = "1"
 			device pci 00.0 on
 				smbios_dev_info 4
 			end
 		end
 		device ref pcie_rp7 on	# PHY 2
-			register "PcieRpLtrEnable[6]" = "true"
+			register "PcieRpEnable[6]" = "1"
+			register "PcieRpLtrEnable[6]" = "1"
 			device pci 00.0 on
 				smbios_dev_info 2
 			end
 		end
 		device ref pcie_rp8 on	# PHY 1
-			register "PcieRpLtrEnable[7]" = "true"
+			register "PcieRpEnable[7]" = "1"
+			register "PcieRpLtrEnable[7]" = "1"
 			device pci 00.0 on
 				smbios_dev_info 1
 			end
 		end
 		device ref pcie_rp9 on
 			smbios_slot_desc "SlotTypePciExpressGen3X16" "SlotLengthOther" "M2 M" "SlotDataBusWidth4X"
-			register "PcieRpLtrEnable[8]" = "true"
-			register "PcieRpSlotImplemented[8]" = "true"
+			register "PcieRpEnable[8]" = "1"
+			register "PcieRpLtrEnable[8]" = "1"
+			register "PcieRpSlotImplemented[8]" = "1"
 		end
 		device ref pcie_rp14 on	# PHY 0
-			register "PcieRpLtrEnable[13]" = "true"
+			register "PcieRpEnable[13]" = "1"
+			register "PcieRpLtrEnable[13]" = "1"
 			device pci 00.0 on
 				smbios_dev_info 0
 			end
@@ -224,13 +232,15 @@ chip soc/intel/cannonlake
 			device pci 00.0 on	# Aspeed PCI Bridge
 				device pci 00.0 on end  # Aspeed 2500 VGA
 			end
-			register "PcieRpLtrEnable[14]" = "true"
-			register "PcieRpSlotImplemented[14]" = "true"
+			register "PcieRpEnable[14]" = "1"
+			register "PcieRpLtrEnable[14]" = "1"
+			register "PcieRpSlotImplemented[14]" = "1"
 		end
 		device ref pcie_rp16 on	# M.2 E/CNVi
 			# Disabled when CNVi is present
-			register "PcieRpLtrEnable[15]" = "true"
-			register "PcieRpSlotImplemented[15]" = "true"
+			register "PcieRpEnable[15]" = "1"
+			register "PcieRpLtrEnable[15]" = "1"
+			register "PcieRpSlotImplemented[15]" = "1"
 		end
 		device ref uart0 on  end
 		device ref uart1 on  end

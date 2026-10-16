@@ -42,6 +42,7 @@ chip northbridge/intel/sandybridge
 
 			register "xhci_switchable_ports" = "0xf"
 			register "superspeed_capable_ports" = "0xf"
+			register "xhci_overcurrent_mapping" = "0x4000201"
 			register "usb_port_config" = "{
 				{0, 3, 0 }, /* P00 disconnected */
 				{1, 1, 1 }, /* P01 left or right */
@@ -127,9 +128,11 @@ chip northbridge/intel/sandybridge
 					register "eventd_enable" = "0xff"
 					register "evente_enable" = "0x0d"
 
+					register "has_bdc_detection" = "1"
 					register "bdc_gpio_num" = "54"
 					register "bdc_gpio_lvl" = "0"
 
+					register "has_wwan_detection" = "1"
 					register "wwan_gpio_num" = "70"
 					register "wwan_gpio_lvl" = "0"
 				end

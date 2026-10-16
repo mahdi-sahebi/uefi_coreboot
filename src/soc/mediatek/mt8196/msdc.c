@@ -7,7 +7,6 @@
 
 #include <gpio.h>
 #include <soc/msdc.h>
-#include <soc/mt6373.h>
 #include <soc/regulator.h>
 
 static const struct pad_func sdcard_pins[] = {
@@ -30,7 +29,6 @@ void mtk_msdc_configure_sdcard(void)
 	}
 
 	/* enable SD card power */
-	mt6373_init_pmif_arb();
 	mainboard_enable_regulator(MTK_REGULATOR_VMCH, true);
 	mainboard_enable_regulator(MTK_REGULATOR_VMC, true);
 	mainboard_set_regulator_voltage(MTK_REGULATOR_VMCH, 3000000);

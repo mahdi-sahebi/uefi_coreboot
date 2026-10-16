@@ -170,7 +170,6 @@ static void eventlog_print_type(const struct event_header *event)
 		{ELOG_TYPE_PSR_DATA_LOST, "PSR data lost"},
 		{ELOG_TYPE_FW_SPLASH_SCREEN, "Firmware Splash Screen"},
 		{ELOG_TYPE_FW_CSE_SYNC, "Firmware CSE sync"},
-		{ELOG_TYPE_LOW_BATTERY_INDICATOR, "Low Battery boot"},
 		{ELOG_TYPE_EOL, "End of log"},
 	};
 
@@ -319,9 +318,8 @@ static int eventlog_print_data(const struct event_header *event)
 		{ELOG_WAKE_SOURCE_GPIO, " GPIO #"},
 		{ELOG_WAKE_SOURCE_PME_TBT, "PME - Thunderbolt"},
 		{ELOG_WAKE_SOURCE_PME_TCSS_XHCI, "PME - TCSS XHCI"},
-		{ELOG_WAKE_SOURCE_PME_TCSS_XDCI, "PME - TCSS XDCI"},
-		{ELOG_WAKE_SOURCE_PME_TCSS_DMA, "PME - TCSS DMA"},
-		{ELOG_WAKE_SOURCE_PME_BLUETOOTH, "PME - BLUETOOTH"},
+		{ELOG_WAKE_SOURCE_PME_TCSS_XHCI, "PME - TCSS XDCI"},
+		{ELOG_WAKE_SOURCE_PME_TCSS_XHCI, "PME - TCSS DMA"},
 		{0, NULL},
 	};
 	static const struct valstr ec_event_types[] = {
@@ -487,14 +485,9 @@ static int eventlog_print_data(const struct event_header *event)
 	};
 
 	static const struct valstr cse_sync_path_types[] = {
-		{ELOG_FW_PRE_RAM_CSE_SYNC, "Pre-RAM CSE Sync"},
-		{ELOG_FW_POST_RAM_CSE_SYNC, "Post-RAM CSE Sync"},
+		{ELOG_FW_EARLY_CSE_SYNC, "Early CSE Sync"},
+		{ELOG_FW_LATE_CSE_SYNC, "Late CSE Sync"},
 		{ELOG_FW_CSE_SYNC_AT_PAYLOAD, "CSE Sync at Payload"},
-		{0, NULL},
-	};
-
-	static const struct valstr low_battery_status[] = {
-		{ELOG_FW_ISSUE_SHUTDOWN, "Power Off"},
 		{0, NULL},
 	};
 
@@ -520,7 +513,6 @@ static int eventlog_print_data(const struct event_header *event)
 		[ELOG_TYPE_PSR_DATA_BACKUP]	= sizeof(uint8_t),
 		[ELOG_TYPE_FW_SPLASH_SCREEN]	= sizeof(uint8_t),
 		[ELOG_TYPE_FW_CSE_SYNC]		= sizeof(uint8_t),
-		[ELOG_TYPE_LOW_BATTERY_INDICATOR]	= sizeof(uint8_t),
 		[0xff]				= 0,
 	};
 
@@ -690,11 +682,6 @@ static int eventlog_print_data(const struct event_header *event)
 	case ELOG_TYPE_FW_CSE_SYNC: {
 		const uint8_t *cse_event = event_get_data(event);
 		eventlog_printf("%s", val2str(*cse_event, cse_sync_path_types));
-		break;
-	}
-	case ELOG_TYPE_LOW_BATTERY_INDICATOR: {
-		const uint8_t *low_battery_event = event_get_data(event);
-		eventlog_printf("%s", val2str(*low_battery_event, low_battery_status));
 		break;
 	}
 	default:

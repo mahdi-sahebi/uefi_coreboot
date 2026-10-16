@@ -44,6 +44,7 @@ chip northbridge/intel/sandybridge
 			# Do not enable xHCI Port 4 since WWAN USB is EHCI-only
 			register "xhci_switchable_ports" = "0x7"
 			register "superspeed_capable_ports" = "0x7"
+			register "xhci_overcurrent_mapping" = "0x4000201"
 
 			# Enable zero-based linear PCIe root port functions
 			register "pcie_port_coalesce" = "true"
@@ -123,7 +124,9 @@ chip northbridge/intel/sandybridge
 					#  BDC shorts pin14 and pin1
 					#  BDC's connector pin14 is left floating
 					#  BDC's connector pin1 is routed to SB GPIO 54
+					register "has_bdc_detection" = "0"
 
+					register "has_wwan_detection" = "1"
 					register "wwan_gpio_num" = "70"
 					register "wwan_gpio_lvl" = "0"
 				end

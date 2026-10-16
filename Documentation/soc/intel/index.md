@@ -16,5 +16,4 @@ Firmware Interface Table <fit.md>
 Apollolake <apollolake/index.md>
 CSE FW Update <cse_fw_update/cse_fw_update.md>
 Xeon Scalable processor <xeon_sp/index.md>
-Skylake/Kaby Lake BootGuard bypass <deguard.md>
 ```

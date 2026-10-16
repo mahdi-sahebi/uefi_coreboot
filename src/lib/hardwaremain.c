@@ -23,6 +23,7 @@
 #include <timer.h>
 #include <timestamp.h>
 #include <types.h>
+#include <pc80/vga.h>
 
 static boot_state_t bs_pre_device(void *arg);
 static boot_state_t bs_dev_init_chips(void *arg);
@@ -93,7 +94,7 @@ static boot_state_t bs_pre_device(void *arg)
 
 static boot_state_t bs_dev_init_chips(void *arg)
 {
-	timestamp_add_now(TS_DEVICE_INIT_CHIPS);
+	timestamp_add_now(TS_DEVICE_ENUMERATE);
 
 	/* Initialize chips early, they might disable unused devices. */
 	dev_initialize_chips();
@@ -103,8 +104,6 @@ static boot_state_t bs_dev_init_chips(void *arg)
 
 static boot_state_t bs_dev_enumerate(void *arg)
 {
-	timestamp_add_now(TS_DEVICE_ENUMERATE);
-
 	/* Find the devices we don't have hard coded knowledge about. */
 	dev_enumerate();
 
@@ -137,7 +136,7 @@ static boot_state_t bs_dev_init(void *arg)
 
 	/* And of course initialize devices on the bus */
 	dev_initialize();
-
+	
 	return BS_POST_DEVICE;
 }
 
@@ -194,14 +193,18 @@ static boot_state_t bs_write_tables(void *arg)
 static boot_state_t bs_payload_load(void *arg)
 {
 	payload_load();
+	vga_line_write(2, "[MN] bs_payload_load - ok");
 
 	return BS_PAYLOAD_BOOT;
 }
 
 static boot_state_t bs_payload_boot(void *arg)
 {
+	// vga_line_write(3, "[MN] bs_payload_boot - 0");
 	arch_bootstate_coreboot_exit();
+	// vga_line_write(3, "[MN] bs_payload_boot - 1");
 	payload_run();
+	// vga_line_write(3, "[MN] bs_payload_boot - 2");
 
 	printk(BIOS_EMERG, "Boot failed\n");
 	/* Returning from this state will fail because the following signals

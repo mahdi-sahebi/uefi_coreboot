@@ -33,7 +33,7 @@ ifneq ($(words $(CURDIR)),1)
 	$(error ERROR: Path to the main directory cannot contain spaces)
 endif
 
-ifeq ($(INNER_STATIC_ANALYSIS),y)
+ifeq ($(INNER_SCANBUILD),y)
 CC_real:=$(CC)
 endif
 
@@ -95,7 +95,7 @@ DOXYGEN_OUTPUT_DIR := doxygen
 
 all: real-all
 
-ifeq ($(INNER_STATIC_ANALYSIS),y)
+ifeq ($(INNER_SCANBUILD),y)
 CC:=$(CC_real)
 HOSTCC:=$(CC_real) --hostcc
 HOSTCXX:=$(CC_real) --hostcxx
@@ -218,12 +218,14 @@ endif
 
 CFLAGS += -std=gnu11 $(CFLAGS_$(ARCH-y))
 
+ifneq ($(INNER_SCANBUILD),y)
 ifeq ($(CONFIG_LP_COMPILER_LLVM_CLANG),y)
 CC:=clang
 ifneq ($(CONFIG_LP_ARCH_MOCK),y)
 CC += -m32
 endif
 HOSTCC:=clang
+endif
 endif
 
 ifeq ($(CONFIG_LP_CCACHE),y)
@@ -242,17 +244,22 @@ strip_quotes = $(subst ",,$(subst \",,$(1)))
 # The primary target needs to be here before we include the
 # other files
 
-ifeq ($(INNER_STATIC_ANALYSIS),y)
-CONFIG_LP_STATIC_ANALYSIS__ENABLE:=
+ifeq ($(INNER_SCANBUILD),y)
+CONFIG_LP_SCANBUILD_ENABLE:=
 endif
 
-ifeq ($(CONFIG_LP_STATIC_ANALYSIS_ENABLE),y)
-ifneq ($(CONFIG_LP_STATIC_ANALYSIS_REPORT_LOCATION),)
-CONFIG_LP_STATIC_ANALYSIS_LOCATION:=-o $(CONFIG_LP_STATIC_ANALYSIS_REPORT_LOCATION)
+ifeq ($(CONFIG_LP_SCANBUILD_ENABLE),y)
+ifneq ($(CONFIG_LP_SCANBUILD_REPORT_LOCATION),)
+CONFIG_LP_SCANBUILD_REPORT_LOCATION:=-o $(CONFIG_LP_SCANBUILD_REPORT_LOCATION)
 endif
 real-all:
-	find src -name '*.c' -o -name '*.h' | xargs clang-tidy $(CONFIG_LP_CLANG_TIDY_CHECKS)
-	$(MAKE) INNER_STATIC_ANALYSIS=y
+	echo '#!/bin/sh' > .ccwrap
+	echo 'CC="$(CC)"' >> .ccwrap
+	echo 'if [ "$$1" = "--hostcc" ]; then shift; CC="$(HOSTCC)"; fi' >> .ccwrap
+	echo 'if [ "$$1" = "--hostcxx" ]; then shift; CC="$(HOSTCXX)"; fi' >> .ccwrap
+	echo 'eval $$CC $$*' >> .ccwrap
+	chmod +x .ccwrap
+	scan-build $(CONFIG_LP_SCANBUILD_REPORT_LOCATION) -analyze-headers --use-cc=$(top)/.ccwrap --use-c++=$(top)/.ccwrap $(MAKE) INNER_SCANBUILD=y
 else
 real-all: real-target
 endif

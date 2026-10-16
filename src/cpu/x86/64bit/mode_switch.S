@@ -19,26 +19,12 @@ protected_mode_call_wrapper:
 	movl	%gs, %eax
 	push	%rax
 
-	/* Backup IDT to stack */
-	sub	$16, %rsp
-	sidt	(%rsp)
-
 	/* Store stack pointer */
 	mov	%rsp, %rbp
 
-	/* Backup cr3 to stack */
-	mov	%cr3, %rax
-	push	%rax
-
-	/* New IDT to stack */
-	pushq	$0
-	pushq	$0
-
-	/* Align stack */
+	/* Align stack and make space for arguments */
 	movabs	$0xfffffffffffffff0, %rax
 	andq	%rax, %rsp
-
-	/* Make room for arguments on stack */
 	sub	$16, %rsp
 
 	/* Arguments to stack */
@@ -50,9 +36,6 @@ protected_mode_call_wrapper:
 	/* Drop to protected mode */
 	#include <cpu/x86/64bit/exit32.inc>
 
-	/* Load zero IDT. x86_32 FSP doesn't like to find a x86_64 IDT */
-	lidt	-24(%ebp)
-
 	/* Fetch function to call */
 	movl	12(%esp), %ebx
 
@@ -60,21 +43,14 @@ protected_mode_call_wrapper:
 	call	*%ebx
 	movl	%eax, %ebx
 
-	/*
-	 * Back to long mode by using cr3 previously stored on stack.
-	 * Preserves ebx.
-	 */
-	setup_longmode -8(%ebp)
+	/* Preserves ebx */
+	setup_longmode $PM4LE
 
 	/* Place return value in rax */
 	movl	%ebx, %eax
 
 	/* Restore stack pointer */
 	mov	%rbp, %rsp
-
-	/* Restore IDT */
-	lidt	(%rsp)
-	add	$16, %rsp
 
 	/* Restore registers */
 	pop	%rbx

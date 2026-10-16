@@ -161,14 +161,13 @@ int gettimeofday(struct timeval *tv, void *tz)
 	return 0;
 }
 
-#if !CONFIG(LP_ARCH_HAS_NDELAY)
-void ndelay(uint64_t ns)
+__attribute__((weak))
+void arch_ndelay(uint64_t ns)
 {
 	uint64_t delta = ns * timer_hz() / NSECS_PER_SEC;
 	uint64_t start = timer_raw_value();
 	while (timer_raw_value() - start < delta) ;
 }
-#endif
 
 u64 timer_us(u64 base)
 {

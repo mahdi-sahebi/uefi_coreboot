@@ -397,15 +397,8 @@ static struct aoss *const aoss = (void *)AOSS_CC_BASE;
 static struct shrm *const shrm = (void *)SHRM_SPROC_BASE;
 
 #define clock_reset_aop()  \
-	do {  \
-		clock_reset_subsystem(&aoss->aoss_cc_apcs_misc, AOP_RESET_SHFT);  \
-		printk(BIOS_DEBUG, "SOC:AOP brought out of reset.\n");  \
-	} while (0)
-
+	clock_reset_subsystem(&aoss->aoss_cc_apcs_misc, AOP_RESET_SHFT)
 #define clock_reset_shrm()  \
-	do {  \
-		clock_reset_subsystem(&shrm->shrm_sproc_ctrl, SHRM_RUN_STALL);  \
-		printk(BIOS_DEBUG, "SOC:SHRM brought out of reset.\n");  \
-	} while (0)
+	clock_reset_subsystem(&shrm->shrm_sproc_ctrl, SHRM_RUN_STALL)
 
 #endif	// __SOC_QUALCOMM_SC7280_CLOCK_H__

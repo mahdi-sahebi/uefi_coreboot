@@ -45,18 +45,6 @@ struct clock_freq_config {
 
 struct qupv3_clock {
 	u32 cbcr;
-#if CONFIG(QC_COMMON_QUPV3_2)
-	u8 _res0[0x08];
-#endif
-	struct clock_rcg_mnd clk;
-	struct clock_rcg_dfsr dfsr_clk;
-};
-
-struct qupv3_clock_v2 {
-	u32 cbcr;
-#if CONFIG(QC_COMMON_QUPV3_2)
-	u8 reserved[0x10];
-#endif
 	struct clock_rcg_mnd clk;
 	struct clock_rcg_dfsr dfsr_clk;
 };
@@ -124,10 +112,8 @@ enum clk_ctl_cmd_rcgr {
 
 enum clk_ctl_cbcr {
 	CLK_CTL_EN_SHFT  = 0,
-	CLK_CTL_ARES_SHFT = 2,
 	CLK_CTL_OFF_SHFT = 31,
 	CLK_CTL_EN_BMSK = 0x1,
-	CLK_CTL_ARES_BMSK = 0x1 << CLK_CTL_ARES_SHFT,
 	CLK_CTL_OFF_BMSK = 0x80000000,
 };
 
@@ -159,8 +145,6 @@ enum cb_err enable_and_poll_gdsc_status(void *gdscr_addr);
 
 void clock_reset_bcr(void *bcr_addr, bool assert);
 
-void clock_reset(void *cbcr_addr, bool assert);
-
 /*
  * clock_configure(): Configure the clock at the given clock speed (hz).  If hz
  * does not match any entries in the clk_cfg array, will throw and error and die().
@@ -181,15 +165,6 @@ enum cb_err clock_configure_enable_gpll(struct alpha_pll_reg_val_config *cfg,
 enum cb_err agera_pll_enable(struct alpha_pll_reg_val_config *cfg);
 
 enum cb_err zonda_pll_enable(struct alpha_pll_reg_val_config *cfg);
-
-enum cb_err lucidole_pll_enable(struct alpha_pll_reg_val_config *cfg);
-
-/*
- * zondaole_pll_enable(): Enable Zondaole PLL at the given configuration (cfg).
- *
- * @param cfg		struct alpha_pll_reg_val_config
- */
-enum cb_err zondaole_pll_enable(struct alpha_pll_reg_val_config *cfg);
 
 struct aoss {
 	u8 _res0[0x50020];

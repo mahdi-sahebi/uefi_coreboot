@@ -9,11 +9,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-/* An address can be relative to the image/file start but it can also be the address when
- * the image is mapped at 0xff000000. Used to ensure that we only attempt to read within
- * the limits of the file. */
-#define SPI_ROM_BASE 0xff000000
-
 #define ERASE_ALIGNMENT 0x1000U
 #define TABLE_ALIGNMENT 0x1000U
 #define TABLE_L2_SIZE_MAX 0x400U
@@ -34,8 +29,6 @@ enum platform {
 	PLATFORM_PHOENIX,
 	PLATFORM_GLINDA,
 	PLATFORM_GENOA,
-	PLATFORM_TURIN,
-	PLATFORM_FAEGAN,
 };
 
 typedef enum _amd_fw_type {
@@ -53,8 +46,6 @@ typedef enum _amd_fw_type {
 	AMD_FW_PSP_TRUSTLETKEY = 0x0d,
 	AMD_FW_PSP_SMU_FIRMWARE2 = 0x12,
 	AMD_DEBUG_UNLOCK = 0x13,
-	AMD_FW_PSP_TEEIPKEY = 0x15,
-	AMD_SEV_DRIVER = 0x1a,
 	AMD_BOOT_DRIVER = 0x1b,
 	AMD_SOC_DRIVER = 0x1c,
 	AMD_DEBUG_DRIVER = 0x1d,
@@ -101,17 +92,11 @@ typedef enum _amd_fw_type {
 	AMD_FW_MPIO = 0x5d,
 	AMD_FW_TPMLITE = 0x5f, /* family 17h & 19h */
 	AMD_FW_PSP_SMUSCS = 0x5f, /* family 15h & 16h */
-	AMD_FW_RAS_DRIVER = 0x64,
-	AMD_FW_RAS_TA = 0x65,
-	AMD_FW_FHP_DRIVER = 0x67,
-	AMD_FW_SPDM_DRIVER = 0x68,
-	AMD_FW_DPE_DRIVER = 0x69,
 	AMD_FW_DMCUB = 0x71,
 	AMD_FW_PSP_BOOTLOADER_AB = 0x73,
 	AMD_RIB = 0x76,
 	AMD_FW_AMF_SRAM = 0x85,
 	AMD_FW_AMF_DRAM = 0x86,
-	AMD_FW_MFD_MPM = 0x87,
 	AMD_FW_AMF_WLAN = 0x88,
 	AMD_FW_AMF_MFD = 0x89,
 	AMD_FW_MPDMA_TF = 0x8c,
@@ -119,21 +104,12 @@ typedef enum _amd_fw_type {
 	AMD_FW_MPCCX = 0x90,
 	AMD_FW_GMI3_PHY = 0x91,
 	AMD_FW_MPDMA_PM = 0x92,
-	AMD_FW_PROM21 = 0x93,
 	AMD_FW_LSDMA = 0x94,
 	AMD_FW_C20_MP = 0x95,
 	AMD_FW_FCFG_TABLE = 0x98,
 	AMD_FW_MINIMSMU = 0x9a,
-	AMD_FW_GFXIMU_0 = 0x9b,
-	AMD_FW_GFXIMU_1 = 0x9c,
 	AMD_FW_SRAM_FW_EXT = 0x9d,
-	AMD_FW_TOS_WHITELIST = 0x9f,
 	AMD_FW_UMSMU = 0xa2,
-	AMD_FW_S3IMG = 0xa0,
-	AMD_FW_USBDP = 0xa4,
-	AMD_FW_USBSS = 0xa5,
-	AMD_FW_USB4 = 0xa6,
-	AMD_FW_PROM19 = 0xa7,
 	AMD_FW_IMC = 0x200,	/* Large enough to be larger than the top BHD entry type. */
 	AMD_FW_GEC,
 	AMD_FW_XHCI,
@@ -155,7 +131,6 @@ typedef enum _amd_bios_type {
 	AMD_BIOS_EARLY_VGA = 0x69,
 	AMD_BIOS_MP2_CFG = 0x6a,
 	AMD_BIOS_PSP_SHARED_MEM = 0x6b,
-	AMD_BIOS_NV_ST = 0x6d,
 	AMD_BIOS_L2_PTR =  0x70,
 	AMD_BIOS_INVALID,
 	AMD_BIOS_SKIP
@@ -186,15 +161,12 @@ typedef struct _embedded_firmware {
 	uint32_t bios0_entry; /* todo: add way to select correct entry */
 	uint32_t bios1_entry;
 	uint32_t bios2_entry;
-	union {
-		struct second_gen_efs efs_gen;
-		uint32_t multi_gen_efs;
-	};
+	struct second_gen_efs efs_gen;
 	uint32_t bios3_entry;
 	uint32_t psp_bak_directory;
 	uint32_t promontory_fw_ptr;
 	uint32_t lp_promontory_fw_ptr;
-	uint32_t promontory19_fw_ptr;
+	uint32_t reserved_38h;
 	uint32_t reserved_3Ch;
 	uint8_t spi_readmode_f15_mod_60_6f;
 	uint8_t fast_speed_new_f15_mod_60_6f;
@@ -208,14 +180,7 @@ typedef struct _embedded_firmware {
 	uint8_t micron_detect_f17_mod_30_3f;
 	uint8_t reserved_4Ah;
 	uint8_t reserved_4Bh;
-	uint16_t vendor_id;
-	uint16_t board_id;
-	uint8_t espi0_config;
-	uint8_t espi1_config;
-	uint8_t espi0_config1;
-	uint8_t espi1_config1;
-	uint32_t ubu_table;
-	uint8_t bios_size;
+	uint32_t reserved_4Ch;
 } __attribute__((packed, aligned(16))) embedded_firmware;
 
 typedef struct _psp_directory_header {
@@ -229,16 +194,8 @@ typedef struct _psp_directory_header {
 			uint32_t spi_block_size:4;
 			uint32_t base_addr:15;
 			uint32_t address_mode:2;
-			uint32_t version:1;
+			uint32_t not_used:1;
 		} __attribute__((packed)) additional_info_fields;
-		struct {
-			uint32_t dir_size:16;
-			uint32_t spi_block_size:4;
-			uint32_t dir_header_size:4;
-			uint32_t address_mode:2;
-			uint32_t reserved:5;
-			uint32_t version:1;
-		} __attribute__((packed)) additional_info_fields_v1;
 	};
 } __attribute__((packed, aligned(16))) psp_directory_header;
 
@@ -299,31 +256,20 @@ typedef struct _bios_directory_hdr {
 			uint32_t spi_block_size:4;
 			uint32_t base_addr:15;
 			uint32_t address_mode:2;
-			uint32_t version:1;
+			uint32_t not_used:1;
 		} __attribute__((packed)) additional_info_fields;
-		struct {
-			uint32_t dir_size:16;
-			uint32_t spi_block_size:4;
-			uint32_t dir_header_size:4;
-			uint32_t address_mode:2;
-			uint32_t reserved:5;
-			uint32_t version:1;
-		} __attribute__((packed)) additional_info_fields_v1;
 	};
 } __attribute__((packed, aligned(16))) bios_directory_hdr;
 
 typedef struct _bios_directory_entry {
 	uint8_t type;
 	uint8_t region_type;
-	uint8_t reset:1;
-	uint8_t copy:1;
-	uint8_t ro:1;
-	uint8_t compressed:1;
-	uint8_t inst:4;
-	uint8_t subprog:3;
-	uint8_t romid:2;
-	uint8_t writable:1;
-	uint8_t rsvd:2;
+	int reset:1;
+	int copy:1;
+	int ro:1;
+	int compressed:1;
+	int inst:4;
+	uint8_t subprog; /* b[7:3] reserved */
 	uint32_t size;
 	uint64_t source:62;
 	uint64_t address_mode:2;
@@ -456,22 +402,6 @@ struct amd_fw_header {
 	uint8_t reserved_80[128];
 } __packed;
 
-/* SEV Specification chapter B.1 (55766 PUB) */
-struct amd_fw_key {
-	uint32_t version;
-	uint8_t key_id[16];
-	uint8_t certifying_id[16];
-	uint32_t key_usage;
-	uint8_t reserved[16];
-	uint32_t exponent_size;
-	uint32_t modulus_size;
-	/*
-	uint8_t exponent[exponent_size];
-	uint8_t modulus[modulus_size];
-	uint8_t signature[modulus_size];
-	*/
-} __packed;
-
 /* Based on the available PSP resources and increasing number of signed PSP binaries,
    AMD recommends to split the hash table into 3 parts for now. */
 #define MAX_NUM_HASH_TABLES 3
@@ -501,29 +431,22 @@ typedef struct _amd_cb_config {
 	enum platform soc_id;
 
 	uint8_t efs_spi_readmode, efs_spi_speed, efs_spi_micron_flag;
-	uint8_t efs_espi0_config;
-	uint8_t efs_espi0_config1;
-	uint8_t efs_espi1_config;
-	uint8_t efs_espi1_config1;
 	uint32_t body_location, efs_location;
 	uint64_t signed_start_addr;
 	char *manifest_file;
 	const char *signed_output_file;
 	char *output, *config;
 	char *combo_config[MAX_COMBO_ENTRIES];
-	char *sbom_dir;		/* if set, generate CoSWID SBOM JSON files here */
-	char *sbom_license;	/* if set, license link recorded in those files */
 	int debug;
 } amd_cb_config;
 
 typedef struct _context {
 	char *rom;		/* target buffer, size of flash device */
 	uint32_t rom_size;	/* size of flash device */
-	uint32_t address_mode;	/* 0:abs address; 1:relative to flash; 2: relative to table 3: relative to partition */
+	uint32_t address_mode;	/* 0:abs address; 1:relative to flash; 2: relative to table */
 	uint32_t current;	/* pointer within flash & proxy buffer */
 	uint32_t current_pointer_saved;
 	uint32_t current_table;
-	uint32_t combo_index;
 	void *amd_psp_fw_table_clean;
 	void *amd_bios_table_clean;
 	struct _combo_apcb {
@@ -544,10 +467,7 @@ void process_signed_psp_firmwares(const char *signed_rom,
 		uint64_t signed_start_addr,
 		enum platform soc_id);
 int find_bios_entry(amd_bios_type type);
-void generate_sbom_psp(const char *sbom_dir, amd_fw_entry *fw_table,
-		       const char *license_href);
-void generate_sbom_bios(const char *sbom_dir, amd_bios_entry *fw_table,
-			const char *license_href);
+bool needs_ish(enum platform platform_type);
 
 #define EFS_FILE_SUFFIX ".efs"
 #define TMP_FILE_SUFFIX ".tmp"

@@ -129,21 +129,13 @@ static void route_i8259_irq0(uintptr_t ioapic_base)
 static void set_ioapic_id(uintptr_t ioapic_base, u8 ioapic_id)
 {
 	int i;
-	u32 reg;
 
 	printk(BIOS_DEBUG, "IOAPIC: Initializing IOAPIC at %" PRIxPTR "\n",
 	       ioapic_base);
 	printk(BIOS_DEBUG, "IOAPIC: ID = 0x%02x\n", ioapic_id);
 
-	reg = io_apic_read(ioapic_base, 0x00);
-
-	if (CONFIG(IOAPIC_8BIT_ID))
-		reg &= 0x00ffffff;
-	else
-		reg &= 0xf0ffffff;
-
-	reg |= (ioapic_id << 24);
-	io_apic_write(ioapic_base, 0x00, reg);
+	io_apic_write(ioapic_base, 0x00,
+		      (io_apic_read(ioapic_base, 0x00) & 0xf0ffffff) | (ioapic_id << 24));
 
 	printk(BIOS_SPEW, "IOAPIC: Dumping registers\n");
 	for (i = 0; i < 3; i++)
@@ -230,15 +222,13 @@ void setup_ioapic(uintptr_t ioapic_base, u8 ioapic_id)
 
 void register_new_ioapic_gsi0(uintptr_t ioapic_base)
 {
-	setup_ioapic(ioapic_base, CONFIG(IOAPIC_PREDEFINED_ID) ?
-				  get_ioapic_id(ioapic_base) : 0);
+	setup_ioapic(ioapic_base, 0);
 }
 
 void register_new_ioapic(uintptr_t ioapic_base)
 {
 	static u8 ioapic_id;
 	ioapic_id++;
-	set_ioapic_id(ioapic_base, CONFIG(IOAPIC_PREDEFINED_ID) ?
-				   get_ioapic_id(ioapic_base) : ioapic_id);
+	set_ioapic_id(ioapic_base, ioapic_id);
 	clear_vectors(ioapic_base, 0, ioapic_get_max_vectors(ioapic_base) - 1);
 }
