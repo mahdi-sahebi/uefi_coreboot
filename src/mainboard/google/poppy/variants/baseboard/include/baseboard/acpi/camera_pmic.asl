@@ -8,11 +8,10 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_UID, 0)
 		Name (_DDN, "TPS68470 PMIC")  /* _DDN: DOS Device Name */
 		Name (CAMD, 0x64)
-		External (CSTA, IntObj)
 
 		Method (_STA, 0, NotSerialized)
 		{
-			Return (CSTA)
+			Return (0x0F)
 		}
 
 		Method (PMON, 0, Serialized) {

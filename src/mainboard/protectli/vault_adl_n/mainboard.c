@@ -6,7 +6,6 @@
 #include <device/device.h>
 #include <pc80/i8254.h>
 #include <smbios.h>
-#include <soc/pci_devs.h>
 #include <soc/ramstage.h>
 #include <superio/ite/it8659e/chip.h>
 #include <superio/ite/it8659e/it8659e.h>
@@ -16,10 +15,10 @@
 const char *smbios_mainboard_product_name(void)
 {
 	if (CONFIG(BOARD_PROTECTLI_VP2430))
-		return CONFIG(ENABLE_EMMC) ? "VP2430" : "VP2430e";
+		return "VP2430";
 
 	if (CONFIG(BOARD_PROTECTLI_VP2440))
-		return CONFIG(ENABLE_EMMC) ? "VP2440" : "VP2440e";
+		return "VP2440";
 
 	u32 tmp[13];
 	const char *str = "Unknown Processor Name";
@@ -42,9 +41,9 @@ const char *smbios_mainboard_product_name(void)
 	}
 
 	if (strstr(str, "N100") != NULL)
-		return CONFIG(ENABLE_EMMC) ? "VP3210" : "VP3210e";
+		return "VP3210";
 	else if (strstr(str, "N305") != NULL)
-		return CONFIG(ENABLE_EMMC) ? "VP3230" : "VP3230e";
+		return "VP3230";
 	else
 		return CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME;
 }
@@ -86,15 +85,6 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 		 * params->PcieRpEnableCpm[10] = 1;
 		 */
 		params->PcieRpEnableCpm[11] = 1;
-
-		/*
-		 * VP2430 does not have clock gating, because not all CLKREQs are
-		 * connected. In tests, this meant that network performance was higher.
-		 * Disable clock gating manually on VP2440 to make it perform in line
-		 * with VP2430.
-		 */
-		params->PchPcieClockGating = false;
-		params->PchPciePowerGating = false;
 	}
 
 	// Enable port reset message on Type-C ports
@@ -113,27 +103,20 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 		params->IomTypeCPortPadCfg[3] = 0x0902000E; // GPP_A14
 	}
 
-	if (!CONFIG(ENABLE_EMMC)) {
-		params->ScsEmmcEnabled = 0;
-		pcidev_path_on_root(PCH_DEVFN_EMMC)->enabled = 0;
-	}
-
-	if (CONFIG(BOARD_PROTECTLI_AP2110)) {
-		/*
-		 * Right stacked Type-A uses TCSS port 1 (second TCSS, 0-indexed).
-		 * IOM must be told this is Type-A or it waits for CC assertion
-		 * indefinitely, leaving SS02 at Rx.Detect.
-		 * USB2 companion is usb2_port6 (usb2_ports[5]).
-		 */
-		params->EnableTcssCovTypeA[1] = 1;
-		params->MappingPchXhciUsbA[1] = 6;
-	}
-
 	// PMC-PD controller
 	params->PmcPdEnable = 1;
 
 	// IOM USB config
 	params->PchUsbOverCurrentEnable = 0;
+
+	if (CONFIG(BOARD_PROTECTLI_VP2440)) {
+		/*
+		 * Second Type-C port used as regular USB3.x for LTE.
+		 * Remap it to PCH xHCI first port.
+		 */
+		params->EnableTcssCovTypeA[1] = 1;
+		params->MappingPchXhciUsbA[1] = 6;
+	}
 }
 
 static void mainboard_final(void *chip_info)

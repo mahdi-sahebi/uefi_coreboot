@@ -14,5 +14,5 @@ void mainboard_romstage_entry(void)
 
 	sdram_initialize();
 
-	cbmem_recovery(false);
+	cbmem_recovery(0);
 }

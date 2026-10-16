@@ -23,50 +23,6 @@ In both cases you have to add `C` structs in ramstage to describe the
 option and group them together into a form. CFR objects should reside
 on the heap as they can be modified to match the current boot flow.
 
-### Overriding default values
-
-Mainboards often want to reuse CFR objects defined in SoC or common code
-but with different default values. Rather than duplicating the entire object
-definition, mainboards can declare an override table that maps option names
-to new default values.
-
-**Example:** Override defaults for several SoC-defined options:
-
-```
-#include <drivers/option/cfr_frontend.h>
-#include <intelblocks/pcie_rp.h>
-
-const struct cfr_default_override mb_cfr_overrides[] = {
-	CFR_OVERRIDE_BOOL("s0ix_enable", false),
-	CFR_OVERRIDE_ENUM("pciexp_aspm", ASPM_DISABLE),
-	CFR_OVERRIDE_NUMBER("igd_dvmt", 64),
-	CFR_OVERRIDE_END
-};
-
-void mb_cfr_setup_menu(struct lb_cfr *cfr_root)
-{
-	/* Register overrides before writing menu */
-	cfr_register_overrides(mb_cfr_overrides);
-	cfr_write_setup_menu(cfr_root, sm_root);
-}
-```
-
-When the CFR system writes the setup menu, it will check the override table
-for each option and use the override value if one exists. All other object
-metadata (name, help text, enum values, flags) comes from the original object.
-
-The following helper macros are available to populate the table:
-
-- `CFR_OVERRIDE_BOOL(name, value)`
-- `CFR_OVERRIDE_ENUM(name, value)`
-- `CFR_OVERRIDE_NUMBER(name, value)`
-- `CFR_OVERRIDE_VARCHAR(name, value)`
-- `CFR_OVERRIDE_END`
-
-Each macro encodes the override type, and the CFR backend validates that the
-override type matches the original object's type. If the types do not match,
-the override is ignored and a warning is printed.
-
 ### Updating CFR options
 
 The CFR options should be updated before tables are written.
@@ -78,7 +34,7 @@ coreboot table.
 EMI eeprom.
 
 ```
-static void update_serial(struct sm_object *new)
+static void update_serial(const struct sm_object *obj, struct sm_object *new)
 {
 	new->sm_varchar.default_value = get_emi_eeprom_vpd()->serial_number;
 }
@@ -94,9 +50,8 @@ static const struct sm_object serial_number = SM_DECLARE_VARCHAR({
 
 The CFR options can have a dependency that must be evaluated at runtime by
 the OS/payload that parses the CFR record and displays the UI.
-By using the `WITH_DEP()` macro you can specify another numeric option that
-is checked to hide the current option. The `WITH_DEP_VALUES()` macro allows
-specifying one or more values that cause the dependent option to be displayed.
+By using the `WITH_DEP()` macro you can specify another numberic option that
+is checked to hide the current option.
 
 **Example:** Declares a dependency from `sata_disable_port0` to `sata_enable`.
 The option `sata_disable_port0` will be hidden as long as "sata_enable" is 0.
@@ -119,37 +74,6 @@ static struct sm_object sata_disable_port0 = SM_DECLARE_BOOL({
 	.ui_helptext	= NULL,
 	.default_value	= false,
 }, WITH_DEP(&sata_enable));
-```
-
-**Example:** Declares a dependency from `com1_termination` to `com1_mode`.
-The option `com1_termination` will only be shown if `com1_mode` is set to RS-485.
-
-```
-#define COM_MODE_DISABLED 3
-#define COM_MODE_RS232    0
-#define COM_MODE_RS485    1
-
-static struct sm_object com1_mode = SM_DECLARE_ENUM({
-	.flags		= CFR_OPTFLAG_RUNTIME,
-	.opt_name	= "com1_mode",
-	.ui_name	= "COM1 Mode",
-	.ui_helptext	= NULL,
-	.default_value	= 1,
-	.values		= (const struct sm_enum_value[]) {
-				{ "Disabled", COM_MODE_DISABLED },
-				{ "RS-232",   COM_MODE_RS232    },
-				{ "RS-485",   COM_MODE_RS485    },
-				SM_ENUM_VALUE_END },
-});
-
-static struct sm_object com1_termination = SM_DECLARE_BOOL({
-	.flags		= CFR_OPTFLAG_RUNTIME,
-	.opt_name	= "com1_termination",
-	.ui_name	= "Enable COM1 termination resistors",
-	.ui_helptext	= NULL,
-	.default_value	= false,
-}, WITH_DEP_VALUES(&com1_mode, COM_MODE_RS485));
-
 ```
 
 ### Providing mainboard custom options

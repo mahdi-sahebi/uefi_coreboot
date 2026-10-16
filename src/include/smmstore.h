@@ -21,14 +21,7 @@
 #define SMMSTORE_CMD_RAW_WRITE 6
 #define SMMSTORE_CMD_RAW_CLEAR 7
 
-/*
- * Used by capsule updates as a standalone command or modifier to v2 commands.
- *
- * Availability depends on CONFIG(DRIVERS_EFI_UPDATE_CAPSULES). Usage of this
- * extension requires considering which portions of the flash is read-only or
- * otherwise protected to avoid causing problems while trying to overwrite
- * them.
- */
+/* Used by capsule updates as a standalone command or modifier to v2 commands */
 #define SMMSTORE_CMD_USE_FULL_FLASH 0x80
 
 /* Version 1 */
@@ -69,7 +62,7 @@ struct smmstore_params_init {
 struct smmstore_params_info {
 	uint32_t num_blocks;
 	uint32_t block_size;
-	uint64_t mmap_addr;
+	uint32_t mmap_addr;
 } __packed;
 
 /*
@@ -126,7 +119,6 @@ int smmstore_rawclear_region(uint32_t block_id);
 int smmstore_get_info(struct smmstore_params_info *info);
 #endif
 struct region_device;
-void smmstore_lookup_region_reinit(void);
 int smmstore_lookup_region(struct region_device *rstore);
 /* Returns 0 if normal parsing should continue, 1 otherwise */
 int smmstore_preprocess_cmd(uint8_t *cmd, void *param);

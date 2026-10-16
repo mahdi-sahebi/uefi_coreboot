@@ -12,18 +12,8 @@
 #include <intelblocks/cfg.h>
 #include <intelblocks/graphics.h>
 #include <fsp/graphics.h>
-#include <fsp/util.h>
 #include <soc/pci_devs.h>
 #include <types.h>
-
-/*
- * This GUID is used to identify memory resources related to the memory bandwidth
- * compression functionality for Intel Integrated Graphics Devices (IGD).
- */
-static const uint8_t memory_compression_guid[16] = {
-	0x79, 0x15, 0x9f, 0x8a, 0x72, 0xea, 0xb5, 0x4b,
-	0x90, 0x69, 0x54, 0x9a, 0x1b, 0xf7, 0xc4, 0xfd
-};
 
 /* Display Type:
 *  0 - only internal display aka eDP attached
@@ -299,16 +289,6 @@ static void graphics_dev_read_resources(struct device *dev)
 		res_bar0->flags |= IORESOURCE_FIXED;
 	}
 
-	const struct hob_resource *res =
-		fsp_find_resource_hob_by_guid(memory_compression_guid);
-	if (res) {
-		printk(BIOS_DEBUG,
-		       "Memory Compression HOB found: base=0x%08llx length=0x%08llx\n",
-		       res->addr, res->length);
-		reserved_ram_range(dev, 0, res->addr, res->length);
-
-	}
-
 	if (ENV_X86_32 && !CONFIG(BOARD_NOVACUSTOM_NUC_BOX)) {
 		/* Place framebuffer below 4G to ensure coreboot can access it */
 		struct resource *res_bar2 = find_resource(dev, PCI_BASE_ADDRESS_2);
@@ -369,13 +349,10 @@ const struct device_operations graphics_ops = {
 };
 
 static const unsigned short pci_device_ids[] = {
-	PCI_DID_INTEL_WCL_GT2_1,
-	PCI_DID_INTEL_WCL_GT2_2,
 	PCI_DID_INTEL_PTL_U_GT2_1,
 	PCI_DID_INTEL_PTL_H_GT2_1,
 	PCI_DID_INTEL_PTL_H_GT2_2,
 	PCI_DID_INTEL_PTL_H_GT2_3,
-	PCI_DID_INTEL_PTL_H_GT2_4,
 	PCI_DID_INTEL_LNL_M_GT2,
 	PCI_DID_INTEL_RPL_U_GT1,
 	PCI_DID_INTEL_RPL_U_GT2,
@@ -393,8 +370,6 @@ static const unsigned short pci_device_ids[] = {
 	PCI_DID_INTEL_MTL_P_GT2_3,
 	PCI_DID_INTEL_MTL_P_GT2_4,
 	PCI_DID_INTEL_MTL_P_GT2_5,
-	PCI_DID_INTEL_ARL_H_GT2_1,
-	PCI_DID_INTEL_ARL_H_GT2_2,
 	PCI_DID_INTEL_APL_IGD_HD_505,
 	PCI_DID_INTEL_APL_IGD_HD_500,
 	PCI_DID_INTEL_CNL_GT2_ULX_1,
@@ -443,7 +418,6 @@ static const unsigned short pci_device_ids[] = {
 	PCI_DID_INTEL_CML_GT2_H_R1,
 	PCI_DID_INTEL_TGL_GT0,
 	PCI_DID_INTEL_TGL_GT1_H_32,
-	PCI_DID_INTEL_TGL_GT1_H_32_1,
 	PCI_DID_INTEL_TGL_GT1_H_16,
 	PCI_DID_INTEL_TGL_GT2_ULT,
 	PCI_DID_INTEL_TGL_GT2_ULX,

@@ -244,8 +244,7 @@ chip soc/intel/alderlake
 				register "stop_off_delay_ms" = "2"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "enable_delay_ms" = "5"
-				register "has_power_resource" = "true"
-				register "use_gpio_for_status" = "true"
+				register "has_power_resource" = "1"
 				device i2c 10 on
 					probe TOUCH_PANEL TOUCH_I2C
 				end
@@ -263,7 +262,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 10 on
 					probe TOUCH_PANEL TOUCH_HID_I2C
@@ -283,7 +281,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 15 on end
 			end
@@ -302,7 +299,6 @@ chip soc/intel/alderlake
 							"ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 40 on end
 			end
@@ -328,16 +324,12 @@ chip soc/intel/alderlake
 				register "acpi_name" = ""CAM0""
 				register "chip_name" = ""Ov 8856 Camera""
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_ADL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "2"
 				register "link_freq[0]" = "360000000"
 				register "link_freq[1]" = "180000000"

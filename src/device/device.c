@@ -13,6 +13,7 @@
 #include <string.h>
 #include <smp/spinlock.h>
 #include <timer.h>
+#include <pc80/vga.h>
 
 /** Pointer to the last device */
 extern struct device *last_dev;
@@ -564,8 +565,11 @@ static void init_dev(struct device *dev)
 static void init_link(struct bus *link)
 {
 	struct device *dev;
+char names[10];
+memset(names, 0x00, sizeof(names));
 
 	for (dev = link->children; dev; dev = dev->sibling) {
+		names[0]++;
 		post_code(POSTCODE_BS_DEV_INIT);
 		post_log_path(dev);
 		init_dev(dev);
@@ -592,6 +596,9 @@ void dev_initialize(void)
 	/* Now initialize everything. */
 	if (dev_root.downstream)
 		init_link(dev_root.downstream);
+
+	vga_line_write(1, "[MN] All devices in device tree have been initialized");
+
 	post_log_clear();
 
 	printk(BIOS_INFO, "Devices initialized\n");

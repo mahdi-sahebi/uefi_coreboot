@@ -172,11 +172,9 @@ static int run_dram_blob(struct dramc_param *dparam)
 
 	prog_set_entry(&dram, prog_entry(&dram), dparam);
 	prog_run(&dram);
-
-	u16 status = dparam->header.status;
-	if (status != DRAMC_SUCCESS) {
-		printk(BIOS_ERR, "DRAM-K: calibration failed: status = %d (%s)\n",
-		       status, get_status_string(status));
+	if (dparam->header.status != DRAMC_SUCCESS) {
+		printk(BIOS_ERR, "DRAM-K: calibration failed: status = %d\n",
+		       dparam->header.status);
 		return -3;
 	}
 

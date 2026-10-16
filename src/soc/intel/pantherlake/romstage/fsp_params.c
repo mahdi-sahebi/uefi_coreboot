@@ -2,21 +2,14 @@
 
 #include <cpu/intel/common/common.h>
 #include <cpu/x86/msr.h>
-#include <cpu/x86/mtrr.h>
-#include <device/pci.h>
-#include <elog.h>
-#include <fsp/debug.h>
 #include <fsp/fsp_debug_event.h>
 #include <fsp/util.h>
-#include <intelbasecode/ramtop.h>
 #include <intelblocks/cpulib.h>
 #include <soc/iomap.h>
 #include <soc/msr.h>
 #include <soc/pcie.h>
 #include <soc/romstage.h>
 #include <static.h>
-
-#include "ux.h"
 
 #define FSP_CLK_NOTUSED		0xff
 #define FSP_CLK_LAN		0x70
@@ -39,8 +32,8 @@ static void fill_fspm_igd_params(FSP_M_CONFIG *m_cfg,
 	};
 	m_cfg->InternalGraphics = !CONFIG(SOC_INTEL_DISABLE_IGD) && is_devfn_enabled(PCI_DEVFN_IGD);
 	if (m_cfg->InternalGraphics) {
-		/* IGD is enabled, set IGD stolen size to 64MB. */
-		m_cfg->IgdDvmt50PreAlloc = IGD_SM_64MB;
+		/* IGD is enabled, set IGD stolen size to 128MB. */
+		m_cfg->IgdDvmt50PreAlloc = IGD_SM_128MB;
 		/* DP port config */
 		m_cfg->DdiPortAConfig = config->ddi_port_A_config;
 		m_cfg->DdiPortBConfig = config->ddi_port_B_config;
@@ -50,8 +43,8 @@ static void fill_fspm_igd_params(FSP_M_CONFIG *m_cfg,
 			*ddi_port_upds[i].hpd = !!(config->ddi_ports_config[i] &
 						   DDI_ENABLE_HPD);
 		}
-		/* Enable memory bandwidth compression */
-		m_cfg->MemoryBandwidthCompression = 1;
+		/* Disable memory bandwidth compression */
+		m_cfg->MemoryBandwidthCompression = 0;
 	} else {
 		/* IGD is disabled, skip IGD init in FSP. */
 		m_cfg->IgdDvmt50PreAlloc = 0;
@@ -79,11 +72,6 @@ static void fill_fspm_mrc_params(FSP_M_CONFIG *m_cfg,
 			m_cfg->SaGvWpMask = config->sagv_wp_bitmap;
 		else
 			m_cfg->SaGvWpMask = SAGV_POINTS_0_1_2_3;
-
-		for (size_t i = 0; i < HOB_MAX_SAGV_POINTS; i++) {
-			m_cfg->SaGvFreq[i] = config->sagv_freq_mhz[i];
-			m_cfg->SaGvGear[i] = config->sagv_gear[i];
-		}
 	}
 
 	if (config->max_dram_speed_mts)
@@ -109,29 +97,10 @@ static void fill_fspm_cpu_params(FSP_M_CONFIG *m_cfg,
 	m_cfg->SmmRelocationEnable = 0;
 }
 
-static void fill_tme_params(FSP_M_CONFIG *m_cfg)
+static void fill_fspm_security_params(FSP_M_CONFIG *m_cfg,
+				      const struct soc_intel_pantherlake_config *config)
 {
 	m_cfg->TmeEnable = CONFIG(INTEL_TME) && is_tme_supported();
-	if (!m_cfg->TmeEnable || acpi_is_wakeup_s3())
-		return;
-	m_cfg->GenerateNewTmeKey = CONFIG(TME_KEY_REGENERATION_ON_WARM_BOOT);
-	if (m_cfg->GenerateNewTmeKey) {
-		uint32_t ram_top = get_ramtop_addr();
-		if (!ram_top) {
-			printk(BIOS_WARNING, "Invalid exclusion range start address. "
-						"Full memory encryption is enabled.\n");
-			return;
-		}
-		m_cfg->TmeExcludeBase = (ram_top - CACHE_TMP_RAMTOP);
-		m_cfg->TmeExcludeSize = CACHE_TMP_RAMTOP;
-	}
-}
-
-static void fill_fspm_security_params(FSP_M_CONFIG *m_cfg,
-				  const struct soc_intel_pantherlake_config *config)
-{
-	m_cfg->BiosGuard = 0;
-	fill_tme_params(m_cfg);
 }
 
 static void fill_fspm_uart_params(FSP_M_CONFIG *m_cfg,
@@ -184,7 +153,7 @@ static void fill_fspm_audio_params(FSP_M_CONFIG *m_cfg,
 	m_cfg->PchHdaIDispCodecDisconnect = !config->pch_hda_idisp_codec_enable;
 
 	for (int i = 0; i < MAX_HD_AUDIO_SDI_LINKS; i++)
-		m_cfg->PchHdaSdiEnable[i] = config->pch_hda_sdi_enable[i];
+		m_cfg->PchHdaSdiEnable[i] = !!config->pch_hda_sdi_enable[i];
 
 	/*
 	 * All the PchHdaAudioLink{Hda|Dmic|Ssp|Sndw}Enable UPDs are used by FSP
@@ -196,15 +165,6 @@ static void fill_fspm_audio_params(FSP_M_CONFIG *m_cfg,
 	memset(m_cfg->PchHdaAudioLinkDmicEnable, 0, sizeof(m_cfg->PchHdaAudioLinkDmicEnable));
 	memset(m_cfg->PchHdaAudioLinkSspEnable, 0, sizeof(m_cfg->PchHdaAudioLinkSspEnable));
 	memset(m_cfg->PchHdaAudioLinkSndwEnable, 0, sizeof(m_cfg->PchHdaAudioLinkSndwEnable));
-
-	/*
-	 * Get HDA Subsystem Vendor ID and Device ID from devicetree
-	 * and set it in FSPM UPD.
-	 */
-	const struct device_path path = { .type = DEVICE_PATH_PCI, .pci.devfn = PCI_DEVFN_HDA };
-	const struct device *dev = find_dev_path(pci_root_bus(), &path);
-	if (is_dev_enabled(dev) && dev->subsystem_vendor && dev->subsystem_device)
-		m_cfg->PchHdaSubSystemIds = dev->subsystem_vendor | (dev->subsystem_device << 16);
 }
 
 static void pcie_rp_init(FSP_M_CONFIG *m_cfg, uint32_t en_mask,
@@ -288,23 +248,12 @@ static void fill_fspm_vtd_params(FSP_M_CONFIG *m_cfg,
 static void fill_fspm_trace_params(FSP_M_CONFIG *m_cfg,
 				   const struct soc_intel_pantherlake_config *config)
 {
-	m_cfg->CpuCrashLogEnable = CONFIG(SOC_INTEL_CRASHLOG);
-
 	if (!CONFIG(SOC_INTEL_COMMON_BLOCK_TRACEHUB))
 		return;
 
 	m_cfg->PlatformDebugOption = CONFIG_SOC_INTEL_COMMON_DEBUG_CONSENT;
-
-	switch (CONFIG_SOC_INTEL_COMMON_DEBUG_CONSENT) {
-	case HW_DEBUG_TRACEHUB_ACTIVE:
-	case HW_DEBUG_TRACEHUB_READY:
-	case HW_DEBUG_TRACEHUB_POWEROFF:
-		m_cfg->DciEn = 1;
-		break;
-	case HW_DEBUG_DISABLE:
-		m_cfg->DciEn = 0;
-		break;
-	}
+	m_cfg->CpuCrashLogEnable = CONFIG(SOC_INTEL_CRASHLOG);
+	m_cfg->DciEn = 1;
 }
 
 static void fill_fspm_thermal_params(FSP_M_CONFIG *m_cfg,
@@ -313,92 +262,11 @@ static void fill_fspm_thermal_params(FSP_M_CONFIG *m_cfg,
 	m_cfg->TccActivationOffset = config->tcc_offset;
 }
 
-static const struct soc_intel_pantherlake_power_map *get_map(const struct soc_intel_pantherlake_config *config)
-{
-	uint16_t sa_pci_id = pci_read_config16(PCI_DEVFN_ROOT, PCI_DEVICE_ID);
-	if (sa_pci_id == 0xffff) {
-		printk(BIOS_WARNING, "Unknown SA PCI Device!\n");
-		return NULL;
-	}
-
-	uint8_t tdp = get_cpu_tdp();
-	for (size_t i = 0; i < ARRAY_SIZE(cpuid_to_ptl); i++) {
-		const struct soc_intel_pantherlake_power_map *current = &cpuid_to_ptl[i];
-		if (current->cpu_id == sa_pci_id && current->cpu_tdp == tdp)
-			return current;
-	}
-
-	printk(BIOS_ERR, "Could not find the SKU power map\n");
-	return NULL;
-}
-
 static void fill_fspm_vr_config_params(FSP_M_CONFIG *m_cfg,
 				       const struct soc_intel_pantherlake_config *config)
 {
-	const struct soc_intel_pantherlake_power_map *map = get_map(config);
-	if (!map)
-		return;
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->enable_fast_vmode); i++) {
-		if (!config->cep_enable[i])
-			continue;
-		m_cfg->CepEnable[i] = config->cep_enable[i];
-		if (config->enable_fast_vmode[i]) {
-			m_cfg->EnableFastVmode[i] = config->enable_fast_vmode[i];
-			m_cfg->IccLimit[i] = config->fast_vmode_i_trip[map->limits][i];
-		}
-	}
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->thermal_design_current[0]); i++) {
-		if (!config->thermal_design_current[map->tdc][i])
-			continue;
-		m_cfg->TdcEnable[i] = 1;
-		m_cfg->TdcCurrentLimit[i] = config->thermal_design_current[map->tdc][i];
-	}
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->icc_max[0]); i++) {
-		if (!config->icc_max[map->sku][i])
-			continue;
-		m_cfg->IccMax[i] = config->icc_max[map->sku][i];
-	}
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->tdc_mode); i++) {
-		m_cfg->TdcMode[i] = config->tdc_mode[i];
-		m_cfg->TdcTimeWindow[i] = config->tdc_time_window_ms[i];
-	}
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->ps1_threshold); i++) {
-		if (config->ps1_threshold[i])
-			m_cfg->Ps1Threshold[i] = config->ps1_threshold[i];
-		if (config->ps2_threshold[i])
-			m_cfg->Ps2Threshold[i] = config->ps2_threshold[i];
-		if (config->ps3_threshold[i])
-			m_cfg->Ps3Threshold[i] = config->ps3_threshold[i];
-	}
-}
-
-#if CONFIG(PLATFORM_HAS_EARLY_LOW_BATTERY_INDICATOR)
-void platform_display_early_shutdown_notification(void *arg)
-{
-	FSPM_UPD *mupd = arg;
-	ux_inform_user_of_poweroff_operation("low-battery shutdown", mupd);
-}
-#endif
-
-static void fill_fspm_acoustic_params(FSP_M_CONFIG *m_cfg,
-				      const struct soc_intel_pantherlake_config *config)
-{
-	if (!config->enable_acoustic_noise_mitigation)
-		return;
-
-	m_cfg->AcousticNoiseMitigation = config->enable_acoustic_noise_mitigation;
-	m_cfg->PcoreHysteresisWindow = config->pcore_hysteresis_window_ms;
-	m_cfg->EcoreHysteresisWindow = config->ecore_hysteresis_window_ms;
-
-	for (size_t i = 0; i < ARRAY_SIZE(config->disable_fast_pkgc_ramp); i++) {
-		m_cfg->FastPkgCRampDisable[i] = config->disable_fast_pkgc_ramp[i];
-		m_cfg->SlowSlewRate[i] = config->slow_slew_rate_config[i];
-	}
+	for (size_t i = 0; i < ARRAY_SIZE(m_cfg->EnableFastVmode); i++)
+		m_cfg->EnableFastVmode[i] = 0;
 }
 
 static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
@@ -422,84 +290,41 @@ static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
 		fill_fspm_trace_params,
 		fill_fspm_thermal_params,
 		fill_fspm_vr_config_params,
-		fill_fspm_acoustic_params,
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(fill_fspm_params); i++)
 		fill_fspm_params[i](m_cfg, config);
 }
 
-static void fsp_set_debug_level(FSP_M_CONFIG *m_cfg,
-	 enum fsp_log_level fsp_pcd_log_level, enum fsp_log_level fsp_mrc_log_level)
+static void fill_fsp_event_handler(FSPM_ARCH2_UPD *arch_upd, FSP_M_CONFIG *m_cfg)
 {
+	if (!CONFIG(FSP_USES_CB_DEBUG_EVENT_HANDLER))
+		return;
+
+	if (!CONFIG(CONSOLE_SERIAL) || !CONFIG(FSP_ENABLE_SERIAL_DEBUG)) {
+		/* Disable Serial debug message */
+		m_cfg->PcdSerialDebugLevel = 0;
+		/* Disable MRC debug message */
+		m_cfg->SerialDebugMrcLevel = 0;
+		return;
+	}
+
+	enum fsp_log_level log_level = fsp_map_console_log_level();
+	arch_upd->FspEventHandler = (uintptr_t)((FSP_EVENT_HANDLER *)fsp_debug_event_handler);
 	/* Set Serial debug message level */
-	m_cfg->PcdSerialDebugLevel = fsp_pcd_log_level;
+	m_cfg->PcdSerialDebugLevel = log_level;
 	/* Set MRC debug level */
-	m_cfg->SerialDebugMrcLevel = fsp_mrc_log_level;
-}
-
-static void fsp_control_log_level(FSPM_UPD *mupd, bool is_enabled)
-{
-	FSP_M_CONFIG *m_cfg = &mupd->FspmConfig;
-	FSPM_ARCHx_UPD *arch_upd = &mupd->FspmArchUpd;
-
-	enum fsp_log_level fsp_log_level = is_enabled ? fsp_get_pcd_debug_log_level() :
-			 FSP_LOG_LEVEL_DISABLE;
-	enum fsp_log_level mrc_log_level = is_enabled ? fsp_get_mrc_debug_log_level() :
-			 FSP_LOG_LEVEL_DISABLE;
-
-	fsp_set_debug_level(m_cfg, fsp_log_level, mrc_log_level);
-
-	if ((m_cfg->PcdSerialDebugLevel > FSP_LOG_LEVEL_VERBOSE) ||
-	    (m_cfg->SerialDebugMrcLevel > FSP_LOG_LEVEL_VERBOSE)) {
-		printk(BIOS_ERR, "Invalid FSP log level\n");
-		return;
-	}
-
-	/* Set Event Handler if log-level is non-zero */
-	if (m_cfg->PcdSerialDebugLevel || m_cfg->SerialDebugMrcLevel) {
-		arch_upd->FspEventHandler = (uintptr_t)((FSP_EVENT_HANDLER *)fsp_debug_event_handler);
-		/* Override SerialIo Uart default MMIO resource if log-level is non-zero */
-		m_cfg->SerialIoUartDebugMmioBase = UART_BASE(CONFIG_UART_FOR_CONSOLE);
-	}
-}
-
-static void fill_fsp_event_handler(FSPM_UPD *mupd)
-{
-	bool fsp_debug_enable = false;
-
-	if (CONFIG(CONSOLE_SERIAL) && CONFIG(FSP_ENABLE_SERIAL_DEBUG))
-		fsp_debug_enable = true;
-
-	fsp_control_log_level(mupd, fsp_debug_enable);
-}
-
-static void fill_fspm_sign_of_life(FSPM_UPD *mupd)
-{
-	FSPM_ARCHx_UPD *arch_upd = &mupd->FspmArchUpd;
-
-	if (arch_upd->NvsBufferPtr)
-		return;
-
-	/* To enhance the user experience, let's display on-screen guidance during memory
-	   training, acknowledging that the process may require patience. */
-	printk(BIOS_INFO, "Enabling FSP-M Sign-of-Life\n");
-	elog_add_event_byte(ELOG_TYPE_FW_EARLY_SOL, ELOG_FW_EARLY_SOL_MRC);
-	ux_inform_user_of_update_operation("memory training", mupd);
+	m_cfg->SerialDebugMrcLevel = log_level;
 }
 
 void platform_fsp_memory_init_params_cb(FSPM_UPD *mupd, uint32_t version)
 {
 	const struct soc_intel_pantherlake_config *config = config_of_soc();
+	FSP_M_CONFIG *m_cfg = &mupd->FspmConfig;
+	FSPM_ARCH2_UPD *arch_upd = &mupd->FspmArchUpd;
 
-	if (CONFIG(FSP_USES_CB_DEBUG_EVENT_HANDLER))
-		fill_fsp_event_handler(mupd);
-
-	soc_memory_init_params(&mupd->FspmConfig, config);
-
-	if (CONFIG(FSP_UGOP_EARLY_SIGN_OF_LIFE))
-		fill_fspm_sign_of_life(mupd);
-
+	fill_fsp_event_handler(arch_upd, m_cfg);
+	soc_memory_init_params(m_cfg, config);
 	mainboard_memory_init_params(mupd);
 }
 

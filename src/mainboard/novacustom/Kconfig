@@ -1,5 +1,3 @@
-## SPDX-License-Identifier: GPL-2.0-only
-
 if VENDOR_NOVACUSTOM
 
 choice
@@ -13,7 +11,7 @@ source "src/mainboard/novacustom/*/Kconfig"
 source "src/mainboard/clevo/*/Kconfig"
 
 config MAINBOARD_VENDOR
-	default "NovaCustom"
+	default "Notebook"
 
 config DGPU_ONLY_AVAILABLE
 	bool "dGPU Only mux pin is available"

@@ -15,24 +15,7 @@ static void write_ssdt_domain_io_producer_range_helper(const char *domain_name,
 	acpigen_resource_producer_io(base, limit);
 }
 
-static void ssdt_domain_io_producer_split_vga_io(const struct device *domain,
-						resource_t base, resource_t limit)
-{
-	if (base < VGA_IO_BASE && limit > VGA_IO_LIMIT) {
-		write_ssdt_domain_io_producer_range_helper(acpi_device_name(domain),
-								base,
-								MIN(limit, VGA_IO_BASE - 1));
-		write_ssdt_domain_io_producer_range_helper(acpi_device_name(domain),
-								VGA_IO_LIMIT + 1,
-								MIN(limit, PCI_IO_CONFIG_INDEX - 1));
-	} else {
-		write_ssdt_domain_io_producer_range_helper(acpi_device_name(domain),
-		base,
-		MIN(limit, PCI_IO_CONFIG_INDEX - 1));
-	}
-}
-
-static void write_ssdt_domain_io_producer_range(const struct device *domain,
+static void write_ssdt_domain_io_producer_range(const char *domain_name,
 						resource_t base, resource_t limit)
 {
 	/*
@@ -41,20 +24,12 @@ static void write_ssdt_domain_io_producer_range(const struct device *domain,
 	 * ports in the same ACPI device already covers.
 	 */
 	if (base < PCI_IO_CONFIG_INDEX) {
-		/*
-		 * Split further, if VGA not present on this domain, but may be present
-		 * on other domain.
-		 */
-		if (!(domain->downstream->bridge_ctrl & PCI_BRIDGE_CTL_VGA)) {
-			ssdt_domain_io_producer_split_vga_io(domain, base, limit);
-		} else {
-			write_ssdt_domain_io_producer_range_helper(acpi_device_name(domain),
-			base,
-			MIN(limit, PCI_IO_CONFIG_INDEX - 1));
-		}
+		write_ssdt_domain_io_producer_range_helper(domain_name,
+					base,
+					MIN(limit, PCI_IO_CONFIG_INDEX - 1));
 	}
 	if (limit > PCI_IO_CONFIG_LAST_PORT) {
-		write_ssdt_domain_io_producer_range_helper(acpi_device_name(domain),
+		write_ssdt_domain_io_producer_range_helper(domain_name,
 					MAX(base, PCI_IO_CONFIG_LAST_PORT + 1),
 					limit);
 	}
@@ -89,10 +64,6 @@ void pci_domain_fill_ssdt(const struct device *domain)
 		/* ACPI 6.4.2.5 I/O Port Descriptor */
 		acpigen_write_io16(PCI_IO_CONFIG_INDEX, PCI_IO_CONFIG_LAST_PORT, 1,
 				   PCI_IO_CONFIG_PORT_COUNT, 1);
-		if (CONFIG(MEMORY_MAPPED_TPM)) {
-			write_ssdt_domain_mmio_producer_range(acpi_device_name(domain),
-							      0xfed40000, 0xfed44fff);
-		}
 	}
 
 	struct resource *res;
@@ -108,7 +79,8 @@ void pci_domain_fill_ssdt(const struct device *domain)
 			continue;
 		switch (res->flags & IORESOURCE_TYPE_MASK) {
 		case IORESOURCE_IO:
-			write_ssdt_domain_io_producer_range(domain, res->base, res->limit);
+			write_ssdt_domain_io_producer_range(acpi_device_name(domain),
+							    res->base, res->limit);
 			break;
 		case IORESOURCE_MEM:
 			write_ssdt_domain_mmio_producer_range(acpi_device_name(domain),
@@ -121,9 +93,7 @@ void pci_domain_fill_ssdt(const struct device *domain)
 
 	if (domain->downstream->bridge_ctrl & PCI_BRIDGE_CTL_VGA) {
 		printk(BIOS_DEBUG, "%s _CRS: adding VGA resource\n", acpi_device_name(domain));
-		acpigen_resource_producer_io(VGA_IO_BASE, VGA_IO_LIMIT);
-		/* Report VGA MMIO + extra 128K for VGA OptionROM in legacy C segment */
-		acpigen_resource_producer_mmio(VGA_MMIO_BASE, VGA_MMIO_LIMIT + 0x20000,
+		acpigen_resource_producer_mmio(VGA_MMIO_BASE, VGA_MMIO_LIMIT,
 			MEM_RSRC_FLAG_MEM_READ_WRITE | MEM_RSRC_FLAG_MEM_ATTR_CACHE);
 	}
 

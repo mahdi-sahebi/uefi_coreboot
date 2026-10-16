@@ -38,8 +38,6 @@ enum {
 	OC3,
 	OC4,
 	OC5,
-	OC6,
-	OC7,
 	OC_SKIP = 8, /* Skip OC programming */
 };
 

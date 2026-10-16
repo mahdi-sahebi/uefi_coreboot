@@ -18,7 +18,6 @@ enum _spkr_tplg {
 	rt1015,
 	rt1019,
 	rt5650_sp,
-	tas2563,
 };
 
 /* Jack topology */

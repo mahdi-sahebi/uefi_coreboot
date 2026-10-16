@@ -197,7 +197,6 @@ struct elog_ec_event {
 #define  ELOG_WAKE_SOURCE_PME_TCSS_XHCI    0x2e
 #define  ELOG_WAKE_SOURCE_PME_TCSS_XDCI    0x2f
 #define  ELOG_WAKE_SOURCE_PME_TCSS_DMA     0x30
-#define  ELOG_WAKE_SOURCE_PME_BLUETOOTH    0x31
 
 struct elog_event_data_wake {
 	uint8_t source;
@@ -386,12 +385,9 @@ struct elog_event_extended_event {
  * Events related to CSE sync
  */
 #define ELOG_TYPE_FW_CSE_SYNC             0xbd
-#define  ELOG_FW_PRE_RAM_CSE_SYNC          0x0
-#define  ELOG_FW_POST_RAM_CSE_SYNC         0x1
+#define  ELOG_FW_EARLY_CSE_SYNC            0x0
+#define  ELOG_FW_LATE_CSE_SYNC             0x1
 #define  ELOG_FW_CSE_SYNC_AT_PAYLOAD       0x2
-
-#define ELOG_TYPE_LOW_BATTERY_INDICATOR   0xbe
-#define  ELOG_FW_ISSUE_SHUTDOWN            0x0
 
 /* Only the 7-LSB are used for size */
 #define ELOG_MAX_EVENT_SIZE                    0x7F

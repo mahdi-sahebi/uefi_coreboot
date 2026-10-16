@@ -15,6 +15,7 @@
 
 @par Specification Reference:
 **/
+
 #ifndef _MEM_INFO_HOB_H_
 #define _MEM_INFO_HOB_H_
 
@@ -34,9 +35,6 @@ extern EFI_GUID gSiMemoryPlatformDataGuid;
 // Must be same or higher than the corresponding definitions in MrcGlobalDefinitions.h
 #define _MAX_RANK_IN_CHANNEL       (4)       ///< The maximum number of ranks per channel.
 #define _MAX_SDRAM_IN_DIMM         (5)       ///< The maximum number of SDRAMs per DIMM.
-
-// Must match the corresponding definition in CMrcExtTypes.h
-#define PPR_REQUEST_MAX           (2)
 
 // Must match definitions in
 // Intel\OneSiliconPkg\IpBlock\MemoryInit\Mtl\Include\MrcInterface.h
@@ -80,7 +78,7 @@ typedef struct _EFI_HOB_GUID_TYPE {
 // Matches MAX_SPD_SAVE define in MRC
 //
 #ifndef MAX_SPD_SAVE
-#define MAX_SPD_SAVE 39
+#define MAX_SPD_SAVE 29
 #endif
 
 //
@@ -205,40 +203,28 @@ typedef struct {
   UINT16 tRDPRE;     ///< Read CAS to Precharge cmd delay
 } MRC_IP_TIMING;
 
-typedef union {
-  struct {
-    UINT16 ContinuationCount                   :  7; ///< Bits 6:0
-    UINT16 ContinuationParity                  :  1; ///< Bits 7:7
-    UINT16 LastNonZeroByte                     :  8; ///< Bits 15:8
-  } Bits;
-  UINT16 Data;
-  UINT8  Data8[2];
-} HOB_MANUFACTURER_ID_CODE;
-
 ///
 /// Memory SMBIOS & OC Memory Data Hob
 ///
 typedef struct {
-  UINT8                     Status;                  ///< See MrcDimmStatus for the definition of this field.
-  UINT8                     DimmId;
-  UINT32                    DimmCapacity;            ///< DIMM size in MBytes.
-  HOB_MANUFACTURER_ID_CODE  MfgId;                   ///< Dram module manufacturer ID
-  HOB_MANUFACTURER_ID_CODE  CkdMfgID;                ///< Clock Driver (CKD) Manufacturer ID
-  UINT8                     CkdDeviceRev;            ///< Clock Driver (CKD) device revision
-  HOB_MANUFACTURER_ID_CODE  DramMfgID;               ///< Manufacturer ID code for DRAM chip on the module
-  UINT8                     ModulePartNum[30];       ///< Module part number in ASCII
-  UINT8                     RankInDimm;              ///< The number of ranks in this DIMM.
-  UINT8                     SpdDramDeviceType;       ///< Save SPD DramDeviceType information needed for SMBIOS structure creation.
-  UINT8                     SpdModuleType;           ///< Save SPD ModuleType information needed for SMBIOS structure creation.
-  UINT8                     SpdSave[MAX_SPD_SAVE];   ///< Save SPD Manufacturing information needed for SMBIOS structure creation.
-  UINT16                    Speed;                   ///< The maximum capable speed of the device, in MHz
-  UINT8                     MdSocket;                ///< MdSocket: 0 = Memory Down, 1 = Socketed. Needed for SMBIOS structure creation.
-  UINT8                     Banks;                   ///< Number of banks the DIMM contains.
-  UINT8                     BankGroups;              ///< Number of bank groups the DIMM contains.
-  UINT8                     DeviceDensity;           ///< Device Density in Gb
-  UINT32                    SerialNumber;            ///< DIMM Serial Number
-  UINT8                     TotalWidth;              ///< Total Data width in bits
-  UINT8                     DataWidth;               ///< Primary bus width in bits
+  UINT8            Status;                  ///< See MrcDimmStatus for the definition of this field.
+  UINT8            DimmId;
+  UINT32           DimmCapacity;            ///< DIMM size in MBytes.
+  UINT16           MfgId;                   ///< Dram module manufacturer ID
+  UINT16           CkdMfgID;                ///< Clock Driver (CKD) Manufacturer ID
+  UINT8            CkdDeviceRev;            ///< Clock Driver (CKD) device revision
+  UINT16           DramMfgID;               ///< Manufacturer ID code for DRAM chip on the module
+  UINT8            ModulePartNum[20];       ///< Module part number for DDR3 is 18 bytes however for DDR4 20 bytes as per JEDEC Spec, so reserving 20 bytes
+  UINT8            RankInDimm;              ///< The number of ranks in this DIMM.
+  UINT8            SpdDramDeviceType;       ///< Save SPD DramDeviceType information needed for SMBIOS structure creation.
+  UINT8            SpdModuleType;           ///< Save SPD ModuleType information needed for SMBIOS structure creation.
+  UINT8            SpdModuleMemoryBusWidth; ///< Save SPD ModuleMemoryBusWidth information needed for SMBIOS structure creation.
+  UINT8            SpdSave[MAX_SPD_SAVE];   ///< Save SPD Manufacturing information needed for SMBIOS structure creation.
+  UINT16           Speed;                   ///< The maximum capable speed of the device, in MHz
+  UINT8            MdSocket;                ///< MdSocket: 0 = Memory Down, 1 = Socketed. Needed for SMBIOS structure creation.
+  UINT8            Banks;                   ///< Number of banks the DIMM contains.
+  UINT8            BankGroups;              ///< Number of bank groups the DIMM contains.
+  UINT8            DeviceDensity;           ///< Device Density in Gb
 } DIMM_INFO;
 
 typedef struct {
@@ -305,22 +291,16 @@ typedef struct _PPR_RESULT_COLUMNS_HOB {
   - Initial version. (from MTL)
   <b>Revision 2:</b>
   - Added MopPackages, MopDensity, MopRanks, MopVendor fields
-  <b>Revision 3:</b>
-  - Added MaxRankCapacity
-  - Removed DataWidth
-  - DIMM_INFO: increased ModulePartNum from 20 to 30 chars
-  - DIMM_INFO: Added SerialNumber, TotalWidth and DataWidth
-  - DIMM_INFO: Removed SpdModuleMemoryBusWidth
-  - MFG ID fields: use HOB_MANUFACTURER_ID_CODE instead of UINT16 for easier parsing
 
 **/
 typedef struct {
   UINT8             Revision;
+  UINT16            DataWidth;              ///< Data width, in bits, of this memory device
   /** As defined in SMBIOS 3.0 spec
     Section 7.18.2 and Table 75
   **/
-  UINT8             MemoryType;                 ///< DDR type: DDR5 or LPDDR5, uses SMBIOS MEMORY_DEVICE_TYPE encoding
-  UINT16            MaximumMemoryClockSpeed;    ///< The maximum capable speed of the device, in megahertz (MHz)
+  UINT8             MemoryType;             ///< DDR type: DDR3, DDR4, or LPDDR3
+  UINT16            MaximumMemoryClockSpeed;///< The maximum capable speed of the device, in megahertz (MHz)
   UINT16            ConfiguredMemoryClockSpeed; ///< The configured clock speed to the memory device, in megahertz (MHz)
   /** As defined in SMBIOS 3.0 spec
     Section 7.17.3 and Table 72
@@ -359,10 +339,6 @@ typedef struct {
   UINT16            PprRepairsSuccessful;              ///< PPR: Counts of repair successes
   PPR_RESULT_COLUMNS_HOB PprErrorInfo;                 ///< PPR: Error location
   UINT8             PprAvailableResources[MAX_NODE][MAX_CH][_MAX_RANK_IN_CHANNEL][_MAX_SDRAM_IN_DIMM]; ///< PPR available resources per device
-  BOOLEAN           MixedEccDimms;                     ///< TRUE if both ECC and nonECC Dimms were detected in the system
-  UINT8             MaxRankCapacity;                   ///< Maximum possible rank capacity in [GB]
-  UINT16            PprFailingChannelBitMask;          ///< PPR failing channel mask
-  BOOLEAN           PprTargetedStatus[PPR_REQUEST_MAX]; ///< PPR status of each Targeted PPR request (0 = Targeted PPR was successful, 1 = PPR failed)
 } MEMORY_INFO_DATA_HOB;
 
 /**
@@ -394,19 +370,6 @@ typedef struct {
   MEMORY_PLATFORM_DATA Data;
   UINT8                *Buffer;
 } MEMORY_PLATFORM_DATA_HOB;
-
-#define EFI_RMT_OS_VARIABLE_NAME        L"Rmt"
-#define RMT_ENABLE  1
-#define RMT_DISABLE 0
-
-extern EFI_GUID gRmtVariableGuid;
-
-//Structure of RMT UEFI variable which should be R/W by OS
-//EnDsRmt - To enable Memory margining support
-
-typedef struct {
-  UINT8                EnDsRmt;
-} RMT_VAR;
 
 #pragma pack (pop)
 

@@ -6,7 +6,6 @@
 enum soc_type {
 	SOC_PHOENIX,
 	SOC_PHOENIX2,
-	SOC_PHOENIX_AM5,
 	SOC_UNKNOWN,
 };
 

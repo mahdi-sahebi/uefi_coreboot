@@ -20,7 +20,7 @@ chip northbridge/intel/sandybridge
 		subsystemid 0x17aa 0x21f3 inherit
 
 		chip southbridge/intel/bd82x6x # Intel Series 6 Cougar Point PCH
-			register "docking_supported" = "true"
+			register "docking_supported" = "1"
 			register "gen1_dec" = "0x000c15e1"
 			register "gen2_dec" = "0x007c1601"
 			register "gen3_dec" = "0x000c06a1"
@@ -34,6 +34,7 @@ chip northbridge/intel/sandybridge
 			# Do not enable xHCI Port 4 since WWAN USB is EHCI-only
 			register "superspeed_capable_ports" = "0x7"
 			register "xhci_switchable_ports" = "0x7"
+			register "xhci_overcurrent_mapping" = "0x04000201"
 			register "usb_port_config" = "{
 				{ 1, 1,  0 },
 				{ 1, 1,  1 },
@@ -118,9 +119,11 @@ chip northbridge/intel/sandybridge
 					register "eventd_enable" = "0xff"
 					register "evente_enable" = "0x0d"
 
+					register "has_bdc_detection" = "1"
 					register "bdc_gpio_num" = "54"
 					register "bdc_gpio_lvl" = "0"
 
+					register "has_wwan_detection" = "1"
 					register "wwan_gpio_num" = "70"
 					register "wwan_gpio_lvl" = "0"
 				end
@@ -129,14 +132,14 @@ chip northbridge/intel/sandybridge
 
 					register "detect_gpio" = "21"
 
-					register "has_panel_hybrid_gpio" = "true"
+					register "has_panel_hybrid_gpio" = "1"
 					register "panel_hybrid_gpio" = "52"
-					register "panel_integrated_lvl" = "true"
+					register "panel_integrated_lvl" = "1"
 
-					register "has_backlight_gpio" = "false"
-					register "has_dgpu_power_gpio" = "false"
+					register "has_backlight_gpio" = "0"
+					register "has_dgpu_power_gpio" = "0"
 
-					register "has_thinker1" = "true"
+					register "has_thinker1" = "1"
 				end
 				chip drivers/pc80/tpm
 					device pnp 0c31.0 on end

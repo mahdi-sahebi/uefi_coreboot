@@ -16,43 +16,28 @@ romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SKUID) += ec_skuid.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SKUID) += ec_skuid.c
 
 ifeq ($(CONFIG_GENERATE_SMBIOS_TABLES),y)
-romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SMBIOS) += ec_smbios.c
-ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SMBIOS) += ec_smbios.c
+romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SKUID) += ec_smbios.c
+ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SKUID) += ec_smbios.c
 endif
 
 bootblock-y += ec.c
-bootblock-$(CONFIG_EC_GOOGLE_CHROMEEC_I2C) += ec_i2c.c
 bootblock-$(CONFIG_EC_GOOGLE_CHROMEEC_LPC) += ec_lpc.c
-bootblock-$(CONFIG_EC_GOOGLE_CHROMEEC_SPI) += ec_spi.c
-ifeq ($(CONFIG_EC_GOOGLE_CHROMEEC_SPI)$(CONFIG_EC_GOOGLE_CHROMEEC_I2C),y)
-bootblock-y += crosec_proto.c
-endif
-bootblock-$(CONFIG_EC_GOOGLE_CHROMEEC_MEC) += mec.c
-bootblock-$(CONFIG_EC_GOOGLE_CHROMEEC_RTK) += rtk.c
 ramstage-y += ec.c crosec_proto.c vstore.c usbc_mux.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_I2C) += ec_i2c.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_LPC) += ec_lpc.c
 ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SPI) += ec_spi.c
-ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_MEC) += mec.c
-ramstage-$(CONFIG_EC_GOOGLE_CHROMEEC_RTK) += rtk.c
 smm-y += ec.c crosec_proto.c smihandler.c vstore.c
 smm-$(CONFIG_EC_GOOGLE_CHROMEEC_I2C) += ec_i2c.c
 smm-$(CONFIG_EC_GOOGLE_CHROMEEC_LPC) += ec_lpc.c
 smm-$(CONFIG_EC_GOOGLE_CHROMEEC_SPI) += ec_spi.c
-smm-$(CONFIG_EC_GOOGLE_CHROMEEC_MEC) += mec.c
-smm-$(CONFIG_EC_GOOGLE_CHROMEEC_RTK) += rtk.c
 romstage-y += ec.c crosec_proto.c vstore.c
 romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_I2C) += ec_i2c.c
 romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_LPC) += ec_lpc.c
 romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SPI) += ec_spi.c
-romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_MEC) += mec.c
-romstage-$(CONFIG_EC_GOOGLE_CHROMEEC_RTK) += rtk.c
 verstage-y += ec.c crosec_proto.c vstore.c
 verstage-$(CONFIG_EC_GOOGLE_CHROMEEC_I2C) += ec_i2c.c
 verstage-$(CONFIG_EC_GOOGLE_CHROMEEC_LPC) += ec_lpc.c
 verstage-$(CONFIG_EC_GOOGLE_CHROMEEC_SPI) += ec_spi.c
-verstage-$(CONFIG_EC_GOOGLE_CHROMEEC_MEC) += mec.c
-verstage-$(CONFIG_EC_GOOGLE_CHROMEEC_RTK) += rtk.c
 ramstage-$(CONFIG_HAVE_ACPI_TABLES) += ec_acpi.c
 
 ramstage-$(CONFIG_VBOOT) += vboot_storage.c

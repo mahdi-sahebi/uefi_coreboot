@@ -4,7 +4,6 @@
 #define SOC_INTEL_COMMON_BLOCK_CFG_H
 
 #include <boot/coreboot_tables.h>
-#include <bootsplash.h>
 #include <intelblocks/gspi.h>
 #include <drivers/i2c/designware/dw_i2c.h>
 #include <intelblocks/mmc.h>
@@ -27,9 +26,6 @@ struct soc_intel_common_config {
 	uint8_t pch_thermal_trip;
 	struct mmc_dll_params emmc_dll;
 	enum lb_fb_orientation panel_orientation;
-	enum fw_splash_vertical_alignment logo_valignment;
-	/* Implies spacing from an edge for rendering footer logo */
-	uint8_t logo_bottom_margin;
 };
 
 /* This function to retrieve soc config structure required by common code */

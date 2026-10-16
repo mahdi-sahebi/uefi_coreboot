@@ -81,7 +81,7 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 		},
 
 		.ect			= true,
-		.UserBd			= BOARD_TYPE_ULT_ULX,
+		.UserBd			= BOARD_TYPE_MOBILE,
 		.LpDdrDqDqsReTraining	= true,
 
 		.lp5x_config = {
@@ -93,7 +93,7 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 
 	const struct mem_spd lpddr5_spd_info = {
 		.topo = MEM_TOPO_MEMORY_DOWN,
-		.cbfs_index = get_uint_option("memory_speed", 0),
+		.cbfs_index = 0,
 	};
 
 	memcfg_init(mupd, &mem_config, &lpddr5_spd_info, half_populated);

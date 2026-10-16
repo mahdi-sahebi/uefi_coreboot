@@ -110,20 +110,9 @@ boot_policy_manifest.bin-file := $(CONFIG_INTEL_CBNT_BOOT_POLICY_MANIFEST_BINARY
 boot_policy_manifest.bin-type := raw
 boot_policy_manifest.bin-align := 0x40
 
-ifeq ($(CONFIG_INTEL_ADD_TOP_SWAP_BOOTBLOCK),y)
-regions-for-file-boot_policy_manifest.bin = BOOTBLOCK,TOPSWAP
-endif
-
 $(call add_intermediate, add_bpm_fit, $(IFITTOOL) set_fit_ptr)
-	$(IFITTOOL) -r $(BB_FIT_REGION) -a -n boot_policy_manifest.bin -t 12 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
-
-ifeq ($(CONFIG_INTEL_ADD_TOP_SWAP_BOOTBLOCK),y)
-$(call add_intermediate, add_ts_bpm_fit, $(IFITTOOL) set_fit_ptr)
-	$(IFITTOOL) -r $(TS_FIT_REGION) -a -n boot_policy_manifest.bin -t 12 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
+	$(IFITTOOL) -r COREBOOT -a -n boot_policy_manifest.bin -t 12 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
 endif
-
-endif
-
 endif # CONFIG_INTEL_CBNT_GENERATE_BPM
 
 ifeq ($(CONFIG_INTEL_CBNT_GENERATE_KM),y)
@@ -171,17 +160,8 @@ key_manifest.bin-file := $(KM_FILE)
 key_manifest.bin-type := raw
 key_manifest.bin-align := 0x40
 
-ifeq ($(CONFIG_INTEL_ADD_TOP_SWAP_BOOTBLOCK),y)
-regions-for-file-key_manifest.bin = BOOTBLOCK,TOPSWAP
-endif
-
 $(call add_intermediate, add_km_fit, $(IFITTOOL) set_fit_ptr)
-	$(IFITTOOL) -r $(BB_FIT_REGION) -a -n key_manifest.bin -t 11 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
-
-ifeq ($(CONFIG_INTEL_ADD_TOP_SWAP_BOOTBLOCK),y)
-$(call add_intermediate, add_ts_km_fit, $(IFITTOOL) set_fit_ptr)
-	$(IFITTOOL) -r $(TS_FIT_REGION) -a -n key_manifest.bin -t 11 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
-endif
+	$(IFITTOOL) -r COREBOOT -a -n key_manifest.bin -t 11 -s $(CONFIG_CPU_INTEL_NUM_FIT_ENTRIES) -f $<
 endif
 
 endif # CONFIG_INTEL_CBNT_KM_ONLY_UNSIGNED

@@ -43,7 +43,6 @@ IMB-1222 <asrock/imb-1222.md>
 
 A88XM-E <asus/a88xm-e.md>
 F2A85-M <asus/f2a85-m.md>
-H610i-PLUS D4 <asus/h610i-plus-d4>
 P2B-LS <asus/p2b-ls.md>
 P3B-F <asus/p3b-f.md>
 P5Q <asus/p5q.md>
@@ -54,7 +53,6 @@ P8H77-V <asus/p8h77-v.md>
 P8Z77-M <asus/p8z77-m.md>
 P8Z77-M Pro <asus/p8z77-m_pro.md>
 P8Z77-V <asus/p8z77-v.md>
-P8Z77-V LE PLUS <asus/p8z77-v_le_plus.md>
 wifigo_v1 <asus/wifigo_v1.md>
 ```
 
@@ -99,14 +97,6 @@ QEMU x86 PC <emulation/qemu-i440fx.md>
 QEMU POWER9 <emulation/qemu-power9.md>
 ```
 
-## Erying
-
-```{toctree}
-:maxdepth: 1
-
-Polestar G613 Pro <erying/tgl/tgl_matx.md>
-```
-
 ## Facebook
 
 ```{toctree}
@@ -141,8 +131,7 @@ GA-H61M-S2PV <gigabyte/ga-h61m-s2pv.md>
 Compaq 8200 Elite SFF <hp/compaq_8200_sff.md>
 Compaq 8300 Elite SFF <hp/compaq_8300_sff.md>
 Compaq Elite 8300 USDT <hp/compaq_8300_usdt.md>
-Compaq Pro 6300 Series Microtower/SFF <hp/compaq_pro_6300_series.md>
-Pro 3x00 Series <hp/pro_3x00_series.md>
+Pro 3500 Series <hp/pro_3500_series.md>
 Z220 Workstation SFF <hp/z220_sff.md>
 ```
 
@@ -187,8 +176,6 @@ mAL-10 <kontron/mal10.md>
 Mainboard codenames <lenovo/codenames.md>
 Hardware Maintenance Manual of ThinkPads <lenovo/thinkpad_hmm.md>
 R60 <lenovo/r60.md>
-ThinkCentre M710s <lenovo/thinkcentre_m710s.md>
-ThinkCentre M700 / M900 Tiny <lenovo/thinkcentre_m900_tiny.md>
 T4xx common <lenovo/t4xx_series.md>
 X2xx common <lenovo/x2xx_series.md>
 M920 Tiny <lenovo/m920q.md>
@@ -243,13 +230,6 @@ Internal flashing <lenovo/ivb_internal_flashing.md>
 T440p <lenovo/t440p.md>
 ```
 
-### Skylake/Kabylake series
-
-```{toctree}
-:maxdepth: 1
-
-T470s/T480/T480s/T580/X280 <lenovo/skylake.md>
-```
 ## Libretrend
 
 ```{toctree}
@@ -356,8 +336,6 @@ StarLite Mk IV <starlabs/lite_glkr.md>
 StarLite Mk V <starlabs/lite_adl.md>
 StarBook Mk V <starlabs/starbook_tgl.md>
 StarBook Mk VI <starlabs/starbook_adl.md>
-StarBook Mk VII (N200) <starlabs/starbook_adl_n.md>
-StarBook Mk VII (165H) <starlabs/starbook_mtl.md>
 Byte Mk II <starlabs/byte_adl.md>
 StarFighter Mk I <starlabs/starfighter_rpl.md>
 
@@ -418,13 +396,6 @@ Serval Workstation 13 <system76/serw13.md>
 :maxdepth: 1
 
 Beaglebone Black <ti/beaglebone-black.md>
-```
-
-## Topton
-```{toctree}
-:maxdepth: 1
-
-X2F-N100 <topton/adl/x2f-n100.md>
 ```
 
 ## UP

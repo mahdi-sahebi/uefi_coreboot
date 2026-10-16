@@ -8,7 +8,6 @@
 #include <amdblocks/psp.h>
 #include <amdblocks/smi.h>
 #include <amdblocks/smm.h>
-#include <amdblocks/spi.h>
 #include <arch/hlt.h>
 #include <arch/io.h>
 #include <console/console.h>
@@ -106,37 +105,6 @@ static void fch_slp_typ_handler(void)
 	}
 }
 
-static void fch_pwrbtn_smi_handler(void)
-{
-	uint32_t pci_ctrl;
-	uint8_t rst_ctrl;
-
-	wbinvd();
-
-	configure_smi(SMITYPE_SLP_TYP, SMI_MODE_DISABLE);
-
-	clear_all_smi_status();
-	acpi_write16(MMIO_ACPI_PM1_STS, PWRBTN_STS);
-
-	/* Do not send SMI before AcpiPm1CntBlkx00[SlpTyp] */
-	pci_ctrl = pm_read32(PM_PCI_CTRL);
-	pci_ctrl &= ~FORCE_SLPSTATE_RETRY;
-	pci_ctrl |= FORCE_STPCLK_RETRY;
-	pm_write32(PM_PCI_CTRL, pci_ctrl);
-
-	/* Enable SlpTyp */
-	rst_ctrl = pm_read8(PM_RST_CTRL1);
-	rst_ctrl |= SLPTYPE_CONTROL_EN;
-	pm_write8(PM_RST_CTRL1, rst_ctrl);
-
-	/* Leave SlpTypeEn clear, SMU will set */
-	set_pm1cnt_s5();
-	smu_sx_entry();
-	printk(BIOS_ERR, "System did not go to sleep\n");
-	hlt();
-}
-
-
 /*
  * Table of functions supported in the SMI handler.  Note that SMI source setup
  * in fch.c is unrelated to this list.
@@ -145,7 +113,6 @@ static const struct smi_sources_t smi_sources[] = {
 	{ .type = SMITYPE_SMI_CMD_PORT, .handler = fch_apmc_smi_handler },
 	{ .type = SMITYPE_SLP_TYP, .handler = fch_slp_typ_handler},
 	{ .type = SMITYPE_PSP, .handler = psp_smi_handler },
-	{ .type = SMITYPE_PWRBUTTON_UP, .handler = fch_pwrbtn_smi_handler },
 };
 
 void *get_smi_source_handler(int source)
@@ -157,16 +124,4 @@ void *get_smi_source_handler(int source)
 			return smi_sources[i].handler;
 
 	return NULL;
-}
-
-void smm_soc_early_init(void)
-{
-	if (CONFIG(SPI_FLASH_SMM))
-		fch_spi_backup_registers();
-}
-
-void smm_soc_exit(void)
-{
-	if (CONFIG(SPI_FLASH_SMM))
-		fch_spi_restore_registers();
 }

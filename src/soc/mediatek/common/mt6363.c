@@ -25,7 +25,7 @@ static const struct pmic_setting key_protect_setting[] = {
 };
 
 static struct pmif *pmif_arb;
-u16 mt6363_read16(u32 reg)
+u32 mt6363_read16(u32 reg)
 {
 	u16 rdata = 0;
 
@@ -34,20 +34,16 @@ u16 mt6363_read16(u32 reg)
 	return rdata;
 }
 
-u8 mt6363_read8(u32 reg)
-{
-	u32 rdata = 0;
-
-	assert(pmif_arb);
-	pmif_arb->read(pmif_arb, SPMI_SLAVE_4, reg, &rdata);
-
-	return (u8)rdata;
-}
-
 void mt6363_write8(u32 reg, u8 data)
 {
 	assert(pmif_arb);
 	pmif_arb->write(pmif_arb, SPMI_SLAVE_4, reg, data);
+}
+
+static void mt6363_write16(u32 reg, u16 data)
+{
+	assert(pmif_arb);
+	pmif_arb->write16(pmif_arb, SPMI_SLAVE_4, reg, data);
 }
 
 static u32 mt6363_read_field(u32 reg, u32 mask, u32 shift)
@@ -95,7 +91,7 @@ static void pmic_protect_key_setting(bool lock)
 
 	for (int i = 0; i < ARRAY_SIZE(key_protect_setting); i++) {
 		entry = &key_protect_setting[i];
-		mt6363_write8(entry->addr, lock ? 0 : entry->val);
+		mt6363_write16(entry->addr, lock ? 0 : entry->val);
 	}
 	printk(BIOS_INFO, "%s done\n", __func__);
 }
@@ -215,7 +211,7 @@ void mt6363_enable_vtref18(bool enable)
 
 void mt6363_enable_buck5(bool enable)
 {
-	mt6363_write_field(PMIC_VBUCK5_OP_EN_2, enable, 0x1, 7);
+	mt6363_write_field(PMIC_VBUCK5_OP_EN_2, enable, 0x7, 0);
 }
 
 void mt6363_enable_vcn15(bool enable)
@@ -255,13 +251,12 @@ void mt6363_enable_vram_mdfe(bool enable)
 
 void mt6363_init_pmif_arb(void)
 {
-	if (pmif_arb)
-		return;
+	if (!pmif_arb) {
+		pmif_arb = get_pmif_controller(PMIF_SPMI, SPMI_MASTER_1);
+		assert(pmif_arb);
+	}
 
-	pmif_arb = get_pmif_controller(PMIF_SPMI, SPMI_MASTER_1);
-	assert(pmif_arb);
-
-	if (pmif_arb->check_init_done(pmif_arb))
+	if (pmif_arb->is_pmif_init_done(pmif_arb))
 		die("ERROR - Failed to initialize pmif spi");
 
 	printk(BIOS_INFO, "[%s][MT6363]CHIP ID =  0x%x\n", __func__,
@@ -274,6 +269,6 @@ void mt6363_init(void)
 	pmic_set_power_hold();
 	pmic_wdt_set();
 	pmic_protect_key_setting(false);
-	mt6363_init_setting();
+	pmic_init_setting();
 	pmic_protect_key_setting(true);
 }

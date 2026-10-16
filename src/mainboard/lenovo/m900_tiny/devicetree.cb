@@ -2,8 +2,8 @@
 
 chip soc/intel/skylake
 	# Enable deep Sx states
-	register "deep_s5_enable_ac" = "true"
-	register "deep_s5_enable_dc" = "true"
+	register "deep_s5_enable_ac" = "1"
+	register "deep_s5_enable_dc" = "1"
 	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN | DSX_EN_WAKE_PIN"
 
 	register "eist_enable" = "true"
@@ -161,14 +161,20 @@ chip soc/intel/skylake
 			}"
 		end
 		device ref pcie_rp17 on # M.2 2280 / 2242 - SSD
+			register "PcieRpEnable[16]"			= "1"
+			register "PcieRpClkReqSupport[16]"		= "1"
+			register "PcieRpClkReqNumber[16]"		= "1"
 			register "PcieRpAdvancedErrorReporting[16]"	= "1"
-			register "PcieRpLtrEnable[16]"			= "true"
+			register "PcieRpLtrEnable[16]"			= "1"
 			register "PcieRpClkSrcNumber[16]"		= "7"
 			register "PcieRpHotPlug[16]"			= "1"
 		end
 		device ref pcie_rp7 on # M.2 2230 - WLAN
+			register "PcieRpEnable[6]"			= "1"
+			register "PcieRpClkReqSupport[6]"		= "1"
+			register "PcieRpClkReqNumber[6]"		= "11"
 			register "PcieRpAdvancedErrorReporting[6]"	= "1"
-			register "PcieRpLtrEnable[6]"			= "true"
+			register "PcieRpLtrEnable[6]"			= "1"
 			register "PcieRpClkSrcNumber[6]"		= "1"
 			register "PcieRpHotPlug[6]"			= "1"
 			chip drivers/wifi/generic

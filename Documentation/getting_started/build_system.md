@@ -75,7 +75,9 @@ $(call add_intermediate, add_mrc_data)
 
 Note that the second line must start with a tab, not spaces.
 
-See also <project:../tutorial/managing_local_additions.md>.
+```{eval-rst}
+See also :doc:`../tutorial/managing_local_additions`.
+```
 
 #### FMAP region support
 With the addition of FMAP flash partitioning support to coreboot, there was a

@@ -1,11 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <amdblocks/acpimmio_map.h>
 #include <amdblocks/iomap.h>
 #include <amdblocks/memmap.h>
 #include <amdblocks/root_complex.h>
 #include <device/device.h>
-#include <soc/iomap.h>
 #include <stdint.h>
 
 /*
@@ -34,7 +32,7 @@
  *                     |     (C_ENV_BOOTBLOCK_SIZE)     |
  *                     +--------------------------------+ BOOTBLOCK_ADDR = BOOTBLOCK_END - C_ENV_BOOTBLOCK_SIZE
  *                     |          Unused hole           |
- *                     |            (30KiB)             |
+ *                     |            (86KiB)             |
  *                     +--------------------------------+
  *                     |     FMAP cache (FMAP_SIZE)     |
  *                     +--------------------------------+ PSP_SHAREDMEM_BASE + PSP_SHAREDMEM_SIZE + PRERAM_CBMEM_CONSOLE_SIZE + 0x200
@@ -46,7 +44,7 @@
  *                     |   PSP shared (vboot workbuf)   |
  *                     |      (PSP_SHAREDMEM_SIZE)      |
  *                     +--------------------------------+ PSP_SHAREDMEM_BASE
- *                     |          APOB (120KiB)         |
+ *                     |          APOB (64KiB)          |
  *                     +--------------------------------+ PSP_APOB_DRAM_ADDRESS
  *                     |        Early BSP stack         |
  *                     |   (EARLYRAM_BSP_STACK_SIZE)    |
@@ -66,9 +64,6 @@ void read_soc_memmap_resources(struct device *dev, unsigned long *idx)
 
 	/* Reserve fixed IOMMU MMIO region */
 	mmio_range(dev, (*idx)++, IOMMU_RESERVED_MMIO_BASE, IOMMU_RESERVED_MMIO_SIZE);
-
-	mmio_range(dev, (*idx)++, AMD_SB_ACPI_MMIO_ADDR, 0x2000);
-	mmio_range(dev, (*idx)++, ALINK_AHB_ADDRESS, 0x20000);
 
 	read_fsp_resources(dev, idx);
 }

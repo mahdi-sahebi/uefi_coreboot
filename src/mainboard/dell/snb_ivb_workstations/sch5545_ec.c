@@ -6,7 +6,7 @@
 #include <cpu/x86/msr.h>
 #include <console/console.h>
 #include <cpu/intel/model_206ax/model_206ax.h>
-#include <gpio.h>
+#include <southbridge/intel/common/gpio.h>
 #include <superio/smsc/sch5545/sch5545.h>
 #include <superio/smsc/sch5545/sch5545_emi.h>
 
@@ -300,9 +300,10 @@ static uint8_t get_chassis_type(void)
 {
 	uint8_t chassis_id;
 
-	const gpio_t chassis_id_pins[] = {GPIO_CHASSIS_ID0, GPIO_CHASSIS_ID1,
-					  GPIO_CHASSIS_ID2, GPIO_FRONT_PANEL_CHASSIS_DET_L};
-	chassis_id = gpio_base2_value(chassis_id_pins, ARRAY_SIZE(chassis_id_pins));
+	chassis_id  = get_gpio(GPIO_CHASSIS_ID0);
+	chassis_id |= get_gpio(GPIO_CHASSIS_ID1) << 1;
+	chassis_id |= get_gpio(GPIO_CHASSIS_ID2) << 2;
+	chassis_id |= get_gpio(GPIO_FRONT_PANEL_CHASSIS_DET_L) << 3;
 
 	/* This mapping will determine which EC init sequence to use */
 	switch (chassis_id) {

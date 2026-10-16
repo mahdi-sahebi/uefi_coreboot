@@ -10,7 +10,7 @@ all-y += ../common/timer.c
 all-y += ../common/uart.c
 
 bootblock-y += bootblock.c
-bootblock-y += ../common/eint_event.c ../common/eint_event_info.c
+bootblock-y += ../common/eint_event.c
 bootblock-y += ../common/mmu_operations.c
 bootblock-y += ../common/pll.c pll.c
 bootblock-y += ../common/tracker.c ../common/tracker_v2.c
@@ -23,11 +23,11 @@ romstage-y += ../common/dram_init.c
 romstage-y += ../common/dramc_param.c
 romstage-y += ../common/l2c_ops.c
 romstage-y += ../common/memory.c ../common/memory_test.c
-romstage-y += ../common/mmu_operations.c
+romstage-y += ../common/mmu_operations.c ../common/mmu_cmops.c
 romstage-y += ../common/pll.c pll.c
 romstage-y += ../common/pmif.c ../common/pmif_clk.c ../common/pmif_init.c pmif_clk.c
 romstage-y += ../common/pmif_spi.c pmif_spi.c
-romstage-y += ../common/pmif_spmi.c ../common/pmif_spmi_v1.c pmif_spmi.c
+romstage-y += ../common/pmif_spmi.c pmif_spmi.c
 romstage-y += ../common/mt6315.c mt6315.c
 romstage-y += ../common/mt6359p.c mt6359p.c
 romstage-y += ../common/rtc.c ../common/rtc_osc_init.c ../common/rtc_mt6359p.c
@@ -38,14 +38,12 @@ ramstage-$(CONFIG_ARM64_USE_ARM_TRUSTED_FIRMWARE) += ../common/bl31.c
 ramstage-y += ../common/ddp.c ddp.c
 ramstage-y += devapc.c
 ramstage-y += ../common/dfd.c
-ramstage-y += ../common/dpm.c
 ramstage-y += ../common/dpm_v1.c
-ramstage-y += ../common/dsi_common.c ../common/dsi_v1.c ../common/mtk_mipi_dphy.c
-ramstage-y += ../common/mtk_mipi_dphy_v1.c
+ramstage-y += ../common/dsi.c ../common/mtk_mipi_dphy.c
 ramstage-y += ../common/l2c_ops.c
 ramstage-y += ../common/mcu.c
 ramstage-y += ../common/mcupm.c
-ramstage-y += ../common/mmu_operations.c
+ramstage-y += ../common/mmu_operations.c ../common/mmu_cmops.c
 ramstage-$(CONFIG_COMMONLIB_STORAGE_MMC) += ../common/msdc.c msdc.c
 ramstage-y += ../common/mtcmos.c mtcmos.c
 ramstage-y += ../common/pmif.c ../common/pmif_init.c
@@ -85,6 +83,6 @@ $(DRAM_CBFS)-compression := $(CBFS_PRERAM_COMPRESS_FLAG)
 cbfs-files-y += $(DRAM_CBFS)
 
 $(objcbfs)/bootblock.bin: $(objcbfs)/bootblock.raw.bin
-	./util/mediatek/gen-bl-img.py mt8183 sf $< $@
+	./util/mtkheader/gen-bl-img.py mt8183 sf $< $@
 
 endif

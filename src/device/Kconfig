@@ -558,6 +558,12 @@ config PCI
 	bool
 	default n
 
+config PCI_IOBASE
+	hex
+	help
+	  The memory address of a memory-mapped translator that lets the
+	  CPU communicate with peripheral devices over PCI I/O space.
+
 if PCI
 
 config DOMAIN_RESOURCE_32BIT_LIMIT
@@ -601,10 +607,6 @@ config AZALIA_HDA_CODEC_SUPPORT
 	  codec chips. This will also add the hda_verb.c file from the
 	  mainboard directory to the build which contain the board-specific HD
 	  audio codec configuration.
-
-config AZALIA_USE_LEGACY_VERB_TABLE
-	bool
-	default n
 
 config PCIEXP_PLUGIN_SUPPORT
 	bool
@@ -998,28 +1000,21 @@ config I2C_TRANSFER_TIMEOUT_US
 
 config RESOURCE_ALLOCATION_TOP_DOWN
 	bool "Allocate resources from top down"
-	default n if PAYLOAD_EDK2 && EDK2_REPO_OFFICIAL
+	default n if PAYLOAD_EDK2
 	default y
 	help
 	  Top-down allocation is required to place resources above 4G by
 	  default (i.e. even when there is still space below). On some
 	  platforms, it might make a difference because of conflicts with
-	  undeclared resources.
-
-	  Upstream EDK2 is currently reported to also have problems on some
-	  platforms at least with Intel's IGD; MrChromebox's fork works fine.
+	  undeclared resources. EDK2 is currently reported to also have
+	  problems on some platforms, at least with Intel's IGD.
 
 config ALWAYS_ALLOW_ABOVE_4G_ALLOCATION
 	bool
-	prompt "Extend resource window for PCIe devices above 4G" if ARCH_X86
 	default n if ARCH_X86
 	default y
 	help
-	  This option extends PCIe resource allocation beyond the 4G limit.
-	  Required for modern graphics cards that support resizable BAR, such as
-	  Intel Arc or AMD RX series.
-	  Please keep in mind that not all payloads support it
-	  (i.e: LinuxBoot and EDK2 do, SeaBIOS and GRUB don't).
+	  Don't limit mem resources to 4G, but to their actual limit.
 
 config XHCI_UTILS
 	def_bool n

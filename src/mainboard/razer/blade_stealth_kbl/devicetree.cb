@@ -1,8 +1,8 @@
 chip soc/intel/skylake
-	register "deep_s3_enable_ac" = "false"
-	register "deep_s3_enable_dc" = "false"
-	register "deep_s5_enable_ac" = "false"
-	register "deep_s5_enable_dc" = "false"
+	register "deep_s3_enable_ac" = "0"
+	register "deep_s3_enable_dc" = "0"
+	register "deep_s5_enable_ac" = "0"
+	register "deep_s5_enable_dc" = "0"
 	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN"
 
 	register "eist_enable" = "true"
@@ -16,10 +16,10 @@ chip soc/intel/skylake
 	register "gpe0_dw2" = "GPP_E"
 
 	# Disable DPTF
-	register "dptf_enable" = "false"
+	register "dptf_enable" = "0"
 
 	# FSP Configuration
-	register "DspEnable" = "false"
+	register "DspEnable" = "0"
 	register "IoBufferOwnership" = "0"
 	register "SkipExtGfxScan" = "1"
 	register "SaGv" = "SaGv_Enabled"
@@ -157,14 +157,17 @@ chip soc/intel/skylake
 		device ref uart2	on  end
 		device ref pcie_rp1	on  end
 		device ref pcie_rp3	on
-			register "PcieRpLtrEnable[2]" = "true"
+			register "PcieRpEnable[2]" = "1"
+			register "PcieRpLtrEnable[2]" = "1"
 		end
 		device ref pcie_rp5	on
-			register "PcieRpLtrEnable[4]" = "true"
+			register "PcieRpEnable[4]" = "1"
+			register "PcieRpLtrEnable[4]" = "1"
 			register "PcieRpHotPlug[4]" = "1"
 		end
 		device ref pcie_rp9	on
-			register "PcieRpLtrEnable[8]" = "true"
+			register "PcieRpEnable[8]" = "1"
+			register "PcieRpLtrEnable[8]" = "1"
 		end
 		device ref lpc_espi	on
 			register "serirq_mode" = "SERIRQ_CONTINUOUS"

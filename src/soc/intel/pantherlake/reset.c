@@ -8,7 +8,7 @@
 void do_global_reset(void)
 {
 	/* Ask CSE to do the global reset */
-	if (cse_request_global_reset() == CSE_TX_RX_SUCCESS)
+	if (cse_request_global_reset())
 		return;
 
 	/* global reset if CSE fail to reset */

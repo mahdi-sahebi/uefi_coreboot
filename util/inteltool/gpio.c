@@ -1051,7 +1051,6 @@ int print_gpios(struct pci_dev *sb, int show_all, int show_diffs)
 	case PCI_DEVICE_ID_INTEL_TIGERPOINT_U_BASE:
 	case PCI_DEVICE_ID_INTEL_TIGERPOINT_Y_SUPER:
 	case PCI_DEVICE_ID_INTEL_TIGERPOINT_Y_PREM:
-	case PCI_DEVICE_ID_INTEL_TIGERPOINT_EMBEDDED_IOTG:
 	case PCI_DEVICE_ID_INTEL_C621:
 	case PCI_DEVICE_ID_INTEL_C622:
 	case PCI_DEVICE_ID_INTEL_C624:
@@ -1123,7 +1122,6 @@ int print_gpios(struct pci_dev *sb, int show_all, int show_diffs)
 	case PCI_DEVICE_ID_INTEL_ADL_P:
 	case PCI_DEVICE_ID_INTEL_ADL_M:
 	case PCI_DEVICE_ID_INTEL_ADL_N:
-	case PCI_DEVICE_ID_INTEL_ADL_N_2:
 	case PCI_DEVICE_ID_INTEL_RPL_P:
 	case PCI_DEVICE_ID_INTEL_JSL:
 	case PCI_DEVICE_ID_INTEL_EHL:

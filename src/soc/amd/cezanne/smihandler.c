@@ -6,8 +6,6 @@
 #include <amdblocks/psp.h>
 #include <amdblocks/smi.h>
 #include <amdblocks/smm.h>
-#include <amdblocks/smu.h>
-#include <amdblocks/spi.h>
 #include <arch/hlt.h>
 #include <arch/io.h>
 #include <console/console.h>
@@ -31,7 +29,6 @@ static void fch_slp_typ_handler(void)
 	uint32_t pci_ctrl, reg32;
 	uint16_t pm1cnt, reg16;
 	uint8_t slp_typ, rst_ctrl;
-	struct smu_payload msg = { 0 };
 
 	/* Figure out SLP_TYP */
 	pm1cnt = acpi_read16(MMIO_ACPI_PM1_CNT_BLK);
@@ -99,10 +96,8 @@ static void fch_slp_typ_handler(void)
 						reg32);
 		} /* if (CONFIG(ELOG_GSMI)) */
 
-		if (slp_typ == ACPI_S3) {
+		if (slp_typ == ACPI_S3)
 			psp_notify_sx_info(ACPI_S3);
-			send_smu_message(SMC_MSG_USBS3ENTRY, &msg);
-		}
 
 		smu_sx_entry(); /* Leave SlpTypeEn clear, SMU will set */
 		printk(BIOS_ERR, "System did not go to sleep\n");
@@ -135,13 +130,4 @@ void smm_soc_early_init(void)
 {
 	if (CONFIG(VBOOT_STARTS_BEFORE_BOOTBLOCK) && __CBMEM_CONSOLE_ENABLE__)
 		replay_transfer_buffer_cbmemc();
-
-	if (CONFIG(SPI_FLASH_SMM))
-		fch_spi_backup_registers();
-}
-
-void smm_soc_exit(void)
-{
-	if (CONFIG(SPI_FLASH_SMM))
-		fch_spi_restore_registers();
 }

@@ -6,6 +6,7 @@
 #include <soc/dpm_v1.h>
 #include <soc/dramc_soc.h>
 #include <soc/spm.h>
+#include <soc/symbols.h>
 
 static struct dpm_regs *const mtk_dpm2 = (void *)DPM_CFG_BASE2;
 
@@ -61,7 +62,6 @@ static struct mtk_mcu dpm_mcu_4ch[] = {
 		.priv = mtk_dpm2,
 		.reset = dpm_reset,
 	},
-	{},
 };
 
 int dpm_4ch_init(void)
@@ -74,5 +74,16 @@ int dpm_4ch_init(void)
 
 int dpm_4ch_para_setting(void)
 {
-	return dpm_init_mcu(dpm_mcu_4ch);
+	int i;
+	struct mtk_mcu *dpm;
+
+	for (i = 0; i < ARRAY_SIZE(dpm_mcu_4ch); i++) {
+		dpm = &dpm_mcu_4ch[i];
+		dpm->load_buffer = _dram_dma;
+		dpm->buffer_size = REGION_SIZE(dram_dma);
+		if (mtk_init_mcu(dpm))
+			return -1;
+	}
+
+	return 0;
 }

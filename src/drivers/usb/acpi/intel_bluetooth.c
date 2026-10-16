@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <acpi/acpigen.h>
-#include <option.h>
 #include "chip.h"
 
 /*
@@ -45,35 +44,8 @@ static void not_supported(void *arg)
 void (*reset_supported[])(void *) = { check_reset_delay, set_reset_delay };
 void (*reset_unsupported[])(void *) = { not_supported };
 
-void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
-			  const struct acpi_gpio *reset_gpio,
-			  bool audio_offload)
+void acpi_device_intel_bt(unsigned int reset_gpio, unsigned int enable_gpio, bool audio_offload)
 {
-/*
- *	Name (_S0W, 3)
- */
-	if (get_uint_option("bluetooth_rtd3", 1))
-		acpigen_write_name_integer("_S0W", ACPI_DEVICE_SLEEP_D3_HOT);
-	else
-		acpigen_write_name_integer("_S0W", ACPI_DEVICE_SLEEP_D0);
-
-/*
- *	Name (_DSD, Package (0x02)
- *	{
- *		ToUUID ("6211e2c0-58a3-4af3-90e1-927a4e0c55a4")
- *		Package (0x01)
- *		{
- *			Package (0x02)
- *			{
- *				"HotPlugSupportInD3",
- *				One
- *			}
- *		}
- *	})
- *
- */
-	acpi_device_add_hotplug_support_in_d3(NULL);
-
 /*
  *	Name (RDLY, 0x69)
  */
@@ -119,10 +91,8 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 
 	struct dsm_uuid uuid_callbacks[] = {
 		DSM_UUID("aa10f4e0-81ac-4233-abf6-3b2ac50e28d9",
-			reset_gpio->pin_count ?
-				reset_supported : reset_unsupported,
-			reset_gpio->pin_count ?
-				ARRAY_SIZE(reset_supported) : ARRAY_SIZE(reset_unsupported),
+			reset_gpio ? reset_supported : reset_unsupported,
+			reset_gpio ? ARRAY_SIZE(reset_supported) : ARRAY_SIZE(reset_unsupported),
 			NULL),
 	};
 
@@ -136,9 +106,6 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
  *		}
  *		Method (_ON, 0, NotSerialized)
  *		{
- *			If ((\_SB.PCI0.GBTE() == 1))
- *				Return (1)
- *			}
  *			\_SB.PCI0.SBTE(1)
  *		}
  *		Method (_OFF, 0, NotSerialized)
@@ -155,7 +122,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
  *				\_SB.PCI0.BTRK (One)
  *				Sleep (RDLY)
  *				Release (\_SB.PCI0.CNMT)
- *			}
+			}
  *		}
  *	}
  */
@@ -163,7 +130,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 	{
 		acpigen_write_method("_STA", 0);
 		{
-			if (enable_gpio->pin_count) {
+			if (enable_gpio) {
 				acpigen_write_store();
 				acpigen_emit_namestring("\\_SB.PCI0.GBTE");
 				acpigen_emit_byte(LOCAL0_OP);
@@ -177,17 +144,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 
 		acpigen_write_method("_ON", 0);
 		{
-			if (get_uint_option("bluetooth_rtd3", 1) && enable_gpio->pin_count) {
-				acpigen_write_store();
-				acpigen_emit_namestring("\\_SB.PCI0.GBTE");
-				acpigen_emit_byte(LOCAL0_OP);
-
-				acpigen_write_if_lequal_op_int(LOCAL0_OP, 1);
-				{
-					acpigen_write_return_integer(1);
-				}
-				acpigen_pop_len();
-
+			if (enable_gpio) {
 				acpigen_emit_namestring("\\_SB.PCI0.SBTE");
 				acpigen_emit_byte(1);
 			}
@@ -196,7 +153,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 
 		acpigen_write_method("_OFF", 0);
 		{
-			if (get_uint_option("bluetooth_rtd3", 1) && enable_gpio->pin_count) {
+			if (enable_gpio) {
 				acpigen_emit_namestring("\\_SB.PCI0.SBTE");
 				acpigen_emit_byte(0);
 			}
@@ -205,7 +162,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 
 		acpigen_write_method("_RST", 0);
 		{
-			if (reset_gpio->pin_count) {
+			if (reset_gpio) {
 				acpigen_write_store();
 				acpigen_write_acquire("\\_SB.PCI0.CNMT", 1000);
 				acpigen_emit_byte(LOCAL0_OP);
@@ -260,7 +217,20 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 	acpigen_pop_len();
 
 /*
- *	Method (AOLD, 0, NotSerialized)
+ *	Name (_PR3, Package (0x01)
+ *	{
+ *		BTRT
+ *	})
+ */
+	acpigen_write_name("_PR3");
+	{
+		acpigen_write_package(1);
+		acpigen_emit_namestring("BTRT");
+	}
+	acpigen_pop_len();
+
+/*
+ *	Method (AOLD, 0, Serialized)
  *	{
  *		Name (AODS, Package (0x03)
  *		{
@@ -272,7 +242,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
  *		Return (AODS)
  *	}
  */
-	acpigen_write_method("AOLD", 0);
+	acpigen_write_method_serialized("AOLD", 0);
 	{
 		acpigen_write_name("AODS");
 		acpigen_write_package(3);
@@ -288,8 +258,7 @@ void acpi_device_intel_bt(const struct acpi_gpio *enable_gpio,
 	acpigen_pop_len();
 }
 
-void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
-				 const struct acpi_gpio *reset_gpio)
+void acpi_device_intel_bt_common(unsigned int enable_gpio, unsigned int reset_gpio)
 {
 	acpigen_write_scope("\\_SB.PCI0");
 /*
@@ -298,7 +267,7 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
 	acpigen_write_mutex("CNMT", 0);
 
 /*
- *	Method (SBTE, 1, NotSerialized)
+ *	Method (SBTE, 1, Serialized)
  *	{
  *		If (Arg0 == 1)
  *		{
@@ -308,16 +277,16 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
  *		}
  *	}
  */
-	acpigen_write_method("SBTE", 1);
+	acpigen_write_method_serialized("SBTE", 1);
 	{
-		if (enable_gpio->pin_count) {
+		if (enable_gpio) {
 			acpigen_write_if_lequal_op_int(ARG0_OP, 1);
 			{
-				acpigen_enable_tx_gpio(enable_gpio);
+				acpigen_soc_set_tx_gpio(enable_gpio);
 			}
 			acpigen_write_else();
 			{
-				acpigen_disable_tx_gpio(enable_gpio);
+				acpigen_soc_clear_tx_gpio(enable_gpio);
 			}
 			acpigen_pop_len();
 		}
@@ -332,8 +301,8 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
  */
 	acpigen_write_method("GBTE", 0);
 	{
-		if (enable_gpio->pin_count) {
-			acpigen_get_tx_gpio(enable_gpio);
+		if (enable_gpio) {
+			acpigen_soc_get_tx_gpio(enable_gpio);
 			acpigen_write_return_op(LOCAL0_OP);
 		} else {
 			acpigen_write_return_integer(0);
@@ -342,7 +311,7 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
 	acpigen_pop_len();
 
 /*
- *	Method (BTRK, 1, NotSerialized)
+ *	Method (BTRK, 1, Serialized)
  *	{
  *		If (Arg0 == 1)
  *		{
@@ -352,38 +321,30 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
  *		}
  *	}
  */
-	acpigen_write_method("BTRK", 1);
+	acpigen_write_method_serialized("BTRK", 1);
 	{
-		if (reset_gpio->pin_count) {
-			acpigen_write_if_lequal_op_int(ARG0_OP, 1);
-			{
-				/* De-assert reset */
-				acpigen_disable_tx_gpio(reset_gpio);
-			}
-			acpigen_write_else();
-			{
-				/* Assert Reset */
-				acpigen_enable_tx_gpio(reset_gpio);
-			}
-			acpigen_pop_len();
+		acpigen_write_if_lequal_op_int(ARG0_OP, 1);
+		{
+			acpigen_soc_set_tx_gpio(reset_gpio);
 		}
+		acpigen_write_else();
+		{
+			acpigen_soc_clear_tx_gpio(reset_gpio);
+		}
+		acpigen_pop_len();
 	}
 	acpigen_pop_len();
 
 /*
  *	Method (GBTR, 0, NotSerialized)
  *	{
- *		Local0 = GTXS (reset_gpio)
- *		Local0 ^= One
- *		Return (Local0)
+ *		 Return (GTXS (reset_gpio))
  *	}
  */
 	acpigen_write_method("GBTR", 0);
 	{
-		if (reset_gpio->pin_count) {
-			/* Return 1 if not in reset */
-			acpigen_get_tx_gpio(reset_gpio);
-			acpigen_write_xor(LOCAL0_OP, 1, LOCAL0_OP);
+		if (reset_gpio) {
+			acpigen_soc_get_tx_gpio(reset_gpio);
 			acpigen_write_return_op(LOCAL0_OP);
 		} else {
 			acpigen_write_return_op(0);
@@ -391,5 +352,5 @@ void acpi_device_intel_bt_common(const struct acpi_gpio *enable_gpio,
 	}
 	acpigen_pop_len();
 
-	acpigen_write_scope_end();
+	acpigen_pop_len();
 }

@@ -8,10 +8,9 @@
 #include <device/mmio.h>
 #include "psp_def.h"
 
-#define PSP_MAILBOX_COMMAND_OFFSET	CONFIG_PSPV2_MBOX_CMD_OFFSET		/* 4 bytes */
-#define PSP_MAILBOX_BUFFER_OFFSET	(CONFIG_PSPV2_MBOX_CMD_OFFSET + 4)	/* 8 bytes */
+#define PSP_MAILBOX_COMMAND_OFFSET	0x10570 /* 4 bytes */
+#define PSP_MAILBOX_BUFFER_OFFSET	0x10574 /* 8 bytes */
 
-#define IOHC_MISC_CCP_MMIO_REG		0x2d8
 #define IOHC_MISC_PSP_MMIO_REG		0x2e0
 
 static uint64_t get_psp_mmio_mask(void)
@@ -22,8 +21,6 @@ static uint64_t get_psp_mmio_mask(void)
 
 	for (size_t i = 0; i < reg_count; i++) {
 		if (mmio_regs[i].iohc_misc_offset == IOHC_MISC_PSP_MMIO_REG)
-			return mmio_regs[i].mask;
-		if (mmio_regs[i].iohc_misc_offset == IOHC_MISC_CCP_MMIO_REG)
 			return mmio_regs[i].mask;
 	}
 
@@ -84,63 +81,12 @@ uintptr_t get_psp_mmio_base(void)
 	return psp_mmio_base;
 }
 
-uintptr_t get_ccp_mmio_base(void)
-{
-	static uintptr_t ccp_mmio_base;
-	const struct domain_iohc_info *iohc;
-	size_t iohc_count;
-
-	if (ccp_mmio_base)
-		return ccp_mmio_base;
-
-	iohc = get_iohc_info(&iohc_count);
-	const uint64_t ccp_mmio_mask = get_psp_mmio_mask();
-
-	if (!ccp_mmio_mask)
-		return 0;
-
-	for (size_t i = 0; i < iohc_count; i++) {
-		uint64_t reg64 = smn_read64(iohc[i].misc_smn_base | IOHC_MISC_CCP_MMIO_REG);
-
-		if (!(reg64 & IOHC_MMIO_EN))
-			continue;
-
-		const uint64_t base = reg64 & ccp_mmio_mask;
-
-		if (ENV_X86_32 && base >= 4ull * GiB) {
-			printk(BIOS_WARNING, "PSP CCP MMIO base above 4GB.\n");
-			continue;
-		}
-
-		/* If the PSP CCP MMIO base is enabled but the register isn't locked, set the lock
-		   bit. This shouldn't happen, but better be a bit too careful here */
-		if (!(reg64 & PSP_MMIO_LOCK)) {
-			printk(BIOS_WARNING, "Enabled PSP CCP MMIO in domain %zu isn't locked. "
-					     "Locking it.\n", i);
-			reg64 |= PSP_MMIO_LOCK;
-			/* Since the lock bit lives in the lower one of the two 32 bit SMN
-			   registers, we only need to write that one to lock it */
-			smn_write32(iohc[i].misc_smn_base | IOHC_MISC_CCP_MMIO_REG,
-				    reg64 & 0xffffffff);
-		}
-
-		ccp_mmio_base = base;
-	}
-
-	if (!ccp_mmio_base)
-		printk(BIOS_ERR, "No usable PSP CCP MMIO found.\n");
-
-	return ccp_mmio_base;
-}
-
 union pspv2_mbox_command {
 	uint32_t val;
 	struct pspv2_mbox_cmd_fields {
 		uint16_t mbox_status;
 		uint8_t mbox_command;
-		uint32_t reserved:4;
-		uint32_t async_cmd_in_progress:1;
-		uint32_t reset_required:1;
+		uint32_t reserved:6;
 		uint32_t recovery:1;
 		uint32_t ready:1;
 	} __packed fields;
@@ -169,14 +115,6 @@ static uint8_t rd_mbox_recovery(uintptr_t psp_mmio)
 
 	tmp.val = read32p(psp_mmio | PSP_MAILBOX_COMMAND_OFFSET);
 	return !!tmp.fields.recovery;
-}
-
-static uint8_t rd_mbox_async_in_progress(uintptr_t psp_mmio)
-{
-	union pspv2_mbox_command tmp;
-
-	tmp.val = read32p(psp_mmio | PSP_MAILBOX_COMMAND_OFFSET);
-	return !!tmp.fields.async_cmd_in_progress;
 }
 
 static void wr_mbox_buffer_ptr(uintptr_t psp_mmio, void *buffer)
@@ -214,22 +152,14 @@ static int wait_command(uintptr_t psp_mmio, bool wait_for_ready)
 int send_psp_command(uint32_t command, void *buffer)
 {
 	const uintptr_t psp_mmio = get_psp_mmio_base();
-	int ret = 0;
-
 	if (!psp_mmio)
 		return -PSPSTS_NOBASE;
 
 	if (rd_mbox_recovery(psp_mmio))
 		return -PSPSTS_RECOVERY;
 
-	if (rd_mbox_async_in_progress(psp_mmio))
-		return -PSPSTS_ASYNC_CMD;
-
 	if (wait_command(psp_mmio, true))
 		return -PSPSTS_CMD_TIMEOUT;
-
-	if (ENV_SMM)
-		psp_set_smm_flag();
 
 	/* set address of command-response buffer and write command register */
 	wr_mbox_buffer_ptr(psp_mmio, buffer);
@@ -237,21 +167,14 @@ int send_psp_command(uint32_t command, void *buffer)
 
 	/* PSP clears command register when complete.  All commands except
 	 * SxInfo set the Ready bit. */
-	if (wait_command(psp_mmio, command != MBOX_BIOS_CMD_SX_INFO)) {
-		ret = -PSPSTS_CMD_TIMEOUT;
-		goto out;
-	}
+	if (wait_command(psp_mmio, command != MBOX_BIOS_CMD_SX_INFO))
+		return -PSPSTS_CMD_TIMEOUT;
 
 	/* check delivery status */
-	if (rd_mbox_sts(psp_mmio)) {
-		ret = -PSPSTS_SEND_ERROR;
-		goto out;
-	}
+	if (rd_mbox_sts(psp_mmio))
+		return -PSPSTS_SEND_ERROR;
 
-out:
-	if (ENV_SMM)
-		psp_clear_smm_flag();
-	return ret;
+	return 0;
 }
 
 enum cb_err psp_get_psp_capabilities(uint32_t *capabilities)

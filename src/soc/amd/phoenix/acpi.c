@@ -1,56 +1,27 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
+/* TODO: Update for Phoenix */
 /* TODO: See what can be made common */
 
 /* ACPI - create the Fixed ACPI Description Tables (FADT) */
 
 #include <acpi/acpi.h>
-#include <acpi/acpi_ivrs.h>
 #include <acpi/acpigen.h>
 #include <amdblocks/acpi.h>
 #include <amdblocks/cppc.h>
 #include <amdblocks/cpu.h>
 #include <amdblocks/acpimmio.h>
 #include <amdblocks/ioapic.h>
-#include <amdblocks/psp.h>
 #include <arch/ioapic.h>
 #include <arch/smp/mpspec.h>
-#include <cbmem.h>
 #include <console/console.h>
 #include <cpu/amd/cpuid.h>
 #include <device/device.h>
-#include <device/pci_def.h>
-#include <drivers/amd/opensil/opensil.h>
-#include <soc/amd/common/block/psp/psp_def.h>
 #include <soc/iomap.h>
 #include <static.h>
 #include <types.h>
+#include <vendorcode/amd/opensil/opensil.h>
 #include "chip.h"
-
-#if CONFIG(SOC_AMD_PHOENIX_OPENSIL)
-#include <xPRF-api.h>
-#endif
-
-unsigned long soc_acpi_fill_ivrs40(unsigned long current, acpi_ivrs_ivhd40_t *ivhd,
-				   struct device *nb_dev, struct device *iommu_dev)
-{
-	/* Describe UART devices */
-	current = ivhd_describe_f0_device(current, PCI_DEVFN(0x14, 5),
-				"AMDI0020", IVHD_DTE_LINT_0_PASS, 0);
-	current = ivhd_describe_f0_device(current, PCI_DEVFN(0x14, 5),
-				"AMDI0020", IVHD_DTE_LINT_0_PASS, 1);
-	current = ivhd_describe_f0_device(current, PCI_DEVFN(0x14, 5),
-				"AMDI0020", IVHD_DTE_LINT_0_PASS, 2);
-	current = ivhd_describe_f0_device(current, PCI_DEVFN(0x14, 5),
-				"AMDI0020", IVHD_DTE_LINT_0_PASS, 3);
-
-	/* TODO: HSP if used
-	 * current = ivhd_describe_f0_device(current, 0xfffe,
-	 *			"MSFT0201", IVHD_DTE_LINT_0_PASS, 0);
-	 */
-
-	return current;
-}
 
 /*
  * Reference section 5.2.9 Fixed ACPI Description Table (FADT)
@@ -69,7 +40,7 @@ void acpi_fill_fadt(acpi_fadt_t *fadt)
 		fadt->gpe0_blk = ACPI_GPE0_BLK;
 	} else {
 		/* Fill in pm1_evt, pm1_cnt, pm_tmr, gpe0_blk from openSIL input structure */
-		amd_opensil_fill_fadt_io_ports(fadt);
+		opensil_fill_fadt_io_ports(fadt);
 	}
 
 	fadt->pm1_evt_len = 4;	/* 32 bits */
@@ -94,50 +65,11 @@ void acpi_fill_fadt(acpi_fadt_t *fadt)
 	fadt->flags |= cfg->common_config.fadt_flags; /* additional board-specific flags */
 }
 
-static void send_ivrs_to_psp(struct acpi_rsdp *rsdp)
-{
-	acpi_xsdt_t *xsdt = (acpi_xsdt_t *)(uintptr_t)rsdp->xsdt_address;
-	size_t entries_num = ARRAY_SIZE(xsdt->entry);
-	struct acpi_table_header *hdr;
-	bool found = false;
-	size_t i;
-	int cmd_status;
-	struct mbox_cmd_ivrs_acpi_table_info buffer;
-
-	/* Locate IVRS in XSDT to get its address */
-	for (i = 0; i < entries_num; i++) {
-		hdr = (struct acpi_table_header *)xsdt->entry[i];
-		if (xsdt->entry[i] == 0)
-			return;
-
-		if (strncmp(hdr->signature, "IVRS", 4)) {
-			found = true;
-			break;
-		}
-	}
-
-	if (!found)
-		return;
-
-	buffer.header.size = sizeof(buffer);
-	buffer.info.ivrs_table_buffer = (uint64_t)hdr;
-	buffer.info.ivrs_table_size = hdr->length;
-
-	printk(BIOS_DEBUG, "PSP: Sending IVRS ACPI table ");
-
-	cmd_status = send_psp_command(MBOX_BIOS_CMD_SEND_IVRS_ACPI_TABLE, &buffer);
-
-	/* buffer's status shouldn't change but report it if it does */
-	psp_print_cmd_status(cmd_status, &buffer.header);
-}
-
 unsigned long soc_acpi_write_tables(const struct device *device, unsigned long current,
 				    acpi_rsdp_t *rsdp)
 {
 	/* IVRS */
 	current = acpi_add_ivrs_table(current, rsdp);
-
-	send_ivrs_to_psp(rsdp);
 
 	if (CONFIG(PLATFORM_USES_FSP2_0))
 		current = acpi_add_fsp_tables(current, rsdp);
@@ -170,64 +102,3 @@ const acpi_cstate_t *get_cstate_config_data(size_t *size)
 	*size = ARRAY_SIZE(cstate_cfg_table);
 	return cstate_cfg_table;
 }
-
-const struct acpi_lpi_state cstate_lpi_cfg_table[] = {
-	[0] = {
-		.min_residency_us = 0,
-		.worst_case_wakeup_latency_us = 1,
-		.flags = 1,
-		.state_name = "C1"
-	},
-	[1] = {
-		.min_residency_us = 0x3c,
-		.worst_case_wakeup_latency_us = 0x12,
-		.flags = 1,
-		.state_name = "C2"
-	},
-	[2] = {
-		.min_residency_us = 1000,
-		.worst_case_wakeup_latency_us = 350,
-		.flags = 1,
-		.state_name = "C3"
-	},
-};
-
-const struct acpi_lpi_state *get_cstate_lpi_config_data(size_t *size)
-{
-	*size = ARRAY_SIZE(cstate_lpi_cfg_table);
-	return cstate_lpi_cfg_table;
-}
-
-#if CONFIG(SOC_AMD_PHOENIX_OPENSIL)
-enum cb_err get_ccx_cppc_min_frequency(uint32_t *freq)
-{
-	SIL_CONTEXT SilContext = {
-		.ApobBaseAddress = CONFIG_PSP_APOB_DRAM_ADDRESS,
-		.SilMemBaseAddress = (uintptr_t)cbmem_find(CBMEM_ID_AMD_OPENSIL)
-	};
-
-	if (SilContext.SilMemBaseAddress == 0)
-		return CB_ERR;
-
-	if (xPrfGetCppcMinFrequency(&SilContext, freq) != SilPass)
-		return CB_ERR;
-
-	return CB_SUCCESS;
-}
-
-enum cb_err get_ccx_cppc_nom_frequency(uint32_t *freq)
-{
-	SIL_CONTEXT SilContext = {
-		.ApobBaseAddress = CONFIG_PSP_APOB_DRAM_ADDRESS,
-		.SilMemBaseAddress = (uintptr_t)cbmem_find(CBMEM_ID_AMD_OPENSIL)
-	};
-
-	if (SilContext.SilMemBaseAddress == 0)
-		return CB_ERR;
-
-	if (xPrfGetCppcNomFrequency(&SilContext, freq) != SilPass)
-		return CB_ERR;
-
-	return CB_SUCCESS;
-}
-#endif

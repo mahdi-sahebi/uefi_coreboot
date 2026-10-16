@@ -12,6 +12,7 @@
 #include <boot/coreboot_tables.h>
 #include <security/tpm/tss/tcg-2.0/tss_structures.h>
 #include <security/tpm/tss.h>
+#include <swab.h>
 
 /* TPM2 interface */
 #define EFI_TPM2_ACPI_TABLE_START_METHOD_TIS	6
@@ -97,6 +98,8 @@ tpm_result_t mb_measure_log_start(void);
 void invalidate_pcrs(void);
 
 EFI_TCG2_EVENT_ALGORITHM_BITMAP tpm2_get_active_pcrs(void);
+
+tpm_result_t tpm2_get_capability_pcrs(TPML_PCR_SELECTION *Pcrs);
 
 tpm_result_t mb_measure(int wake_from_s3);
 tpm_result_t mb_entry(int wake_from_s3);

@@ -10,7 +10,7 @@ end
 
 chip soc/intel/alderlake
 	# Acoustic settings
-	register "acoustic_noise_mitigation" = "true"
+	register "acoustic_noise_mitigation" = "1"
 	register "slow_slew_rate[VR_DOMAIN_IA]" = "SLEW_FAST_8"
 	register "slow_slew_rate[VR_DOMAIN_GT]" = "SLEW_FAST_8"
 	register "fast_pkg_c_ramp_disable[VR_DOMAIN_IA]" = "1"
@@ -217,7 +217,6 @@ chip soc/intel/alderlake
 				register "generic.stop_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C6)"
 				register "generic.stop_off_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 5d on end
 			end

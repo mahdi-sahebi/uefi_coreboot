@@ -19,10 +19,12 @@ HOSTCC:=$(CCACHE) $(HOSTCC)
 HOSTCXX:=$(CCACHE) $(HOSTCXX)
 endif
 
-# clang-tidy integration
-ifneq ($(CLANG_TIDY),)
-CLANG_TIDY_CHECKS ?= -checks=*
-CLANG_TIDY_ARGS ?= -extra-arg=-Wno-packed-not-aligned
+# scan-build integration
+ifneq ($(CCC_ANALYZER_OUTPUT_FORMAT),)
+
+ifeq ($(CCC_ANALYZER_ANALYSIS),)
+export CCC_ANALYZER_ANALYSIS := -analyzer-opt-analyze-headers
+endif
 
 $(foreach arch,$(ARCH_SUPPORTED), \
 	$(eval CC_$(arch):=CCC_CC="$(CC_$(arch))" $(CC) ))
@@ -185,10 +187,7 @@ $(foreach arch,$(sort $(foreach stage,\
 		echo not-coreboot; else echo not-coreboot; fi), \
 		$(eval COMPILERFAIL:=1)\
 		$(warning The coreboot toolchain for '$(arch)'\
-			architecture was not found.)\
-		$(if $(CC_$(arch)),\
-			$(warning $(CC_$(arch)) -v)\
-			$(warning $(shell $(CC_$(arch)) -v)))))
+			architecture was not found.)))
 # If iasl doesn't match the current coreboot version, fail the test
 # TODO: Figure out if iasl is even needed for the build.
 $(if $(shell if [ -n "$(IASL)" ]; then \

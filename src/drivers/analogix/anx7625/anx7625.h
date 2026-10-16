@@ -339,7 +339,6 @@ enum AudioWdLen {
 
 #define ONE_BLOCK_SIZE      128
 #define FOUR_BLOCK_SIZE     (128*4)
-#define EDID_RETRY          3
 
 struct display_timing {
 	unsigned int pixelclock;

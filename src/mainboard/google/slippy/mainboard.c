@@ -1,19 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <acpi/acpi.h>
-#include <acpi/acpigen.h>
+#include <smbios.h>
 #include <cpu/x86/smm.h>
 #include <device/device.h>
 #include <drivers/intel/gma/int15.h>
-#include <option.h>
-#include <smbios.h>
+#include <acpi/acpi.h>
 #include <southbridge/intel/lynxpoint/pch.h>
 #include "ec.h"
 #include "onboard.h"
-
-#define TP_TYPE_AUTO	0
-#define TP_TYPE_ELAN	1
-#define TP_TYPE_CYPRESS	2
 
 void mainboard_suspend_resume(void)
 {
@@ -24,20 +18,6 @@ void mainboard_suspend_resume(void)
 static void mainboard_init(struct device *dev)
 {
 	mainboard_ec_init();
-}
-
-static void mainboard_fill_ssdt(const struct device *dev)
-{
-	if (CONFIG(BOARD_GOOGLE_PEPPY)) {
-		/* Get touchpad type option from CFR; enable both if not specified */
-		unsigned int touchpad_type = get_uint_option("touchpad_type", TP_TYPE_AUTO);
-
-		acpigen_write_scope("\\_SB.PCI0.I2C0");
-		/* 0 = Enalble both, 1 = Elan, 2 = Cypress */
-		acpigen_write_name_integer("ETPD", touchpad_type != TP_TYPE_CYPRESS ? 1 : 0);
-		acpigen_write_name_integer("CTPD", touchpad_type != TP_TYPE_ELAN ? 1 : 0);
-		acpigen_pop_len(); /* Scope */
-	}
 }
 
 static int mainboard_smbios_data(struct device *dev, int *handle,
@@ -82,7 +62,6 @@ static void mainboard_enable(struct device *dev)
 {
 	dev->ops->init = mainboard_init;
 	dev->ops->get_smbios_data = mainboard_smbios_data;
-	dev->ops->acpi_fill_ssdt = mainboard_fill_ssdt;
 	install_intel_vga_int15_handler(GMA_INT15_ACTIVE_LFP_EDP, GMA_INT15_PANEL_FIT_CENTERING, GMA_INT15_BOOT_DISPLAY_DEFAULT, 0);
 }
 

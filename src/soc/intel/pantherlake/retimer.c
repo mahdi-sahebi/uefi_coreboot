@@ -11,15 +11,16 @@ int retimer_get_index_for_typec(uint8_t typec_port)
 	const struct device *tcss_port_arr[] = {
 		DEV_PTR(tcss_usb3_port0),
 		DEV_PTR(tcss_usb3_port1),
-#if CONFIG(SOC_INTEL_PANTHERLAKE)
 		DEV_PTR(tcss_usb3_port2),
 		DEV_PTR(tcss_usb3_port3),
-#endif
 	};
 
 	for (int i = 0, ec_port = 0; i < MAX_TYPE_C_PORTS; i++) {
-		if (i == typec_port)
+		if (i == typec_port) {
+			printk(BIOS_INFO, "USB Type-C %d mapped to EC port %d\n", typec_port,
+					ec_port);
 			return ec_port;
+		}
 
 		if (is_dev_enabled(tcss_port_arr[i]))
 			ec_port++;

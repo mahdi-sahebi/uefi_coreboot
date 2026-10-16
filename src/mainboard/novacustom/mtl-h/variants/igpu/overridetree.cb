@@ -11,10 +11,6 @@ chip soc/intel/meteorlake
 	# MTL SOC has additional setting for PsysPmax
 	register "psys_pmax_watts" = "99"
 
-	# set EPP to 45%: 45 * 256/100 = 115 = 0x73
-	register "enable_energy_perf_pref" = "true"
-	register "energy_perf_pref_value" = "0x73"
-
 	device domain 0 on
 		subsystemid 0x1558 0xa743 inherit
 		device ref igpu on
@@ -22,25 +18,6 @@ chip soc/intel/meteorlake
 				[DDI_PORT_A] = DDI_ENABLE_HPD, 			/* eDP */
 				[DDI_PORT_3] = DDI_ENABLE_DDC | DDI_ENABLE_HPD,	/* HDMI 2.1 */
 			}"
-			chip drivers/gfx/generic
-				register "device_count" = "6"
-				# DDIA for eDP
-				register "device[0].name" = ""LCD0""
-				register "device[0].type" = "panel"
-				# DDIB unused
-				register "device[1].name" = ""DD01""
-				# TCP0 for Thunderbolt 4
-				register "device[2].name" = ""DD02""
-				register "device[2].use_pld" = "true"
-				register "device[2].pld" = "ACPI_PLD_TYPE_C(RIGHT, CENTER, ACPI_PLD_GROUP(1, 1))"
-				# TCP1 unused
-				register "device[3].name" = ""DD03""
-				# TCP2 for HDMI 2.1
-				register "device[4].name" = ""DD04""
-				# TCP3 unused
-				register "device[5].name" = ""DD05""
-				device generic 0 on end
-			end
 		end
 		device ref i2c0 on # Touchpad
 			register "serial_io_i2c_mode[PchSerialIoIndexI2C0]" = "PchSerialIoPci"
@@ -65,12 +42,9 @@ chip soc/intel/meteorlake
 			register "pcie_rp[PCH_RP(5)]" = "{
 				.clk_src = 2,
 				.clk_req = 2,
-				.flags = PCIE_RP_LTR | PCIE_RP_CLK_SRC_UNUSED,
+				.flags = PCIE_RP_LTR,
 			}"
 			register "pcie_clk_config_flag[2]" = "PCIE_CLK_LAN"
-		end
-		device ref hda on
-			subsystemid 0x1558 0xa743
 		end
 		device ref gbe on end
 	end

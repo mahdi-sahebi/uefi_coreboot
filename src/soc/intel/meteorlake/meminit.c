@@ -107,14 +107,11 @@ static void mem_init_spd_upds(FSP_M_CONFIG *mem_cfg, const struct mem_channel_da
 		for (dimm = 0; dimm < CONFIG_DIMMS_PER_CHANNEL; dimm++) {
 			efi_uintn_t *spd_ptr = spd_upds[ch][dimm];
 
-			/*
-			 * In DDR5 systems, since each DIMM has 2 channels,
-			 * we need to copy the SPD data such that:
-			 * Channel 0 data is used by channel 0 and 1
-			 * Channel 2 data is used by channel 2 and 3
-			 * Channel 4 data is used by channel 4 and 5
-			 * Channel 6 data is used by channel 6 and 7
-			 */
+			// In DDR5 systems, we need to copy the SPD data such that:
+			// Channel 0 data is used by channel 0 and 1
+			// Channel 2 data is used by channel 2 and 3
+			// Channel 4 data is used by channel 4 and 5
+			// Channel 6 data is used by channel 6 and 7
 			if (expand_channels)
 				*spd_ptr = data->spd[ch & 6][dimm];
 			else
