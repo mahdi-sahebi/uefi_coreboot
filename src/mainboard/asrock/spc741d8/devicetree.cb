@@ -4,14 +4,14 @@ chip soc/intel/xeon_sp/spr
 	device domain 0 on
 		device pci 1f.0 on         # Intel device 1b81: PCH eSPI controller
 			chip superio/common
-				device pnp 4e.0 on
+				device pnp 2e.0 on
 					chip superio/aspeed/ast2400
 						register "use_espi" = "1"
-						device pnp 4e.2 on	# SUART1
+						device pnp 2e.2 on	# SUART1
 							io 0x60 = 0x3f8
 							irq 0x70 = 0x04
 						end
-						device pnp 4e.3 on # SUART2
+						device pnp 2e.3 on # SUART2
 							io 0x60 = 0x2f8
 							irq 0x70 = 0x03
 						end
