@@ -1293,6 +1293,9 @@ void payload_run(void)
 	*/
 	// mdelay(5000);
 
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT jumping to EDK2 entry=0x%x arg=0x%x cbtables=%p\n",
+		entry, arg, prog_entry_arg(payload));
     protected_mode_call_1arg((void *)(uintptr_t)entry, arg);
+	printk(BIOS_ERR, "[CB-DIAG] ERROR EDK2 payload returned unexpectedly\n");
 }
 #endif
