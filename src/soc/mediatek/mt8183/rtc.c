@@ -263,7 +263,7 @@ err:
 }
 
 /* enable rtc bbpu */
-static void rtc_bbpu_power_on(void)
+void rtc_bbpu_power_on(void)
 {
 	u16 bbpu;
 	int ret;

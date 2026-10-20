@@ -120,9 +120,15 @@ void amd_free_microcode(void)
 	}
 }
 
-void *amd_microcode_find(void)
+void preload_microcode(void)
 {
-	amd_load_microcode_from_cbfs();
+	if (!CONFIG(CBFS_PRELOAD))
+		return;
 
-	return (void *)ucode;
+	char name[] = CPU_MICROCODE_BLOB_NAME;
+	uint16_t equivalent_processor_rev_id = get_equivalent_processor_rev_id();
+
+	snprintf(name, sizeof(name), CPU_MICROCODE_BLOB_FORMAT, equivalent_processor_rev_id);
+	printk(BIOS_DEBUG, "Preloading microcode %s\n", name);
+	cbfs_preload(name);
 }

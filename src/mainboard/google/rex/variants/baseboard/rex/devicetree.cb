@@ -1,6 +1,4 @@
 chip soc/intel/meteorlake
-	# Enable CNVi WiFi
-	register "cnvi_wifi_core" = "true"
 
 	# GPE configuration
 	register "pmc_gpe0_dw0" = "GPP_B"
@@ -45,7 +43,7 @@ chip soc/intel/meteorlake
 	register "pch_pm_energy_report_enable" = "1"
 
 	# DPTF enable
-	register "dptf_enable" = "true"
+	register "dptf_enable" = "1"
 
 	# Setting TCC of 100C = Tj max (110) - TCC_Offset (10)
 	register "tcc_offset" = "10"

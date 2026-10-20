@@ -3,8 +3,9 @@
 #include <bootmode.h>
 #include <boot/coreboot_tables.h>
 #include <device/device.h>
-#include <gpio.h>
+
 #include <southbridge/intel/bd82x6x/pch.h>
+#include <southbridge/intel/common/gpio.h>
 #include <ec/quanta/ene_kb3940q/ec.h>
 #include <types.h>
 #include <vendorcode/google/chromeos/chromeos.h>
@@ -30,7 +31,7 @@ void fill_lb_gpios(struct lb_gpios *gpios)
 
 int get_write_protect_state(void)
 {
-	return !gpio_get(WP_GPIO);
+	return !get_gpio(WP_GPIO);
 }
 
 int get_lid_switch(void)

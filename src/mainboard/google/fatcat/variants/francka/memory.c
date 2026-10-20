@@ -55,6 +55,8 @@ static const struct mb_cfg lp5_mem_config = {
 
 	.ect = true, /* Early Command Training */
 
+	.lp_ddr_dq_dqs_re_training = 1,
+
 	.user_bd = BOARD_TYPE_ULT_ULX,
 
 	.lp5x_config = {
@@ -87,5 +89,5 @@ int variant_memory_sku(void)
 void variant_get_spd_info(struct mem_spd *spd_info)
 {
 	spd_info->topo = MEM_TOPO_MEMORY_DOWN;
-	spd_info->cbfs_index = variant_memory_sku();
+	spd_info->cbfs_index = 0;
 }

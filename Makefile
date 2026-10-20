@@ -15,7 +15,6 @@ absobj := $(abspath $(obj))
 
 additional-dirs :=
 
-VBOOT_SOURCE ?= 3rdparty/vboot
 VBOOT_HOST_BUILD ?= $(abspath $(objutil)/vboot_lib)
 
 COREBOOT_EXPORTS := COREBOOT_EXPORTS
@@ -89,22 +88,21 @@ all: real-all
 help_coreboot help::
 	@echo  '*** coreboot platform targets ***'
 	@echo  '  Use "make [target] V=1" for extra build debug information'
-	@echo  '  all                     - Build coreboot'
-	@echo  '  sbom                    - Rebuild SBOM (sbom.uswid) from existing build artifacts (FIXME)'
-	@echo  '  clean                   - Remove coreboot build artifacts'
-	@echo  '  distclean               - Remove build artifacts and config files'
-	@echo  '  sphinx                  - Build sphinx documentation for coreboot'
-	@echo  '  sphinx-lint             - Build sphinx documentation for coreboot with warnings as errors'
-	@echo  '  filelist                - Show files used in current build'
-	@echo  '  printall                - Print makefile info for debugging'
-	@echo  '  gitconfig               - Set up git to submit patches to coreboot'
-	@echo  '  ctags / ctags-project   - Make ctags file for all of coreboot or current board'
+	@echo  '  all                   - Build coreboot'
+	@echo  '  clean                 - Remove coreboot build artifacts'
+	@echo  '  distclean             - Remove build artifacts and config files'
+	@echo  '  sphinx                - Build sphinx documentation for coreboot'
+	@echo  '  sphinx-lint           - Build sphinx documentation for coreboot with warnings as errors'
+	@echo  '  filelist              - Show files used in current build'
+	@echo  '  printall              - Print makefile info for debugging'
+	@echo  '  gitconfig             - Set up git to submit patches to coreboot'
+	@echo  '  ctags / ctags-project - Make ctags file for all of coreboot or current board'
 	@echo  '  cscope / cscope-project - Make cscope.out file for coreboot or current board'
 	@echo
 	@echo  '*** site-local related targets ***'
-	@echo  '  symlink                 - Create symbolic links from site-local into coreboot tree'
-	@echo  '  clean-symlink           - Remove symbolic links created by "make symlink"'
-	@echo  '  cleanall-symlink        - Remove all symbolic links in the coreboot tree'
+	@echo  '  symlink               - Create symbolic links from site-local into coreboot tree'
+	@echo  '  clean-symlink         - Remove symbolic links created by "make symlink"'
+	@echo  '  cleanall-symlink      - Remove all symbolic links in the coreboot tree'
 	@echo
 
 # This include must come _before_ the pattern rules below!
@@ -339,23 +337,6 @@ ifeq ($(FAILBUILD),1)
 $(error cannot continue build)
 endif
 
-# Add bootsplash to BOOTSPLASH/logo.bmp if a file is provided
-ifneq ($(CONFIG_BOOTSPLASH_REGION_LOGO_FILE),"")
-
-files_added:: branding_bootsplash_region
-
-.PHONY: branding_bootsplash_region
-branding_bootsplash_region: $(obj)/coreboot.rom $(objutil)/cbfstool/cbfstool
-	@echo "    BRANDING   Adding bootsplash (BOOTSPLASH/logo.bmp) from $(CONFIG_BOOTSPLASH_REGION_LOGO_FILE)"
-	$(objutil)/cbfstool/cbfstool $(obj)/coreboot.rom add \
-		-r BOOTSPLASH \
-		-f $(CONFIG_BOOTSPLASH_REGION_LOGO_FILE) \
-		-n logo.bmp \
-		-t raw \
-		-c lzma
-
-endif
-
 # Run hooks registered by subdirectories that need to be evaluated after all files have been parsed
 $(eval $(postinclude-hooks))
 
@@ -492,7 +473,7 @@ $(obj)/project_filelist.txt:
 		echo "*** Error: Project must be built before generating file list ***"; \
 		exit 1; \
 	fi
-	find $(obj) -path "$(obj)/util" -prune -o -path "$(obj)/external" -prune -o -path "$(obj)/3rdparty" -prune -o -name "*.d" -exec cat {} \; | \
+	find $(obj) -path "$(obj)/util" -prune -o -path "$(obj)/external" -prune -o -name "*.d" -exec cat {} \; | \
 	  sed "s|$(top)/||" | sed 's/[:\\]/ /g' | sed 's/ /\n/g' | sort | uniq | \
 	  grep -v '\.o$$' > $(obj)/project_filelist.txt
 
@@ -504,9 +485,6 @@ filelist: $(obj)/project_filelist.txt
 ctags-project: clean-ctags $(obj)/project_filelist.txt
 	cat $(obj)/project_filelist.txt | \
 	  xargs ctags -o tags
-
-ctags:
-	ctags -R
 
 cscope-project: clean-cscope $(obj)/project_filelist.txt
 	cat $(obj)/project_filelist.txt | xargs cscope -b

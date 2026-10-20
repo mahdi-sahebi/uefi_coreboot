@@ -3,9 +3,7 @@
 #ifndef AMD_BLOCK_PSP_H
 #define AMD_BLOCK_PSP_H
 
-#include <commonlib/region.h>
 #include <stdint.h>
-#include <stdbool.h>
 
 #define SMM_TRIGGER_IO		0
 #define SMM_TRIGGER_MEM		1
@@ -52,7 +50,6 @@ void soc_fill_smm_reg_info(struct smm_register_info *reg); /* v2 only */
 #define PSPSTS_UNSUPPORTED	7
 #define PSPSTS_INVALID_NAME	8
 #define PSPSTS_INVALID_BLOB	9
-#define PSPSTS_ASYNC_CMD	10
 
 /* PSP gen1-only. SoCs with PSP gen2 already have the DRAM initialized when
    the x86 cores are released from reset. */
@@ -86,56 +83,5 @@ int psp_load_named_blob(enum psp_blob_type type, const char *name);
 
 /* Sets the GPIO used for the TPM IRQ */
 void psp_set_tpm_irq_gpio(unsigned int gpio);
-
-/* Returns the fTPM base address, 0 on error. */
-uintptr_t psp_ftpm_base_address(void);
-
-/* Returns true when the fTPM CRB interface is enabled */
-bool psp_ftpm_is_active(void);
-
-/* Returns required recovery actions to be taken */
-void psp_ftpm_needs_recovery(bool *psp_rpmc_nvram,
-			     bool *psp_nvram,
-			     bool *psp_dir);
-#if ENV_ROMSTAGE_OR_BEFORE
-/* ROM Armor might get activated after SMM has been set up. It's safe to return false here. */
-static inline bool psp_get_hsti_state_rom_armor_enforced(void) { return false; }
-#else
-bool psp_get_hsti_state_rom_armor_enforced(void);
-#endif
-
-#if CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR_DISABLED)
-#define rom_armor_enforced false
-#else
-/*
- * With ROM Armor 1 querying HSTI state does not work in SMM after enter SMM-only mode.
- * However, it still works in normal world (non-SMM). We will use this flag to inform
- * SMM that ROM Armor 1 is active.
- */
-extern bool rom_armor_enforced;
-#endif
-
-/* Region device accessing the ROM through PSP mailbox */
-extern struct region_device rom_armor_smm_rw;
-
-/**
- * psp_rom_armor_init - Initialize PSP ROM Armor
- *
- * Must be called from RAMSTAGE to enable ROM Armor.
- * Calls into SMM to set up the ROM Armor command buffer and to prepare the
- * PSP mailbox communication. Enables the ROM Armor feature on the PSP and
- * disables the SPIBAR.
- * After this call access to the SPI flash must use PSP mailbox communication
- * in SMM. PSP will only grant access to regions marked as writable.
- *
- * @param allow_capsule_update Whether to allow capsule updates
- */
-void psp_rom_armor_init(bool allow_capsule_update);
-
-/* SMM handler for ROM Armor operations - called from APMC handler */
-uint32_t rom_armor_exec(uint8_t command, void *param);
-
-/* Region device accessing the ROM through APMC SMI handler */
-extern const struct region_device rom_armor_apm_call_rw;
 
 #endif /* AMD_BLOCK_PSP_H */

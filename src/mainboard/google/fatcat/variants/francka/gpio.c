@@ -86,7 +86,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_B17:     SOC_ENVDD2 */
 	PAD_CFG_NF(GPP_B17, NONE, DEEP, NF2),
 	/* GPP_B18:     TCHSCR_REPORT_DISABLE */
-	PAD_CFG_GPO(GPP_B18, 1, PLTRST),
+	PAD_CFG_GPO(GPP_B18, 0, PLTRST),
 	/* GPP_B19:     SOC_CNVI_EN# */
 	PAD_CFG_GPO(GPP_B19, 0, PLTRST),
 	/* GPP_B20:     SOC_WWAN_RST# */
@@ -172,13 +172,13 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_D09:     PCH_DGPU_HOLD_RST#_R */
 	PAD_NC(GPP_D09, NONE),
 	/* GPP_D10:     HDA_BIT_CLK */
-	PAD_NC(GPP_D10, NONE),
+	PAD_CFG_NF(GPP_D10, NONE, DEEP, NF1),
 	/* GPP_D11:     HDA_SYNC */
-	PAD_NC(GPP_D11, NONE),
+	PAD_CFG_NF(GPP_D11, NONE, DEEP, NF1),
 	/* GPP_D12:     HDA_SDOUT */
-	PAD_NC(GPP_D12, NONE),
+	PAD_CFG_NF(GPP_D12, NONE, DEEP, NF1),
 	/* GPP_D13:     HDA_SDIN0 */
-	PAD_NC(GPP_D13, NONE),
+	PAD_CFG_NF(GPP_D13, NONE, DEEP, NF1),
 	/* GPP_D14:     SOC_HDMI_STRAP */
 	PAD_CFG_GPI(GPP_D14, NONE, DEEP),
 	/* GPP_D15:     Not used */
@@ -186,7 +186,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_D16:     HDA_RST# */
 	PAD_NC(GPP_D16, NONE),
 	/* GPP_D17:     FPMCU_INT# */
-	PAD_CFG_GPI_IRQ_WAKE(GPP_D17, NONE, PWROK, LEVEL, INVERT),
+	PAD_CFG_GPI_INT(GPP_D17, NONE, PLTRST, LEVEL),
 	/* GPP_D18:     CLKREQ_PCIE#6 */
 	PAD_CFG_NF(GPP_D18, NONE, DEEP, NF1),
 	/* GPP_D19:     SOC_SD_RST# */
@@ -272,8 +272,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_F07, NONE),
 	/* GPP_F08:     Not used */
 	PAD_NC(GPP_F08, NONE),
-	/* GPP_F09:     Not used */
-	PAD_NC(GPP_F09, NONE),
+	/* GPP_F09:     SX_EXIT_HOLDOFF# */
+	PAD_CFG_NF(GPP_F09, NONE, DEEP, NF2),
 	/* GPP_F10:     Not used */
 	PAD_NC(GPP_F10, NONE),
 	/* GPP_F11:     SOC_THC_1_CLK */
@@ -286,16 +286,16 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_F14, NONE),
 	/* GPP_F15:     Not used */
 	PAD_NC(GPP_F15, NONE),
-	/* GPP_F16:     Not used */
-	PAD_NC(GPP_F16, NONE),
+	/* GPP_F16:     SOC_THC_1_RST# */
+	PAD_CFG_GPO(GPP_F16, 0, DEEP),
 	/* GPP_F17:     SOC_THC_1_CS# */
 	PAD_CFG_NF(GPP_F17, NONE, DEEP, NF5),
-	/* GPP_F18:     Not used */
-	PAD_NC(GPP_F18, NONE),
+	/* GPP_F18:     SOC_THC_1_INT# */
+	PAD_CFG_GPI_APIC(GPP_F18, NONE, PWROK, LEVEL, INVERT),
 	/* GPP_F19:     Not used */
 	PAD_NC(GPP_F19, NONE),
 	/* GPP_F20:     AP_FP_FW_UP_STRAP */
-	PAD_CFG_GPO_LOCK(GPP_F20, 0, LOCK_CONFIG),
+	PAD_CFG_GPO(GPP_F20, 1, DEEP),
 	/* GPP_F22:     Not used */
 	PAD_NC(GPP_F22, NONE),
 	/* GPP_F23:     SLP_S0#_GATE */
@@ -308,7 +308,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_H02:     Not used */
 	PAD_NC(GPP_H02, NONE),
 	/* GPP_H03:     EN_PWR_FP */
-	PAD_CFG_GPO(GPP_H03, 1, DEEP),
+	PAD_CFG_GPO(GPP_H03, 0, DEEP),
 	/* GPP_H04:     COEX1 */
 	PAD_CFG_NF(GPP_H04, NONE, DEEP, NF2),
 	/* GPP_H05:     COEX2 */
@@ -334,7 +334,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_H16:     SOC_AUDIO_STRAP */
 	PAD_CFG_GPI(GPP_H16, NONE, DEEP),
 	/* GPP_H17:     FP_RST_1V8_OD# */
-	PAD_CFG_GPO_LOCK(GPP_H17, 1, LOCK_CONFIG),
+	PAD_CFG_GPO(GPP_H17, 1, DEEP),
 	/* GPP_H19:     Not used*/
 	PAD_NC(GPP_H19, NONE),
 	/* GPP_H20:     Not used */
@@ -345,21 +345,21 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_H22, NONE, DEEP, NF1),
 
 	/* GPP_S00:     SNDW_3_SCL */
-	PAD_NC(GPP_S00, NONE),
+	PAD_CFG_NF(GPP_S00, NONE, DEEP, NF1),
 	/* GPP_S01:     SNDW_3_SDA */
-	PAD_NC(GPP_S01, NONE),
-	/* GPP_S02:     SNDW_0_SCL_R / SOC_DMIC_CLK0 */
-	PAD_NC(GPP_S02, NONE),
-	/* GPP_S03:     SNDW_0_SDA_R / SOC_DMIC_DATA0 */
-	PAD_NC(GPP_S03, NONE),
-	/* GPP_S04:     SNDW_2_SCL */
-	PAD_NC(GPP_S04, NONE),
-	/* GPP_S05:     SNDW_2_SDA */
-	PAD_NC(GPP_S05, NONE),
+	PAD_CFG_NF(GPP_S01, NONE, DEEP, NF1),
+	/* GPP_S02:     SOC_DMIC_CLK0 */
+	PAD_CFG_NF(GPP_S02, NONE, DEEP, NF1),
+	/* GPP_S03:     SOC_DMIC_DATA0 */
+	PAD_CFG_NF(GPP_S03, NONE, DEEP, NF1),
+	/* GPP_S04:     SNDW2_CLK */
+	PAD_CFG_NF(GPP_S04, NONE, DEEP, NF2),
+	/* GPP_S05:     SNDW2_DATA0 */
+	PAD_CFG_NF(GPP_S05, NONE, DEEP, NF2),
 	/* GPP_S06:     SOC_DMIC_CLK1 */
-	PAD_NC(GPP_S06, NONE),
+	PAD_CFG_NF(GPP_S06, NONE, DEEP, NF5),
 	/* GPP_S07:     SOC_DMIC_DATA1 */
-	PAD_NC(GPP_S07, NONE),
+	PAD_CFG_NF(GPP_S07, NONE, DEEP, NF5),
 
 	/* GPP_V00:     PM_BATLOW# */
 	PAD_CFG_NF(GPP_V00, NONE, DEEP, NF1),
@@ -406,28 +406,24 @@ static const struct pad_config early_gpio_table[] = {
 	/* GPP_H09:     UART_0_CTXD_DRXD */
 	PAD_CFG_NF(GPP_H09, NONE, DEEP, NF1),
 
-	/* GPP_H21:     SOC_I2C_1_SDA */
-	PAD_CFG_NF(GPP_H21, NONE, DEEP, NF1),
-	/* GPP_H22:     SOC_I2C_1_SCL */
-	PAD_CFG_NF(GPP_H22, NONE, DEEP, NF1),
-	/* GPP_H11: GSC_SOC_INT_ODL */
+	/* GPP_H06: SOC_I2C_3_SDA */
+	PAD_CFG_NF(GPP_H06, NONE, DEEP, NF1),
+	/* GPP_H07: SOC_I2C_3_SCL */
+	PAD_CFG_NF(GPP_H07, NONE, DEEP, NF1),
+	/* GPP_D15: GSC_SOC_INT_ODL */
 	PAD_CFG_GPI_APIC_LOCK(GPP_H11, NONE, LEVEL, INVERT, LOCK_CONFIG),
 };
 
 /* Pad configuration in romstage */
 static const struct pad_config romstage_gpio_table[] = {
-	/* GPP_B16:     SOC_SSD2_EN */
-	PAD_CFG_GPO(GPP_B16, 1, PLTRST),
 	/* GPP_C00:     SOC_SMBCLK */
 	PAD_CFG_NF(GPP_C00, NONE, DEEP, NF1),
 	/* GPP_C01:     SOC_SMBDATA */
 	PAD_CFG_NF(GPP_C01, NONE, DEEP, NF1),
+	/* GPP_F16:     SOC_THC_1_RST# */
+	PAD_CFG_GPO(GPP_F16, 0, DEEP),
 	/* GPP_H03:     EN_PWR_FP */
 	PAD_CFG_GPO(GPP_H03, 0, DEEP),
-	/* GPP_H17:     FP_RST_1V8_OD# */
-	PAD_CFG_GPO(GPP_H17, 0, DEEP),
-	/* GPP_E03:     SOC_SSD2_RST# */
-	PAD_CFG_GPO(GPP_E03, 1, PLTRST),
 };
 
 const struct pad_config *variant_gpio_table(size_t *num)
@@ -454,7 +450,6 @@ static const struct cros_gpio cros_gpios[] = {
 	CROS_GPIO_REC_AL(CROS_GPIO_VIRTUAL, CROS_GPIO_DEVICE1_NAME),
 	CROS_GPIO_REC_AL(CROS_GPIO_VIRTUAL, CROS_GPIO_DEVICE2_NAME),
 	CROS_GPIO_REC_AL(CROS_GPIO_VIRTUAL, CROS_GPIO_DEVICE3_NAME),
-	CROS_GPIO_WP_AH(GPIO_PCH_WP, CROS_GPIO_DEVICE1_NAME),
 };
 
 DECLARE_CROS_GPIOS(cros_gpios);

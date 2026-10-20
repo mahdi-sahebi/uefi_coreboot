@@ -122,8 +122,10 @@ $ sudo flashrom \
   -w coreboot.rom
 ```
 
+```{eval-rst}
 In addition to the information here, please see the
-<project:../../tutorial/flashing_firmware/index.md>.
+:doc:`../../tutorial/flashing_firmware/index`.
+```
 
 ### External flashing
 

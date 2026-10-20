@@ -199,7 +199,8 @@ static void post_mp_init(void)
 	global_smi_enable_no_pwrbtn();
 
 	/* Lock down the SMRAM space. */
-	smm_lock();
+	if (CONFIG(HAVE_SMI_HANDLER))
+		smm_lock();
 
 	if (mp_run_on_all_cpus(vmx_configure, NULL) != CB_SUCCESS)
 		failure = true;

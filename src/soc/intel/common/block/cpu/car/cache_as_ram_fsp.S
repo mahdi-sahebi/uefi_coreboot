@@ -83,7 +83,7 @@ CAR_init_done:
 	movl	%ecx, temp_memory_start
 
 #if ENV_X86_64
-	setup_longmode $PML4E
+	setup_longmode $PM4LE
 	movl	%ebp, %edi
 	shlq	$32, %rdi
 	movd	%mm1, %rsi

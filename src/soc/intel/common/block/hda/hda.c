@@ -1,21 +1,13 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <device/azalia_device.h>
 #include <device/device.h>
+#include <device/azalia_device.h>
 #include <device/pci.h>
 #include <device/pci_ids.h>
-#include <intelblocks/hda.h>
-
-/* Mainboard overrides. */
-
-__weak bool mainboard_is_hda_codec_enabled(void)
-{
-	return true;
-}
 
 static void hda_init(struct device *dev)
 {
-	if (CONFIG(SOC_INTEL_COMMON_BLOCK_HDA_VERB) && mainboard_is_hda_codec_enabled())
+	if (CONFIG(SOC_INTEL_COMMON_BLOCK_HDA_VERB))
 		azalia_audio_init(dev);
 }
 
@@ -24,20 +16,11 @@ struct device_operations hda_ops = {
 	.set_resources		= pci_dev_set_resources,
 	.enable_resources	= pci_dev_enable_resources,
 	.init			= hda_init,
-	.final			= pci_dev_request_bus_master,
 	.ops_pci		= &pci_dev_ops_pci,
 	.scan_bus		= scan_static_bus
 };
 
 static const unsigned short pci_device_ids[] = {
-	PCI_DID_INTEL_WCL_AUDIO_1,
-	PCI_DID_INTEL_WCL_AUDIO_2,
-	PCI_DID_INTEL_WCL_AUDIO_3,
-	PCI_DID_INTEL_WCL_AUDIO_4,
-	PCI_DID_INTEL_WCL_AUDIO_5,
-	PCI_DID_INTEL_WCL_AUDIO_6,
-	PCI_DID_INTEL_WCL_AUDIO_7,
-	PCI_DID_INTEL_WCL_AUDIO_8,
 	PCI_DID_INTEL_PTL_H_AUDIO_1,
 	PCI_DID_INTEL_PTL_H_AUDIO_2,
 	PCI_DID_INTEL_PTL_H_AUDIO_3,
@@ -70,8 +53,6 @@ static const unsigned short pci_device_ids[] = {
 	PCI_DID_INTEL_MTL_AUDIO_6,
 	PCI_DID_INTEL_MTL_AUDIO_7,
 	PCI_DID_INTEL_MTL_AUDIO_8,
-	PCI_DID_INTEL_ARL_AUDIO,
-	PCI_DID_INTEL_ARP_S_AUDIO,
 	PCI_DID_INTEL_RPP_P_AUDIO,
 	PCI_DID_INTEL_RPP_S_AUDIO_1,
 	PCI_DID_INTEL_RPP_S_AUDIO_2,

@@ -255,7 +255,7 @@ static const struct pad_config gpio_table[] = {
 #define DGPU_NVVDD_EN GPP_F16
 
 /* Pad configuration was generated automatically using intelp2m utility */
-void variant_configure_gpios(void)
+void mainboard_configure_gpios(void)
 {
 	bool result;
 

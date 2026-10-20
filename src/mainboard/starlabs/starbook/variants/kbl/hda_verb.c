@@ -1,107 +1,73 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <device/azalia_device.h>
-#include <device/azalia_codec/realtek.h>
 
 const u32 cim_verb_data[] = {
 	/* coreboot specific header */
-	0x10ec0269,	/* Codec Vendor / Device ID: Realtek ALC269 */
-	0x10ec10d0,	/* Subsystem ID */
-	18,		/* Number of verb entries */
+	0x10ec0269, /* Codec Vendor / Device ID: Realtek ALC269 */
+	0x10ec10d0, /* Subsystem ID */
+	18,	/* Number of jacks (NID entries) */
 
 	/* Reset Codec First */
 	AZALIA_RESET(0x1),
 
-	/* HDA Codec Subsystem ID */
-	AZALIA_SUBVENDOR(0, 0x1e507038),
+	/* HDA Codec Subsystem ID Verb-table */
+	AZALIA_SUBVENDOR(0, 0x10ec10d0),
 
 	/* Pin Widget Verb-table */
-	AZALIA_PIN_CFG(0, ALC269_DMIC12,	AZALIA_PIN_DESC(
-							AZALIA_INTEGRATED,
-							AZALIA_MOBILE_LID_INSIDE,
-							AZALIA_MIC_IN,
-							AZALIA_OTHER_DIGITAL,
-							AZALIA_COLOR_UNKNOWN,
-							AZALIA_NO_JACK_PRESENCE_DETECT,
-							3,
-							0
-						)),
-	AZALIA_PIN_CFG(0, ALC269_SPEAKERS,	AZALIA_PIN_DESC(
-							AZALIA_INTEGRATED,
-							AZALIA_INTERNAL | AZALIA_FRONT,
-							AZALIA_SPEAKER,
-							AZALIA_OTHER_ANALOG,
-							AZALIA_COLOR_UNKNOWN,
-							AZALIA_NO_JACK_PRESENCE_DETECT,
-							1,
-							0
-					)),
-	AZALIA_PIN_CFG(0, ALC269_VC_HP_OUT,	AZALIA_PIN_DESC(
-							AZALIA_JACK,
-							AZALIA_EXTERNAL_PRIMARY_CHASSIS | AZALIA_RIGHT,
-							AZALIA_HP_OUT,
-							AZALIA_STEREO_MONO_1_8,
-							AZALIA_BLACK,
-							AZALIA_JACK_PRESENCE_DETECT,
-							2,
-							0
-						)),
-	AZALIA_PIN_CFG(0, ALC269_MIC1,		AZALIA_PIN_DESC(
-							AZALIA_JACK,
-							AZALIA_EXTERNAL_PRIMARY_CHASSIS | AZALIA_RIGHT,
-							AZALIA_MIC_IN,
-							AZALIA_STEREO_MONO_1_8,
-							AZALIA_BLACK,
-							AZALIA_JACK_PRESENCE_DETECT,
-							4,
-							0
-						)),
-	AZALIA_PIN_CFG(0, ALC269_MONO,		AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_MIC2,		AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_LINE1,		AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_LINE2,		AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_PC_BEEP,	AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_SPDIF_OUT,	AZALIA_PIN_CFG_NC(0)),
-	AZALIA_PIN_CFG(0, ALC269_VB_HP_OUT,	AZALIA_PIN_CFG_NC(0)),
+	AZALIA_PIN_CFG(0, 0x01, 0x00000000),
+	AZALIA_PIN_CFG(0, 0x12, 0x90a61120),
+	AZALIA_PIN_CFG(0, 0x14, 0x90171110),
+	AZALIA_PIN_CFG(0, 0x15, 0x04ab1020),
+	AZALIA_PIN_CFG(0, 0x17, 0x411111F0),
+	AZALIA_PIN_CFG(0, 0x18, 0x04AB1020),
+	AZALIA_PIN_CFG(0, 0x19, 0x411111F0),
+	AZALIA_PIN_CFG(0, 0x1A, 0x411111F0),
+	AZALIA_PIN_CFG(0, 0x1B, 0x411111F0),
+	AZALIA_PIN_CFG(0, 0x1D, 0x411111F0),
+	AZALIA_PIN_CFG(0, 0x1E, 0x411111F0),
 
+	/* ALC269 Default 1 */
 	0x02050018,
-	0x02040184,
+	0x02043984,
 	0x0205001C,
-	0x02044b00,
+	0x02040800,
 
+	/* ALC269 Default 2 */
 	0x02050024,
 	0x02040000,
 	0x02050004,
 	0x02040080,
 
+	/* ALC269 Default 3 */
 	0x02050008,
-	0x02040000,
+	0x02040300,
 	0x0205000C,
 	0x02043F00,
 
+	/* ALC269 Default 4 */
 	0x02050015,
 	0x02048002,
 	0x02050015,
 	0x02048002,
 
+	/* ALC269 Default 5 */
 	0x00C37080,
 	0x00270610,
 	0x00D37080,
 	0x00370610,
 
-	/* Intel KBL IGD HDMI */
-	0x8086280d,	/* Codec Vendor / Device ID: Intel */
-	0x80860101,	/* Subsystem ID */
-	4,		/* Number of verb entries */
+	0x8086280b, /* Codec Vendor / Device ID: Intel */
+	0x80860101, /* Subsystem ID */
+	4,	    /* Number of 4 dword sets */
 
 	AZALIA_SUBVENDOR(2, 0x80860101),
 
 	AZALIA_PIN_CFG(2, 0x05, 0x18560010),
-	AZALIA_PIN_CFG(2, 0x06, 0x18560020),
-	AZALIA_PIN_CFG(2, 0x07, 0x18560030),
+	AZALIA_PIN_CFG(2, 0x06, 0x18560010),
+	AZALIA_PIN_CFG(2, 0x07, 0x18560010),
 };
 
-const u32 pc_beep_verbs[] = {
-};
+const u32 pc_beep_verbs[] = {};
 
 AZALIA_ARRAY_SIZES;

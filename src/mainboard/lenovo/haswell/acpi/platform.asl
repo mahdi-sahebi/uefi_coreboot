@@ -2,6 +2,9 @@
 
 Method(_WAK,1)
 {
+	/* ME may not be up yet. */
+	\_TZ.MEB1 = 0
+	\_TZ.MEB2 = 0
 	Return(Package(){0,0})
 }
 

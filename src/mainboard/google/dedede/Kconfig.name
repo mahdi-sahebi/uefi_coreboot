@@ -6,16 +6,16 @@ config BOARD_GOOGLE_BEADRIX
 	bool "->  Beadrix"
 
 config BOARD_GOOGLE_BLIPPER
-	bool "->  Blipper (Lenovo 3i-15 Chromebook)"
+	bool "->  Blipper"
 
 config BOARD_GOOGLE_BOTEN
 	bool "->  Boten (Lenovo 500e Chromebook Gen 3)"
 
 config BOARD_GOOGLE_BOXY
-	bool "->  Boxy (Lenovo Chromebox Micro)"
+	bool "->  Boxy"
 
 config BOARD_GOOGLE_BUGZZY
-	bool "->  Bugzzy (Samsung Galaxy Chromebook 2 360)"
+	bool "->  Bugzzy"
 
 config BOARD_GOOGLE_CAPPY2
 	bool "->  Cappy2"
@@ -24,34 +24,33 @@ config BOARD_GOOGLE_CORORI
 	bool "->  Corori"
 
 config BOARD_GOOGLE_CRET
-	bool "->  Cret (Dell Chromebook 3110)"
+	bool "->  Cret"
 
 config BOARD_GOOGLE_DEDEDE
 	bool "->  Dedede"
 
 config BOARD_GOOGLE_DEXI
-	bool "->  Dexi (AOPEN Chromebox Mini 2)"
+	bool "->  Dexi"
 
 config BOARD_GOOGLE_DIBBI
 	bool "->  Dibbi"
 
 config BOARD_GOOGLE_DITA
-	bool "->  Dita (Acer Chromebox Mini CXM1)"
+	bool "->  Dita"
 
 config BOARD_GOOGLE_DRAWCIA
-	bool "->  Drawcia (Multiple devices - See help text)"
+	bool "->  Drawcia"
 	help
 	  The Drawcia board supports the following devices:
 	  - HP Chromebook x360 11 G4 EE (Drawcia)
 	  - HP Chromebook 11 G9 EE (Drawlat)
 	  - HP Chromebook 14 G7 (Drawman)
-	  - HP Fortis 14 G10 Chromebook (Drawper)
 
 config BOARD_GOOGLE_DRIBLEE
 	bool "->  Driblee"
 
 config BOARD_GOOGLE_GALTIC
-	bool "->  Galtic (ASUS Chromebook CX1400CKA)"
+	bool "->  Galtic"
 
 config BOARD_GOOGLE_GOOEY
 	bool "->  Gooey"
@@ -66,16 +65,16 @@ config BOARD_GOOGLE_LALALA
 	bool "->  Lalala"
 
 config BOARD_GOOGLE_LANTIS
-	bool "->  Lantis (HP Chromebook 14a)"
+	bool "->  Lantis"
 
 config BOARD_GOOGLE_MADOO
-	bool "->  Madoo (HP Chromebook x360 14b)"
+	bool "->  Madoo"
 
 config BOARD_GOOGLE_MAGOLOR
-	bool "->  Magolor (Acer Chromebook Spin 511)"
+	bool "->  Magolor"
 
 config BOARD_GOOGLE_METAKNIGHT
-	bool "->  Metaknight (NEC Chromebook Y3)"
+	bool "->  Metaknight"
 
 config BOARD_GOOGLE_PIRIKA
 	bool "->  Pirika"
@@ -84,10 +83,10 @@ config BOARD_GOOGLE_SASUKE
 	bool "->  Sasuke (Samsung Galaxy Chromebook Go)"
 
 config BOARD_GOOGLE_SASUKETTE
-	bool "->  Sasukette (Samsung Galaxy Chromebook Go 11)"
+	bool "->  Sasukette"
 
 config BOARD_GOOGLE_STORO
-	bool "->  Storo (ASUS Chromebook CR1100CKA)"
+	bool "->  Storo (Asus Chromebook CR1100)"
 
 config BOARD_GOOGLE_SHOTZO
 	bool "->  Shotzo"
@@ -102,4 +101,4 @@ config BOARD_GOOGLE_WADDLEDOO
 	bool "->  Waddledoo"
 
 config BOARD_GOOGLE_AWASUKI
-	bool "->  Awasuki (ASUS Chromebook CX1405CKA/CB1405CKA)"
+	bool "->  Awasuki"

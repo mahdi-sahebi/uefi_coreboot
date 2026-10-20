@@ -4,8 +4,9 @@
 #include <boot/coreboot_tables.h>
 #include <device/pci_ops.h>
 #include <device/device.h>
-#include <gpio.h>
+
 #include <southbridge/intel/bd82x6x/pch.h>
+#include <southbridge/intel/common/gpio.h>
 #include <types.h>
 #include <vendorcode/google/chromeos/chromeos.h>
 
@@ -32,17 +33,17 @@ void fill_lb_gpios(struct lb_gpios *gpios)
 
 int get_lid_switch(void)
 {
-	return gpio_get(GPIO_LID);
+	return get_gpio(GPIO_LID);
 }
 
 int get_write_protect_state(void)
 {
-	return !gpio_get(GPIO_SPI_WP);
+	return !get_gpio(GPIO_SPI_WP);
 }
 
 int get_recovery_mode_switch(void)
 {
-	return !gpio_get(GPIO_REC_MODE);
+	return !get_gpio(GPIO_REC_MODE);
 }
 
 static const struct cros_gpio cros_gpios[] = {

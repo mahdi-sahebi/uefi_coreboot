@@ -9,9 +9,7 @@ ifeq ($(CONFIG_HAVE_INTEL_FIRMWARE),y)
 ifeq ($(CONFIG_HAVE_IFD_BIN),y)
 $(call add_intermediate, add_intel_firmware)
 else ifeq ($(CONFIG_INTEL_DESCRIPTOR_MODE_REQUIRED),y)
-ifneq ($(CONFIG_IFWI_IBBM_LOAD),y)
 show_notices:: warn_intel_firmware
-endif # CONFIG_IFWI_IBBM_LOAD
 endif
 
 IFD_BIN_PATH := $(CONFIG_IFD_BIN_PATH)
@@ -51,22 +49,9 @@ ifeq ($(CONFIG_HAVE_EC_BIN),y)
 add_intel_firmware: $(call strip_quotes,$(CONFIG_EC_BIN_PATH))
 endif
 add_intel_firmware: $(obj)/coreboot.pre $(IFDTOOL)
-ifeq ($(CONFIG_INTEL_IFD_SET_TOP_SWAP_BOOTBLOCK_SIZE),y)
-	printf "    IFDTOOL    Modifying top swap PCH strap in IFD\n"
-	printf "     $(IFDTOOL_USE_CHIPSET)"
-	$(objutil)/ifdtool/ifdtool \
-		$(IFDTOOL_USE_CHIPSET) \
-		-T $(CONFIG_INTEL_TOP_SWAP_BOOTBLOCK_SIZE) \
-		-O $(obj)/ifd_custom_tsbs \
-		$(IFD_BIN_PATH)
-	printf "    DD         Adding Intel Firmware Descriptor\n"
-	dd if=$(obj)/ifd_custom_tsbs \
-		of=$(obj)/coreboot.pre conv=notrunc >/dev/null 2>&1
-else
 	printf "    DD         Adding Intel Firmware Descriptor\n"
 	dd if=$(IFD_BIN_PATH) \
 		of=$(obj)/coreboot.pre conv=notrunc >/dev/null 2>&1
-endif
 ifeq ($(CONFIG_IFDTOOL_DISABLE_ME),y)
 	printf "    IFDTOOL    set AltMeDisable/HAP bit\n"
 	$(objutil)/ifdtool/ifdtool \

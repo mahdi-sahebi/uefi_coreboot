@@ -63,7 +63,7 @@ void stop_this_cpu(void)
 	atomic_inc(&parked_ap_count);
 
 	/* send an LAPIC INIT to myself */
-	lapic_send_ipi_self(LAPIC_INT_LEVELTRIG | LAPIC_INT_ASSERT | LAPIC_MT_INIT);
+	lapic_send_ipi_self(LAPIC_INT_LEVELTRIG | LAPIC_INT_ASSERT | LAPIC_DM_INIT);
 	wait_for_ipi_completion_without_printk(timeout_100ms);
 
 	mdelay(10);
@@ -71,7 +71,7 @@ void stop_this_cpu(void)
 	dprintk(BIOS_SPEW, "Deasserting INIT.\n");
 
 	/* Deassert the LAPIC INIT */
-	lapic_send_ipi_self(LAPIC_INT_LEVELTRIG | LAPIC_MT_INIT);
+	lapic_send_ipi_self(LAPIC_INT_LEVELTRIG | LAPIC_DM_INIT);
 	wait_for_ipi_completion_without_printk(timeout_100ms);
 
 	halt();

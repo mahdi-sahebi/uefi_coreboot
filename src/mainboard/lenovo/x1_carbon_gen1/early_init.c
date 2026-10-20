@@ -1,17 +1,35 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <console/console.h>
-#include <gpio.h>
 #include <northbridge/intel/sandybridge/raminit.h>
+#include <southbridge/intel/bd82x6x/pch.h>
+#include <southbridge/intel/common/gpio.h>
+
+const struct southbridge_usb_port mainboard_usb_ports[] = {
+	/* enabled, current, OC pin */
+	{ 0, 3, 0 }, /* P00 disconnected */
+	{ 1, 1, 1 }, /* P01 left or right */
+	{ 0, 1, 3 }, /* P02 disconnected */
+	{ 1, 3, -1 },/* P03 WWAN */
+	{ 0, 1, 2 }, /* P04 disconnected */
+	{ 0, 1, -1 },/* P05 disconnected */
+	{ 0, 1, -1 },/* P06 disconnected */
+	{ 0, 2, -1 },/* P07 disconnected */
+	{ 0, 1, -1 },/* P08 disconnected */
+	{ 1, 2, 5 }, /* P09 left or right */
+	{ 1, 3, -1 },/* P10 FPR */
+	{ 1, 3, -1 },/* P11 Bluetooth */
+	{ 1, 1, -1 },/* P12 WLAN */
+	{ 1, 1, -1 },/* P13 Camera */
+};
 
 static unsigned int get_spd_index(void)
 {
-	const gpio_t spd_gpio_vector[] = {25, 45};
-	unsigned int spd_index = gpio_base2_value(spd_gpio_vector,
-						  ARRAY_SIZE(spd_gpio_vector));
+	const int spd_gpio_vector[] = {25, 45, -1};
+	unsigned int spd_index = get_gpios(spd_gpio_vector);
 
 	/* 4gb model = 0, 8gb model = 1 */
-	/* int extended_memory_version = gpio_get(44); */
+	/* int extended_memory_version = get_gpio(44); */
 
 	/*
 	 * So far there is no need to parse gpio 44, as the 4GiB use

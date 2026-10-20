@@ -40,9 +40,9 @@ Scope (\_SB.PCI0.RP12)
 		}
 
 		/* Current D Notify Value, defaults to D1
-		 * Arg0 == Shared value
-		 * Arg1 == force notification if no change (0 or 1)
-		 */
+		* Arg0 == Shared value
+		* Arg1 == force notification if no change (0 or 1)
+		*/
 		Name (CDNV, D1_EC)
 		Method (DNOT, 2, Serialized)
 		{

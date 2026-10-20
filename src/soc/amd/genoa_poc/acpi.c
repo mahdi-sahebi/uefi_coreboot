@@ -8,12 +8,12 @@
 #include <amdblocks/cpu.h>
 #include <arch/ioapic.h>
 #include <device/device.h>
-#include <drivers/amd/opensil/opensil.h>
+#include <vendorcode/amd/opensil/opensil.h>
 
 void acpi_fill_fadt(acpi_fadt_t *fadt)
 {
 	/* Fill in pm1_evt, pm1_cnt, pm_tmr, gpe0_blk from openSIL input structure */
-	amd_opensil_fill_fadt_io_ports(fadt);
+	opensil_fill_fadt_io_ports(fadt);
 
 	fadt->pm1_evt_len = 4;	/* 32 bits */
 	fadt->pm1_cnt_len = 2;	/* 16 bits */
@@ -63,10 +63,4 @@ const acpi_cstate_t *get_cstate_config_data(size_t *size)
 {
 	*size = ARRAY_SIZE(cstate_cfg_table);
 	return cstate_cfg_table;
-}
-
-const struct acpi_lpi_state *get_cstate_lpi_config_data(size_t *size)
-{
-	*size = 0;
-	return NULL;
 }

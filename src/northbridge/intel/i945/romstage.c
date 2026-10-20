@@ -26,7 +26,7 @@ __weak void mainboard_get_spd_map(u8 spd_map[4])
 
 void mainboard_romstage_entry(void)
 {
-	bool s3resume = false;
+	int s3resume = 0;
 	u8 spd_map[4] = {};
 
 	mainboard_lpc_decode();

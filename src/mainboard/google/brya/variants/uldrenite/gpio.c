@@ -1,10 +1,10 @@
 /* SPDX-License-Identifier: GPL-2.0-or-later */
 
+#include <baseboard/gpio.h>
 #include <baseboard/variants.h>
 #include <soc/gpio.h>
 #include <types.h>
 #include <vendorcode/google/chromeos/chromeos.h>
-#include <variant/gpio.h>
 
 /* Pad configuration in ramstage */
 static const struct pad_config gpio_table[] = {
@@ -34,8 +34,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_A14, NONE, DEEP, NF1),
 	/* A15 : USB_OC2# ==> NC */
 	PAD_NC(GPP_A15, NONE),
-	/* A16 : ISH_GP5 */
-	PAD_CFG_NF(GPP_A16, NONE, DEEP, NF4),
+	/* A16 : USB_OC3# ==> NC */
+	PAD_NC_LOCK(GPP_A16, NONE, LOCK_CONFIG),
 	/* A17 : GPP_A17 ==> GSC_SOC_INT_ODL */
 	PAD_CFG_GPI_APIC(GPP_A17, NONE, PLTRST, LEVEL, INVERT),
 	/* A18 : DDSP_HPDB ==> NC */
@@ -119,10 +119,10 @@ static const struct pad_config gpio_table[] = {
 
 	/* D0  : ISH_GP0 ==> UCAM_FW_PROTECT */
 	PAD_CFG_GPO(GPP_D0, 1, DEEP),
-	/* D1  : ISH_GP1 ==> SOC_GSEN2_INT# */
-	PAD_CFG_NF(GPP_D1, NONE, DEEP, NF1),
-	/* D2  : ISH_GP2 ==> NC */
-	PAD_NC_LOCK(GPP_D2, NONE, LOCK_CONFIG),
+	/* D1  : ISH_GP1 ==> NC */
+	PAD_NC(GPP_D1, NONE),
+	/* D2  : ISH_GP2 ==> TOUCH_SCREEN_DET# */
+	PAD_CFG_GPO_LOCK(GPP_D2, 1, LOCK_CONFIG),
 	/* D3  : NC ==> PHY_SHUTTER_DET */
 	PAD_CFG_GPO_LOCK(GPP_D3, 1, LOCK_CONFIG),
 	/* D4  : NC ==> WCAM_FW_PROTECT */
@@ -143,18 +143,18 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC_LOCK(GPP_D11, NONE, LOCK_CONFIG),
 	/* D12 : ISH_SPI_MOSI ==> GPP_D12_STRAP */
 	PAD_NC_LOCK(GPP_D12, NONE, LOCK_CONFIG),
-	/* D13 : UART0_ISH_RXD */
-	PAD_CFG_NF(GPP_D13, NONE, DEEP, NF1),
-	/* D14 : UART0_ISH_TXD */
-	PAD_CFG_NF(GPP_D14, NONE, DEEP, NF1),
+	/* D13 : UART0_ISH_RXD ==> NC */
+	PAD_NC(GPP_D13, NONE),
+	/* D14 : UART0_ISH_TXD ==> LCD_CBL_DET# */
+	PAD_CFG_GPO(GPP_D14, 1, DEEP),
 	/* D15  : GPP_D15 ==> SOC_TS_I2C_RST# */
 	PAD_CFG_GPO_LOCK(GPP_D15, 1, LOCK_CONFIG),
 	/* D16 : ISH_UART0_CTS# ==> SOC_TS_I2C_INT# */
 	PAD_CFG_GPI_APIC(GPP_D16, NONE, PLTRST, LEVEL, INVERT),
-	/* D17 : NC */
-	PAD_NC(GPP_D17, NONE),
-	/* D18 : LCD_CBL_DET# ==> NC */
-	PAD_NC(GPP_D18, NONE),
+	/* D17 : NC ==> UART1_ISH_RX_DBG_TX */
+	PAD_CFG_NF(GPP_D17, NONE, DEEP, NF2),
+	/* D18 : NC ==> UART1_ISH_TX_DBG_RX */
+	PAD_CFG_NF(GPP_D18, NONE, DEEP, NF2),
 	/* D19 : I2S_MCLK1_OUT ==> NC */
 	PAD_NC(GPP_D19, NONE),
 
@@ -176,15 +176,15 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_E7, NONE),
 	/* E8  : GPP_E8 ==> WLAN_DISABLE_L */
 	PAD_CFG_GPO(GPP_E8, 1, DEEP),
-	/* E9  : GPP_E9 ==> SOC_ACC2_INT# */
-	PAD_CFG_NF(GPP_E9, NONE, DEEP, NF2),
+	/* E9  : NC */
+	PAD_NC_LOCK(GPP_E9, NONE, LOCK_CONFIG),
 	/* E10 : NC */
 	PAD_NC_LOCK(GPP_E10, NONE, LOCK_CONFIG),
 	/* E11 : NC */
 	PAD_NC_LOCK(GPP_E11, NONE, LOCK_CONFIG),
 	/* E12 : THC0_SPI1_IO1 ==> RAM_ID2 */
 	PAD_CFG_GPI_LOCK(GPP_E12, NONE, LOCK_CONFIG),
-	/* E13 : NC ==> GPP_E13_STRAP */
+	/* E13 : NC ==> RAM_ID3 */
 	PAD_CFG_GPI_LOCK(GPP_E13, NONE, LOCK_CONFIG),
 	/* E14 : DDSP_HPDA ==> EDP_HPD */
 	PAD_CFG_NF(GPP_E14, NONE, DEEP, NF1),
@@ -232,9 +232,9 @@ static const struct pad_config gpio_table[] = {
 	/* F11 : NC */
 	PAD_NC_LOCK(GPP_F11, NONE, LOCK_CONFIG),
 	/* F12 : NC ==> WWAN_RST_L */
-	PAD_CFG_GPO(GPP_F12, 1, DEEP),
+	PAD_CFG_GPO(GPP_F12, 0, DEEP),
 	/* F13 : NC ==> PLTRST_WWAN# */
-	PAD_CFG_GPO(GPP_F13, 1, DEEP),
+	PAD_CFG_GPO(GPP_F13, 0, DEEP),
 	/* F14 : NC */
 	PAD_NC(GPP_F14, NONE),
 	/* F15 : NC */
@@ -303,7 +303,7 @@ static const struct pad_config gpio_table[] = {
 	/* H22 : NC */
 	PAD_NC(GPP_H22, NONE),
 	/* H23 : LTE_PWR_OFF_EN */
-	PAD_CFG_GPO(GPP_H23, 1, DEEP),
+	PAD_CFG_GPO(GPP_H23, 0, DEEP),
 
 	/* R0  : HDA_BCLK ==> HDA_BIT_CLK */
 	PAD_CFG_NF(GPP_R0, NONE, DEEP, NF1),
@@ -418,8 +418,6 @@ static const struct pad_config early_gpio_table[] = {
 	PAD_CFG_GPI_APIC(GPP_A17, NONE, PLTRST, LEVEL, INVERT),
 	/* E3 : PROC_GP0 ==> SOC_WP_OD */
 	PAD_CFG_GPI_GPIO_DRIVER(GPP_E3, NONE, DEEP),
-	/* E13 : NC ==> GPP_E13_STRAP */
-	PAD_CFG_GPI_LOCK(GPP_E13, NONE, LOCK_CONFIG),
 	/* F12 : NC ==> WWAN_RST_L */
 	PAD_CFG_GPO(GPP_F12, 0, DEEP),
 	/* F13 : NC ==> PLTRST_WWAN# */
@@ -435,7 +433,7 @@ static const struct pad_config early_gpio_table[] = {
 	/* H11 : UART0_TXD ==> UART_SOC_TX_DBG_RX */
 	PAD_CFG_NF(GPP_H11, NONE, DEEP, NF2),
 	/* H23 : LTE_PWR_OFF_EN */
-	PAD_CFG_GPO(GPP_H23, 1, DEEP),
+	PAD_CFG_GPO(GPP_H23, 0, DEEP),
 };
 
 /* Fill romstage gpio configuration */
@@ -445,8 +443,6 @@ static const struct pad_config romstage_gpio_table[] = {
 	PAD_CFG_GPO(GPP_E17, 1, DEEP),
 	/* D15  : GPP_D15 ==> SOC_TS_I2C_RST# */
 	PAD_CFG_GPO(GPP_D15, 0, DEEP),
-	/* F12 : NC ==> WWAN_RST_L */
-	PAD_CFG_GPO(GPP_F12, 1, DEEP),
 };
 
 const struct pad_config *variant_gpio_table(size_t *num)

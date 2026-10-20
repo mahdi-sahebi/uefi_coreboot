@@ -41,7 +41,7 @@ chip soc/amd/glinda
 
 	register "pspp_policy" = "DXIO_PSPP_DISABLED" # TODO: reenable when PSPP works
 
-	register "usb_phy_custom" = "true"
+	register "usb_phy_custom" = "1"
 	register "usb_phy" = "{
 		.Usb2PhyPort[0] = {
 			.compdistune = 0x3,
@@ -147,6 +147,8 @@ chip soc/amd/glinda
 		},
 		.ComboPhyStaticConfig[0] = USB_COMBO_PHY_MODE_USB_C,
 		.ComboPhyStaticConfig[1] = USB_COMBO_PHY_MODE_USB_C,
+		.BatteryChargerEnable = 0,
+		.PhyP3CpmP4Support = 0,
 	}"
 
 	register "gpp_clk_config[0]" = "GPP_CLK_REQ"

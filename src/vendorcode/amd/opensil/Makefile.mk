@@ -15,8 +15,6 @@ endif
 opensil_dir := $(call strip_quotes,$(CONFIG_AMD_OPENSIL_PATH))
 
 subdirs-$(CONFIG_SOC_AMD_OPENSIL_GENOA_POC) += genoa_poc
-subdirs-$(CONFIG_SOC_AMD_OPENSIL_PHOENIX_POC) += phoenix_poc
-subdirs-$(CONFIG_SOC_AMD_OPENSIL_TURIN_POC) += turin_poc
 
 ifeq ($(CONFIG_ARCH_RAMSTAGE_X86_32),y)
 cpu_family_string="x86"
@@ -55,7 +53,7 @@ PYTHON?=python
 
 OPENSIL_CONFIG=opensil_config
 
-bios_base=$(shell printf "0x%x" $(call int-subtract, $(CONFIG_ROMSTAGE_ADDR) $(CONFIG_C_ENV_BOOTBLOCK_SIZE)))
+bios_base=$(shell printf "%x" $(call int-subtract, $(CONFIG_ROMSTAGE_ADDR) $(CONFIG_C_ENV_BOOTBLOCK_SIZE)))
 bios_size=$(CONFIG_C_ENV_BOOTBLOCK_SIZE)
 
 $(OBJPATH)/$(OPENSIL_CONFIG): $(opensil_dir)/../opensil_config.template
@@ -65,11 +63,7 @@ $(OBJPATH)/$(OPENSIL_CONFIG): $(opensil_dir)/../opensil_config.template
 		$< > $@
 
 $(OBJPATH)/$(OPENSIL_CONFIG).h: $(OBJPATH)/$(OPENSIL_CONFIG) $(obj)/config.h $(objutil)/kconfig/conf
-	cd $(opensil_dir); \
-		KCONFIG_CONFIG=$(OBJPATH)/$(OPENSIL_CONFIG) \
-		KCONFIG_AUTOHEADER=$@ \
-		$(PYTHON) util/kconfig/lib/genconfig.py \
-			--config-out $(OBJPATH)/$(OPENSIL_CONFIG) Kconfig
+	cd $(opensil_dir); KCONFIG_CONFIG=$(OBJPATH)/$(OPENSIL_CONFIG) KCONFIG_AUTOHEADER=$@ $(PYTHON) util/kconfig/lib/genconfig.py Kconfig
 
 # meson handles ccache on its own
 OPENSIL_COMPILER=$(filter-out $(CCACHE), $(CC_ramstage))

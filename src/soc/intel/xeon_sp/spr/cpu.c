@@ -95,18 +95,14 @@ static void each_cpu_init(struct device *cpu)
 	wrmsr(MSR_VR_CURRENT_CONFIG, msr);
 
 	/* Set Turbo Ratio Limits */
-	if (chip_config->turbo_ratio_limit) {
-		msr.lo = chip_config->turbo_ratio_limit & 0xffffffff;
-		msr.hi = (chip_config->turbo_ratio_limit >> 32) & 0xffffffff;
-		wrmsr(MSR_TURBO_RATIO_LIMIT, msr);
-	}
+	msr.lo = chip_config->turbo_ratio_limit & 0xffffffff;
+	msr.hi = (chip_config->turbo_ratio_limit >> 32) & 0xffffffff;
+	wrmsr(MSR_TURBO_RATIO_LIMIT, msr);
 
 	/* Set Turbo Ratio Limit Cores */
-	if (chip_config->turbo_ratio_limit_cores) {
-		msr.lo = chip_config->turbo_ratio_limit_cores & 0xffffffff;
-		msr.hi = (chip_config->turbo_ratio_limit_cores >> 32) & 0xffffffff;
-		wrmsr(MSR_TURBO_RATIO_LIMIT_CORES, msr);
-	}
+	msr.lo = chip_config->turbo_ratio_limit_cores & 0xffffffff;
+	msr.hi = (chip_config->turbo_ratio_limit_cores >> 32) & 0xffffffff;
+	wrmsr(MSR_TURBO_RATIO_LIMIT_CORES, msr);
 
 	/* Set energy policy */
 	msr = rdmsr(MSR_ENERGY_PERF_BIAS_CONFIG);
@@ -178,7 +174,6 @@ static const struct cpu_device_id cpu_table[] = {
 	{X86_VENDOR_INTEL, CPUID_SAPPHIRERAPIDS_SP_E3, CPUID_EXACT_MATCH_MASK},
 	{X86_VENDOR_INTEL, CPUID_SAPPHIRERAPIDS_SP_E4, CPUID_EXACT_MATCH_MASK},
 	{X86_VENDOR_INTEL, CPUID_SAPPHIRERAPIDS_SP_Ex, CPUID_EXACT_MATCH_MASK},
-	{X86_VENDOR_INTEL, CPUID_EMERALDRAPIDS, CPUID_EXACT_MATCH_MASK},
 	CPU_TABLE_END
 };
 
@@ -239,7 +234,7 @@ static const struct mp_ops mp_ops = {
 	.pre_mp_init = pre_mp_init,
 	.get_cpu_count = get_platform_thread_count,
 #if CONFIG(HAVE_SMI_HANDLER)
-	.get_smm_info = smm_info,
+	.get_smm_info = get_smm_info,
 	.pre_mp_smm_init = smm_southbridge_clear_state,
 	.relocation_handler = smm_relocation_handler,
 #endif

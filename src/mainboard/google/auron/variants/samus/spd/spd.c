@@ -2,7 +2,7 @@
 
 #include <mainboard/google/auron/variant.h>
 #include <soc/pei_wrapper.h>
-#include <gpio.h>
+#include <southbridge/intel/lynxpoint/lp_gpio.h>
 
 /* Samus board memory configuration GPIOs */
 #define SPD_GPIO_BIT0		69
@@ -12,13 +12,14 @@
 
 unsigned int variant_get_spd_index(void)
 {
-	const gpio_t gpio_vector[] = {
+	const int gpio_vector[] = {
 		SPD_GPIO_BIT0,
 		SPD_GPIO_BIT1,
 		SPD_GPIO_BIT2,
-		SPD_GPIO_BIT3
+		SPD_GPIO_BIT3,
+		-1,
 	};
-	return gpio_base2_value(gpio_vector, ARRAY_SIZE(gpio_vector));
+	return get_gpios(gpio_vector);
 }
 
 bool variant_is_dual_channel(const unsigned int spd_index)

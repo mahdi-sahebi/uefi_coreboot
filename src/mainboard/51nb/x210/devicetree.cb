@@ -10,10 +10,10 @@ chip soc/intel/skylake
 	}"
 
 	# Enable deep Sx states
-	register "deep_s3_enable_ac" = "true"
-	register "deep_s3_enable_dc" = "true"
-	register "deep_s5_enable_ac" = "true"
-	register "deep_s5_enable_dc" = "true"
+	register "deep_s3_enable_ac" = "1"
+	register "deep_s3_enable_dc" = "1"
+	register "deep_s5_enable_ac" = "1"
+	register "deep_s5_enable_dc" = "1"
 	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN"
 
 	register "eist_enable" = "true"
@@ -27,10 +27,10 @@ chip soc/intel/skylake
 	register "gpe0_dw2" = "GPP_E"
 
 	# Disable DPTF
-	register "dptf_enable" = "false"
+	register "dptf_enable" = "0"
 
 	# FSP Configuration
-	register "DspEnable" = "false"
+	register "DspEnable" = "0"
 	register "IoBufferOwnership" = "0"
 	register "SkipExtGfxScan" = "1"
 	register "SaGv" = "SaGv_Enabled"
@@ -89,27 +89,30 @@ chip soc/intel/skylake
 		end
 		device ref pcie_rp3	on
 			# Ethernet controller
-			register "PcieRpClkReqSupport[2]" = "true"
+			register "PcieRpEnable[2]" = "1"
+			register "PcieRpClkReqSupport[2]" = "1"
 			register "PcieRpClkReqNumber[2]" = "0"
 			register "PcieRpClkSrcNumber[2]" = "0"
 			register "PcieRpAdvancedErrorReporting[2]" = "1"
-			register "PcieRpLtrEnable[2]" = "true"
+			register "PcieRpLtrEnable[2]" = "1"
 		end
 		device ref pcie_rp4	on
 			# Wireless controller
-			register "PcieRpClkReqSupport[3]" = "true"
+			register "PcieRpEnable[3]" = "1"
+			register "PcieRpClkReqSupport[3]" = "1"
 			register "PcieRpClkReqNumber[3]" = "1"
 			register "PcieRpClkSrcNumber[3]" = "1"
 			register "PcieRpAdvancedErrorReporting[3]" = "1"
-			register "PcieRpLtrEnable[3]" = "true"
+			register "PcieRpLtrEnable[3]" = "1"
 		end
 		device ref pcie_rp9	on
 			# NVMe controller
-			register "PcieRpClkReqSupport[8]" = "true"
+			register "PcieRpEnable[8]" = "1"
+			register "PcieRpClkReqSupport[8]" = "1"
 			register "PcieRpClkReqNumber[8]" = "4"
 			register "PcieRpClkSrcNumber[8]" = "4"
 			register "PcieRpAdvancedErrorReporting[8]" = "1"
-			register "PcieRpLtrEnable[8]" = "true"
+			register "PcieRpLtrEnable[8]" = "1"
 		end
 		device ref lpc_espi	on
 			register "serirq_mode" = "SERIRQ_CONTINUOUS"

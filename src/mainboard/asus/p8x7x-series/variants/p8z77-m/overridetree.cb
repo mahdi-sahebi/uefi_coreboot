@@ -3,7 +3,6 @@
 chip northbridge/intel/sandybridge
 	device domain 0 on
 		subsystemid 0x1043 0x84ca inherit
-		device ref peg11 hidden end # These don't exist on this board
 		chip southbridge/intel/bd82x6x # Intel Series 7 Panther Point PCH
 			register "gen1_dec" = "0x000c0291"
 			register "usb_port_config" = "{
@@ -24,12 +23,16 @@ chip northbridge/intel/sandybridge
 			}"
 
 			device ref pcie_rp1 on  end	# PCIe x4 slot
+			device ref pcie_rp2 off end
+			device ref pcie_rp3 off end
+			device ref pcie_rp4 off end
 			device ref pcie_rp5 on  end	# PCIe x1 slot
 			device ref pcie_rp6 on		# RTL8111F GbE NIC
 				subsystemid 0x1849 0x1e1a
 				device pci 00.0 on end  # make onboard
 			end
 			device ref pcie_rp7 on  end	# PCI slot via ASM1083
+			device ref pcie_rp8 off end
 			device ref lpc on
 				chip superio/nuvoton/nct6779d
 					device pnp 2e.1 off end		# Parallel
@@ -56,7 +59,11 @@ chip northbridge/intel/sandybridge
 					device pnp 2e.108 on		# GPIO 0
 						drq 0xe1 = 0x80		# GP07 high turns DRAM_LED off
 					end
-					device pnp 2e.a on end		# ACPI
+					device pnp 2e.a on		# ACPI
+						drq 0xe4 = 0x10 	# Enable 3VSBSW#, needed for S3 suspend
+						drq 0xe7 = 0x11		# HWM reset by LRESET#, 0.5s S3 delay for compatibility
+						drq 0xf2 = 0x5d		# Enable RSTOUT[0-2]# and PME
+					end
 					device pnp 2e.b on		# HWM, front panel LED
 						io 0x60 = 0x290		# HWM address
 						io 0x62 = 0		# SB-TSI address (not used)

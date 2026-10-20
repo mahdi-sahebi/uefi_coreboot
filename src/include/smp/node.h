@@ -9,4 +9,9 @@ int boot_cpu(void);
 #define boot_cpu(x) 1
 #endif
 
+static inline int is_smp_boot(void)
+{
+	return CONFIG(SMP) && CONFIG_MAX_CPUS > 1;
+}
+
 #endif /* _SMP_NODE_H_ */

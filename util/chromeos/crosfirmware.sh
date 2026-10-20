@@ -105,19 +105,11 @@ extract_coreboot() {
 			_version=$(cat $_unpacked/VERSION | grep -m 1 -e Model.*$_board -A5 |
 				grep "BIOS version:" | cut -f2 -d: | tr -d \ )
 		fi
-		if [ -f $_unpacked/models/$_board/setvars.sh ]; then
-			_bios_image=$(grep "IMAGE_MAIN" $_unpacked/models/$_board/setvars.sh |
-				cut -f2 -d'"')
-		else
-			# special case for REEF, others?
-			_version=$(grep -m1 "host" "$_unpacked/manifest.json" | cut -f12 -d'"')
-			_bios_image=$(grep -m1 "image" "$_unpacked/manifest.json" | cut -f4 -d'"')
-		fi
+		_bios_image=$(grep "IMAGE_MAIN" $_unpacked/models/$_board/setvars.sh |
+			cut -f2 -d\")
 	elif [ -f "$_unpacked/manifest.json" ]; then
-		_version=$(grep -m1 -A4 "$BOARD\":" "$_unpacked/manifest.json" | grep -m1 "rw" |
-				sed 's/.*\(rw.*\)/\1/' | sed 's/.*\("Google.*\)/\1/' | cut -f2 -d'"')
-		_bios_image=$(grep -m1 -A10 "$BOARD\":" "$_unpacked/manifest.json" |
-				grep -m1 "image" | sed 's/.*"image": //' | cut -f2 -d'"')
+		_version=$(grep -m1 -A1 "$BOARD" "$_unpacked/manifest.json" | grep "host" | cut -f12 -d'"')
+		_bios_image=$(grep -m1 -A3 "$BOARD" "$_unpacked/manifest.json" | grep "image" | cut -f4 -d'"')
 	else
 		_version=$(cat $_unpacked/VERSION | grep BIOS\ version: |
 			cut -f2 -d: | tr -d \ )
@@ -171,7 +163,7 @@ elif [ "$BOARD" != "" ]; then
 	get_inventory $CONF
 
 	echo Processing board $BOARD
-	eval $(grep -i -w $BOARD -A8 $CONF | grep '\(url=\|file=\)')
+	eval $(grep -i $BOARD -A8 $CONF | grep '\(url=\|file=\)')
 	do_one_board $BOARD $url $file
 
 	rm "$CONF"

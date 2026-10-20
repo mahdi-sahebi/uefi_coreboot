@@ -1,34 +1,21 @@
 #!/usr/bin/env perl
 # SPDX-License-Identifier: GPL-2.0-or-later
 #
-# DESCR: Check the syntax of the MAINTAINERS file
+# DESCR: Check that path patterns in MAINTAINERS have trailing slash
 
 use strict;
 use warnings;
 
-sub check_path {
-	my ($path) = @_;
-
-	if ( ! -e $path ) {
-		print "MAINTAINERS:$. No such file or directory exists ";
-		print "`$path`\n";
-	}
-}
-
 open( my $file, "<", "MAINTAINERS" ) or die "Error: could not open file 'MAINTAINERS'\n";
 
 while ( my $line = <$file> ) {
-	if ( $line =~ /^[FX]:\s+([^\s]*)\s+$/ ) {
+	if ( $line =~ /^[FX]:\s+([^\s]*[^*\/\s])\s+$/ ) {  # path patterns not ending with / or *
 		my $path = $1;
 
-		# Match path patterns not ending with '/' or '*'. This cannot be done
-		# in check_path(), as it only works on pre-globbed paths.
-		if ( $path =~ /[^*\/\s]$/ && -d $path ) {
+		if ( -d $path ) {
 			print "MAINTAINERS:$. missing trailing slash for directory match ";
 			print "`$path`\n";
 		}
-
-		check_path($_) foreach ( glob $path );
 	}
 }
 

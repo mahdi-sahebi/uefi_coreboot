@@ -1,2 +1,0 @@
-Board name: CW-X86-P5-V3
-Release year: 2024

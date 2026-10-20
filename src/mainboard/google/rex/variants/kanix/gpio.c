@@ -117,8 +117,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_C09, NONE),
 	/* GPP_C10 : net NC is not present in the given design */
 	PAD_NC(GPP_C10, NONE),
-	/* GPP_C11 : [] ==> LAN_CLKREQ_ODL */
-	PAD_CFG_NF(GPP_C11, NONE, DEEP, NF1),
+	/* GPP_C11 : Not Connected */
+	PAD_NC(GPP_C11, NONE),
 	/* GPP_C12 : NC pad. */
 	PAD_NC(GPP_C12, NONE),
 	/* GPP_C13 : Not connected */
@@ -174,8 +174,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_D16, NONE, DEEP, NF2),
 	/* GPP_D17 : [] ==> I2S_SOC_RX_HP_TX */
 	PAD_CFG_NF(GPP_D17, NONE, DEEP, NF2),
-	/* GPP_D18 : Not Connected */
-	PAD_NC(GPP_D18, NONE),
+	/* GPP_D18 : [] ==> LAN_CLKREQ_ODL */
+	PAD_CFG_NF(GPP_D18, NONE, DEEP, NF1),
 	/* GPP_D19 : [] ==> EC_SOC_REC_SWITCH_ODL */
 	PAD_CFG_GPI_LOCK(GPP_D19, NONE, LOCK_CONFIG),
 	/* GPP_D20 : [] ==> SSD_CLKREQ_ODL */
@@ -399,6 +399,11 @@ static const struct pad_config early_gpio_table[] = {
 	/* GPP_H10 : [] ==> SOC_WP_OD */
 	PAD_CFG_GPI_GPIO_DRIVER_LOCK(GPP_H10, NONE, LOCK_CONFIG),
 
+	/* GPP_C00 : [] ==> EN_TCHSCR_PWR */
+	PAD_CFG_GPO(GPP_C00, 1, DEEP),
+	/* GPP_C01 : [] ==> SOC_TCHSCR_RST_R_L */
+	PAD_CFG_GPO(GPP_C01, 0, DEEP),
+
 	/* GPP_A19 : [] ==> EN_PP3300_SSD */
 	PAD_CFG_GPO(GPP_A19, 1, DEEP),
 };
@@ -408,7 +413,10 @@ static const struct pad_config romstage_gpio_table[] = {
 	PAD_CFG_GPO(GPP_B11, 0, DEEP),
 	/* GPP_C23 : [] ==> FP_RST_ODL */
 	PAD_CFG_GPO(GPP_C23, 0, DEEP),
-
+	/* GPP_C00 : [] ==> EN_TCHSCR_PWR */
+	PAD_CFG_GPO(GPP_C00, 1, DEEP),
+	/* GPP_C01 : [] ==> SOC_TCHSCR_RST_R_L */
+	PAD_CFG_GPO(GPP_C01, 0, DEEP),
 	/* GPP_D02 : Not Connected */
 	PAD_NC(GPP_D02, NONE),
 	/* GPP_A20 : [] ==> SSD_PERST_L */

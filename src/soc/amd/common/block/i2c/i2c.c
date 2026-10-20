@@ -15,7 +15,7 @@
 #include <gpio.h>
 #include <types.h>
 
-#define MAX_PIN_COUNT 6
+#define MAX_PIN_COUNT 4
 
 uintptr_t dw_i2c_base_address(unsigned int bus)
 {
@@ -69,10 +69,7 @@ static void i2c_acpi_fill_ssdt(const struct device *dev)
 	dw_i2c_acpi_fill_ssdt(dev);
 
 	acpigen_write_scope(acpi_device_path(dev));
-	if (dev->hidden)
-		acpigen_write_store_int_to_namestr(ACPI_STATUS_DEVICE_ALL_OFF, "STAT");
-	else
-		acpigen_write_store_int_to_namestr(acpi_device_status(dev), "STAT");
+	acpigen_write_store_int_to_namestr(acpi_device_status(dev), "STAT");
 	acpigen_pop_len(); /* Scope */
 }
 #endif

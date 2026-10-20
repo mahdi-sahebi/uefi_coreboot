@@ -261,82 +261,6 @@ static void wifi_dsm_ddrrfim_func3_cb(void *ptr)
 	acpigen_write_return_integer(is_cnvi_ddr_rfim_enabled ? 0 : 1);
 }
 
-/*
- * Function 2: Power Resource for Reset (PRR) for Wi-Fi
- *
- * Args3 is a buffer comparable to the following C structure:
- * struct pldr_mode {
- *	uint16_t cmd_type;
- *	uint16_t cmd_payload;
- * };
- *
- * cmd_type can take one of the following values:
- * 1 - Get PRR mode;
- * 2 - Set PRR mode to cmd_payload;
- * 3 - Get PRR status;
- */
-static void wifi_dsm_power_resource_for_reset(__always_unused void *args)
-{
-	acpigen_write_create_word_field(ARG3_OP, 0, "CMDT");
-	acpigen_write_create_word_field(ARG3_OP, 2, "CMDP");
-
-	/* Get PRR mode */
-	acpigen_write_if_lequal_namestr_int("CMDT", 1);
-	{
-		acpigen_write_if_cond_ref_of("RSTT");
-		{
-			acpigen_write_return_namestr("RSTT");
-
-		}
-		acpigen_pop_len();
-		acpigen_write_return_integer(0);
-	}
-	acpigen_pop_len();
-
-	/* Set PRR mode */
-	acpigen_write_if_lequal_namestr_int("CMDT", 2);
-	{
-		acpigen_write_if_cond_ref_of("RSTT");
-		{
-			acpigen_write_store();
-			acpigen_emit_namestring("CMDP");
-			acpigen_emit_namestring("RSTT");
-
-		}
-		acpigen_pop_len();
-		acpigen_write_return_integer(0);
-	}
-	acpigen_pop_len();
-
-	/* Get last PRR status */
-	acpigen_write_if_lequal_namestr_int("CMDT", 3);
-	{
-		acpigen_write_if_cond_ref_of("PRRS");
-		{
-			acpigen_write_return_namestr("PRRS");
-		}
-		acpigen_pop_len();
-		acpigen_write_return_integer(0);
-	}
-	acpigen_pop_len();
-
-	acpigen_write_return_integer(0);
-}
-
-/*
- * Function 5: Set Power Resource for Reset (PRR) reset delay for Wi-Fi
- */
-static void wifi_dsm_set_prr_reset_delay(__always_unused void *args)
-{
-	acpigen_write_if_cond_ref_of("WFDL");
-	{
-		acpigen_write_store();
-		acpigen_emit_byte(ARG3_OP);
-		acpigen_emit_namestring("WFDL");
-	}
-	acpigen_pop_len();
-}
-
 static void (*wifi_dsm_callbacks[])(void *) = {
 	NULL,					/* Function 0 */
 	wifi_dsm_srd_active_channels,		/* Function 1 */
@@ -353,96 +277,15 @@ static void (*wifi_dsm_callbacks[])(void *) = {
 	wifi_dsm_11be_country_enablement,	/* Function 12 */
 };
 
+/*
+ * The current DSM2 table is only exporting one function (function 3), some more
+ * functions are reserved so marking them NULL.
+*/
 static void (*wifi_dsm2_callbacks[])(void *) = {
-	NULL,					/* Function 0 */
-	NULL,					/* Function 1 */
-	wifi_dsm_power_resource_for_reset,	/* Function 2 */
-	wifi_dsm_ddrrfim_func3_cb,		/* Function 3 */
-	NULL,					/* Function 4 */
-	wifi_dsm_set_prr_reset_delay,		/* Function 5 */
-};
-
-/*
- * Function 5: Set Power Resource for Reset (PRR) mode for Bluetooth
- *
- * Args3 is a buffer comparable to the following C structure:
- * struct pldr_mode {
- *	uint16_t cmd_type;
- *	uint16_t cmd_payload;
- * };
- *
- * cmd_type can take one of the following values:
- * 1 - Set PRR mode to cmd_payload;
- */
-static void bluetooth_dsm_set_power_resource_for_reset(__always_unused void *args)
-{
-	acpigen_write_create_word_field(ARG3_OP, 0, "BCMT");
-	acpigen_write_create_word_field(ARG3_OP, 2, "BCMP");
-
-	/* Set PRR mode */
-	acpigen_write_if_lequal_namestr_int("BCMT", 1);
-	{
-		acpigen_write_if_cond_ref_of("RSTT");
-		{
-			acpigen_write_store();
-			acpigen_emit_namestring("BCMP");
-			acpigen_emit_namestring("RSTT");
-
-		}
-		acpigen_pop_len();
-	}
-	acpigen_pop_len();
-
-	acpigen_write_return_integer(0);
-}
-
-/*
- * Function 6: Get Power Resource for Reset (PRR) mode and status for Bluetooth
- */
-static void bluetooth_dsm_get_power_resource_for_reset(__always_unused void *args)
-{
-	/* Get PRR mode and status */
-	acpigen_write_if_cond_ref_of("RSTT");
-	{
-		acpigen_write_if_cond_ref_of("PRRS");
-		{
-			acpigen_emit_byte(RETURN_OP);
-			acpigen_write_package(2);
-			acpigen_emit_namestring("RSTT");
-			acpigen_emit_namestring("PRRS");
-			acpigen_pop_len();
-		}
-		acpigen_pop_len();
-	}
-	acpigen_pop_len();
-
-	acpigen_write_return_integer(0);
-}
-
-/*
- * Function 7: Set Power Resource for Reset (PRR) reset delay for Bluetooth
- */
-static void bluetooth_dsm_set_prr_reset_delay(__always_unused void *args)
-{
-	acpigen_write_if_cond_ref_of("BTDL");
-	{
-		acpigen_write_store();
-		acpigen_emit_byte(ARG3_OP);
-		acpigen_emit_namestring("BTDL");
-	}
-	acpigen_pop_len();
-}
-
-
-static void (*bluetooth_dsm_callbacks[])(void *) = {
-	NULL,						/* Function 0 */
-	NULL,						/* Function 1 */
-	NULL,						/* Function 2 */
-	NULL,						/* Function 3 */
-	NULL,						/* Function 4 */
-	bluetooth_dsm_set_power_resource_for_reset,	/* Function 5 */
-	bluetooth_dsm_get_power_resource_for_reset,	/* Function 6 */
-	bluetooth_dsm_set_prr_reset_delay,		/* Function 7 */
+	NULL,				/* Function 0 */
+	NULL,				/* Function 1 */
+	NULL,				/* Function 2 */
+	wifi_dsm_ddrrfim_func3_cb,	/* Function 3 */
 };
 
 static const uint8_t *sar_fetch_set(const struct sar_profile *sar, size_t set_num)
@@ -1208,18 +1051,9 @@ static void wifi_ssdt_write_properties(const struct device *dev, const char *sco
 		/* Wake capabilities */
 		acpigen_write_PRW(config->wake, ACPI_S3);
 
-		if ((config->add_acpi_dma_property) || (config->cnvi_enable_gpio.pin_count)) {
-			struct acpi_dp *dsd = acpi_dp_new_table("_DSD");
-
-			/* Add _DSD for DmaProperty property. */
-			if (config->add_acpi_dma_property)
-				acpi_device_add_dma_property(dsd);
-
-			if (config->cnvi_enable_gpio.pin_count)
-				acpi_device_add_hotplug_support_in_d3(dsd);
-
-			acpi_dp_write(dsd);
-		}
+		/* Add _DSD for DmaProperty property. */
+		if (config->add_acpi_dma_property)
+			acpi_device_add_dma_property(NULL);
 	}
 
 	/* Fill regulatory domain structure */
@@ -1246,7 +1080,7 @@ static void wifi_ssdt_write_properties(const struct device *dev, const char *sco
 	struct dsm_uuid dsm_ids[MAX_DSM_FUNCS];
 
 	/* Retrieve the SAR limits data */
-	union wifi_sar_limits sar_limits = {};
+	union wifi_sar_limits sar_limits = {0};
 	bool sar_loaded = false;
 	if (CONFIG(USE_SAR)) {
 		if (get_wifi_sar_limits(&sar_limits) < 0)
@@ -1274,11 +1108,13 @@ static void wifi_ssdt_write_properties(const struct device *dev, const char *sco
 		}
 	}
 
-	dsm_ids[dsm_count].uuid = ACPI_DSM_RFIM_WIFI_UUID;
-	dsm_ids[dsm_count].callbacks = &wifi_dsm2_callbacks[0];
-	dsm_ids[dsm_count].count = ARRAY_SIZE(wifi_dsm2_callbacks);
-	dsm_ids[dsm_count].arg = &is_cnvi_ddr_rfim_enabled;
-	dsm_count++;
+	if (is_cnvi_ddr_rfim_enabled) {
+		dsm_ids[dsm_count].uuid = ACPI_DSM_RFIM_WIFI_UUID;
+		dsm_ids[dsm_count].callbacks = &wifi_dsm2_callbacks[0];
+		dsm_ids[dsm_count].count = ARRAY_SIZE(wifi_dsm2_callbacks);
+		dsm_ids[dsm_count].arg = &is_cnvi_ddr_rfim_enabled;
+		dsm_count++;
+	}
 
 	acpigen_write_dsm_uuid_arr(dsm_ids, dsm_count);
 
@@ -1295,7 +1131,7 @@ static void wifi_ssdt_write_properties(const struct device *dev, const char *sco
 
 	acpigen_write_scope_end(); /* Scope */
 
-	/* Fill Bluetooth companion SAR related ACPI structures and DSM functions. */
+	/* Fill Bluetooth companion SAR related ACPI structures */
 	if (sar_loaded && is_dev_enabled(config->bluetooth_companion)) {
 		const char *path = acpi_device_path(config->bluetooth_companion);
 		if (path) {	/* Bluetooth device under USB Hub scope or PCIe root port */
@@ -1309,17 +1145,6 @@ static void wifi_ssdt_write_properties(const struct device *dev, const char *sco
 			sar_emit_bdmm(sar_limits.bdmm);
 			sar_emit_ebrd(sar_limits.ebrd);
 			sar_emit_dsbr(sar_limits.dsbr, DOMAIN_TYPE_BLUETOOTH);
-
-			if (config->bluetooth_companion->path.type == DEVICE_PATH_PCI &&
-			    config->bluetooth_companion->vendor == PCI_VID_INTEL) {
-				struct dsm_uuid bt_dsm_ids = {
-					.uuid = ACPI_DSM_RFIM_WIFI_UUID,
-					.callbacks = bluetooth_dsm_callbacks,
-					.count = ARRAY_SIZE(bluetooth_dsm_callbacks)
-				};
-				acpigen_write_dsm_uuid_arr(&bt_dsm_ids, 1);
-			}
-
 			acpigen_write_scope_end();
 		} else {
 			printk(BIOS_ERR, "Failed to get %s Bluetooth companion ACPI path\n",
@@ -1356,60 +1181,6 @@ const char *wifi_pcie_acpi_name(const struct device *dev)
 	return wifi_acpi_name;
 }
 
-#if CONFIG(SOC_INTEL_COMMON_BLOCK_CNVI)
-static void write_cnvi_control(const struct acpi_gpio *gpio)
-{
-
-	acpigen_write_scope("\\_SB.PCI0");
-
-/*
- *	CNVi Status
- *
- *	Method (CNVS, 0)
- *	{
- *		Local0 = \_SB.PCI0.GTXS (gpio)
- *		Return (Local0)
- *	}
- */
-	acpigen_write_method("CNVS", 0);
-	{
-		acpigen_get_tx_gpio(gpio);
-		acpigen_write_return_op(LOCAL0_OP);
-	}
-	acpigen_pop_len();
-/*
- *	CNVi Control
- *
- *	Method (CNVC, 1, NotSerialized)
- *	{
- *		If ((Arg0 == One))
- *		{
- *			\_SB.PCI0.STXS (gpio)
- *		}
- *		Else
- *		{
- *			\_SB.PCI0.CTXS (gpio)
- *		}
- *	}
- */
-	acpigen_write_method("CNVC", 1);
-	{
-		acpigen_write_if_lequal_op_int(ARG0_OP, 1);
-		{
-			acpigen_enable_tx_gpio(gpio);
-		}
-		acpigen_write_else();
-		{
-			acpigen_disable_tx_gpio(gpio);
-		}
-		acpigen_pop_len();
-	}
-	acpigen_pop_len();
-
-	acpigen_write_scope_end();
-}
-#endif
-
 void wifi_cnvi_fill_ssdt(const struct device *dev)
 {
 	const char *path;
@@ -1421,10 +1192,4 @@ void wifi_cnvi_fill_ssdt(const struct device *dev)
 		return;
 
 	wifi_ssdt_write_properties(dev, path);
-
-#if CONFIG(SOC_INTEL_COMMON_BLOCK_CNVI)
-	const struct drivers_wifi_generic_config *config = dev->chip_info;
-	if (config->cnvi_enable_gpio.pin_count)
-		write_cnvi_control(&config->cnvi_enable_gpio);
-#endif
 }

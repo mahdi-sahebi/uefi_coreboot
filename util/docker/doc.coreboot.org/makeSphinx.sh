@@ -1,6 +1,4 @@
-#!/usr/bin/env ash
-
-source ${VIRTUAL_ENV}/bin/activate
+#!/usr/bin/env bash
 
 if [ "$1" == "livehtml" ]; then
   echo "Starting live documentation build"

@@ -2,11 +2,10 @@
 
 config BOARD_AMD_BIRMANPLUS_COMMON
 	def_bool n
-	select BOARD_ROMSIZE_KB_65536
+	select BOARD_ROMSIZE_KB_16384	# Birman actually has a 32MiB ROM
 	select EC_ACPI
 	select SOC_AMD_COMMON_BLOCK_USE_ESPI if !SOC_AMD_COMMON_BLOCK_SIMNOW_BUILD
 	select DRIVERS_PCIE_RTD3_DEVICE
-	select DRIVERS_I2C_GENERIC
 	select MAINBOARD_HAS_CHROMEOS
 	select PCIEXP_ASPM
 	select PCIEXP_CLK_PM
@@ -47,6 +46,15 @@ config DEVICETREE
 config BIRMANPLUS_HAVE_MCHP_FW
 	bool "Have Microchip EC firmware?"
 	default n
+
+config BIRMANPLUS_MCHP_SIG_FILE
+	string "Microchip EC signature file"
+	depends on BIRMANPLUS_HAVE_MCHP_FW
+	default "3rdparty/blobs/mainboard/amd/birman_plus/EC_birmanplus_sig.bin"
+	help
+	  The EC sig blob is the first 4kBytes of the firmware image.
+	  The first 4 bytes form a pointer (with CRC) to where the EC firmware
+	  is located
 
 config AMD_SOC_CONSOLE_UART
 	default y if !SOC_AMD_COMMON_BLOCK_SIMNOW_BUILD
@@ -91,44 +99,39 @@ config ENABLE_EVAL_19V
 	help
 	  Enable the 19V rail for Eval Card PCIe slot
 
-config ENABLE_SSD1_BIRMANPLUS
-	bool "Enable M.2 SSD1 Slot"
-	help
-	  Enable M.2 SSD1 Slot. For Glinda SoC this will downgrade
-	  PCIe x8 slot to x4.
-
 choice
-	prompt "GBE Enable/WWAN LANE1 Selection"
-	default ENABLE_GBE_BIRMANPLUS
+	prompt "DT SLOT/M.2 SSD1 ENABLE"
+	default ENABLE_DT_SLOT_BIRMANPLUS
 	help
-	  When the M.2 x2 WWAN slot is enabled, the GbE LAN is disabled.
+	  Either DT slot or M.2 SSD1 can be used, as they are sharing PCIe lanes.
 
-config ENABLE_GBE_BIRMANPLUS
-	bool "Enable GBE (1 Lane WWAN)"
+config ENABLE_DT_SLOT_BIRMANPLUS
+	bool "Enable DT slot"
 
-config ENABLE_WWAN02_BIRMANPLUS
-	bool "Enable only WWAN (2 Lanes WWAN)"
+config ENABLE_M2_SSD1_BIRMANPLUS
+	bool "Enable M.2 SSD1"
 
-config DISABLE_WWAN_GBE_BIRMANPLUS
-	bool "Disable both WWAN and GBE"
+config DISABLE_DT_M2_BIRMANPLUS
+	bool "Disable both DT and M.2 slot"
+
 endchoice
 
 choice
-	prompt "SD Card Enable/WLAN LANE1 Selection"
-	default ENABLE_SDCARD_BIRMANPLUS
+	prompt "WLAN/WWAN Selection"
+	default WLAN0_WWAN0_BIRMANPLUS
 	help
-	  When the M.2 x2 WLAN slot is enabled, the SD Card Reader is disabled.
+	  WLAN and WWAN lane configuration
 
-config ENABLE_SDCARD_BIRMANPLUS
-	bool "Enable SD Card (1 Lane WLAN)"
+config WLAN0_WWAN0_BIRMANPLUS
+	bool "Both WLAN and WWAN Enabled (1 lane each)"
 
-config ENABLE_WLAN02_BIRMANPLUS
-	bool "Enable only WLAN (2 Lanes WLAN)"
+config WLAN01_BIRMANPLUS
+	bool "Only WLAN Enabled (2 lanes WLAN, 0 lanes WWAN)"
 
-config DISABLE_WLAN_SD_BIRMANPLUS
-	bool "Disable both WLAN and SD Card"
+config WWAN01_BIRMANPLUS
+	bool "Only WWAN Enabled (2 lanes WWAN, 0 lanes WLAN)"
+
 endchoice
-
 if !EM100	# EM100 defaults in soc/amd/common/blocks/spi/Kconfig
 config EFS_SPI_READ_MODE
 	default 3	# Quad IO (1-1-4)

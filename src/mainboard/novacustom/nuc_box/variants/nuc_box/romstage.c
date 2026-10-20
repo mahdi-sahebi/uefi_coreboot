@@ -16,14 +16,9 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 			[1] = { .addr_dimm[0] = 0x52, },
 		},
 	};
+	const bool half_populated = false;
+
 	mupd->FspmConfig.DmiMaxLinkSpeed = 4;
 
-	/*
-	 * The FSP POST codes have to be routed to port 80 on the NUC.
-	 * When incorrectly routed to I2C, they increase FSP execution time many
-	 * times over.
-	 */
-	mupd->FspmConfig.I2cPostCodeEnable = 0;
-
-	memcfg_init(mupd, &board_cfg, &spd_info, false);
+	memcfg_init(mupd, &board_cfg, &spd_info, half_populated);
 }

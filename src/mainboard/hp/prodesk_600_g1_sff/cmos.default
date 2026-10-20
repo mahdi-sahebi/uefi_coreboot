@@ -1,7 +1,0 @@
-## SPDX-License-Identifier: GPL-2.0-only
-
-boot_option=Fallback
-debug_level=Debug
-nmi=Enable
-power_on_after_fail=Disable
-psu_fan_lvl=3

@@ -17,24 +17,19 @@
 #define _GEN_DIR(a) (_PRES + _RW + _US + _A + (a))
 #define _GEN_PAGE(a) (_PRES + _RW + _US + _PS + _A +  _D + (a))
 
-.global PML4E
+.global PM4LE
 .align 4096
-PML4E:
-/* For every 512GiB generate a pointer to the corresponding PDPT */
-.rept ((CONFIG_CPU_PT_ROM_MAP_GB + 511) >> 9)
-.quad _GEN_DIR(PDPT + 4096 * ((. - PML4E) >> 3)) /* Point to PDPT */
+PM4LE:
+.quad _GEN_DIR(PDPT)
+
+.align 4096
+PDT: /* identity map 2MiB pages */
+.rept 2048
+.quad _GEN_PAGE(0x200000 * ((. - PDT) >> 3))
 .endr
 
 .align 4096
-PDT:
-/* For every 2MiB generate a page entry. In one GiB there are 512 pages. */
-.rept (CONFIG_CPU_PT_ROM_MAP_GB << 9)
-.quad _GEN_PAGE(0x200000 * ((. - PDT) >> 3)) /* identity map 2MiB page */
-.endr
-
-.align 4096
-PDPT:
-/* For every 1GiB generate a pointer to the corresponding PDT */
-.rept CONFIG_CPU_PT_ROM_MAP_GB
-.quad _GEN_DIR(PDT + 4096 * ((. - PDPT) >> 3)) /* Point to PDT */
+PDPT: /* Point to PDT */
+.rept 4
+.quad _GEN_DIR(PDT + 4096 * ((. - PDPT) >> 3))
 .endr
