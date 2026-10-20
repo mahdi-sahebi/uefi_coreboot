@@ -2,7 +2,6 @@
 
 #include <bootblock_common.h>
 #include <device/pci_ops.h>
-#include <device/pnp_ops.h>
 #include <intelblocks/lpc_lib.h>
 #include <intelblocks/pcr.h>
 #include <soc/intel/common/block/lpc/lpc_def.h>
@@ -14,15 +13,6 @@
 #define PCR_DMI_LPCIOD	0x2770
 #define PCR_DMI_LPCIOE	0x2774
 #define ASPEED_SIO_PORT	0x2e
-
-static void aspeed_espi_prepare_ldn(pnp_devfn_t dev)
-{
-	/* The AST2600 eSPI path needs this before an LDN is accessed. */
-	pnp_enter_conf_state(dev);
-	pnp_set_logical_device(dev);
-	pnp_write_config(dev, 0x71, 0);
-	pnp_exit_conf_state(dev);
-}
 
 void bootblock_mainboard_early_init(void)
 {
@@ -43,10 +33,7 @@ void bootblock_mainboard_early_init(void)
 	pci_write_config16(PCH_DEV_LPC, LPC_IO_ENABLES, lpcioe);
 	pci_write_config16(PCH_DEV_LPC, ESPI_CS1_ENABLE, lpcioe);
 
-	/* Route the coreboot console to AST2600 SUART2, the board's SOL port. */
-	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART2);
-	aspeed_espi_prepare_ldn(PNP_DEV(ASPEED_SIO_PORT, LDN_ILPC2AHB));
-	aspeed_espi_prepare_ldn(ast_serial_dev);
+	/* The board's captured working SOL setup used SUART1 at 0x2f8. */
+	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART1);
 	aspeed_enable_serial(ast_serial_dev, CONFIG_TTYS0_BASE);
-	aspeed_enable_uart_pin(ast_serial_dev);
 }
