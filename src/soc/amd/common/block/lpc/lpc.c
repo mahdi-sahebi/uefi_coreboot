@@ -123,18 +123,11 @@ static void lpc_read_resources(struct device *dev)
 	/* Add a memory resource for the eSPI MMIO */
 	mmio_range(dev, idx++, SPI_BASE_ADDRESS + ESPI_OFFSET_FROM_BAR, 4 * KiB);
 
-	/* Add a memory resource for the eSPI1 MMIO */
-	if (CONFIG(SOC_AMD_COMMON_BLOCK_HAS_ESPI1))
-		mmio_range(dev, idx++, SPI_BASE_ADDRESS + ESPI1_OFFSET_FROM_BAR, 4 * KiB);
-
 	/* FCH IOAPIC */
 	mmio_range(dev, idx++, IO_APIC_ADDR, 4 * KiB);
 
 	/* HPET */
 	mmio_range(dev, idx++, HPET_BASE_ADDRESS, 4 * KiB);
-
-	/* Watchdog */
-	mmio_range(dev, idx++, 0xfeb00000, 8);
 
 	compact_resources(dev);
 }
@@ -276,21 +269,10 @@ static void configure_child_espi_windows(struct device *child)
 	struct resource *res;
 
 	for (res = child->resource_list; res; res = res->next) {
-		if (res->flags & IORESOURCE_IO) {
-			printk(BIOS_DEBUG,
-				"Southbridge eSPI IO decode:%s, base=0x%08llx, end=0x%08llx\n",
-				dev_path(child), res->base, res->base + res->size - 1);
+		if (res->flags & IORESOURCE_IO)
 			espi_open_io_window(res->base, res->size);
-		} else if (res->flags & IORESOURCE_MEM) {
-			/* Avoid decoding TPM to eSPI */
-			if (res->base == 0xfed40000)
-				continue;
-
-			printk(BIOS_DEBUG,
-				"Southbridge eSPI MMIO decode:%s, base=0x%08llx, end=0x%08llx\n",
-				dev_path(child), res->base, res->base + res->size - 1);
+		else if (res->flags & IORESOURCE_MEM)
 			espi_open_mmio_window(res->base, res->size);
-		}
 	}
 }
 
@@ -306,18 +288,10 @@ static void lpc_enable_children_resources(struct device *dev)
 			continue;
 		if (child->path.type != DEVICE_PATH_PNP)
 			continue;
-		if (CONFIG(SOC_AMD_COMMON_BLOCK_USE_ESPI)) {
-			/*
-			 * On platforms where the PSP/ABL already configured the
-			 * eSPI decodes, reprogramming them from the assigned
-			 * resources disrupts the firmware setup (e.g. knocks a
-			 * SuperIO off the bus), so leave them intact.
-			 */
-			if (!CONFIG(SOC_AMD_COMMON_BLOCK_ESPI_DECODES_BY_PSP))
-				configure_child_espi_windows(child);
-		} else {
+		if (CONFIG(SOC_AMD_COMMON_BLOCK_USE_ESPI))
+			configure_child_espi_windows(child);
+		else
 			configure_child_lpc_windows(dev, child);
-		}
 	}
 }
 

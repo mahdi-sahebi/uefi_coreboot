@@ -142,6 +142,6 @@ the cables or not being populated on the board case.
 - Intruder detection
 - Wake-on-Lan from ACPI S3
 
-[flashrom]: https://flashrom.org/
+[flashrom]: https://flashrom.org/Flashrom
 [Dell OptiPlex 9010 specifications]: https://www.dell.com/downloads/global/products/optix/en/dell_optiplex_9010_spec_sheet.pdf
 [UEFITool]: https://github.com/LongSoft/UEFITool

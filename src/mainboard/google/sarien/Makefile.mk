@@ -4,7 +4,6 @@ bootblock-y += bootblock.c
 
 ramstage-y += ramstage.c
 ramstage-y += sku.c
-ramstage-$(CONFIG_DRIVERS_OPTION_CFR) += cfr.c
 
 romstage-y += romstage.c
 

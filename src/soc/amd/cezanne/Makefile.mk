@@ -1,6 +1,6 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
-ifeq ($(CONFIG_SOC_AMD_CEZANNE_BASE),y)
+ifeq ($(CONFIG_SOC_AMD_CEZANNE),y)
 
 subdirs-$(CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK) += psp_verstage
 
@@ -17,8 +17,6 @@ bootblock-y	+= early_fch.c
 bootblock-y	+= espi_util.c
 
 romstage-y	+= fsp_m_params.c
-romstage-$(CONFIG_SOC_AMD_CEZANNE) += fsp_m_params_cezanne.c
-romstage-$(CONFIG_SOC_AMD_RENOIR)  += fsp_m_params_renoir.c
 
 ramstage-y	+= acpi.c
 ramstage-y	+= chip.c
@@ -38,15 +36,8 @@ smm-$(CONFIG_DEBUG_SMI) += uart.c
 
 CPPFLAGS_common += -I$(src)/soc/amd/cezanne/include
 CPPFLAGS_common += -I$(src)/soc/amd/cezanne/acpi
-CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/common
-
-ifeq ($(CONFIG_SOC_AMD_CEZANNE),y)
 CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/cezanne
-endif
-
-ifeq ($(CONFIG_SOC_AMD_RENOIR),y)
-CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/renoir
-endif
+CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/common
 
 # 0x40 accounts for the cbfs_file struct + filename + metadata structs, aligned to 64 bytes
 # Building the cbfs image will fail if the offset isn't large enough
@@ -124,7 +115,7 @@ PSP_APOB_BASE=$(CONFIG_PSP_APOB_DRAM_ADDRESS)
 
 # type = 0x62
 PSP_BIOSBIN_FILE=$(obj)/amd_biospsp.img
-PSP_ELF_FILE=$(objcbfs)/bootblock_fixed_data.elf
+PSP_ELF_FILE=$(objcbfs)/bootblock.elf
 PSP_BIOSBIN_SIZE=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$5}')
 PSP_BIOSBIN_DEST=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$3}')
 
@@ -217,8 +208,7 @@ AMDFW_COMMON_ARGS=$(OPT_PSP_APCB_FILES) \
 		$(OPT_EFS_SPI_MICRON_FLAG) \
 		$(OPT_RECOVERY_AB) \
 		--config $(CONFIG_AMDFW_CONFIG_FILE) \
-		--flashsize $(CONFIG_ROM_SIZE) \
-		$(OPT_SBOM_DIR)
+		--flashsize $(CONFIG_ROM_SIZE)
 
 $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$(PSP_VERSTAGE_FILE) \
@@ -227,7 +217,7 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$(DEP_FILES) \
 			$(AMDFWTOOL) \
 			$(obj)/fmap_config.h \
-			$(objcbfs)/bootblock_fixed_data.elf # this target also creates the .map file
+			$(objcbfs)/bootblock.elf # this target also creates the .map file
 	$(if $(PSP_APCB_FILES), ,$(error APCB_SOURCES is not set))
 	rm -f $@
 	@printf "    AMDFWTOOL  $(subst $(obj)/,,$(@))\n"
@@ -241,13 +231,6 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 		--multilevel \
 		--output $@
 
-#
-# Extracts everything from the ELF's first PT_LOAD area and compresses it.
-# This discards everything before PT_LOAD, every symbol, debug information
-# and relocations. The generated binary is expected to run at PSP_BIOSBIN_DEST
-# with a maximum size of PSP_BIOSBIN_SIZE. The entrypoint is fixed at
-# PSP_BIOSBIN_DEST + PSP_BIOSBIN_SIZE - 0x10.
-#
 $(PSP_BIOSBIN_FILE): $(PSP_ELF_FILE) $(AMDCOMPRESS)
 	rm -f $@
 	@printf "    AMDCOMPRS  $(subst $(obj)/,,$(@))\n"
@@ -295,4 +278,4 @@ apu/amdfw_b-position := $(AMD_FW_AB_POSITION)
 apu/amdfw_b-type := raw
 endif
 
-endif # ($(CONFIG_SOC_AMD_CEZANNE_BASE),y)
+endif # ($(CONFIG_SOC_AMD_CEZANNE),y)

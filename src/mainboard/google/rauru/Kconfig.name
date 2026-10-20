@@ -10,6 +10,3 @@ config BOARD_GOOGLE_NAVI
 
 config BOARD_GOOGLE_RAURU
 	bool "->  Rauru"
-
-config BOARD_GOOGLE_SAPPHIRE
-	bool "->  Sapphire"

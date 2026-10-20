@@ -33,7 +33,6 @@ if [ "${BUILD_TIMELESS}" = "1" ]; then
 	DATE=0
 elif [ "$(git rev-parse --is-inside-work-tree 2>/dev/null)" = "true" ]; then
 	GITREV="$(get_git_head_data %h)"
-	TREE_REV="$(get_git_head_data %t)"
 	TIMESOURCE=git
 	DATE="$(get_git_head_data %ct)"
 	VERSION="$(git describe)"
@@ -46,8 +45,6 @@ else
 	if [ -f "${COREBOOT_VERSION_FILE}" ]; then
 		MAJOR_VER="$(sed -n 's/^0*\([0-9]*\)\.0*\([0-9]*\).*/\1/p' "${COREBOOT_VERSION_FILE}")"
 		MINOR_VER="$(sed -n 's/^0*\([0-9]*\)\.0*\([0-9]*\).*/\2/p' "${COREBOOT_VERSION_FILE}")"
-		GITREV="Based_on_$(sed -n 's/^[^-]*-\([^-]*\)-.*/\1/p' "${COREBOOT_VERSION_FILE}")"
-		TREE_REV="Based_on_$(sed -n 's/^[^-]*-[^-]*-\(.*\)/\1/p' "${COREBOOT_VERSION_FILE}")"
 	fi
 fi
 
@@ -81,7 +78,6 @@ printf "#define COREBOOT_VERSION %s\n" "\"${KERNELVERSION}\""
 printf "/* timesource: %s */\n" "${TIMESOURCE}"
 printf "#define COREBOOT_VERSION_TIMESTAMP %s\n" "${DATE}"
 printf "#define COREBOOT_ORIGIN_GIT_REVISION \"%s\"\n" "${GITREV}"
-printf "#define COREBOOT_ORIGIN_TREE_REVISION \"%s\"\n" "${TREE_REV:-0}"
 
 printf "#define DASHARO_VERSION \"%s\"\n" "$DASHARO_VERSION"
 printf "#define DASHARO_MAJOR_VERSION %d\\n" "$DASHARO_MAJOR_VERSION"

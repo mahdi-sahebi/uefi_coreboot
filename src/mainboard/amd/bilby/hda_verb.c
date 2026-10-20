@@ -2,7 +2,12 @@
 
 #include <device/azalia_device.h>
 
-static const u32 realtek_alc701_verbs[] = {
+const u32 cim_verb_data[] = {
+	/* Realtek ALC701 on mainboard */
+	0x10ec0701,
+	0x00000000,
+	0x00000016,
+
 	AZALIA_SUBVENDOR(0, 0x1022D001), // HDA Codec Subsystem ID: 0x1022D001
 
 	AZALIA_RESET(1), // Widget node 0x01 :
@@ -29,9 +34,12 @@ static const u32 realtek_alc701_verbs[] = {
 	0x0205004a, 0x0204201b, 0x0205004a, 0x0204201b, // NID 0x20 - 2
 	0x02050010, 0x02040420, 0x01470c00, 0x02050036, // Dos beep path - 1
 	0x02047151, 0x01470740, 0x0143b000, 0x01470c02, // Dos beep path - 2
-};
 
-static const u32 realtek_alc285_verbs[] = {
+	/* Realtek ALC285 on extension card */
+	0x10ec0285,
+	0x00000000,
+	0x00000028,
+
 	AZALIA_SUBVENDOR(0, 0x1022D002),
 
 	AZALIA_RESET(1), // Widget node 0x01 :
@@ -84,28 +92,6 @@ static const u32 realtek_alc285_verbs[] = {
 };
 
 const u32 pc_beep_verbs[] = {
-};
-
-struct azalia_codec mainboard_azalia_codecs[] = {
-	{
-		/* Realtek ALC701 on mainboard */
-		.name         = "Realtek ALC701",
-		.vendor_id    = 0x10ec0701,
-		.subsystem_id = 0x00000000,
-		.address      = 0,
-		.verbs        = realtek_alc701_verbs,
-		.verb_count   = ARRAY_SIZE(realtek_alc701_verbs),
-	},
-	{
-		/* Realtek ALC285 on extension card */
-		.name         = "Realtek ALC285",
-		.vendor_id    = 0x10ec0285,
-		.subsystem_id = 0x00000000,
-		.address      = 0,
-		.verbs        = realtek_alc285_verbs,
-		.verb_count   = ARRAY_SIZE(realtek_alc285_verbs),
-	},
-	{ /* terminator */ }
 };
 
 AZALIA_ARRAY_SIZES;

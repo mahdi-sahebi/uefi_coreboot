@@ -118,7 +118,7 @@ chip soc/intel/tigerlake
 					[9] = {   0,    0,   0,   50, }}"
 
 				# Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 0 on end
@@ -176,7 +176,7 @@ chip soc/intel/tigerlake
 				register "irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_E15_IRQ)"
 				register "wake" = "GPE0_DW2_15"
 				register "detect" = "1"
-				device i2c 15 alias touchpad on end
+				device i2c 15 on end
 			end
 		end
 		device ref pch_espi on

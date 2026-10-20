@@ -4,7 +4,6 @@ if BOARD_PROTECTLI_VP2410
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
-	select AZALIA_USE_LEGACY_VERB_TABLE
 	select SOC_INTEL_GEMINILAKE
 	select BOARD_ROMSIZE_KB_8192
 	select HAVE_ACPI_RESUME
@@ -27,8 +26,7 @@ config DEVICETREE
 
 config MAINBOARD_PART_NUMBER
 	string
-	default "VP2410" if ENABLE_EMMC
-	default "VP2410e"
+	default "VP2410"
 
 config MAINBOARD_FAMILY
 	default "Vault Pro"
@@ -51,12 +49,6 @@ config USE_LEGACY_8254_TIMER
 config FMDFILE
 	string
 	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/board.fmd" if !VBOOT
-
-config ENABLE_EMMC
-	bool "Enable eMMC support"
-	default y
-	help
-	  Enable the eMMC storage controller
 
 config BEEP_ON_BOOT
 	bool "Beep on successful boot"

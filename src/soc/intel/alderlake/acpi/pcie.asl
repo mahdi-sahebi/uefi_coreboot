@@ -315,38 +315,26 @@ Device (PEG0)
 		Return (IRQM (1))
 	}
 }
+#endif
 
+#if CONFIG(SOC_INTEL_ALDERLAKE_PCH_P)
 Device (PEG1)
 {
 	Name (_ADR, 0x00060002)
-
-	OperationRegion (RPCS, PCI_Config, 0x4c, 4)
-	Field (RPCS, AnyAcc, NoLock, Preserve)
-	{
-		, 24,
-		RPPN, 8,	/* Root Port Number */
-	}
-
-	Method (_PRT)
-	{
-		Return (IRQM (RPPN))
-	}
 }
 
 Device (PEG2)
 {
 	Name (_ADR, 0x00010000)
-
-	OperationRegion (RPCS, PCI_Config, 0x4c, 4)
-	Field (RPCS, AnyAcc, NoLock, Preserve)
-	{
-		, 24,
-		RPPN, 8,	/* Root Port Number */
-	}
-
-	Method (_PRT)
-	{
-		Return (IRQM (RPPN))
-	}
 }
 #endif
+
+Device (SRAM)
+{
+	Name (_ADR, 0x00140002)
+}
+
+Device (HEC1)
+{
+	Name (_ADR, 0x00160000)
+}

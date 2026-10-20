@@ -10,6 +10,7 @@
 #ifdef __COREBOOT__
 #include <console/console.h>
 #else
+#include <stdio.h>
 #define printk(level, ...) printf(__VA_ARGS__)
 #endif
 #include <stdio.h>
@@ -116,11 +117,10 @@ int fdt_next_property(const void *blob, uint32_t offset,
 		      struct fdt_property *prop)
 {
 	struct fdt_header *header = (struct fdt_header *)blob;
+	uint32_t *ptr = (uint32_t *)(((uint8_t *)blob) + offset);
 
 	// skip NOP tokens
 	offset += fdt_skip_nops(blob, offset);
-
-	uint32_t *ptr = (uint32_t *)(((uint8_t *)blob) + offset);
 
 	int index = 0;
 	if (be32toh(ptr[index++]) != FDT_TOKEN_PROPERTY)
@@ -258,26 +258,6 @@ static u32 fdt_read_cell_props(const void *blob, u32 node_offset, u32 *addrcp, u
 		offset += size;
 	}
 	return offset;
-}
-
-uint64_t fdt_read_int_prop(struct fdt_property *prop, u32 cells)
-{
-	if (cells == 0)
-		cells = prop->size / 4;
-
-	if (cells * 4 != prop->size) {
-		printk(BIOS_ERR, "FDT integer property of size %u @%p doesn't match expected cell count %u\n",
-		       prop->size, prop->data, cells);
-		return 0;
-	}
-
-	if (cells == 2)
-		return be64dec(prop->data);
-	else if (cells == 1)
-		return be32dec(prop->data);
-
-	printk(BIOS_ERR, "Illegal FDT integer property size %u @%p\n", prop->size, prop);
-	return 0;
 }
 
 /*
@@ -767,12 +747,12 @@ bool fdt_is_valid(const void *blob)
 
 struct device_tree *fdt_unflatten(const void *blob)
 {
+	struct device_tree *tree = xzalloc(sizeof(*tree));
+	const struct fdt_header *header = (const struct fdt_header *)blob;
+	tree->header = header;
+
 	if (!fdt_is_valid(blob))
 		return NULL;
-
-	const struct fdt_header *header = blob;
-	struct device_tree *tree = xzalloc(sizeof(*tree));
-	tree->header = header;
 
 	uint32_t struct_offset = be32toh(header->structure_offset);
 	uint32_t strings_offset = be32toh(header->strings_offset);
@@ -1059,19 +1039,31 @@ void dt_read_cell_props(const struct device_tree_node *node, u32 *addrcp,
 	}
 }
 
-static struct device_tree_node *_dt_find_node(struct device_tree_node *parent,
-					      const char *const *path, u32 *addrcp,
-					      u32 *sizecp, int create)
+/*
+ * Find a node from a device tree path, relative to a parent node.
+ *
+ * @param parent	The node from which to start the relative path lookup.
+ * @param path		An array of path component strings that will be looked
+ *			up in order to find the node. Must be terminated with
+ *			a NULL pointer. Example: {'firmware', 'coreboot', NULL}
+ * @param addrcp	Pointer that will be updated with any #address-cells
+ *			value found in the path. May be NULL to ignore.
+ * @param sizecp	Pointer that will be updated with any #size-cells
+ *			value found in the path. May be NULL to ignore.
+ * @param create	1: Create node(s) if not found. 0: Return NULL instead.
+ * @return		The found/created node, or NULL.
+ */
+struct device_tree_node *dt_find_node(struct device_tree_node *parent,
+				      const char **path, u32 *addrcp,
+				      u32 *sizecp, int create)
 {
 	struct device_tree_node *node, *found = NULL;
 
+	/* Update #address-cells and #size-cells for this level. */
+	dt_read_cell_props(parent, addrcp, sizecp);
+
 	if (!*path)
 		return parent;
-
-	/* Update #address-cells and #size-cells for the parent level (cells
-	   properties always count for the direct children of their node). */
-	if (addrcp || sizecp)
-		dt_read_cell_props(parent, addrcp, sizecp);
 
 	/* Find the next node in the path, if it exists. */
 	list_for_each(node, parent->children, list_node) {
@@ -1094,35 +1086,7 @@ static struct device_tree_node *_dt_find_node(struct device_tree_node *parent,
 		list_insert_after(&found->list_node, &parent->children);
 	}
 
-	return _dt_find_node(found, path + 1, addrcp, sizecp, create);
-}
-
-/*
- * Find a node from a device tree path, relative to a parent node.
- *
- * @param parent	The node from which to start the relative path lookup.
- * @param path		An array of path component strings that will be looked
- *			up in order to find the node. Must be terminated with
- *			a NULL pointer. Example: {'firmware', 'coreboot', NULL}
- * @param addrcp	Pointer that will be updated with any #address-cells
- *			value found in the path. May be NULL to ignore.
- * @param sizecp	Pointer that will be updated with any #size-cells
- *			value found in the path. May be NULL to ignore.
- * @param create	1: Create node(s) if not found. 0: Return NULL instead.
- * @return		The found/created node, or NULL.
- */
-struct device_tree_node *dt_find_node(struct device_tree_node *parent,
-				      const char *const *path, u32 *addrcp,
-				      u32 *sizecp, int create)
-{
-	/* Initialize cells to default values according to FDT spec. */
-	if (addrcp)
-		*addrcp = 2;
-
-	if (sizecp)
-		*sizecp = 1;
-
-	return _dt_find_node(parent, path, addrcp, sizecp, create);
+	return dt_find_node(found, path + 1, addrcp, sizecp, create);
 }
 
 /*
@@ -1156,8 +1120,7 @@ struct device_tree_node *dt_find_node_by_path(struct device_tree *tree,
 
 	if (path[0] == '/') { /* regular path */
 		if (path[1] == '\0') {	/* special case: "/" is root node */
-			if (addrcp || sizecp)
-				dt_read_cell_props(tree->root, addrcp, sizecp);
+			dt_read_cell_props(tree->root, addrcp, sizecp);
 			return tree->root;
 		}
 
@@ -1534,25 +1497,6 @@ void dt_add_u64_prop(struct device_tree_node *node, const char *name, u64 val)
 	dt_add_bin_prop(node, name, val_ptr, sizeof(*val_ptr));
 }
 
-static void dt_add_addr_and_size_prop(struct device_tree_node *node, const char *prop_name,
-				      const u64 *addrs, const u64 *sizes, int count,
-				      u32 addr_cells, u32 size_cells)
-{
-	int i;
-	size_t length = (size_t)(addr_cells + size_cells) * sizeof(u32) * count;
-	u8 *data = xmalloc(length);
-	u8 *cur = data;
-
-	for (i = 0; i < count; i++) {
-		dt_write_int(cur, addrs[i], addr_cells * sizeof(u32));
-		cur += addr_cells * sizeof(u32);
-		dt_write_int(cur, sizes[i], size_cells * sizeof(u32));
-		cur += size_cells * sizeof(u32);
-	}
-
-	dt_add_bin_prop(node, prop_name, data, length);
-}
-
 /*
  * Add a 'reg' address list property to a node, or update it if it exists.
  *
@@ -1563,27 +1507,22 @@ static void dt_add_addr_and_size_prop(struct device_tree_node *node, const char 
  * @param addr_cells	Value of #address-cells property valid for this node.
  * @param size_cells	Value of #size-cells property valid for this node.
  */
-void dt_add_reg_prop(struct device_tree_node *node, const u64 *addrs, const u64 *sizes,
+void dt_add_reg_prop(struct device_tree_node *node, u64 *addrs, u64 *sizes,
 		     int count, u32 addr_cells, u32 size_cells)
 {
-	dt_add_addr_and_size_prop(node, "reg", addrs, sizes, count, addr_cells, size_cells);
-}
+	int i;
+	size_t length = (addr_cells + size_cells) * sizeof(u32) * count;
+	u8 *data = xmalloc(length);
+	u8 *cur = data;
 
-/*
- * Add a 'iommu-addresses' address list property to a node, or update it if it exists.
- *
- * @param node		The device tree node to add to.
- * @param regions       Array of address values to be stored in the property.
- * @param sizes		Array of corresponding size values to 'addrs'.
- * @param count		Number of values in 'addrs' and 'sizes' (must be equal).
- * @param addr_cells	Value of #address-cells property valid for this node.
- * @param size_cells	Value of #size-cells property valid for this node.
- */
-void dt_add_iommu_addr_prop(struct device_tree_node *node, const u64 *addrs, const u64 *sizes,
-			    int count, u32 addr_cells, u32 size_cells)
-{
-	dt_add_addr_and_size_prop(node, "iommu-addresses", addrs, sizes, count, addr_cells,
-				  size_cells);
+	for (i = 0; i < count; i++) {
+		dt_write_int(cur, addrs[i], addr_cells * sizeof(u32));
+		cur += addr_cells * sizeof(u32);
+		dt_write_int(cur, sizes[i], size_cells * sizeof(u32));
+		cur += size_cells * sizeof(u32);
+	}
+
+	dt_add_bin_prop(node, "reg", data, length);
 }
 
 /*
@@ -2149,20 +2088,4 @@ int dt_apply_overlay(struct device_tree *tree, struct device_tree *overlay)
 	}
 
 	return 0;
-}
-
-bool dt_is_overlay(struct device_tree *tree)
-{
-	/* The actual overlaid nodes/props are in an __overlay__ child node. */
-	const char * const overlay_path[] = { "__overlay__", NULL };
-	struct device_tree_node *fragment;
-
-	if (!tree)
-		return false;
-
-	list_for_each(fragment, tree->root->children, list_node)
-		if (dt_find_node(fragment, overlay_path, NULL, NULL, 0))
-			return true;
-
-	return false;
 }

@@ -103,7 +103,7 @@ struct soc_amd_glinda_config {
 		DXIO_PSPP_POWERSAVE,
 	} pspp_policy;
 
-	bool usb_phy_custom;
+	uint8_t usb_phy_custom;
 	struct usb_phy_config usb_phy;
 };
 

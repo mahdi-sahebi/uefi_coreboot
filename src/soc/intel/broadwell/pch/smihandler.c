@@ -11,7 +11,6 @@
 #include <device/pci_def.h>
 #include <device/pci_ops.h>
 #include <drivers/intel/gma/i915_reg.h>
-#include <drivers/tpm/tpm_ppi.h>
 #include <spi-generic.h>
 #include <elog.h>
 #include <halt.h>
@@ -229,8 +228,6 @@ static em64t101_smm_state_save_area_t *smi_apmc_find_state_save(u8 cmd)
 	/* Check all nodes looking for the one that issued the IO */
 	for (node = 0; node < CONFIG_MAX_CPUS; node++) {
 		state = smm_get_save_state(node);
-		if (!state)
-			continue;
 
 		/* Check for Synchronous IO (bit0 == 1) */
 		if (!(state->io_misc_info & (1 << 0)))
@@ -295,22 +292,6 @@ static void southbridge_smi_store(void)
 	io_smi->rax = ret;
 }
 
-static void southbridge_smi_tpm_ppi(void)
-{
-	em64t101_smm_state_save_area_t *io_smi = smi_apmc_find_state_save(APM_CNT_TPM_PPI);
-	uint32_t reg_ebx;
-
-	if (!io_smi)
-		return;
-
-	/* Parameter buffer in EBX */
-	reg_ebx = io_smi->rbx;
-
-	/* drivers/tpm/ppi_smm.c */
-	tpm_ppi_process_request_smm(reg_ebx);
-	io_smi->rax = 0;
-}
-
 static void southbridge_smi_apmc(void)
 {
 	u8 reg8;
@@ -330,10 +311,6 @@ static void southbridge_smi_apmc(void)
 	case APM_CNT_SMMSTORE:
 		if (CONFIG(SMMSTORE))
 			southbridge_smi_store();
-		break;
-	case APM_CNT_TPM_PPI:
-		if (CONFIG(TPM_PPI_UEFIVAR_BACKED))
-			southbridge_smi_tpm_ppi();
 		break;
 	}
 

@@ -4,7 +4,9 @@ This page describes how to run coreboot on the [ASRock H81M-HDS].
 
 ## Required proprietary blobs
 
-Please see <project:../../northbridge/intel/haswell/mrc.bin.md>.
+```{eval-rst}
+Please see :doc:`../../northbridge/intel/haswell/mrc.bin`.
+```
 
 ## Building coreboot
 
@@ -73,8 +75,9 @@ facing towards the bottom of the board.
   in coreboot. The `coretemp` driver can still be used for accurate CPU
   temperature readings from an OS.
 
-Please also see
-<project:../../northbridge/intel/haswell/known-issues.md>.
+```{eval-rst}
+Please also see :doc:`../../northbridge/intel/haswell/known-issues`.
+```
 
 ## Untested
 
@@ -126,5 +129,5 @@ Please also see
 
 [ASRock H81M-HDS]: https://www.asrock.com/mb/Intel/H81M-HDS/
 [W25Q32FV]: https://www.winbond.com/resource-files/w25q32fv%20revi%2010202015.pdf
-[flashrom]: https://flashrom.org/
+[flashrom]: https://flashrom.org/Flashrom
 [Board manual]: https://web.archive.org/web/20191231093418/http://asrock.pc.cdn.bitgravity.com/Manual/H81M-HDS.pdf

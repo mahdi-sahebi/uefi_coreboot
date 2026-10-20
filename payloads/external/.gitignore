@@ -4,6 +4,7 @@ GRUB2/grub2/
 LinuxBoot/linuxboot/
 SeaBIOS/seabios/
 edk2/workspace
+!edk2/workspace/dasharo
 tint/tint/
 U-Boot/u-boot/
 Memtest86Plus/memtest86plus/

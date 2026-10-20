@@ -2,7 +2,6 @@
 
 config BOARD_CLEVO_TGLU_COMMON
 	def_bool n
-	select AZALIA_USE_LEGACY_VERB_TABLE
 	select BOARD_ROMSIZE_KB_16384
 	select DRIVERS_I2C_HID
 	select DRIVERS_INTEL_PMC
@@ -134,10 +133,6 @@ config USE_PM_ACPI_TIMER
 
 config VBOOT_FWID_VERSION
 	default "\$(CONFIG_LOCALVERSION)"
-
-# A terrible workaround for SMI issues when BWP is on until a better solution is found.
-config DEBUG_SMI
-	default y if BOOTMEDIA_SMM_BWP
 
 if PAYLOAD_EDK2
 

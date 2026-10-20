@@ -17,7 +17,6 @@ romstage-$(CONFIG_MMA) += mma_core.c
 romstage-y += cbmem.c
 romstage-$(CONFIG_ENABLE_FSP_ERROR_INFO) += fsp_error_info_hob.c
 romstage-$(CONFIG_CACHE_MRC_SETTINGS) += save_mrc_data.c
-romstage-$(CONFIG_FSP_DIMM_INFO) += fsp_dimm_info.c
 
 ramstage-y += debug.c
 ramstage-$(CONFIG_FSP_USES_CB_DEBUG_EVENT_HANDLER) += fsp_debug_event.c
@@ -36,7 +35,6 @@ ramstage-$(CONFIG_FSP_NVS_DATA_POST_SILICON_INIT) += save_mrc_data.c
 ramstage-$(CONFIG_MMA) += mma_core.c
 ramstage-$(CONFIG_ENABLE_FSP_ERROR_INFO) += fsp_error_info_hob.c
 ramstage-$(CONFIG_BMP_LOGO) += fsp_gop_blt.c
-ramstage-$(CONFIG_USE_COREBOOT_FOR_BMP_RENDERING) += cb_logo.c
 
 ifneq ($(CONFIG_NO_FSP_TEMP_RAM_EXIT),y)
 postcar-$(CONFIG_FSP_CAR) += temp_ram_exit.c
@@ -126,6 +124,18 @@ $(obj)/Fsp_2_M.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH_2)) $(DOTCONFIG)
 
 $(obj)/Fsp_2_S.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH_2)) $(obj)/Fsp_2_M.fd
 	true
+endif
+
+# Add logo to the cbfs image
+ifneq ($(CONFIG_HAVE_CUSTOM_BMP_LOGO),y)
+cbfs-files-$(CONFIG_BMP_LOGO) += logo.bmp
+logo.bmp-file := $(call strip_quotes,$(CONFIG_FSP2_0_LOGO_FILE_NAME))
+logo.bmp-type := raw
+ifeq ($(CONFIG_BMP_LOGO_COMPRESS_LZMA),y)
+logo.bmp-compression := LZMA
+else ifeq ($(CONFIG_BMP_LOGO_COMPRESS_LZ4),y)
+logo.bmp-compression := LZ4
+endif
 endif
 
 ifneq ($(call strip_quotes,$(CONFIG_FSP_HEADER_PATH)),)

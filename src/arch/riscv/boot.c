@@ -23,12 +23,20 @@ struct arch_prog_run_args {
 
 static void do_arch_prog_run(struct arch_prog_run_args *args)
 {
+	char str[50] = 0;
+	memset(str, ' ', sizeof(str));
+	memcpy(str, "[MN] do_arch_prog_run", strlen("[MN] do_arch_prog_run"));
+f
+	vga_line_write(8, str);
 	int hart_id = HLS()->hart_id;
 	struct prog *prog = args->prog;
 	void *fdt = HLS()->fdt;
 
-	if (prog_cbfs_type(prog) == CBFS_TYPE_FIT_PAYLOAD)
+	if (prog_cbfs_type(prog) == CBFS_TYPE_FIT_PAYLOAD) {
+		vga_line_write(8, "[MN] do_arch_prog_run - 1");
 		fdt = prog_entry_arg(prog);
+		vga_line_write(8, "[MN] do_arch_prog_run - 2");
+	}
 
 	if (ENV_RAMSTAGE && prog_type(prog) == PROG_PAYLOAD) {
 		if (CONFIG(RISCV_OPENSBI)) {
@@ -47,19 +55,26 @@ static void do_arch_prog_run(struct arch_prog_run_args *args)
 
 void arch_prog_run(struct prog *prog)
 {
+	vga_line_write(6, "[MN] arch_prog_run - 0");
 	struct arch_prog_run_args args = {};
 
 	args.prog = prog;
 
 	/* In case of OpenSBI we have to load it before resuming all HARTs */
 	if (ENV_RAMSTAGE && CONFIG(RISCV_OPENSBI)) {
+		vga_line_write(6, "[MN] arch_prog_run - 1");
 		struct prog sbi = PROG_INIT(PROG_OPENSBI, CONFIG_CBFS_PREFIX"/opensbi");
 
-		if (!selfload_check(&sbi, BM_MEM_OPENSBI))
+		if (!selfload_check(&sbi, BM_MEM_OPENSBI)) {
+			vga_line_write(6, "[MN] arch_prog_run - 2");
 			die("OpenSBI load failed");
+			vga_line_write(6, "[MN] arch_prog_run - 3");
+		}
 
 		args.opensbi = &sbi;
 	}
 
+	vga_line_write(7, "[MN] arch_prog_run - 4");
 	smp_resume((void (*)(void *))do_arch_prog_run, &args);
+	vga_line_write(7, "[MN] arch_prog_run - 5");
 }

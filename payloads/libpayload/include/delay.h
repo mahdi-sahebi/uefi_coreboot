@@ -14,12 +14,17 @@
 
 unsigned int get_cpu_speed(void);
 
+void arch_ndelay(uint64_t n);
+
 /**
  * Delay for a specified number of nanoseconds.
  *
  * @param ns Number of nanoseconds to delay for.
  */
-void ndelay(uint64_t n);
+static inline void ndelay(unsigned int ns)
+{
+	arch_ndelay((uint64_t)ns);
+}
 
 /**
  * Delay for a specified number of microseconds.
@@ -28,7 +33,7 @@ void ndelay(uint64_t n);
  */
 static inline void udelay(unsigned int us)
 {
-	ndelay((uint64_t)us * NSECS_PER_USEC);
+	arch_ndelay((uint64_t)us * NSECS_PER_USEC);
 }
 
 /**
@@ -38,7 +43,7 @@ static inline void udelay(unsigned int us)
  */
 static inline void mdelay(unsigned int ms)
 {
-	ndelay((uint64_t)ms * NSECS_PER_MSEC);
+	arch_ndelay((uint64_t)ms * NSECS_PER_MSEC);
 }
 
 /**
@@ -48,7 +53,7 @@ static inline void mdelay(unsigned int ms)
  */
 static inline void delay(unsigned int s)
 {
-	ndelay((uint64_t)s * NSECS_PER_SEC);
+	arch_ndelay((uint64_t)s * NSECS_PER_SEC);
 }
 
 #endif /* LIBPAYLOAD_DELAY_H */

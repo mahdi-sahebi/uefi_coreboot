@@ -1,6 +1,6 @@
 ## SPDX-License-Identifier: GPL-2.0-only
 
-uroot_package = github.com/Dasharo/u-root
+uroot_package = github.com/u-root/u-root
 uroot_build = build/go/src/$(uroot_package)
 
 UROOT_ARCH-$(CONFIG_LINUXBOOT_X86_64)      = amd64
@@ -35,14 +35,9 @@ ifeq ($(shell if [ $(go_version_minor) -lt 9 ]; then echo y; fi),y)
 endif
 endif
 
-$(uroot_build): | build/
+$(uroot_build):
 	git clone https://$(uroot_package) $(uroot_build)
 	git -C $(uroot_build) checkout --quiet $(CONFIG_LINUXBOOT_UROOT_VERSION)
-	for p in $(CURDIR)/patches/*.patch; do \
-		[ -e "$$p" ] || continue; \
-		echo "  applying u-root patch: $$p"; \
-		git -C $(uroot_build) apply "$$p" || exit 1; \
-	done
 
 $(uroot_build)/u-root: | $(uroot_build)
 	cd $(uroot_build); \

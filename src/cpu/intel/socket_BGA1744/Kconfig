@@ -1,2 +1,0 @@
-config CPU_INTEL_SOCKET_BGA1744
-	bool

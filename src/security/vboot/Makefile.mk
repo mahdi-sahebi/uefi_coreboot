@@ -7,12 +7,10 @@ verstage-y += vboot_lib.c
 romstage-y += vboot_lib.c
 ramstage-y += vboot_lib.c
 postcar-y += vboot_lib.c
-smm-y += vboot_lib.c
 
 vboot-fixup-includes = $(patsubst -I%,-I$(top)/%,\
-		       $(patsubst -I$(top)/%,-I%,\
 		       $(patsubst $(src)/%.h,$(top)/$(src)/%.h,\
-		       $(filter-out -I$(obj),$(1)))))
+		       $(filter-out -I$(obj),$(1))))
 
 # call with $1 = stage name to create rules for building the library
 # for the stage and adding it to the stage's set of object files.
@@ -55,7 +53,6 @@ $(eval $(call vboot-for-stage,romstage))
 endif
 $(eval $(call vboot-for-stage,ramstage))
 $(eval $(call vboot-for-stage,postcar))
-$(eval $(call vboot-for-stage,smm))
 
 endif # CONFIG_VBOOT_LIB
 

@@ -1,25 +1,14 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <amdblocks/lpc.h>
-#include <amdblocks/psp.h>
-#include <amdblocks/smi.h>
-#include <amdblocks/spi.h>
 #include <console/console.h>
-#include <boot_device.h>
+#include <spi_flash.h>
+#include <soc/pci_devs.h>
+#include <amdblocks/lpc.h>
+#include <amdblocks/spi.h>
 #include <device/pci_ops.h>
 #include <lib.h>
-#include <soc/amd/common/block/psp/psp_def.h>
-#include <soc/pci_devs.h>
-#include <spi_flash.h>
 #include <timer.h>
 #include <types.h>
-
-/*
- * Default SPI CS line. When PSP fails to boot from CS0 it will
- * attempt to boot from other CS lines as well. Keep track of the
- * boot source for DUAL SPI access support.
- */
-static uint8_t default_cs;
 
 #define GRANULARITY_TEST_4k		0x0000f000		/* bits 15-12 */
 #define WORD_TO_DWORD_UPPER(x)		((x << 16) & 0xffff0000)
@@ -33,6 +22,13 @@ static uint8_t default_cs;
 #define   SPI_CMD_TRIGGER_EXECUTE	BIT(7)
 #define SPI_TX_BYTE_COUNT		0x48
 #define SPI_RX_BYTE_COUNT		0x4b
+#define SPI_STATUS			0x4c
+#define   SPI_DONE_BYTE_COUNT_SHIFT	0
+#define   SPI_DONE_BYTE_COUNT_MASK	0xff
+#define   SPI_FIFO_WR_PTR_SHIFT		8
+#define   SPI_FIFO_WR_PTR_MASK		0x7f
+#define   SPI_FIFO_RD_PTR_SHIFT		16
+#define   SPI_FIFO_RD_PTR_MASK		0x7f
 
 enum spi_dump_state_phase {
 	SPI_DUMP_STATE_BEFORE_CMD,
@@ -124,80 +120,6 @@ static int execute_command(void)
 void spi_init(void)
 {
 	printk(BIOS_DEBUG, "%s: SPI BAR at 0x%08lx\n", __func__, spi_get_bar());
-	default_cs = spi_read8(SPI_ALT_CS_REG) & SPI_ALT_CS_REG_MASK;
-	printk(BIOS_DEBUG, "%s: Booting from SPI CS%d\n", __func__, default_cs);
-}
-
-int boot_device_spi_cs(void)
-{
-	return default_cs;
-}
-
-static uint8_t cmd_code;
-static uint8_t alt_cs;
-static uint8_t tx_byte_count;
-static uint8_t rx_byte_count;
-static uint8_t fifo[SPI_FIFO_DEPTH];
-
-void fch_spi_backup_registers(void)
-{
-	/* When bus is locked no need for backup */
-	if (ENV_SMM && (spi_read8(SPI_MISC_CNTRL) & SPI_SEMAPHORE_BIOS_LOCKED))
-		return;
-
-	alt_cs = spi_read8(SPI_ALT_CS_REG);
-	cmd_code = spi_read8(SPI_CMD_CODE);
-	tx_byte_count = spi_read8(SPI_TX_BYTE_COUNT);
-	rx_byte_count = spi_read8(SPI_RX_BYTE_COUNT);
-
-	for (int count = 0; count < SPI_FIFO_DEPTH; count++)
-		fifo[count] = spi_read8(SPI_FIFO + count);
-}
-
-void fch_spi_restore_registers(void)
-{
-	/* When bus is locked no need for backup */
-	if (ENV_SMM && (spi_read8(SPI_MISC_CNTRL) & SPI_SEMAPHORE_BIOS_LOCKED))
-		return;
-
-	spi_write8(SPI_ALT_CS_REG, alt_cs);
-	spi_write8(SPI_CMD_CODE, cmd_code);
-	spi_write8(SPI_TX_BYTE_COUNT, tx_byte_count);
-	spi_write8(SPI_RX_BYTE_COUNT, rx_byte_count);
-
-	for (int count = 0; count < SPI_FIFO_DEPTH; count++)
-		spi_write8(SPI_FIFO + count, fifo[count]);
-}
-
-static int psp_rom_armor_transfer(const void *dout, size_t bytesout,
-				  void *din, size_t bytesin)
-{
-	struct rom_armor_spi_cmd cmd_buf = { 0 };
-	const uint8_t *bufout = dout;
-	uint8_t *bufin = din;
-
-	bytesout--;
-
-	if (bytesout + bytesin > PSP_MAX_SPI_DATA_BUFFER_SIZE) {
-		printk(BIOS_WARNING, "PSP ROM Armor 1: Too much to transfer!\n");
-		return -1;
-	}
-
-	/* CS is 1-based from ROM Armor 1 */
-	cmd_buf.cs = default_cs < 2 ? default_cs + 1 : 1;
-	cmd_buf.tx_bytes = bytesout;
-	cmd_buf.rx_bytes = bytesin;
-	cmd_buf.opcode = bufout[0];
-	bufout++;
-
-	memcpy(cmd_buf.buffer, bufout, bytesout);
-	if (psp_rom_armor1_spi_transaction(&cmd_buf))
-		return -1;
-
-	if (cmd_buf.rx_bytes)
-		memcpy(bufin, &cmd_buf.buffer[cmd_buf.tx_bytes], cmd_buf.rx_bytes);
-
-	return 0;
 }
 
 static int spi_ctrlr_xfer(const struct spi_slave *slave, const void *dout,
@@ -210,16 +132,6 @@ static int spi_ctrlr_xfer(const struct spi_slave *slave, const void *dout,
 
 	if (CONFIG(SOC_AMD_COMMON_BLOCK_SPI_DEBUG))
 		printk(BIOS_DEBUG, "%s(%zx, %zx)\n", __func__, bytesout, bytesin);
-
-	if (!ENV_ROMSTAGE_OR_BEFORE && CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR1)) {
-		if (ENV_SMM && rom_armor_enforced) {
-			return psp_rom_armor_transfer(dout, bytesout, din, bytesin);
-		} else if (!ENV_SMM && rom_armor_enforced) {
-			printk(BIOS_ERR,
-			       "ROM Armor enforced but trying to access SPI in non-SMM mode!\n");
-			return -1;
-		}
-	}
 
 	/* First byte is cmd which cannot be sent through FIFO */
 	cmd = bufout[0];
@@ -378,73 +290,7 @@ static int fch_spi_flash_protect(const struct spi_flash *flash, const struct reg
 	return 0;
 }
 
-/* Block PSP SMI while operating on the SPI flash */
-static int spi_ctrlr_claim_bus(const struct spi_slave *slave)
-{
-	uint8_t reg8;
-
-	if (!CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR_DISABLED) && rom_armor_enforced) {
-		/*
-		 * ROM Armor 1 hooks into SPI controller code, no need to claim the bus.
-		 * Just let APMC calls/SMM handle SPI access through PSP.
-		 */
-		if (CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR1))
-			return 0;
-
-		printk(BIOS_ERR, "PSP ROM Armor is enforced, cannot access SPI flash directly\n");
-		return -1;
-	} else {
-		if (CONFIG(SOC_AMD_COMMON_BLOCK_PSP_SMI)) {
-			if (ENV_RAMSTAGE || ENV_SMM) {
-				reg8 = spi_read8(SPI_MISC_CNTRL);
-
-				if (reg8 & SPI_SEMAPHORE_BIOS_LOCKED)
-					return -1;
-			}
-			if (ENV_RAMSTAGE)
-				spi_write8(SPI_MISC_CNTRL, reg8 | SPI_SEMAPHORE_BIOS_LOCKED);
-		}
-	}
-
-	/* Set chip select line */
-	if (slave->cs <= 3) {
-		reg8 = spi_read8(SPI_ALT_CS_REG);
-		if ((reg8 & SPI_ALT_CS_REG_MASK) != slave->cs) {
-			reg8 &= ~SPI_ALT_CS_REG_MASK;
-			reg8 |= slave->cs;
-			spi_write8(SPI_ALT_CS_REG, reg8);
-		}
-	}
-
-	return 0;
-}
-
-/* Allow PSP SMI when not operating on the SPI flash */
-static void spi_ctrlr_release_bus(const struct spi_slave *slave)
-{
-	uint8_t reg8;
-
-	/* PSP handles the SPI access */
-	if (!CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR_DISABLED) && rom_armor_enforced)
-		return;
-
-	/* Reset chip select line */
-	reg8 = spi_read8(SPI_ALT_CS_REG);
-	if ((reg8 & SPI_ALT_CS_REG_MASK) != default_cs) {
-		reg8 &= ~SPI_ALT_CS_REG_MASK;
-		reg8 |= default_cs;
-		spi_write8(SPI_ALT_CS_REG, reg8);
-	}
-
-	if (ENV_RAMSTAGE && CONFIG(SOC_AMD_COMMON_BLOCK_PSP_SMI)) {
-		reg8 = spi_read8(SPI_MISC_CNTRL);
-		spi_write8(SPI_MISC_CNTRL, reg8 & ~SPI_SEMAPHORE_BIOS_LOCKED);
-	}
-}
-
 static const struct spi_ctrlr fch_spi_flash_ctrlr = {
-	.claim_bus = spi_ctrlr_claim_bus,
-	.release_bus = spi_ctrlr_release_bus,
 	.xfer_vector = xfer_vectors,
 	.max_xfer_size = SPI_FIFO_DEPTH,
 	.flags = SPI_CNTRLR_DEDUCT_CMD_LEN | SPI_CNTRLR_DEDUCT_OPCODE_LEN,

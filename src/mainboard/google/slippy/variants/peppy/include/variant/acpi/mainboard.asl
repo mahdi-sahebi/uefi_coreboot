@@ -8,7 +8,6 @@ Scope (\_SB.PCI0.I2C0)
 		Name (_DDN, "Elan Touchpad")
 		Name (_UID, 1)
                 Name (ISTP, 1) // Touchpad
-		External (ETPD, IntObj)
 
                 Name (_CRS, ResourceTemplate()
 		{
@@ -27,7 +26,7 @@ Scope (\_SB.PCI0.I2C0)
 
 		Method (_STA)
 		{
-			If (ETPD == 1) {
+			If (\S1EN == 1) {
 				Return (0xF)
 			} Else {
 				Return (0x0)
@@ -51,7 +50,6 @@ Scope (\_SB.PCI0.I2C0)
 		Name (_DDN, "Cypress Touchpad")
 		Name (_UID, 3)
 		Name (ISTP, 1) // Touchpad
-		External (CTPD, IntObj)
 
 		Name (_CRS, ResourceTemplate()
 		{
@@ -70,7 +68,7 @@ Scope (\_SB.PCI0.I2C0)
 
 		Method (_STA)
 		{
-			If (CTPD == 1) {
+			If (\S1EN == 1) {
 				Return (0xF)
 			} Else {
 				Return (0x0)

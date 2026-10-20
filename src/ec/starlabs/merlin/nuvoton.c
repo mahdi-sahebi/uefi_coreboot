@@ -5,47 +5,22 @@
 #include <device/pnp.h>
 #include <ec/acpi/ec.h>
 #include <option.h>
-#include <pc80/mc146818rtc.h>
-#include <halt.h>
+#include <pc80/keyboard.h>
 
-#include "ecdefs.h"
-#include "option_table.h"
 #include "ec.h"
-
+#include "ecdefs.h"
 
 uint16_t ec_get_version(void)
 {
 	return (ec_read(ECRAM_MAJOR_VERSION) << 8) | ec_read(ECRAM_MINOR_VERSION);
 }
 
-static uint8_t get_cmos_value(uint32_t bit, uint32_t length)
-{
-	uint32_t byte, byte_bit;
-	uint8_t uchar;
-
-	byte = bit / 8; // find the byte where the data starts
-	byte_bit = bit % 8; // find the bit in the byte where the data starts
-
-	uchar = cmos_read(byte); // load the byte
-	uchar >>= byte_bit;     // shift the bits to byte align
-	// clear unspecified bits
-	return uchar & ((1U << length) - 1);
-}
-
 static uint8_t get_ec_value_from_option(const char *name,
-					uint32_t fallback,
+					unsigned int fallback,
 					const uint8_t *lut,
-					size_t lut_size,
-					uint32_t cmos_start_bit,
-					uint32_t cmos_length)
+					size_t lut_size)
 {
-	unsigned int index;
-
-	if (cmos_start_bit != UINT_MAX)
-		index = get_cmos_value(cmos_start_bit, cmos_length);
-	else
-		index = get_uint_option(name, fallback);
-
+	unsigned int index = get_uint_option(name, fallback);
 	if (index >= lut_size)
 		index = fallback;
 	return lut[index];
@@ -81,6 +56,8 @@ static void merlin_init(struct device *dev)
 		return;
 	}
 
+	pc_keyboard_init(NO_AUX_DEVICE);
+
 	/*
 	 * Restore settings from CMOS into EC RAM:
 	 *
@@ -115,9 +92,7 @@ static void merlin_init(struct device *dev)
 		get_ec_value_from_option("kbl_timeout",
 					 0,
 					 kbl_timeout,
-					 ARRAY_SIZE(kbl_timeout),
-					 UINT_MAX,
-					 UINT_MAX));
+					 ARRAY_SIZE(kbl_timeout)));
 
 	/*
 	 * Fn Ctrl Reverse
@@ -137,9 +112,7 @@ static void merlin_init(struct device *dev)
 		get_ec_value_from_option("fn_ctrl_swap",
 					 0,
 					 fn_ctrl_swap,
-					 ARRAY_SIZE(fn_ctrl_swap),
-					 UINT_MAX,
-					 UINT_MAX));
+					 ARRAY_SIZE(fn_ctrl_swap)));
 
 	/*
 	 * Maximum Charge Level
@@ -161,9 +134,28 @@ static void merlin_init(struct device *dev)
 			get_ec_value_from_option("max_charge",
 						 0,
 						 max_charge,
-						 ARRAY_SIZE(max_charge),
-						 UINT_MAX,
-						 UINT_MAX));
+						 ARRAY_SIZE(max_charge)));
+
+	/*
+	 * Fast Charge
+	 *
+	 * Setting:	fast_charge
+	 *
+	 * Values:	Normal, Fast
+	 * Default:	Normal
+	 *
+	 */
+	const uint8_t fast_charge[] = {
+		CHARGE_RATE_NORMAL,
+		CHARGE_RATE_FAST
+	};
+
+	if (CONFIG(EC_STARLABS_FAST_CHARGE))
+		ec_write(ECRAM_FAST_CHARGE,
+			get_ec_value_from_option("fast_charge",
+						 0,
+						 fast_charge,
+						 ARRAY_SIZE(fast_charge)));
 
 	/*
 	 * Fan Mode
@@ -185,9 +177,7 @@ static void merlin_init(struct device *dev)
 			get_ec_value_from_option("fan_mode",
 						 0,
 						 fan_mode,
-						 ARRAY_SIZE(fan_mode),
-						 UINT_MAX,
-						 UINT_MAX));
+						 ARRAY_SIZE(fan_mode)));
 
 	/*
 	 * Function Lock
@@ -198,7 +188,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Locked
 	 *
 	 */
-#ifdef CMOS_VLEN_fn_lock_state
 	const uint8_t fn_lock_state[] = {
 		UNLOCKED,
 		LOCKED
@@ -208,10 +197,7 @@ static void merlin_init(struct device *dev)
 		get_ec_value_from_option("fn_lock_state",
 					 1,
 					 fn_lock_state,
-					 ARRAY_SIZE(fn_lock_state),
-					 CMOS_VSTART_fn_lock_state,
-					 CMOS_VLEN_fn_lock_state));
-#endif
+					 ARRAY_SIZE(fn_lock_state)));
 
 	/*
 	 * Trackpad State
@@ -222,7 +208,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Enabled
 	 *
 	 */
-#ifdef CMOS_VSTART_trackpad_state
 	const uint8_t trackpad_state[] = {
 		TRACKPAD_ENABLED,
 		TRACKPAD_DISABLED
@@ -232,10 +217,7 @@ static void merlin_init(struct device *dev)
 		get_ec_value_from_option("trackpad_state",
 					 0,
 					 trackpad_state,
-					 ARRAY_SIZE(trackpad_state),
-					 CMOS_VSTART_trackpad_state,
-					 CMOS_VLEN_trackpad_state));
-#endif
+					 ARRAY_SIZE(trackpad_state)));
 
 	/*
 	 * Keyboard Backlight Brightness
@@ -246,7 +228,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Low
 	 *
 	 */
-#ifdef CMOS_VSTART_kbl_brightness
 	const uint8_t kbl_brightness[] = {
 		KBL_ON,
 		KBL_OFF,
@@ -254,16 +235,18 @@ static void merlin_init(struct device *dev)
 		KBL_HIGH
 	};
 
-	ec_write(ECRAM_KBL_BRIGHTNESS,
-		get_ec_value_from_option("kbl_brightness",
-			CONFIG(EC_STARLABS_KBL_LEVELS) ? 2 : 0,
-			kbl_brightness,
-			ARRAY_SIZE(kbl_brightness),
-			CMOS_VSTART_kbl_brightness,
-			CMOS_VLEN_kbl_brightness));
-
-#endif
-
+	if (CONFIG(EC_STARLABS_KBL_LEVELS))
+		ec_write(ECRAM_KBL_BRIGHTNESS,
+			get_ec_value_from_option("kbl_brightness",
+						 2,
+						 kbl_brightness,
+						 ARRAY_SIZE(kbl_brightness)));
+	else
+		ec_write(ECRAM_KBL_BRIGHTNESS,
+			get_ec_value_from_option("kbl_brightness",
+						 0,
+						 kbl_brightness,
+						 ARRAY_SIZE(kbl_brightness)));
 
 	/*
 	 * Keyboard Backlight State

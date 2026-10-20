@@ -13,7 +13,6 @@ config SOC_MEDIATEK_MT8196
 	select MEDIATEK_DRAM_BLOB_FAST_INIT
 	select USE_CBMEM_DRAM_INFO
 	select SOC_MEDIATEK_COMMON
-	select DPM_BROADCAST
 	select FLASH_DUAL_IO_READ
 	select ARM64_USE_ARCH_TIMER
 	select PCI
@@ -40,35 +39,10 @@ config DPM_PM_FIRMWARE
 	help
 	  The file name of the MediaTek DPM PM firmware.
 
-config PI_IMG_FIRMWARE
-	string
-	default "pi_img.img"
-	help
-	  The file name of the MediaTek PI_IMG firmware. The main purpose of the pi_img is to
-	  pass various frequency and voltage scaling parameters and settings to MCUPM.
-
 config SSPM_FIRMWARE
 	string
 	default "sspm.bin"
 	help
 	  The file name of the MediaTek SSPM firmware.
-
-config SPM_FIRMWARE
-	string
-	default "spm_firmware.bin"
-	help
-	  The file name of the MediaTek SPM firmware.
-
-config GPUEB_FIRMWARE
-	string
-	default "gpueb_fw.img"
-	help
-	  The file name of the MediaTek GPUEB firmware.
-
-config MCUPM_FIRMWARE
-	string
-	default "mcupm.bin"
-	help
-	  The file name of the MediaTek MCUPM firmware.
 
 endif

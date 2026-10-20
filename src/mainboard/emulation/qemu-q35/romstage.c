@@ -29,5 +29,5 @@ void mainboard_romstage_entry(void)
 		printk(BIOS_WARNING, "%s: Unsupported TSEG size: 0x%x\n", __func__, CONFIG_SMM_TSEG_SIZE);
 	}
 
-	cbmem_recovery(false);
+	cbmem_recovery(0);
 }

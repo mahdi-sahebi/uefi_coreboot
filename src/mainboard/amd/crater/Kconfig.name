@@ -1,4 +1,0 @@
-comment "Crater"
-
-config BOARD_AMD_CRATER_RENOIR
-	bool "->  Crater for Renoir SoC"

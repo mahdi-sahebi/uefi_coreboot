@@ -70,8 +70,8 @@ into a format which can be used in coreboot's verb table `Go`
 `C`
 * __intelmetool__ - Dump interesting things about Management Engine
 even if hidden `C`
-* __intelp2m__ - Convert the inteltool register dump to gpio.h with
-GPIO configuration for porting coreboot to your motherboard. `Go`
+* __intelp2m__ - convert the configuration DW0/1 registers value from
+an inteltool dump to coreboot macros. `go`
 * __inteltool__ - Provides information about the Intel CPU/chipset
 hardware configuration (register contents, MSRs, etc). `C`
 * __intelvbttool__ - Parse VBT from VGA BIOS `C`
@@ -87,12 +87,9 @@ image for testing purposes and for working on firmware. `Bash`
 * __marvell__ - Add U-Boot boot loader for Marvell ARMADA38X `C`
 * __[me_cleaner](https://github.com/corna/me_cleaner)__ - Tool for
 partial deblobbing of Intel ME/TXE firmware images `Python`
-* __mediatek__
-	* check-pi-img.py - Check `PI_IMG` firmware. `Python3`
-	* gen-bl-img.py - Generate MediaTek bootloader header.
-`Python3`
 * __mma__ - Memory Margin Analysis automation tests `Bash`
 * __msrtool__ - Dumps chipset-specific MSR registers. `C`
+* __mtkheader__ - Generate MediaTek bootload header. `Python3`
 * __nvidia__ - nvidia blob parsers
 * __nvramtool__ - Reads and writes coreboot parameters and displaying
 information from the coreboot table in CMOS/NVRAM. `C`

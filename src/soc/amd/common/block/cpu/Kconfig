@@ -16,7 +16,6 @@ config SOC_AMD_COMMON_BLOCK_CAR
 config SOC_AMD_COMMON_BLOCK_NONCAR
 	bool
 	select RESERVED_PHYSICAL_ADDRESS_BITS_SUPPORT
-	select RESET_VECTOR_IN_RAM
 	help
 	  From family 17h on AMD CPUs/APUs don't use cache as RAM (CAR) any
 	  more, since the RAM initialization is already done by the PSP when
@@ -93,15 +92,6 @@ config SOC_AMD_COMMON_BLOCK_SMM
 	help
 	  Add common SMM relocation, finalization and handler functionality to
 	  the build.
-
-config SOC_AMD_COMMON_BLOCK_SMM_LOCK_SMM_BASE
-	bool
-	depends on SOC_AMD_COMMON_BLOCK_SMM
-	help
-	  Enable locking SMM_BASE MSR for platforms that support it. It will
-	  cause the code to set HWCR bit 31 to lock SMM_BASE MSR from changes.
-	  The bit is available since Zen architecture, earlier platforms must
-	  not select this option.
 
 config SOC_AMD_COMMON_LATE_SMM_LOCKING
 	bool

@@ -1,22 +1,32 @@
 junit.xml
 abuild*.xml
-# .config
-# .config.old
+.config
+.config.old
 defconfig
 .coreboot-version
 .xcompile
 .ccwrap
-build/
 coreboot-builds/
 coreboot-builds*/
+/build/
 generated/
 uefiextract
 UEFIExtract_NE_A68_x64_linux.zip
+
+# Large local firmware diagnostics and captures
+/logs/**/_main_fv.bin.extracted/
+/logs/**/*.rom
+/logs/**/*.avi
+/logs/**/*.webm
+/logs/**/*.m4v
+/logs/**/m4v
+/logs/**/*.zip
 
 site-local
 
 *.\#
 *.a
+*.bin
 *.debug
 !Kconfig.debug
 *.elf
@@ -37,10 +47,23 @@ tags
 .cache
 compile_commands.json
 .vscode/
-.clangd
 
+# Cross-compile toolkits
+xgcc/
+tarballs/
 
 # editor backup files, temporary files, IDE project files
 *~
 *.kate-swp
 *.kdev4
+
+# EDK II payload workspace — track source, exclude build artefacts
+payloads/external/edk2/workspace/Build/
+payloads/external/edk2/workspace/Conf/BuildEnv.sh
+!payloads/external/edk2/workspace/Conf/target.txt
+!payloads/external/edk2/workspace/Conf/build_rule.txt
+!payloads/external/edk2/workspace/Conf/tools_def.txt
+payloads/external/edk2/workspace/dasharo/Build/
+payloads/external/edk2/workspace/dasharo/.git/
+
+!.config

@@ -2,8 +2,6 @@
 
 // Thermal Zone
 
-#include "../thermal.h"
-
 External (\PPKG, MethodObj)
 
 Scope (\_TZ)
@@ -33,27 +31,19 @@ Scope (\_TZ)
 		// Threshold for OS to shutdown
 		Method (_CRT, 0, Serialized)
 		{
-			Return (CTOK (CRITICAL_TEMPERATURE))
+			Return (CTOK (\TCRT))
 		}
 
 		// Threshold for passive cooling
 		Method (_PSV, 0, Serialized)
 		{
-			Return (CTOK (PASSIVE_TEMPERATURE))
+			Return (CTOK (\TPSV))
 		}
 
 		// Processors used for passive cooling
 		Method (_PSL, 0, Serialized)
 		{
 			Return (\PPKG ())
-		}
-
-		// Initialize to the lowest cooling state (fan idle)
-		Method (_INI)
-		{
-			\FLVL = 4
-			\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN4_PWM
-			Notify (\_TZ.THRM, 0x81)
 		}
 
 		Method (_TMP, 0, Serialized)
@@ -63,59 +53,59 @@ Scope (\_TZ)
 
 			// Check for invalid readings
 			If ((Local0 == 255) || (Local0 == 0)) {
-				Return (CTOK (FAN2_THRESHOLD_ON))
+				Return (CTOK (\F2ON))
 			}
 
 			// PECI raw value is an offset from Tj_max
 			Local1 = 255 - Local0
 
 			// Handle values greater than Tj_max
-			If (Local1 >= MAX_TEMPERATURE) {
-				Return (CTOK (MAX_TEMPERATURE))
+			If (Local1 >= \TMAX) {
+				Return (CTOK (\TMAX))
 			}
 
 			// Subtract from Tj_max to get temperature
-			Local0 = MAX_TEMPERATURE - Local1
+			Local0 = \TMAX - Local1
 			Return (CTOK (Local0))
 		}
 
 		Method (_AC0) {
 			If (\FLVL <= 0) {
-				Return (CTOK (FAN0_THRESHOLD_OFF))
+				Return (CTOK (\F0OF))
 			} Else {
-				Return (CTOK (FAN0_THRESHOLD_ON))
+				Return (CTOK (\F0ON))
 			}
 		}
 
 		Method (_AC1) {
 			If (\FLVL <= 1) {
-				Return (CTOK (FAN1_THRESHOLD_OFF))
+				Return (CTOK (\F1OF))
 			} Else {
-				Return (CTOK (FAN1_THRESHOLD_ON))
+				Return (CTOK (\F1ON))
 			}
 		}
 
 		Method (_AC2) {
 			If (\FLVL <= 2) {
-				Return (CTOK (FAN2_THRESHOLD_OFF))
+				Return (CTOK (\F2OF))
 			} Else {
-				Return (CTOK (FAN2_THRESHOLD_ON))
+				Return (CTOK (\F2ON))
 			}
 		}
 
 		Method (_AC3) {
 			If (\FLVL <= 3) {
-				Return (CTOK (FAN3_THRESHOLD_OFF))
+				Return (CTOK (\F3OF))
 			} Else {
-				Return (CTOK (FAN3_THRESHOLD_ON))
+				Return (CTOK (\F3ON))
 			}
 		}
 
 		Method (_AC4) {
 			If (\FLVL <= 4) {
-				Return (CTOK (FAN4_THRESHOLD_OFF))
+				Return (CTOK (\F4OF))
 			} Else {
-				Return (CTOK (FAN4_THRESHOLD_ON))
+				Return (CTOK (\F4ON))
 			}
 		}
 
@@ -135,18 +125,14 @@ Scope (\_TZ)
 				}
 			}
 			Method (_ON)  {
-				If (! _STA ()) {
-					\FLVL = 0
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN0_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 0
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F0PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 			Method (_OFF) {
-				If (_STA ()) {
-					\FLVL = 1
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN1_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 1
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F1PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 		}
 
@@ -160,18 +146,14 @@ Scope (\_TZ)
 				}
 			}
 			Method (_ON)  {
-				If (! _STA ()) {
-					\FLVL = 1
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN1_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 1
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F1PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 			Method (_OFF) {
-				If (_STA ()) {
-					\FLVL = 2
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN2_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 2
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F2PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 		}
 
@@ -185,18 +167,14 @@ Scope (\_TZ)
 				}
 			}
 			Method (_ON)  {
-				If (! _STA ()) {
-					\FLVL = 2
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN2_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 2
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F2PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 			Method (_OFF) {
-				If (_STA ()) {
-					\FLVL = 3
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN3_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 3
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F3PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 		}
 
@@ -210,18 +188,14 @@ Scope (\_TZ)
 				}
 			}
 			Method (_ON)  {
-				If (! _STA ()) {
-					\FLVL = 3
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN3_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 3
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F3PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 			Method (_OFF) {
-				If (_STA ()) {
-					\FLVL = 4
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN4_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 4
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F4PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 		}
 
@@ -235,16 +209,14 @@ Scope (\_TZ)
 				}
 			}
 			Method (_ON)  {
-				If (! _STA ()) {
-					\FLVL = 4
-					\_SB.PCI0.LPCB.SIO.ENVC.F3PS = FAN4_PWM
-					Notify (\_TZ.THRM, 0x81)
-				}
+				\FLVL = 4
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F4PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 			Method (_OFF) {
-				// FAN4 is the minimum cooling state (idle/lowest fan speed)
-				// There is no lower state to transition to, so _OFF is a no-op
-				// to maintain proper ACPI power resource state machine semantics
+				\FLVL = 4
+				\_SB.PCI0.LPCB.SIO.ENVC.F3PS = \F4PW
+				Notify (\_TZ.THRM, 0x81)
 			}
 		}
 

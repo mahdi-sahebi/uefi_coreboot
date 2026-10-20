@@ -1,7 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 /* How much nesting do we support? */
-#define ACPIGEN_LENSTACK_SIZE 15
+#define ACPIGEN_LENSTACK_SIZE 10
 
 /* If you need to change this, change acpigen_pop_len too */
 #define ACPIGEN_RSVD_PKGLEN_BYTES	3
@@ -1583,30 +1583,11 @@ void acpigen_write_if_and(uint8_t arg1, uint8_t arg2)
  * Generates ACPI code for checking if operand1 and operand2 are equal.
  * Both operand1 and operand2 are ACPI ops.
  *
- * If (Lequal (op1, op2))
+ * If (Lequal (op,1 op2))
  */
 void acpigen_write_if_lequal_op_op(uint8_t op1, uint8_t op2)
 {
 	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(op1);
-	acpigen_emit_byte(op2);
-}
-
-/*
- * Generates ACPI code for checking if operand1 and operand2 are not equal.
- * Both operand1 and operand2 are ACPI ops.
- *
- * If (Lnotequal (op1, op2))
- *
- * This is equivalent to
- *
- * If (Lnot (Lequal (op1, op2)))
- */
-void acpigen_write_if_lnotequal_op_op(uint8_t op1, uint8_t op2)
-{
-	acpigen_write_if();
-	acpigen_emit_byte(LNOT_OP);
 	acpigen_emit_byte(LEQUAL_OP);
 	acpigen_emit_byte(op1);
 	acpigen_emit_byte(op2);
@@ -1641,25 +1622,6 @@ void acpigen_write_if_lequal_op_int(uint8_t op, uint64_t val)
 }
 
 /*
- * Generates ACPI code for checking if operand1 and operand2 are not equal, where,
- * operand1 is ACPI op and operand2 is an integer.
- *
- * If (Lnotequal (op, val))
- *
- * This is equivalent to
- *
- * If (Lnot (Lequal (op, val)))
- */
-void acpigen_write_if_lnotequal_op_int(uint8_t op, uint64_t val)
-{
-	acpigen_write_if();
-	acpigen_emit_byte(LNOT_OP);
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(op);
-	acpigen_write_integer(val);
-}
-
-/*
  * Generates ACPI code for checking if operand is greater than the value, where,
  * operand is ACPI op and val is an integer.
  *
@@ -1682,25 +1644,6 @@ void acpigen_write_if_lgreater_op_int(uint8_t op, uint64_t val)
 void acpigen_write_if_lequal_namestr_int(const char *namestr, uint64_t val)
 {
 	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_namestring(namestr);
-	acpigen_write_integer(val);
-}
-
-/*
- * Generates ACPI code for checking if operand1 and operand2 are not equal, where,
- * operand1 is namestring and operand2 is an integer.
- *
- * If (Lnotequal ("namestr", val))
- *
- * * This is equivalent to
- *
- * If (Lnot (Lequal ("namestr", val)))
- */
-void acpigen_write_if_lnotequal_namestr_int(const char *namestr, uint64_t val)
-{
-	acpigen_write_if();
-	acpigen_emit_byte(LNOT_OP);
 	acpigen_emit_byte(LEQUAL_OP);
 	acpigen_emit_namestring(namestr);
 	acpigen_write_integer(val);
@@ -1772,8 +1715,6 @@ void acpigen_write_to_integer_from_namestring(const char *source, uint8_t dst_op
 	acpigen_emit_byte(dst_op);
 }
 
-/* The initializer byte array 'arr' is optional. When 'arr' is NULL, the AML interpreter will
-   create a 0-initialized byte buffer */
 void acpigen_write_byte_buffer(uint8_t *arr, size_t size)
 {
 	size_t i;
@@ -1782,10 +1723,8 @@ void acpigen_write_byte_buffer(uint8_t *arr, size_t size)
 	acpigen_write_len_f();
 	acpigen_write_integer(size);
 
-	if (arr != NULL) {
-		for (i = 0; i < size; i++)
-			acpigen_emit_byte(arr[i]);
-	}
+	for (i = 0; i < size; i++)
+		acpigen_emit_byte(arr[i]);
 
 	acpigen_pop_len();
 }
@@ -2462,11 +2401,6 @@ static void _create_field(uint8_t aml_op, uint8_t srcop, size_t byte_offset, con
 	acpigen_emit_namestring(name);
 }
 
-void acpigen_write_create_bit_field(uint8_t op, size_t bit_offset, const char *name)
-{
-	_create_field(CREATE_BIT_OP, op, bit_offset, name);
-}
-
 void acpigen_write_create_byte_field(uint8_t op, size_t byte_offset, const char *name)
 {
 	_create_field(CREATE_BYTE_OP, op, byte_offset, name);
@@ -2494,11 +2428,6 @@ static void _create_buffer_field(uint8_t aml_op, const char *src_buf, size_t byt
 	acpigen_emit_namestring(src_buf);
 	acpigen_write_integer(byte_offset);
 	acpigen_emit_namestring(field);
-}
-
-void acpigen_write_create_buffer_bit_field(const char *src_buf, size_t bit_offset, const char *field)
-{
-	_create_buffer_field(CREATE_BIT_OP, src_buf, bit_offset, field);
 }
 
 void acpigen_write_create_buffer_byte_field(const char *src_buf, size_t byte_offset, const char *field)

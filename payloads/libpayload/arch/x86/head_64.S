@@ -70,7 +70,7 @@ _entry:
 	movl %eax, cb_header_ptr
 
 	call init_page_table
-	movl $pml4e, %eax
+	movl $pm4le, %eax
 
 	/* load identity mapped page tables */
 	movl %eax, %cr3
@@ -107,7 +107,7 @@ _init64:
 	movq %rdi, cb_header_ptr
 
 	call init_page_table
-	movq $pml4e, %rax
+	movq $pm4le, %rax
 
 	/* load identity mapped page tables */
 	movq %rax, %cr3

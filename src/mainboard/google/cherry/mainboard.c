@@ -53,10 +53,11 @@ bool mainboard_needs_pcie_init(void)
 	return false;
 }
 
-static void configure_backlight(bool enable)
+/* Set up backlight control pins as output pin and power-off by default */
+static void configure_backlight(void)
 {
-	gpio_output(GPIO_AP_EDP_BKLTEN, enable);
-	gpio_output(GPIO_BL_PWM_1V8, enable);
+	gpio_output(GPIO_AP_EDP_BKLTEN, 0);
+	gpio_output(GPIO_BL_PWM_1V8, 0);
 }
 
 static void power_on_panel(void)

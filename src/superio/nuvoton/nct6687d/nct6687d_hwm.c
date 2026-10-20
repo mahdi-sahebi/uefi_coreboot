@@ -8,7 +8,7 @@
 
 uint16_t nct6687d_hwm_base = 0;
 
-static bool check_cond(const bool cond, const char *error)
+static bool check_cond(const bool cond, const char* error)
 {
 	if (!cond)
 		printk(BIOS_ERR, "NCT6687D: %s\n", error);
@@ -16,7 +16,7 @@ static bool check_cond(const bool cond, const char *error)
 	return !cond;
 }
 
-static inline void print_status_bit(const char *status, const bool cond)
+static inline void print_status_bit(const char* status, const bool cond)
 {
 	printk(BIOS_DEBUG, "\t%-45s: %s\n", status, cond ? "yes" : "no");
 }
@@ -127,7 +127,7 @@ static void print_last_err(uint8_t error_code)
 		printk(debug_level, "PID control invalid configuration\n");
 		break;
 	default:
-		printk(debug_level, "Unknown fan configuration error %02x\n", last_err_code);
+		printk(debug_level, "Unkown fan configuration error %02x\n", last_err_code);
 		break;
 	}
 }
@@ -176,21 +176,7 @@ static void lock_fan_register_set_and_check(uint8_t error_code)
 	}
 }
 
-static void init_smbus_master(const struct nct6687d_smbus_sensor *smbus_sensor)
-{
-	hwm_reg_write(SMBUS_MASTER_CFG2_REG, 0x04);
-	hwm_reg_write(SMBUS_MASTER_BAUD_RATE_SEL_REG, SMB_MASTER_BAUD_100K);
-	if (smbus_sensor->dev_addr && smbus_sensor->dev_cmd) {
-		hwm_reg_write(SMBUS_MASTER_DEV_ADDR_REG, smbus_sensor->dev_addr);
-		hwm_reg_write(SMBUS_MASTER_CMD_REG, smbus_sensor->dev_cmd);
-	}
-
-	hwm_reg_write(SMBUS_MASTER_PROTOCOL_SEL_REG, smbus_sensor->protocol);
-
-	hwm_reg_set_bits(SMBUS_MASTER_CFG1_REG, SMB_MASTER_EN);
-}
-
-static void init_pch_smbus_sensor(const struct nct6687d_smbus_sensor *smbus_sensor)
+static void init_pch_smbus_sensor(const struct nct6687d_pch_smbus_sensor *smbus_sensor)
 {
 	if (!smbus_sensor->sensor_addr || !smbus_sensor->sensor_cmd) {
 		printk(BIOS_ERR, "NCT6687D SMBus sensor CMD or ADDR missing!\n");
@@ -198,7 +184,9 @@ static void init_pch_smbus_sensor(const struct nct6687d_smbus_sensor *smbus_sens
 	}
 
 	/* Enable SMBUS first */
-	init_smbus_master(smbus_sensor);
+	hwm_reg_write(SMBUS_MASTER_CFG2_REG, 0x04);
+	hwm_reg_write(SMBUS_MASTER_BAUD_RATE_SEL_REG, SMB_MASTER_BAUD_100K);
+	hwm_reg_set_bits(SMBUS_MASTER_CFG1_REG, SMB_MASTER_EN);
 
 	hwm_reg_and_or(PCH_THERMAL_DATA_CFG_REG, ~PCH_BAUD_SEL_MASK,
 		       smbus_sensor->baud_rate & PCH_BAUD_SEL_MASK);
@@ -215,30 +203,10 @@ static void init_pch_smbus_sensor(const struct nct6687d_smbus_sensor *smbus_sens
 	hwm_reg_write(PCH_THERMAL_CMD_REG, smbus_sensor->sensor_cmd);
 }
 
-static void init_sb_tsi_smbus_sensor(const struct nct6687d_smbus_sensor *smbus_sensor)
-{
-	if (!smbus_sensor->sensor_addr || !smbus_sensor->sensor_cmd) {
-		printk(BIOS_ERR, "NCT6687D SMBus sensor CMD or ADDR missing!\n");
-		return;
-	}
-
-	/* Enable SMBUS first */
-	init_smbus_master(smbus_sensor);
-
-	hwm_reg_and_or(TSI_THERMAL_DATA_CFG_REG, ~TSI_BAUD_SEL_MASK,
-		       smbus_sensor->baud_rate & TSI_BAUD_SEL_MASK);
-	hwm_reg_and_or(TSI_THERMAL_DATA_CFG_REG, ~TSI_PORT_SEL_MASK,
-		       TSI_THERMAL_PORT(smbus_sensor->port_sel) & TSI_PORT_SEL_MASK);
-
-	hwm_reg_write(PCH_DEVICE_ADDR_REG, smbus_sensor->sensor_addr);
-	hwm_reg_write(PCH_THERMAL_CMD_REG, smbus_sensor->sensor_cmd);
-}
-
 static void init_sensors(const struct superio_nuvoton_nct6687d_config *conf)
 {
 	unsigned int i;
 	bool peci_en = false;
-	bool sb_tsi_en = false;
 	const enum nct6687d_sensor_src_select *sensors = conf->sensors;
 
 	if (!unlock_fan_register_set()) {
@@ -253,8 +221,6 @@ static void init_sensors(const struct superio_nuvoton_nct6687d_config *conf)
 
 	for (i = 0; i < MAX_NUM_SENSORS; i++) {
 		hwm_reg_write(SENSOR_CFG_REG(i), sensors[i] & SENSOR_SRC_SEL_MASK);
-		if (conf->sensor_filter_en[i])
-			hwm_reg_and_or(SENSOR_CFG_REG(i), (uint8_t)~FILTER_EN, FILTER_EN);
 
 		if (sensors[i] >= PECI_AGENT0_DOMAIN0 &&
 		    sensors[i] <= PECI_AGENT3_DOMAIN1) {
@@ -263,10 +229,7 @@ static void init_sensors(const struct superio_nuvoton_nct6687d_config *conf)
 			peci_en = true;
 		}
 
-		if (sensors[i] >= AMD_TSI_ADDRESS_0x90 &&
-		    sensors[i] <= AMD_TSI_ADDRESS_0x9D)
-			sb_tsi_en = true;
-
+		/* Only PCH SMBus sensor supported right now */
 		if (sensors[i] >= PCH_CPU && sensors[i] <= PCH_DIMM3 &&
 		    i == conf->smbus_sensor.sensor_idx &&
 		    conf->smbus_sensor.sensor_en) {
@@ -279,9 +242,6 @@ static void init_sensors(const struct superio_nuvoton_nct6687d_config *conf)
 			       conf->peci_speed & PECI_SPEED_SEL_MASK);
 		hwm_reg_set_bits(PECI_CFG_REG, PECI_AGENT_INIT | PECI_EN);
 	}
-
-	if (sb_tsi_en && conf->smbus_sensor.sensor_en)
-		init_sb_tsi_smbus_sensor(&conf->smbus_sensor);
 
 	lock_fan_register_set_and_check(FAN_NO_ERROR);
 }
@@ -319,12 +279,12 @@ static bool intel_dts_sensor_config_check(const struct nct6687d_dts_sensor_confi
 	unsigned int i;
 
 	failure |= check_cond(dts->temp_end > dts->temp_start,
-			      "DTS Sensor Temperature End Point should be > "
-			      "Temperature End Point");
+			      "DTS Sensor Temperture End Point should be > "
+			      "Temperture End Point");
 	failure |= check_cond(dts->temp_start <= 127,
-			      "DTS Sensor Temperature Start Point should be <= 127");
+			      "DTS Sensor Temperture Start Point should be <= 127");
 	failure |= check_cond(dts->temp_end <= 127,
-			      "DTS Sensor Temperature End Point should be <= 127");
+			      "DTS Sensor Temperture End Point should be <= 127");
 
 	if (dts->peci_adjust) {
 		failure |= check_cond(dts->peci_agent_idx < 8,
@@ -601,7 +561,7 @@ static void set_fan_pins_and_mode(const struct nct6687d_fan_config *fan, unsigne
 {
 	enum nct6687d_fan_mode mode = fan->mode;
 
-	/* FAN_IGNORE takes the mapping of manual mode to detect uninitialized fans */
+	/* FAN_IGNORE takes the mapping of manual mode to detect unitialized fans */
 	if (mode == FAN_MODE_MANUAL)
 		mode = 0;
 
@@ -906,7 +866,7 @@ static void init_one_fan(const struct superio_nuvoton_nct6687d_config *conf, uns
 {
 	const struct nct6687d_fan_config *fan = &conf->fans[idx - 1];
 
-	switch (fan->mode) {
+	switch(fan->mode) {
 	case FAN_THERMAL_CRUISE:
 		printk(BIOS_DEBUG, "Initializing Thermal Cruise for FAN%d\n", idx);
 		init_thermal_cruise_fan(conf, idx);

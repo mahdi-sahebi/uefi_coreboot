@@ -86,7 +86,7 @@ config EDK2_REPOSITORY
 
 config EDK2_TAG_OR_REV
 	string "Insert a commit's SHA-1 or a branch name"
-	default "origin/uefipayload_2508" if EDK2_REPO_MRCHROMEBOX && !DASHARO
+	default "origin/uefipayload_2408" if EDK2_REPO_MRCHROMEBOX && !DASHARO
 	default "origin/universalpayload" if EDK2_UNIVERSAL_PAYLOAD
 	default "origin/master" if EDK2_REPO_OFFICIAL
 	default "" if EDK2_REPO_CUSTOM
@@ -215,7 +215,7 @@ config EDK2_CPU_TIMER_LIB
 
 config EDK2_FOLLOW_BGRT_SPEC
 	bool "Center logo 38.2% from the top of screen"
-	depends on !EDK2_REPO_OFFICIAL
+	depends on EDK2_REPO_MRCHROMEBOX
 	default n
 	help
 	  Follow the BGRT Specification implemented by Microsoft and
@@ -239,18 +239,10 @@ config EDK2_HAVE_EFI_SHELL
 
 config EDK2_PRIORITIZE_INTERNAL
 	bool "Prioritize internal boot devices"
-	depends on !EDK2_REPO_OFFICIAL
+	depends on EDK2_REPO_MRCHROMEBOX
 	default y
 	help
 	  Prioritize internal boot devices over external devices
-
-config EDK2_LOAD_OPTION_ROMS
-	bool "Load and Execute OpROMs on PCIe devices"
-	depends on !EDK2_REPO_OFFICIAL
-	default n
-	help
-	  Load and execute OpROMs on PCIe devices.
-	  Select this option to support use of an external dGPU.
 
 config EDK2_PS2_SUPPORT
 	bool "Support PS/2 Keyboards"
@@ -283,7 +275,7 @@ config EDK2_FTDI_USB_UART_SUPPORT
 
 config EDK2_SECURE_BOOT_SUPPORT
 	bool "Enable UEFI Secure Boot support"
-	depends on !EDK2_REPO_OFFICIAL && SMMSTORE_V2
+	depends on EDK2_REPO_MRCHROMEBOX && SMMSTORE_V2
 	default y if EDK2_REPO_MRCHROMEBOX && SMMSTORE_V2
 	help
 	  Select this option to enable UEFI SecureBoot support in edk2.
@@ -291,22 +283,14 @@ config EDK2_SECURE_BOOT_SUPPORT
 
 config EDK2_GOP_DRIVER
 	bool "Add a GOP driver to the Tianocore build"
-	depends on INTEL_GMA_ADD_VBT && NO_GFX_INIT && !EDK2_REPO_OFFICIAL
+	depends on INTEL_GMA_ADD_VBT && NO_GFX_INIT && EDK2_REPO_MRCHROMEBOX
 	default y if INTEL_GMA_ADD_VBT && NO_GFX_INIT && EDK2_REPO_MRCHROMEBOX
 	help
 	  Select this option to have edk2 use an external GOP driver for display init.
 
-config EDK2_AMD_GOP_DRIVER
-	bool "Add an AMD GOP driver to the Tianocore build"
-	depends on VGA_BIOS && NO_GFX_INIT && !EDK2_REPO_OFFICIAL && !EDK2_DISABLE_OPTION_ROMS
-	default y if VGA_BIOS && NO_GFX_INIT && EDK2_REPO_MRCHROMEBOX
-	help
-	  Select this option to have edk2 use an external GOP driver for AMD display init.
-
 config EDK2_GOP_FILE
 	string "GOP driver file"
-	depends on EDK2_GOP_DRIVER || EDK2_AMD_GOP_DRIVER
-	default "AmdGopDriver.efi" if EDK2_AMD_GOP_DRIVER
+	depends on EDK2_GOP_DRIVER
 	default "IntelGopDriver.efi"
 	help
 	  The name of the GOP driver file passed to edk2.
@@ -325,6 +309,24 @@ config EDK2_DISABLE_TPM
 	help
 	  Select this option to disable TPM support in edk2. This is necessary to avoid boot
 	  hangs on some boards with a CR50 TPM, particularly those with an AMD Zen SoC.
+
+config EDK2_UFS_ENABLE
+	bool "Enable UFS DXE driver in edk2"
+	depends on EDK2_REPO_MRCHROMEBOX
+	default n
+	help
+	  Select this option to enable the UFS DXE driver in MrChromebox's fork of edk2.
+	  It is needed for boards with UFS storage, but can cause issues with other boards,
+	  so should only be enabled when needed.
+
+config EDK2_PCO_MMIO_EMMC
+	bool "Enable MMIO eMMC driver for AMD Picasso boards in edk2"
+	depends on EDK2_REPO_MRCHROMEBOX
+	default n
+	help
+	  Select this option to enable the MMIO eMMC DXE driver in MrChromebox's fork of edk2.
+	  It is needed for AMD Picasso boards with eMMC storage, but will conflict with the
+	  PCI-based eMMC driver, so should only be enabled for AMD Picasso boards.
 
 config EDK2_USE_LAPIC_TIMER
 	bool "Use LAPIC timer instead of HPET"
@@ -345,23 +347,5 @@ config EDK2_CUSTOM_BUILD_PARAMS
 	  additional build options that should have been upstreamed but have not.
 
 	  This option can support both macros `-D` and Pcds `--pcd`.
-
-config EDK2_ENABLE_IPXE
-	bool "Include iPXE in edk2 payload"
-	depends on !EDK2_REPO_OFFICIAL
-	default n
-	select PXE
-	help
-	  Instructs coreboot build system to build iPXE EFI target and include
-	  it in the EDK2 payload.
-
-config EDK2_IPXE_OPTION_NAME
-	string "iPXE option name"
-	depends on EDK2_ENABLE_IPXE
-	default "iPXE Network Boot"
-	help
-	  Configures how the iPXE boot option should be displayed in boot menu
-	  of EDK2 Payload. This name will be passed as PCD to the EDK2 build
-	  system.
 
 endif

@@ -8,7 +8,7 @@
 
 #define PCH_P2SB_EPMASK0		0x220
 
-extern const struct device_operations p2sb_ops;
-extern const struct device_operations p2sb2_ops;
+extern struct device_operations pcd_p2sb_ops;
+extern struct device_operations pcd_p2sb_2_ops;
 
 #endif

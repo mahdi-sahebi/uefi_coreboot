@@ -37,6 +37,8 @@ const struct spmi_device spmi_dev[] = {
 	},
 };
 
+const size_t spmi_dev_cnt = ARRAY_SIZE(spmi_dev);
+
 int spmi_config_master(void)
 {
 	/* Software reset */
@@ -56,9 +58,4 @@ int spmi_config_master(void)
 	write32(&mtk_spmi_mst->rcs_ctrl, 0x15);
 
 	return 0;
-}
-
-size_t spmi_dev_cnt(void)
-{
-	return ARRAY_SIZE(spmi_dev);
 }

@@ -32,9 +32,8 @@ PAYLOAD_NAME=DasharoPayloadPkg
 ifeq ($(CONFIG_EDK2_UEFIPAYLOAD),y)
 BUILD_STR += -p $(PAYLOAD_NAME)/$(PAYLOAD_NAME).dsc
 endif
-BUILD_STR += -t GCC
+BUILD_STR += -t COREBOOT
 BUILD_STR += -D BOOTLOADER=COREBOOT
-BUILD_STR += -D EDK2_WORKSPACE=$(WORKSPACE)
 ifneq ($(V),1)
 BUILD_STR += -q
 ifeq ($(CONFIG_EDK2_UEFIPAYLOAD),y)
@@ -69,6 +68,10 @@ ifneq ($(CONFIG_EDK2_CPU_TIMER_LIB),y)
 BUILD_STR += -D CPU_TIMER_LIB_ENABLE=FALSE
 else
 BUILD_STR += --pcd gUefiCpuPkgTokenSpaceGuid.PcdCpuCoreCrystalClockFrequency=$(CONFIG_CPU_XTAL_HZ)
+endif
+# DISABLE_SERIAL_TERMINAL	= FALSE
+ifneq ($(CONFIG_EDK2_SERIAL_SUPPORT),y)
+BUILD_STR += -D DISABLE_SERIAL_TERMINAL=TRUE
 endif
 # VARIABLE_SUPPORT		= EMU
 # MAX_VARIABLE_SIZE		= 0x10000
@@ -116,40 +119,27 @@ endif
 #ifeq ($(CONFIG_PCIEXP_SUPPORT_RESIZABLE_BARS), y)
 #BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdPcieResizableBarSupport=TRUE
 #endif
-# Preserve VRT bit in RTC_ADDRESS_REGISTER_D
-# AMD SoC sets this every 1.024msec, but the generic code assumes it's read-only and
-# hardcoded to 1 like on every Intel chipset since Intel ICH.
-ifeq ($(CONFIG_SOC_AMD_COMMON_BLOCK_PSP_GEN2), y)
-BUILD_STR += --pcd gPcAtChipsetPkgTokenSpaceGuid.PcdInitialValueRtcRegisterD=0x80
-endif
 # CAPSULE_SUPPORT		= FALSE
 # CAPSULE_MAIN_FW_GUID	=
-ifeq ($(CONFIG_DRIVERS_EFI_UPDATE_CAPSULES),y)
+ifneq ($(CONFIG_DRIVERS_EFI_UPDATE_CAPSULES),)
 BUILD_STR += -D CAPSULE_SUPPORT=TRUE
 BUILD_STR += -D CAPSULE_MAIN_FW_GUID=$(CONFIG_DRIVERS_EFI_MAIN_FW_GUID)
-ifeq ($(CONFIG_EDK2_CAPSULE_DOES_NOT_SURVIVE_RESET),y)
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSupportUpdateCapsuleReset=FALSE
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdCapsuleOnDiskSupport=TRUE
-# Ensure the maximum capsule size on disk is big enough to hold whole image
-# Currently we give a safe value of 1.5 x CONFIG_ROM_SZE
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdMaxSizeNonPopulateCapsule=$(CONFIG_EDK2_CAPSULE_ON_DISK_SIZE)
-endif
-ifeq ($(CONFIG_EDK2_CAPSULES_V2),y)
-BUILD_STR += -D CAPSULES_V2=TRUE
-# Ensure the maximum capsule size on disk is big enough to hold whole image
-# Currently we give a safe value of 1.5 x CONFIG_ROM_SZE
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdMaxSizeNonPopulateCapsule=$(CONFIG_EDK2_CAPSULE_ON_DISK_SIZE)
-endif
 endif
 # QEMU_PLATFORM			= FALSE
 ifneq ($(CONFIG_QEMU_PLATFORM),)
 BUILD_STR += -D QEMU_PLATFORM=TRUE
 endif
 
+# GRAPHICAL_CAPSULE_PROGRESS	= TRUE
+# Decides if capsule update progress bar should use Graphics or Text based lib
+ifneq ($(CONFIG_EDK2_GRAPHICAL_CAPSULE_PROGRESS),y)
+BUILD_STR += -D GRAPHICAL_CAPSULE_PROGRESS=FALSE
+endif
+
 #
-# One or more downstream edk2 repositories support the following additional options:
+# The MrChromebox repository has the following addition options:
 #
-ifeq ($(CONFIG_EDK2_REPO_OFFICIAL),)
+ifeq ($(CONFIG_EDK2_REPO_MRCHROMEBOX),y)
 
 # FOLLOW_BGRT_SPEC		= FALSE
 ifeq ($(CONFIG_EDK2_FOLLOW_BGRT_SPEC),y)
@@ -171,13 +161,17 @@ endif
 ifeq ($(CONFIG_EDK2_DISABLE_TPM),y)
 BUILD_STR += -D TPM_ENABLE=FALSE
 endif
+# UFS_ENABLE			= FALSE
+ifeq ($(CONFIG_EDK2_UFS_ENABLE),y)
+BUILD_STR += -D UFS_ENABLE=TRUE
+endif
+# USE_PCO_MMIO_EMMC		= FALSE
+ifeq ($(CONFIG_EDK2_PCO_MMIO_EMMC),y)
+BUILD_STR += -D USE_PCO_MMIO_EMMC=TRUE
+endif
 # TIMER_SUPPORT			= HPET
 ifeq ($(CONFIG_EDK2_USE_LAPIC_TIMER),y)
 BUILD_STR += -D TIMER_SUPPORT=LAPIC
-endif
-# LOAD_OPTION_ROMS		= FALSE
-ifeq ($(CONFIG_EDK2_LOAD_OPTION_ROMS),y)
-BUILD_STR += -D LOAD_OPTION_ROMS=TRUE
 endif
 
 #
@@ -192,14 +186,14 @@ endif
 ifneq ($(CONFIG_EDK2_ABOVE_4G_MEMORY),y)
 BUILD_STR += -D ABOVE_4G_MEMORY=FALSE
 endif
-# SERIAL_TERMINAL	= FALSE
-ifeq ($(CONFIG_EDK2_SERIAL_SUPPORT),y)
-BUILD_STR += -D DISABLE_SERIAL_TERMINAL=FALSE
-BUILD_STR += -D SERIAL_TERMINAL=TRUE
 # PcdSerialRedirectionDefaultState	= FALSE
 ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION_DEFAULT_ENABLE),y)
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirectionDefaultState=TRUE
 endif
+# SERIAL_TERMINAL	= FALSE
+ifeq ($(CONFIG_EDK2_SERIAL_SUPPORT),y)
+BUILD_STR += -D DISABLE_SERIAL_TERMINAL=FALSE
+BUILD_STR += -D SERIAL_TERMINAL=TRUE
 ifeq ($(CONFIG_EDK2_HAVE_2ND_UART),y)
 ifeq ($(CONFIG_EDK2_DUAL_SERIAL_DEBUG),y)
 BUILD_STR += -D GX_DUAL_SERIAL_DEBUG=TRUE
@@ -397,7 +391,7 @@ BUILD_STR += -D BOOT_MENU_KEY=$(CONFIG_EDK2_BOOT_MENU_KEY)
 BUILD_STR += -D SETUP_MENU_KEY=$(CONFIG_EDK2_SETUP_MENU_KEY)
 
 # PcdShowLockBios               = FALSE
-ifneq ($(CONFIG_EDK2_DISABLE_BIOS_LOCK),y)
+ifeq ($(CONFIG_EDK2_ENABLE_BIOS_LOCK),y)
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdShowLockBios=TRUE
 endif
 # PcdShowSmmBwp                 = FALSE
@@ -461,19 +455,8 @@ endif
 ifneq ($(CONFIG_EDK2_FUM_AUTO_IPXE_BOOT),y)
 BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdFumAutoIpxeBoot=FALSE
 endif
-# USE_AMD_PLATFORM_GOP = FALSE
-ifeq ($(CONFIG_EDK2_AMD_GOP_DRIVER),y)
-BUILD_STR += -D USE_AMD_PLATFORM_GOP=TRUE
-BUILD_STR += --pcd gDasharoPayloadPkgTokenSpaceGuid.AmdVbiosOptionRomVendorId=$(CONFIG_EDK2_VGA_BIOS_VENDOR_ID)
-BUILD_STR += --pcd gDasharoPayloadPkgTokenSpaceGuid.AmdVbiosOptionRomDeviceId=$(CONFIG_EDK2_VGA_BIOS_DEVICE_ID)
+
 endif
-
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVersionString=$(CONFIG_EDK2_FW_VERSION)
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareVendor=$(CONFIG_EDK2_FW_VENDOR)
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareReleaseDateString=$(CONFIG_EDK2_FW_RELEASE_DATE)
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdFirmwareRevision=$(CONFIG_EDK2_FW_REVISION)
-
-endif # !CONFIG_EDK2_REPO_OFFICIAL
 
 #
 # EDKII has the below PCDs that are relevant to coreboot:
@@ -484,22 +467,7 @@ BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=0
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=0
-else
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutRow=40
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdConOutColumn=128
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutRow=40
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSetupConOutColumn=128
 endif
-
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdAcpiDefaultOemId="COREv4"
-BUILD_STR += --pcd gUefiCpuPkgTokenSpaceGuid.PcdFirstTimeWakeUpAPsBySipi=FALSE
-
-BUILD_STR += --pcd gUefiCpuPkgTokenSpaceGuid.PcdCpuApInitTimeOutInMicroSeconds=$(CONFIG_EDK2_AP_INIT_TIMEOUT)
-BUILD_STR += -D MAX_LOGICAL_PROCESSORS=$(CONFIG_EDK2_MAX_CPUS)
-
-# coreboot produces SMBIOS 3.0.0 tables
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosVersion=0x0308
-BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSmbiosDocRev=0x0
 
 bootloader = $(word 8,$(subst /, ,$(BUILD_STR)))
 
@@ -535,27 +503,18 @@ $(EDK2_PATH): $(WORKSPACE)
 	fi
 	cd $(EDK2_PATH); \
 		git checkout -- MdeModulePkg/Logo/Logo.bmp > /dev/null 2>&1 || true; \
-		if [ "$(CONFIG_EDK2_CAPSULES_V2)" = y ]; then \
-			git checkout -- DasharoPayloadPkg/CapsuleSplashDxe/Logo.bmp > /dev/null 2>&1 || true; \
-			git checkout -- DasharoPayloadPkg/CapsuleRootKey.inc > /dev/null 2>&1 || true; \
-		fi; \
 		if [ -e $(PAYLOAD_NAME)/ShimLayer/UniversalPayload.o ]; then \
 			rm $(PAYLOAD_NAME)/ShimLayer/UniversalPayload.o; \
 		fi; \
 		echo "    Fetching new commits from $(CONFIG_EDK2_REPOSITORY)"; \
 		git fetch origin 2>/dev/null; \
-		EDK2_REV="$(CONFIG_EDK2_TAG_OR_REV)"; \
-		if ! git rev-parse --verify -q "$$EDK2_REV^{object}" >/dev/null && \
-		   git rev-parse --verify -q "origin/$$EDK2_REV^{object}" >/dev/null; then \
-			EDK2_REV="origin/$$EDK2_REV"; \
-		fi; \
-		if ! git rev-parse --verify -q "$$EDK2_REV^{object}" >/dev/null; then \
+		if ! git rev-parse --verify -q $(CONFIG_EDK2_TAG_OR_REV)^{object} >/dev/null; then \
 			echo "    $(CONFIG_EDK2_TAG_OR_REV) is not a valid git reference"; \
 			exit 1; \
 		fi; \
 		if git status --ignore-submodules=dirty | grep -q -e clean -e "nothing added"; then \
-			echo "    Checking out $(project_name) revision $$EDK2_REV"; \
-			git checkout --detach "$$EDK2_REV" -f; \
+			echo "    Checking out $(project_name) revision $(CONFIG_EDK2_TAG_OR_REV)"; \
+			git checkout --detach $(CONFIG_EDK2_TAG_OR_REV) -f; \
 			git submodule update --checkout --recursive; \
 		else \
 			echo "    Working directory not clean; will not overwrite"; \
@@ -569,33 +528,13 @@ logo: $(EDK2_PATH)
 			BMP3:$(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp;; \
 		*) convert -background None $(top)/$(CONFIG_EDK2_BOOTSPLASH_FILE) \
 			BMP3:$(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp;; \
-	esac; \
-	if [ "$(CONFIG_EDK2_CAPSULES_V2)" = y ]; then \
-		case "$(CONFIG_BOOTSPLASH_REGION_LOGO_FILE)" in \
-			"") cp $(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp \
-				$(EDK2_PATH)/DasharoPayloadPkg/CapsuleSplashDxe/Logo.bmp;; \
-			/*) magick -background None $(CONFIG_BOOTSPLASH_REGION_LOGO_FILE) \
-				BMP3:$(EDK2_PATH)/DasharoPayloadPkg/CapsuleSplashDxe/Logo.bmp;; \
-			*) magick -background None $(top)/$(CONFIG_BOOTSPLASH_REGION_LOGO_FILE) \
-				BMP3:$(EDK2_PATH)/DasharoPayloadPkg/CapsuleSplashDxe/Logo.bmp;; \
-		esac \
-	fi
-
-root_key: $(EDK2_PATH)
-	if [ "$(CONFIG_EDK2_CAPSULES_V2)" = y ] && [ -f CapsuleRootKey.inc ]; then \
-		cp CapsuleRootKey.inc $(EDK2_PATH)/DasharoPayloadPkg/CapsuleRootKey.inc; \
-	fi
+	esac \
 
 gop_driver: $(EDK2_PATH)
 	if [ -n "$(CONFIG_EDK2_GOP_DRIVER)" ]; then \
 		echo "Using GOP driver $(CONFIG_EDK2_GOP_FILE)"; \
 		cp $(top)/$(CONFIG_EDK2_GOP_FILE) $(EDK2_PATH)/$(PAYLOAD_NAME)/IntelGopDriver.efi; \
 		cp $(top)/$(CONFIG_INTEL_GMA_VBT_FILE) $(EDK2_PATH)/$(PAYLOAD_NAME)/vbt.bin; \
-	fi; \
-	if [ -n "$(CONFIG_EDK2_AMD_GOP_DRIVER)" ]; then \
-		echo "Using GOP driver $(CONFIG_EDK2_GOP_FILE)"; \
-		cp $(top)/$(CONFIG_EDK2_GOP_FILE) $(EDK2_PATH)/$(PAYLOAD_NAME)/AmdGopDriver.efi; \
-		cp $(top)/$(CONFIG_VGA_BIOS_FILE) $(EDK2_PATH)/$(PAYLOAD_NAME)/Vbios.bin; \
 	fi; \
 
 lan_rom: $(EDK2_PATH)
@@ -644,7 +583,7 @@ print:
 	echo "   Branch:         $(CONFIG_EDK2_TAG_OR_REV)"
 	echo "   Packages path:  $(PACKAGES_PATH)"
 	echo " $(BUILD_STR)" | \
-		sed -e 's/ --/ -/g' -e 's/ -/ \n   /g' | sort | sed \
+		sed -e 's/--/-/g' -e 's/-/\n   /g' | sort | sed \
 		-e 's/a /Architecture:   /g' \
 		-e 's/b /Release:        /g' \
 		-e 's/D /Option:         /g' \
@@ -654,12 +593,16 @@ print:
 		-e 's/s /Build:          Silent/' \
 		-e 's/t /Toolchain:      /'
 
-prep: $(EDK2_PATH) $(EDK2_PLATFORMS_PATH) clean checktools logo root_key gop_driver lan_rom ipxe_rom
+prep: $(EDK2_PATH) $(EDK2_PLATFORMS_PATH) clean checktools logo gop_driver lan_rom ipxe_rom
 	cd $(WORKSPACE); \
 		source $(EDK2_PATH)/edksetup.sh; \
 		unset CC; $(MAKE) -C $(EDK2_PATH)/BaseTools 2>&1; \
+		grep -q "COREBOOT" $(EDK2_PATH)/Conf/tools_def.txt; \
+		if [ $$? -ne 0 ]; then \
+			cat ../tools_def.txt >> $(EDK2_PATH)/Conf/tools_def.txt; \
+		fi; \
 
-$(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd: \
+$(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd: \
 	prep print
 	cd $(WORKSPACE); \
 		source $(EDK2_PATH)/edksetup.sh; \
@@ -696,8 +639,8 @@ $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/IA32/$(PAYLOAD_NAM
 			-t COREBOOT -D BOOTLOADER=COREBOOT -D SHIMLAYER=TRUE \
 			-y $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/ShimLayer.txt
 
-$(PAYLOAD_NAME): $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd
-	mv $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_GCC/FV/UEFIPAYLOAD.fd \
+$(PAYLOAD_NAME): $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd
+	mv $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/FV/UEFIPAYLOAD.fd \
 		../../../build/UEFIPAYLOAD.fd
 
 UniversalPayload: $(WORKSPACE)/Build/$(PAYLOAD_NAME)X64/$(RELEASE_STR)_COREBOOT/IA32/$(PAYLOAD_NAME)/ShimLayer/ShimLayer/DEBUG/ShimLayer.dll
@@ -710,4 +653,4 @@ clean:
 distclean:
 	rm -rf $(WORKSPACE)
 
-.PHONY: $(EDK2_PATH) checktools logo root_key $(PAYLOAD_NAME) UniversalPayload clean distclean
+.PHONY: $(EDK2_PATH) checktools logo $(PAYLOAD_NAME) UniversalPayload clean distclean

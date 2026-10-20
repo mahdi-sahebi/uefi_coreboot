@@ -22,11 +22,7 @@ static void apmc_log(const char *fn, u8 cmd)
 		break;
 	case APM_CNT_SMMSTORE:
 		break;
-	case APM_CNT_ROM_ARMOR:
-		break;
 	case APM_CNT_SMMINFO:
-		break;
-	case APM_CNT_TPM_PPI:
 		break;
 	default:
 		printk(BIOS_DEBUG, "%s: Unknown APMC 0x%02x.\n", fn, cmd);

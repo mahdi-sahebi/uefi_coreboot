@@ -105,7 +105,6 @@ enum acpi_tables {
 	WDAT,   /* Watchdog Action Table */
 	XSDT,   /* Extended System Description Table */
 	/* Additional proprietary tables used by coreboot */
-	ASPT,   /* AMD Secure Processor Table */
 	CRAT,   /* Component Resource Attribute Table */
 	IORT,   /* Input Output Remapping Table */
 	NHLT,   /* Non HD audio Link Table */
@@ -135,14 +134,6 @@ typedef struct acpi_gen_regaddr {
 	u32 addrl;		/* Register address, low 32 bits */
 	u32 addrh;		/* Register address, high 32 bits */
 } __packed acpi_addr_t;
-
-typedef struct acpi_gen_regaddr1 {
-	u8  space_id;		/* Address space ID */
-	u8  bit_width;		/* Register size in bits */
-	u8  bit_offset;		/* Register bit offset */
-	u8  access_size;	/* Access size since ACPI 2.0c */
-	u64 addr;		/* Register address */
-} __packed acpi_addr64_t;
 
 #define ACPI_ADDRESS_SPACE_MEMORY		0	/* System memory */
 #define ACPI_ADDRESS_SPACE_IO			1	/* System I/O */
@@ -243,20 +234,6 @@ typedef struct acpi_tcpa {
 	u32 laml;
 	u64 lasa;
 } __packed acpi_tcpa_t;
-
-/* TCG ACPI Specification "Table 8: Start Method values for ACPI table for TPM 2.0" */
-enum acpi_tpm2_start_methods {
-	ACPI_TPM2_SM_NOT_ALLOWED = 0,
-	ACPI_TPM2_SM_LEGACY,
-	ACPI_TPM2_SM_ACPI_START,
-	ACPI_TPM2_SM_MMIO_TIS = 6,
-	ACPI_TPM2_SM_CRB,
-	ACPI_TPM2_SM_CRB_AND_ACPI_START,
-	ACPI_TPM2_SM_CRB_AND_ARM_SECURE_MONITOR = 11,
-	ACPI_TPM2_SM_FIFO_I2C,
-	ACPI_TPM2_SM_RESERVED_MMIO0,
-	ACPI_TPM2_SM_RESERVED_MMIO1,
-};
 
 typedef struct acpi_tpm2 {
 	acpi_header_t header;
@@ -610,8 +587,7 @@ typedef struct acpi_ivrs_ivhd_11 {
 	struct ivhd11_iommu_attr iommu_attributes;
 	uint32_t efr_reg_image_low;
 	uint32_t efr_reg_image_high;
-	uint32_t efr_reg_image2_low;
-	uint32_t efr_reg_image2_high;
+	uint32_t reserved[2];
 	uint8_t entry[];
 } __packed acpi_ivrs_ivhd11_t;
 
@@ -1109,6 +1085,114 @@ typedef struct acpi_ecdt {
 	u8 ec_id[];				/* EC ID  */
 } __packed acpi_ecdt_t;
 
+/* HEST (Hardware Error Source Table) */
+typedef struct acpi_hest {
+	acpi_header_t header;
+	u32 error_source_count;
+	/* error_source_struct(s) */
+} __packed acpi_hest_t;
+
+/* Error Source Descriptors */
+typedef struct acpi_hest_esd {
+	u16 type;
+	u16 source_id;
+	u16 resv;
+	u8 flags;
+	u8 enabled;
+	u32 prealloc_erecords;		/* The number of error records to
+					 * pre-allocate for this error source.
+					 */
+	u32 max_section_per_record;
+} __packed acpi_hest_esd_t;
+
+/* Hardware Error Notification */
+typedef struct acpi_hest_hen {
+	u8 type;
+	u8 length;
+	u16 conf_we;		/* Configuration Write Enable */
+	u32 poll_interval;
+	u32 vector;
+	u32 sw2poll_threshold_val;
+	u32 sw2poll_threshold_win;
+	u32 error_threshold_val;
+	u32 error_threshold_win;
+} __packed acpi_hest_hen_t;
+
+/* BERT (Boot Error Record Table) */
+typedef struct acpi_bert {
+	acpi_header_t header;
+	u32 region_length;
+	u64 error_region;
+} __packed acpi_bert_t;
+
+/* Generic Error Data Entry */
+typedef struct acpi_hest_generic_data {
+	guid_t section_type;
+	u32 error_severity;
+	u16 revision;
+	u8 validation_bits;
+	u8 flags;
+	u32 data_length;
+	guid_t fru_id;
+	u8 fru_text[20];
+	/* error data */
+} __packed acpi_hest_generic_data_t;
+
+/* Generic Error Data Entry v300 */
+typedef struct acpi_hest_generic_data_v300 {
+	guid_t section_type;
+	u32 error_severity;
+	u16 revision;
+	u8 validation_bits;
+	u8 flags;		/* see CPER Section Descriptor, Flags field */
+	u32 data_length;
+	guid_t fru_id;
+	u8 fru_text[20];
+	cper_timestamp_t timestamp;
+	/* error data */
+} __packed acpi_hest_generic_data_v300_t;
+#define HEST_GENERIC_ENTRY_V300			0x300
+
+/* Both Generic Error Status & Generic Error Data Entry, Error Severity field */
+#define ACPI_GENERROR_SEV_RECOVERABLE		0
+#define ACPI_GENERROR_SEV_FATAL			1
+#define ACPI_GENERROR_SEV_CORRECTED		2
+#define ACPI_GENERROR_SEV_NONE			3
+
+/* Generic Error Data Entry, Validation Bits field */
+#define ACPI_GENERROR_VALID_FRUID		BIT(0)
+#define ACPI_GENERROR_VALID_FRUID_TEXT		BIT(1)
+#define ACPI_GENERROR_VALID_TIMESTAMP		BIT(2)
+
+/*
+ * Generic Error Status Block
+ *
+ * If there is a raw data section at the end of the generic error status block after the
+ * zero or more generic error data entries, raw_data_length indicates the length of the raw
+ * section and raw_data_offset is the offset of the beginning of the raw data section from
+ * the start of the acpi_generic_error_status block it is contained in. So if raw_data_length
+ * is non-zero, raw_data_offset must be at least sizeof(acpi_generic_error_status_t).
+ */
+typedef struct acpi_generic_error_status {
+	u32 block_status;
+	u32 raw_data_offset;	/* must follow any generic entries */
+	u32 raw_data_length;
+	u32 data_length;	/* generic data */
+	u32 error_severity;
+	/* Generic Error Data structures, zero or more entries */
+} __packed acpi_generic_error_status_t;
+
+/* Generic Status Block, Block Status values */
+#define GENERIC_ERR_STS_UNCORRECTABLE_VALID	BIT(0)
+#define GENERIC_ERR_STS_CORRECTABLE_VALID	BIT(1)
+#define GENERIC_ERR_STS_MULT_UNCORRECTABLE	BIT(2)
+#define GENERIC_ERR_STS_MULT_CORRECTABLE	BIT(3)
+#define GENERIC_ERR_STS_ENTRY_COUNT_SHIFT	4
+#define GENERIC_ERR_STS_ENTRY_COUNT_MAX		0x3ff
+#define GENERIC_ERR_STS_ENTRY_COUNT_MASK	\
+					(GENERIC_ERR_STS_ENTRY_COUNT_MAX \
+					<< GENERIC_ERR_STS_ENTRY_COUNT_SHIFT)
+
 typedef struct acpi_cstate {
 	u8  ctype;
 	u16 latency;
@@ -1222,6 +1306,131 @@ struct acpi_spmi {
 	};
 	u8 reserved3;
 } __packed;
+
+/* EINJ APEI Standard Definitions */
+/* EINJ Error Types
+   Refer to the ACPI spec, EINJ section, for more info on bit definitions
+*/
+#define ACPI_EINJ_CPU_CE		(1 << 0)
+#define ACPI_EINJ_CPU_UCE		(1 << 1)
+#define ACPI_EINJ_CPU_UCE_FATAL		(1 << 2)
+#define ACPI_EINJ_MEM_CE		(1 << 3)
+#define ACPI_EINJ_MEM_UCE		(1 << 4)
+#define ACPI_EINJ_MEM_UCE_FATAL		(1 << 5)
+#define ACPI_EINJ_PCIE_CE		(1 << 6)
+#define ACPI_EINJ_PCIE_UCE_NON_FATAL	(1 << 7)
+#define ACPI_EINJ_PCIE_UCE_FATAL	(1 << 8)
+#define ACPI_EINJ_PLATFORM_CE		(1 << 9)
+#define ACPI_EINJ_PLATFORM_UCE		(1 << 10)
+#define ACPI_EINJ_PLATFORM_UCE_FATAL	(1 << 11)
+#define ACPI_EINJ_VENDOR_DEFINED	(1 << 31)
+#define ACPI_EINJ_DEFAULT_CAP		(ACPI_EINJ_MEM_CE | ACPI_EINJ_MEM_UCE | \
+					ACPI_EINJ_PCIE_CE | ACPI_EINJ_PCIE_UCE_FATAL)
+
+/* EINJ actions */
+#define ACTION_COUNT			9
+#define BEGIN_INJECT_OP			0x00
+#define GET_TRIGGER_ACTION_TABLE	0x01
+#define SET_ERROR_TYPE			0x02
+#define GET_ERROR_TYPE			0x03
+#define END_INJECT_OP			0x04
+#define EXECUTE_INJECT_OP		0x05
+#define CHECK_BUSY_STATUS		0x06
+#define GET_CMD_STATUS			0x07
+#define SET_ERROR_TYPE_WITH_ADDRESS	0x08
+#define TRIGGER_ERROR			0xFF
+
+/* EINJ Instructions */
+#define READ_REGISTER			0x00
+#define READ_REGISTER_VALUE		0x01
+#define WRITE_REGISTER			0x02
+#define WRITE_REGISTER_VALUE		0x03
+#define NO_OP				0x04
+
+/* EINJ (Error Injection Table) */
+typedef struct acpi_gen_regaddr1 {
+	u8  space_id;		/* Address space ID */
+	u8  bit_width;		/* Register size in bits */
+	u8  bit_offset;		/* Register bit offset */
+	u8  access_size;	/* Access size since ACPI 2.0c */
+	u64 addr;		/* Register address */
+} __packed acpi_addr64_t;
+
+/* Instruction entry */
+typedef struct acpi_einj_action_table {
+	u8 action;
+	u8 instruction;
+	u16 flags;
+	acpi_addr64_t reg;
+	u64 value;
+	u64 mask;
+} __packed acpi_einj_action_table_t;
+
+typedef struct acpi_injection_header {
+	u32 einj_header_size;
+	u32 flags;
+	u32 entry_count;
+} __packed acpi_injection_header_t;
+
+typedef struct acpi_einj_trigger_table {
+	u32 header_size;
+	u32 revision;
+	u32 table_size;
+	u32 entry_count;
+	acpi_einj_action_table_t trigger_action[];
+} __packed acpi_einj_trigger_table_t;
+
+typedef struct set_error_type {
+	u32 errtype;
+	u32 vendorerrortype;
+	u32 flags;
+	u32 apicid;
+	u64 memaddr;
+	u64 memrange;
+	u32 pciesbdf;
+} __packed set_error_type_t;
+
+#define EINJ_PARAM_NUM 6
+typedef struct acpi_einj_smi {
+	u64 op_state;
+	u64 err_inject[EINJ_PARAM_NUM];
+	u64 trigger_action_table;
+	u64 err_inj_cap;
+	u64 op_status;
+	u64 cmd_sts;
+	u64 einj_addr;
+	u64 einj_addr_msk;
+	set_error_type_t setaddrtable;
+	u64 reserved[50];
+} __packed acpi_einj_smi_t;
+
+/* EINJ Flags */
+#define EINJ_DEF_TRIGGER_PORT	0xb2
+#define FLAG_PRESERVE		0x01
+#define FLAG_IGNORE		0x00
+
+/* EINJ Registers */
+#define EINJ_REG_MEMORY(address) \
+	{ \
+	.space_id = ACPI_ADDRESS_SPACE_MEMORY, \
+	.bit_width = 64, \
+	.bit_offset = 0, \
+	.access_size = ACPI_ACCESS_SIZE_QWORD_ACCESS, \
+	.addr = address}
+
+#define EINJ_REG_IO() \
+	{ \
+	.space_id = ACPI_ADDRESS_SPACE_IO, \
+	.bit_width = 0x10, \
+	.bit_offset = 0, \
+	.access_size = ACPI_ACCESS_SIZE_WORD_ACCESS, \
+	.addr = EINJ_DEF_TRIGGER_PORT} /* HW dependent code can override this also */
+
+typedef struct acpi_einj {
+	acpi_header_t header;
+	acpi_injection_header_t inj_header;
+	acpi_einj_action_table_t action_table[ACTION_COUNT];
+} __packed acpi_einj_t;
 
 /* PPTT definitions */
 
@@ -1524,50 +1733,13 @@ typedef struct acpi_table_wdat {
 	u32 entries;
 } __packed acpi_wdat_t;
 
-/* ASPT */
-#define ASPT_STRUCTURE_TYPE_ASP_GLOBAL_REGISTERS	0
-#define ASPT_STRUCTURE_TYPE_SEV_MAILBOX_REGISTERS	1
-#define ASPT_STRUCTURE_TYPE_ACPI_MAILBOX_REGISTERS	2
-typedef struct {
-  uint16_t  type;			/* 0-ASP global registers */
-  uint16_t  length;			/* 20 */
-  uint32_t  reserved;			/* Must be 0 */
-  uint32_t  feature_reg_offset;		/* Offset to MP0_P2CMSG_63 */
-  uint32_t  int_enable_reg_offset;	/* Offset to MP0_P2CMSG_INTEN */
-  uint32_t  int_status_reg_offset;	/* Offset to MP0_P2CMSG_INTSTS */
-} __packed aspt_global_regs_t;
-
-typedef struct {
-  uint16_t  type;			/* 1-SEV Mailbox registers */
-  uint16_t  length;			/* 20 */
-  uint8_t   mailbox_innterrupt_id;	/* SEV mailbox interrupt ID */
-  uint8_t   reserved[3];		/* Must be 0 */
-  uint32_t  cmd_respRegisterOffset;	/* Offset to SEV CmdResp */
-  uint32_t  cmd_buf_addr_lo_offset;	/* Offset to CmdBufAddrLo */
-  uint32_t  cmd_buf_addr_hi_offset;	/* Offset to CmdBufAddrHi */
-} __packed aspt_sev_mbox_regs_t;
-
-typedef struct {
-  uint16_t  type;			/* 2-ACPI Mailbox registers */
-  uint16_t  length;			/* 20 */
-  uint32_t  reserved;			/* Must be 0 */
-  uint32_t  cmd_resp_reg_offset;	/* Offset to ACPI CmdRespRegister */
-  uint64_t  reserved2;			/* Must be 0 */
-} __packed aspt_acpi_mbox_regs_t;
-
-typedef struct acpi_table_aspt {
-	acpi_header_t header;		/* Common ACPI table header */
-	uint64_t asp_base_address;	/* Base Address for ASP registers (4K-aligned) */
-	uint32_t asp_space_pages;	/* Number of 4K pages for ASP register space */
-	uint32_t asp_structure_count;	/* Number of ASP register structures. */
-	u8 asp_structures[0];		/* Array of ASP register structures */
-} __packed acpi_aspt_t;
-
 uintptr_t get_coreboot_rsdp(void);
+void acpi_create_einj(acpi_einj_t *einj, uintptr_t addr, u8 actions);
 
 unsigned long fw_cfg_acpi_tables(unsigned long start);
 
 /* These are implemented by the target port or north/southbridge. */
+void preload_acpi_dsdt(void);
 unsigned long write_acpi_tables(const unsigned long addr);
 unsigned long acpi_fill_madt(unsigned long current);
 unsigned long acpi_arch_fill_madt(acpi_madt_t *madt, unsigned long current);
@@ -1591,7 +1763,7 @@ void acpi_add_table(acpi_rsdp_t *rsdp, void *table);
 
 /* Create CXL Early Discovery Table */
 void acpi_create_cedt(acpi_cedt_t *cedt,
-	unsigned long (*acpi_fill_cedt_func)(unsigned long current));
+	unsigned long (*acpi_fill_cedt)(unsigned long current));
 /* Create a CXL Host Bridge Structure for CEDT */
 int acpi_create_cedt_chbs(acpi_cedt_chbs_t *chbs, u32 uid, u32 cxl_ver, u64 base);
 /* Create a CXL Fixed Memory Window Structure for CEDT */
@@ -1625,10 +1797,10 @@ int acpi_create_srat_gia_pci(acpi_srat_gia_t *gia, u32 proximity_domain,
 			     struct device *dev, u32 flags);
 unsigned long acpi_create_srat_lapics(unsigned long current);
 void acpi_create_srat(acpi_srat_t *srat,
-		      unsigned long (*acpi_fill_srat_func)(unsigned long current));
+		      unsigned long (*acpi_fill_srat)(unsigned long current));
 
 void acpi_create_slit(acpi_slit_t *slit,
-		      unsigned long (*acpi_fill_slit_func)(unsigned long current));
+		      unsigned long (*acpi_fill_slit)(unsigned long current));
 
 /*
  * Create a Memory Proximity Domain Attributes structure for HMAT,
@@ -1638,11 +1810,11 @@ void acpi_create_slit(acpi_slit_t *slit,
 int acpi_create_hmat_mpda(acpi_hmat_mpda_t *mpda, u32 initiator, u32 memory);
 /* Create Heterogeneous Memory Attribute Table */
 void acpi_create_hmat(acpi_hmat_t *hmat,
-		      unsigned long (*acpi_fill_hmat_func)(unsigned long current));
+		      unsigned long (*acpi_fill_hmat)(unsigned long current));
 
 void acpi_create_vfct(const struct device *device,
 		      acpi_vfct_t *vfct,
-		      unsigned long (*acpi_fill_vfct_func)(const struct device *device,
+		      unsigned long (*acpi_fill_vfct)(const struct device *device,
 				acpi_vfct_t *vfct_struct,
 				unsigned long current));
 
@@ -1656,18 +1828,15 @@ void acpi_create_ipmi(const struct device *device,
 		      const u32 uid);
 
 void acpi_create_ivrs(acpi_ivrs_t *ivrs,
-		      unsigned long (*acpi_fill_ivrs_func)(acpi_ivrs_t *ivrs_struct,
+		      unsigned long (*acpi_fill_ivrs)(acpi_ivrs_t *ivrs_struct,
 		      unsigned long current));
 
 void acpi_create_crat(struct acpi_crat_header *crat,
-		      unsigned long (*acpi_fill_crat_func)(struct acpi_crat_header *crat_struct,
+		      unsigned long (*acpi_fill_crat)(struct acpi_crat_header *crat_struct,
 		      unsigned long current));
 
 unsigned long acpi_write_hpet(const struct device *device, unsigned long start,
 			      acpi_rsdp_t *rsdp);
-
-void acpi_write_tpm2(acpi_tpm2_t *tpm2, const void *lasa, const u32 tpm2_log_len,
-		     const u64 control_area, const u32 start_method);
 
 /* cpu/intel/speedstep/acpi.c */
 void generate_cpu_entries(const struct device *device);
@@ -1680,7 +1849,7 @@ unsigned long acpi_16550_mmio32_write_dbg2_uart(acpi_rsdp_t *rsdp, unsigned long
 					 uint64_t base, const char *name);
 
 void acpi_create_dmar(acpi_dmar_t *dmar, enum dmar_flags flags,
-		      unsigned long (*acpi_fill_dmar_func)(unsigned long));
+		      unsigned long (*acpi_fill_dmar)(unsigned long));
 unsigned long acpi_create_dmar_drhd_4k(unsigned long current, u8 flags,
 				    u16 segment, u64 bar);
 unsigned long acpi_create_dmar_drhd(unsigned long current, u8 flags,
@@ -1711,8 +1880,16 @@ unsigned long acpi_create_dmar_ds_ioapic_from_hw(unsigned long current,
 unsigned long acpi_create_dmar_ds_msi_hpet(unsigned long current,
 						u8 enumeration_id,
 						u8 bus, u8 dev, u8 fn);
+void acpi_write_hest(acpi_hest_t *hest,
+		     unsigned long (*acpi_fill_hest)(acpi_hest_t *hest));
+
+unsigned long acpi_create_hest_error_source(acpi_hest_t *hest,
+	acpi_hest_esd_t *esd, u16 type, void *data, u16 len);
 
 unsigned long acpi_create_lpi_desc_ncst(acpi_lpi_desc_ncst_t *lpi_desc, uint16_t uid);
+
+/* chipsets that select ACPI_BERT must implement this function */
+enum cb_err acpi_soc_get_bert_region(void **region, size_t *length);
 
 void acpi_soc_fill_gtdt(acpi_gtdt_t *gtdt);
 unsigned long acpi_soc_gtdt_add_timers(uint32_t *count, unsigned long current);
@@ -1720,9 +1897,6 @@ unsigned long acpi_gtdt_add_timer_block(unsigned long current, const uint64_t ad
 					   struct acpi_gtdt_timer_entry *timers, size_t number);
 unsigned long acpi_gtdt_add_watchdog(unsigned long current, uint64_t refresh_frame,
 				     uint64_t control_frame, uint32_t gsiv, uint32_t flags);
-
-void acpi_create_aspt(acpi_aspt_t *aspt,
-		      unsigned long (*acpi_fill_aspt_func)(unsigned long current));
 
 /*
  * Populate primary acpi_wdat_t struct to provide basic information about watchdog and
@@ -1794,20 +1968,20 @@ int acpi_get_gpe(int gpe);
 
 /* Once we enter payload, is SMI handler installed and capable of
    responding to APM_CNT Advanced Power Management Control commands. */
-static inline bool permanent_smi_handler(void)
+static inline int permanent_smi_handler(void)
 {
 	return CONFIG(HAVE_SMI_HANDLER);
 }
 
-static inline bool acpi_s3_resume_allowed(void)
+static inline int acpi_s3_resume_allowed(void)
 {
 	return CONFIG(HAVE_ACPI_RESUME);
 }
 
-static inline bool acpi_is_wakeup_s3(void)
+static inline int acpi_is_wakeup_s3(void)
 {
 	if (!acpi_s3_resume_allowed())
-		return false;
+		return 0;
 
 	if (ENV_ROMSTAGE_OR_BEFORE)
 		return (acpi_get_sleep_type() == ACPI_S3);

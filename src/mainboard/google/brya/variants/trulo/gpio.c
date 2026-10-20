@@ -44,8 +44,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_A19, NONE),
 	/* A20 : NC */
 	PAD_NC(GPP_A20, NONE),
-	/* A21 : NC */
-	PAD_NC(GPP_A21, NONE),
+	/* A21 : DDPC_CTRLCLK ==> TCHSCR_REPORT_EN */
+	PAD_CFG_GPO(GPP_A21, 0, DEEP),
 	/* A22 : GPP_A22 ==> TPM_PIRQ# */
 	PAD_CFG_GPI(GPP_A22, NONE, DEEP),
 	/* A23 : GPP_A23 ==> NC */
@@ -58,7 +58,7 @@ static const struct pad_config gpio_table[] = {
 	/* B2  : NC */
 	PAD_NC(GPP_B2, NONE),
 	/* B3  : CPU_GP2 ==> EC_TP_INT */
-	PAD_CFG_GPI_APIC(GPP_B3, NONE, PWROK, LEVEL, INVERT),
+	PAD_CFG_GPI_IRQ_WAKE(GPP_B3, NONE, PWROK, LEVEL, INVERT),
 	/* B4  : PROC_GP3 ==> EN_PP3300_UCAM_X */
 	PAD_CFG_GPO_LOCK(GPP_B4, 1, LOCK_CONFIG),
 	/* B5  : GPP_B5 ==> ISH_I2C0_SCL */
@@ -147,10 +147,10 @@ static const struct pad_config gpio_table[] = {
 	PAD_CFG_NF(GPP_D13, NONE, DEEP, NF1),
 	/* D14 : UART0_ISH_TX_DBG_RX */
 	PAD_CFG_NF(GPP_D14, NONE, DEEP, NF1),
-	/* D15  : NC */
-	PAD_NC(GPP_D15, NONE),
-	/* D16  : NC */
-	PAD_NC(GPP_D16, NONE),
+	/* D15  : GPP_D15 ==> SOC_TS_I2C_RST# */
+	PAD_CFG_GPO_LOCK(GPP_D15, 1, LOCK_CONFIG),
+	/* D16 : ISH_UART0_CTS# ==> SOC_TS_I2C_INT# */
+	PAD_CFG_GPI_LOCK(GPP_D16, NONE, LOCK_CONFIG),
 	/* D17 : NC */
 	PAD_NC_LOCK(GPP_D17, NONE, LOCK_CONFIG),
 	/* D18 : NC */
@@ -192,8 +192,8 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_E15, NONE),
 	/* E16 : NC */
 	PAD_NC(GPP_E16, NONE),
-	/* E17  : NC */
-	PAD_NC(GPP_E17, NONE),
+	/* E17  : GPP_E17 ==> SOC_TS_PWR_EN */
+	PAD_CFG_GPO_LOCK(GPP_E17, 1, LOCK_CONFIG),
 	/* E18 : NC */
 	PAD_NC(GPP_E18, NONE),
 	/* E19 : DDP1_CTRLDATA ==> GPP_E19_STRAP */
@@ -242,7 +242,7 @@ static const struct pad_config gpio_table[] = {
 	/* F16 : NC */
 	PAD_NC_LOCK(GPP_F16, NONE, LOCK_CONFIG),
 	/* F17 : THC1_SPI2_RST# ==> EC_SOC_WAKE_ODL */
-	PAD_CFG_GPI_IRQ_WAKE_LOCK(GPP_F17, NONE, EDGE_SINGLE, INVERT, LOCK_CONFIG),
+	PAD_CFG_GPI_IRQ_WAKE(GPP_F17, NONE, PWROK, EDGE_SINGLE, INVERT),
 	/* F18 : THC1_SPI2_INT# ==> EC_IN_RW_OD */
 	PAD_CFG_GPI_LOCK(GPP_F18, NONE, LOCK_CONFIG),
 	/* F19 : Not available */
@@ -410,24 +410,6 @@ static const struct pad_config gpio_table[] = {
 	PAD_NC(GPP_VGPIO_20, NONE),
 	/* vUART0_RTS_B */
 	PAD_NC(GPP_VGPIO_21, NONE),
-
-	/* Configure the virtual CNVi Bluetooth I2S GPIO Pads.*/
-	/* BT_I2S_BCLK */
-	PAD_CFG_NF(GPP_VGPIO_30, NONE, DEEP, NF3),
-	/* BT_I2S_SYNC */
-	PAD_CFG_NF(GPP_VGPIO_31, NONE, DEEP, NF3),
-	/* BT_I2S_SDO */
-	PAD_CFG_NF(GPP_VGPIO_32, NONE, DEEP, NF3),
-	/* BT_I2S_SDI */
-	PAD_CFG_NF(GPP_VGPIO_33, NONE, DEEP, NF3),
-	/* SSP2_SCLK */
-	PAD_CFG_NF(GPP_VGPIO_34, NONE, DEEP, NF1),
-	/* SSP2_SFRM */
-	PAD_CFG_NF(GPP_VGPIO_35, NONE, DEEP, NF1),
-	/* SSP_TXD */
-	PAD_CFG_NF(GPP_VGPIO_36, NONE, DEEP, NF1),
-	/* SSP_RXD */
-	PAD_CFG_NF(GPP_VGPIO_37, NONE, DEEP, NF1),
 };
 
 /* Early pad configuration in bootblock */
@@ -450,6 +432,11 @@ static const struct pad_config early_gpio_table[] = {
 
 /* Fill romstage gpio configuration */
 static const struct pad_config romstage_gpio_table[] = {
+	/* Enable touchscreen, hold in reset */
+	/* E17  : GPP_E17 ==> SOC_TS_PWR_EN */
+	PAD_CFG_GPO(GPP_E17, 1, DEEP),
+	/* D15  : GPP_D15 ==> SOC_TS_I2C_RST# */
+	PAD_CFG_GPO(GPP_D15, 0, DEEP),
 };
 
 const struct pad_config *variant_gpio_table(size_t *num)

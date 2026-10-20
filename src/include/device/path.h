@@ -82,8 +82,6 @@ struct apic_path {
 	unsigned int core_id;
 	unsigned int thread_id;
 	unsigned int module_id;
-	unsigned int tile_id;
-	unsigned int die_id;
 	/*
 	 * Core identifier within the package, including the die group, die, tile, module, and
 	 * specific core.

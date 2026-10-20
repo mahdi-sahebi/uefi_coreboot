@@ -37,8 +37,7 @@ enum timestamp_id {
 	TS_ULZMA_END = 16,
 	TS_ULZ4F_START = 17,
 	TS_ULZ4F_END = 18,
-	TS_DEVICE_INIT_CHIPS = 30,
-	TS_DEVICE_ENUMERATE = 31,
+	TS_DEVICE_ENUMERATE = 30,
 	TS_DEVICE_CONFIGURE = 40,
 	TS_DEVICE_ENABLE = 50,
 	TS_DEVICE_INITIALIZE = 60,
@@ -87,7 +86,6 @@ enum timestamp_id {
 	TS_TPM_ENABLE_UPDATE_END = 554,
 	TS_ESOL_START = 555,
 	TS_ESOL_END = 556,
-	TS_FIRMWARE_SPLASH_RENDERED = 557,
 
 	/* 900-940 reserved for vendorcode extensions (900-940: AMD) */
 	TS_AGESA_INIT_RESET_START = 900,
@@ -127,7 +125,7 @@ enum timestamp_id {
 	TS_CSE_FW_SYNC_START = 948,
 	TS_CSE_FW_SYNC_END = 949,
 
-	/* 950+ reserved for vendorcode extensions (950-980: intel/fsp) */
+	/* 950+ reserved for vendorcode extensions (950-989: intel/fsp) */
 	TS_FSP_MEMORY_INIT_START = 950,
 	TS_FSP_MEMORY_INIT_END = 951,
 	TS_FSP_TEMP_RAM_EXIT_START = 952,
@@ -147,20 +145,10 @@ enum timestamp_id {
 	TS_FSP_MEMORY_INIT_LOAD = 970,
 	TS_FSP_SILICON_INIT_LOAD = 971,
 
-	/* 980+ reserved for vendorcode extensions (980-990: qualcomm/qclib) */
-	TS_QUALCOMM_QCLIB_INIT_START = 980,
-	TS_QUALCOMM_QCLIB_INIT_END = 981,
-	TS_QUALCOMM_QCLIB_REINIT_START = 982,
-	TS_QUALCOMM_QCLIB_REINIT_END = 983,
-
-	/* 990+ reserved for vendorcode extensions (990-997: Intel ME continued) */
+	/* 990+ reserved for vendorcode extensions (990-999: Intel ME continued) */
 	TS_ME_ROM_START = 990,
 	TS_ISSE_DMU_LOAD_END = 991,
-	TS_ESE_LOAD_AUNIT_END = 992,
 
-	/* 998-999 reserved for ARM Trusted firmware) */
-	TS_TFA_LOAD_BL32_START = 998,
-	TS_TFA_LOAD_BL32_END = 999,
 	/* 1000+ reserved for payloads */
 
 	/* 1000-1200: Depthcharge */
@@ -182,13 +170,6 @@ enum timestamp_id {
 
 	TS_KERNEL_START = 1101,
 	TS_KERNEL_DECOMPRESSION = 1102,
-
-	TS_PVMFW_SETUP_START = 1110,
-	TS_PVMFW_GSC_NVRAM_DONE = 1111,
-	TS_PVMFW_SETUP_DONE = 1112,
-
-	TS_PKVM_DRNG_SEED_START = 1120,
-	TS_PKVM_DRNG_SEED_DONE = 1121,
 
 	/* 1200-1300: ChromeOS Hypervisor */
 	TS_CRHV_BOOT = 1200,
@@ -236,7 +217,6 @@ static const struct timestamp_id_to_name {
 	TS_NAME_DEF(TS_ULZMA_END, 0, "finished LZMA decompress (ignore for x86)"),
 	TS_NAME_DEF(TS_ULZ4F_START, TS_ULZ4F_END, "starting LZ4 decompress (ignore for x86)"),
 	TS_NAME_DEF(TS_ULZ4F_END, 0, "finished LZ4 decompress (ignore for x86)"),
-	TS_NAME_DEF(TS_DEVICE_INIT_CHIPS, TS_DEVICE_ENUMERATE, "early chipset initialization"),
 	TS_NAME_DEF(TS_DEVICE_ENUMERATE, TS_DEVICE_CONFIGURE, "device enumeration"),
 	TS_NAME_DEF(TS_DEVICE_CONFIGURE, TS_DEVICE_ENABLE,  "device configuration"),
 	TS_NAME_DEF(TS_DEVICE_ENABLE, TS_DEVICE_INITIALIZE, "device enable"),
@@ -290,7 +270,6 @@ static const struct timestamp_id_to_name {
 	TS_NAME_DEF(TS_TPM_ENABLE_UPDATE_END, 0, "finished TPM enable update"),
 	TS_NAME_DEF(TS_ESOL_START, 0, "started early sign-off life (eSOL) notification"),
 	TS_NAME_DEF(TS_ESOL_END, 0, "finished early sign-off life (eSOL) notification"),
-	TS_NAME_DEF(TS_FIRMWARE_SPLASH_RENDERED, 0, "finished rendering splash screen"),
 
 	/* AMD related timestamps */
 	TS_NAME_DEF(TS_AGESA_INIT_RESET_START, TS_AGESA_INIT_RESET_END, "calling AmdInitReset"),
@@ -362,19 +341,9 @@ static const struct timestamp_id_to_name {
 	TS_NAME_DEF(TS_FSP_MEMORY_INIT_LOAD, 0, "loading FSP-M"),
 	TS_NAME_DEF(TS_FSP_SILICON_INIT_LOAD, 0, "loading FSP-S"),
 
-	/* Qualcomm QCLib related timestamps */
-	TS_NAME_DEF(TS_QUALCOMM_QCLIB_INIT_START, 0, "Entering into QcLib"),
-	TS_NAME_DEF(TS_QUALCOMM_QCLIB_INIT_END, 0, "returning from QcLib"),
-	TS_NAME_DEF(TS_QUALCOMM_QCLIB_REINIT_START, 0, "Reentering from QcLib"),
-	TS_NAME_DEF(TS_QUALCOMM_QCLIB_REINIT_END, 0, "QcLib execution completed"),
-
 	/* Intel ME continued */
 	TS_NAME_DEF(TS_ME_ROM_START, 0, "CSME ROM started execution"),
 	TS_NAME_DEF(TS_ISSE_DMU_LOAD_END, 0, "Die Management Unit (DMU) load completed"),
-	TS_NAME_DEF(TS_ESE_LOAD_AUNIT_END, 0, "ESE completed AUnit loading"),
-
-	TS_NAME_DEF(TS_TFA_LOAD_BL32_START, 0, "BL32(secure_os) loading start"),
-	TS_NAME_DEF(TS_TFA_LOAD_BL32_END, 0, "BL32(secure_os) loading end"),
 
 	/* Depthcharge entry timestamp */
 	TS_NAME_DEF(TS_DC_START, 0, "depthcharge start"),
@@ -395,13 +364,6 @@ static const struct timestamp_id_to_name {
 
 	TS_NAME_DEF(TS_KERNEL_START, 0, "jumping to kernel"),
 	TS_NAME_DEF(TS_KERNEL_DECOMPRESSION, 0, "starting kernel decompression/relocation"),
-
-	TS_NAME_DEF(TS_PVMFW_SETUP_START, 0, "started pvmfw setup"),
-	TS_NAME_DEF(TS_PVMFW_GSC_NVRAM_DONE, 0, "finished fetching boot params from GSC"),
-	TS_NAME_DEF(TS_PVMFW_SETUP_DONE, 0, "finished pvmfw setup"),
-
-	TS_NAME_DEF(TS_PKVM_DRNG_SEED_START, 0, "started generating pKVM DRNG seed"),
-	TS_NAME_DEF(TS_PKVM_DRNG_SEED_DONE, 0, "finished generating pKVM DRNG seed"),
 
 	/* ChromeOS hypervisor */
 	TS_NAME_DEF(TS_CRHV_BOOT, 0, "hypervisor boot finished"),

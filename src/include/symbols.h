@@ -5,6 +5,8 @@
 
 #include <types.h>
 
+extern u8 _dram[];
+
 #define REGION_SIZE(name) ((size_t)_##name##_size)
 
 #define DECLARE_REGION(name)	\
@@ -26,13 +28,10 @@
 	__maybe_unused __weak extern u8 _##name##_size[];
 
 DECLARE_REGION(sram)
-DECLARE_OPTIONAL_REGION(dram)
 DECLARE_OPTIONAL_REGION(timestamp)
 DECLARE_REGION(preram_cbmem_console)
 DECLARE_REGION(cbmem_init_hooks)
 DECLARE_REGION(stack)
-DECLARE_REGION(preram_stack)
-DECLARE_REGION(postram_stack)
 DECLARE_OPTIONAL_REGION(preram_cbfs_cache)
 DECLARE_OPTIONAL_REGION(postram_cbfs_cache)
 DECLARE_OPTIONAL_REGION(cbfs_cache)
@@ -75,11 +74,9 @@ DECLARE_REGION(ramstage)
 DECLARE_REGION(pagetables)
 DECLARE_REGION(ttb)
 DECLARE_OPTIONAL_REGION(ttb_subtables)
-DECLARE_OPTIONAL_REGION(preram_dma_coherent)
-DECLARE_OPTIONAL_REGION(postram_dma_coherent)
 DECLARE_REGION(dma_coherent)
 DECLARE_REGION(soc_registers)
-DECLARE_OPTIONAL_REGION(framebuffer)
+DECLARE_REGION(framebuffer)
 DECLARE_REGION(pdpt)
 DECLARE_OPTIONAL_REGION(opensbi)
 DECLARE_OPTIONAL_REGION(bl31)

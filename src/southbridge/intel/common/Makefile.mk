@@ -53,9 +53,3 @@ smm-$(CONFIG_SOUTHBRIDGE_INTEL_COMMON_SMM) += pmutil.c smihandler.c
 smm-$(CONFIG_SOUTHBRIDGE_INTEL_COMMON_FINALIZE) += finalize.c
 
 all-$(CONFIG_SOUTHBRIDGE_INTEL_COMMON_RTC) += rtc.c
-
-ifeq ($(CONFIG_SOUTHBRIDGE_INTEL_COMMON_GPIO),y)
-
-CPPFLAGS_common += -I$(src)/southbridge/intel/common/include
-
-endif

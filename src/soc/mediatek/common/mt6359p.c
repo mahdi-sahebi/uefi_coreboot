@@ -50,7 +50,7 @@ static void mt6359p_write(u32 reg, u32 data)
 	pmif_arb->write(pmif_arb, 0, reg, data);
 }
 
-u32 mt6359p_read_field(u32 reg, u32 mask, u32 shift)
+static u32 mt6359p_read_field(u32 reg, u32 mask, u32 shift)
 {
 	return pmif_arb->read_field(pmif_arb, 0, reg, mask, shift);
 }
@@ -190,16 +190,6 @@ void mt6359p_buck_set_voltage(u32 buck_id, u32 buck_uv)
 		vol_reg = PMIC_VPA_CON1;
 		vol_step = 50000;
 		break;
-	case MT6359P_VMODEM:
-		vol_offset = 400000;
-		vol_reg = PMIC_VMODEM_ELR0;
-		vol_step = 6250;
-		break;
-	case MT6359P_VSRAM_MD:
-		vol_offset = 500000;
-		vol_reg = PMIC_VSRAM_MD_ELR;
-		vol_step = 6250;
-		break;
 	default:
 		die("ERROR: Unknown buck_id %u", buck_id);
 		return;
@@ -246,18 +236,6 @@ u32 mt6359p_buck_get_voltage(u32 buck_id)
 		vol_offset = 500000;
 		vol_reg = PMIC_VPA_DBG0;
 		vol_step = 50000;
-		break;
-	case MT6359P_VMODEM:
-		vol_shift = 0;
-		vol_offset = 400000;
-		vol_reg = PMIC_VMODEM_DBG0;
-		vol_step = 6250;
-		break;
-	case MT6359P_VSRAM_MD:
-		vol_shift = 8;
-		vol_offset = 500000;
-		vol_reg = PMIC_VSRAM_MD_VOSEL1;
-		vol_step = 6250;
 		break;
 	default:
 		die("ERROR: Unknown buck_id %u", buck_id);
@@ -336,34 +314,6 @@ u32 mt6359p_get_vsim1_voltage(void)
 	return 1000 * (reg_offset + reg_vol + reg_cali);
 }
 
-u32 mt6359p_get_vcn18_voltage(void)
-{
-	u32 reg_vol, reg_cali;
-	if (!pmif_arb)
-		die("[%s] ERROR: pmif_arb not initialized", __func__);
-
-	reg_vol = 100 * mt6359p_read_field(PMIC_VCN18_ANA_CON0, 0xF, VCN18_VOL_SHIFT);
-	reg_cali = 10 * mt6359p_read_field(PMIC_VCN18_ANA_CON0, 0xF, 0);
-	return 1000 * (VCN18_VOL_MV_OFFSET + reg_vol + reg_cali);
-}
-
-void mt6359p_set_vcn18_voltage(u32 vcn18_uv)
-{
-	u32 reg_vol, reg_cali;
-	if (!pmif_arb)
-		die("[%s] ERROR: pmif_arb not initialized", __func__);
-
-	if (vcn18_uv < VCN18_VOL_UV_MIN || vcn18_uv > VCN18_VOL_UV_MAX) {
-		printk(BIOS_ERR,
-		       "%s: VCN18 voltage %d is out of range (%d uV - %d uV)\n",
-		       __func__, vcn18_uv, VCN18_VOL_UV_MIN, VCN18_VOL_UV_MAX);
-		return;
-	}
-	reg_vol = (vcn18_uv / 1000 - VCN18_VOL_MV_OFFSET) / 100;
-	reg_cali = (vcn18_uv / 1000) % 100 / 10;
-	mt6359p_write(PMIC_VCN18_ANA_CON0, (reg_vol << VCN18_VOL_SHIFT) | reg_cali);
-}
-
 void mt6359p_enable_vpa(bool enable)
 {
 	mt6359p_write_field(PMIC_VPA_CON0, enable, 0x1, 0);
@@ -379,20 +329,15 @@ void mt6359p_enable_vm18(bool enable)
 	mt6359p_write_field(PMIC_VM18_CON0, enable, 0x1, 0);
 }
 
-void mt6359p_enable_vcn18(bool enable)
-{
-	mt6359p_write_field(PMIC_VCN18_CON0, enable, 0x1, 0);
-}
-
 void mt6359p_init_pmif_arb(void)
 {
-	if (pmif_arb)
-		return;
+	if (!pmif_arb) {
+		pmif_arb = get_pmif_controller(PMIF_SPI, 0);
+		if (!pmif_arb)
+			die("ERROR: No spi device");
+	}
 
-	pmif_arb = get_pmif_controller(PMIF_SPI, 0);
-	assert(pmif_arb);
-
-	if (pmif_arb->check_init_done(pmif_arb))
+	if (pmif_arb->is_pmif_init_done(pmif_arb))
 		die("ERROR - Failed to initialize pmif spi");
 }
 
@@ -402,8 +347,8 @@ void mt6359p_init(void)
 	pmic_set_power_hold();
 	pmic_wdt_set();
 	pmic_protect_key_setting(false);
-	mt6359p_init_setting();
-	mt6359p_lp_setting();
+	pmic_init_setting();
+	pmic_lp_setting();
 	pmic_efuse_setting();
 	pmic_protect_key_setting(true);
 	pmic_wk_vs2_voter_setting();

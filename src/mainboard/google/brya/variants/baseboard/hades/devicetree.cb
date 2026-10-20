@@ -15,7 +15,7 @@ chip soc/intel/alderlake
 	register "s0ix_enable" = "true"
 
 	# DPTF enable
-	register "dptf_enable" = "true"
+	register "dptf_enable" = "1"
 
 	register "tcc_offset" = "10"     # TCC of 90
 
@@ -100,7 +100,6 @@ chip soc/intel/alderlake
 			}"
 		end
 		device ref dtt on end
-		device ref gna on end
 		device ref tcss_xhci on end
 		device ref xhci on end
 		device ref shared_sram on end

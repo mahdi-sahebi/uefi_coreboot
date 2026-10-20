@@ -1,19 +1,16 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <acpi/acpigen.h>
-#include <bootmode.h>
-#include <cbfs.h>
-#include <cbmem.h>
 #include <console/console.h>
 #include <commonlib/endian.h>
-#include <delay.h>
 #include <device/device.h>
 #include <device/pci.h>
 #include <device/pci_ids.h>
 #include <device/pci_ops.h>
 #include <stdio.h>
 #include <string.h>
-#include <timestamp.h>
+#include <cbfs.h>
+#include <cbmem.h>
+#include <acpi/acpigen.h>
 
 /* Rmodules don't like weak symbols. */
 u32 __weak map_oprom_vendev(u32 vendev) { return vendev; }
@@ -96,16 +93,16 @@ struct rom_header *pci_rom_probe(const struct device *dev)
 
 	printk(BIOS_SPEW,
 	       "PCI expansion ROM, signature 0x%04x, INIT size 0x%04x, data ptr 0x%04x\n",
-	       le16_to_cpu(rom_header->signature),
-	       rom_header->size * 512, le16_to_cpu(rom_header->data));
+	       le32_to_cpu(rom_header->signature),
+	       rom_header->size * 512, le32_to_cpu(rom_header->data));
 
-	if (le16_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
+	if (le32_to_cpu(rom_header->signature) != PCI_ROM_HDR) {
 		printk(BIOS_ERR, "Incorrect expansion ROM header signature %04x\n",
-		       le16_to_cpu(rom_header->signature));
+		       le32_to_cpu(rom_header->signature));
 		return NULL;
 	}
 
-	rom_data = (((void *)rom_header) + le16_to_cpu(rom_header->data));
+	rom_data = (((void *)rom_header) + le32_to_cpu(rom_header->data));
 
 	printk(BIOS_SPEW, "PCI ROM image, vendor ID %04x, device ID %04x,\n",
 	       rom_data->vendor, rom_data->device);
@@ -147,9 +144,9 @@ struct rom_header *pci_rom_load(struct device *dev,
 							    + image_size);
 
 		rom_data = (struct pci_data *)((void *)rom_header
-				+ le16_to_cpu(rom_header->data));
+				+ le32_to_cpu(rom_header->data));
 
-		image_size = le16_to_cpu(rom_data->ilen) * 512;
+		image_size = le32_to_cpu(rom_data->ilen) * 512;
 	} while ((rom_data->type != 0) && (rom_data->indicator != 0)); // make sure we got x86 version
 
 	if (rom_data->type != 0)
@@ -172,112 +169,43 @@ struct rom_header *pci_rom_load(struct device *dev,
 			memcpy((void *)PCI_VGA_RAM_IMAGE_START, rom_header,
 			       rom_size);
 		}
-
-		dev->pci_vga_option_rom = (struct rom_header *)(PCI_VGA_RAM_IMAGE_START);
 		return (struct rom_header *)(PCI_VGA_RAM_IMAGE_START);
 	}
 
 	printk(BIOS_DEBUG, "Copying non-VGA ROM image from %p to %p, 0x%x bytes\n",
 	       rom_header, pci_ram_image_start, rom_size);
 
-	dev->pci_vga_option_rom = (struct rom_header *)pci_ram_image_start;
 	memcpy(pci_ram_image_start, rom_header, rom_size);
 	pci_ram_image_start += rom_size;
 	return (struct rom_header *)(pci_ram_image_start-rom_size);
 }
 
-static int should_run_oprom(struct device *dev, struct rom_header *rom)
-{
-	static int should_run = -1;
-
-	if (dev->upstream->segment_group) {
-		printk(BIOS_ERR, "Only option ROMs of devices in first PCI segment group can "
-				 "be run.\n");
-		return 0;
-	}
-
-	if (CONFIG(VENDORCODE_ELTAN_VBOOT))
-		if (rom != NULL)
-			if (!verified_boot_should_run_oprom(rom))
-				return 0;
-
-	if (should_run >= 0)
-		return should_run;
-
-	if (CONFIG(ALWAYS_RUN_OPROM)) {
-		should_run = 1;
-		return should_run;
-	}
-
-	/* Don't run VGA option ROMs, unless we have to print
-	 * something on the screen before the kernel is loaded.
-	 */
-	should_run = display_init_required();
-
-	if (!should_run)
-		printk(BIOS_DEBUG, "Not running VGA Option ROM\n");
-	return should_run;
-}
-
-static int should_load_oprom(struct device *dev)
-{
-	/* If S3_VGA_ROM_RUN is disabled, skip running VGA option
-	 * ROMs when coming out of an S3 resume.
-	 */
-	if (!CONFIG(S3_VGA_ROM_RUN) && acpi_is_wakeup_s3() &&
-		((dev->class >> 8) == PCI_CLASS_DISPLAY_VGA))
-		return 0;
-	if (CONFIG(ALWAYS_LOAD_OPROM))
-		return 1;
-	if (should_run_oprom(dev, NULL))
-		return 1;
-
-	return 0;
-}
-
-static void oprom_pre_graphics_stall(void)
-{
-	if (CONFIG_PRE_GRAPHICS_DELAY_MS)
-		mdelay(CONFIG_PRE_GRAPHICS_DELAY_MS);
-}
-
-/** Load an Option ROM into the C-segment and run it if necessary */
-void pci_rom_run(struct device *dev)
-{
-	struct rom_header *rom, *ram;
-
-	/* Only execute VGA ROMs. */
-	if (((dev->class >> 8) != PCI_CLASS_DISPLAY_VGA))
-		return;
-
-	if (!should_load_oprom(dev))
-		return;
-	timestamp_add_now(TS_OPROM_INITIALIZE);
-
-	rom = pci_rom_probe(dev);
-	if (rom == NULL)
-		return;
-
-	ram = pci_rom_load(dev, rom);
-	if (ram == NULL)
-		return;
-	timestamp_add_now(TS_OPROM_COPY_END);
-
-	if (!should_run_oprom(dev, rom))
-		return;
-
-	/* Wait for any configured pre-graphics delay */
-	oprom_pre_graphics_stall();
-
-	run_bios(dev, (unsigned long)ram);
-
-	gfx_set_init_done(1);
-	printk(BIOS_DEBUG, "VGA Option ROM was run\n");
-	timestamp_add_now(TS_OPROM_END);
-}
-
 /* ACPI */
 #if CONFIG(HAVE_ACPI_TABLES)
+
+/* VBIOS may be modified after oprom init so use the copy if present. */
+static struct rom_header *check_initialized(const struct device *dev)
+{
+	struct rom_header *run_rom;
+	struct pci_data *rom_data;
+
+	if (!CONFIG(VGA_ROM_RUN) && !CONFIG(RUN_FSP_GOP))
+		return NULL;
+
+	run_rom = (struct rom_header *)(uintptr_t)PCI_VGA_RAM_IMAGE_START;
+	if (read_le16(&run_rom->signature) != PCI_ROM_HDR)
+		return NULL;
+
+	rom_data = (struct pci_data *)((u8 *)run_rom
+			+ read_le16(&run_rom->data));
+
+	if (read_le32(&rom_data->signature) == PCI_DATA_HDR
+			&& read_le16(&rom_data->device) == dev->device
+			&& read_le16(&rom_data->vendor) == dev->vendor)
+		return run_rom;
+	else
+		return NULL;
+}
 
 static unsigned long
 ati_rom_acpi_fill_vfct(const struct device *device, acpi_vfct_t *vfct_struct,
@@ -286,8 +214,7 @@ ati_rom_acpi_fill_vfct(const struct device *device, acpi_vfct_t *vfct_struct,
 	acpi_vfct_image_hdr_t *header = &vfct_struct->image_hdr;
 	struct rom_header *rom;
 
-	/* Already loaded into DRAM? */
-	rom = device->pci_vga_option_rom;
+	rom = check_initialized(device);
 	if (!rom)
 		rom = pci_rom_probe(device);
 	if (!rom) {
@@ -299,7 +226,11 @@ ati_rom_acpi_fill_vfct(const struct device *device, acpi_vfct_t *vfct_struct,
 		return current;
 	}
 
-	printk(BIOS_DEBUG, "           Copying VBIOS image from %p\n", rom);
+	printk(BIOS_DEBUG, "           Copying %sVBIOS image from %p\n",
+			rom == (struct rom_header *)
+					(uintptr_t)PCI_VGA_RAM_IMAGE_START ?
+			"initialized " : "",
+			rom);
 
 	header->DeviceID = device->device;
 	header->VendorID = device->vendor;
@@ -311,6 +242,15 @@ ati_rom_acpi_fill_vfct(const struct device *device, acpi_vfct_t *vfct_struct,
 
 	vfct_struct->VBIOSImageOffset = (size_t)header - (size_t)vfct_struct;
 
+	/* Calculate and set checksum for VBIOS data if FSP GOP driver used,
+	   Since GOP driver modifies ATOMBIOS tables at end of VBIOS */
+	if (CONFIG(RUN_FSP_GOP)) {
+		/* Clear existing checksum before recalculating */
+		header->VbiosContent[VFCT_VBIOS_CHECKSUM_OFFSET] = 0;
+		header->VbiosContent[VFCT_VBIOS_CHECKSUM_OFFSET] =
+				acpi_checksum(header->VbiosContent, header->ImageLength);
+	}
+
 	current += header->ImageLength;
 	return current;
 }
@@ -319,8 +259,8 @@ unsigned long
 pci_rom_write_acpi_tables(const struct device *device, unsigned long current,
 			  struct acpi_rsdp *rsdp)
 {
-	/* Only handle display devices */
-	if ((device->class >> 16) != PCI_BASE_CLASS_DISPLAY)
+	/* Only handle VGA devices */
+	if ((device->class >> 8) != PCI_CLASS_DISPLAY_VGA)
 		return current;
 
 	/* Only handle enabled devices */
@@ -329,9 +269,6 @@ pci_rom_write_acpi_tables(const struct device *device, unsigned long current,
 
 	/* AMD/ATI uses VFCT */
 	if (device->vendor == PCI_VID_ATI) {
-		if (CONFIG(EDK2_AMD_GOP_DRIVER) && device->on_mainboard)
-			return current;
-
 		acpi_vfct_t *vfct;
 
 		current = ALIGN_UP(current, 8);
@@ -349,7 +286,6 @@ pci_rom_write_acpi_tables(const struct device *device, unsigned long current,
 
 void pci_rom_ssdt(const struct device *device)
 {
-	const struct rom_header *rom;
 	static size_t ngfx;
 
 	/* Only handle display devices */
@@ -360,43 +296,12 @@ void pci_rom_ssdt(const struct device *device)
 	if (!device->enabled)
 		return;
 
-	/* Already loaded into DRAM? */
-	rom = device->pci_vga_option_rom;
-	if (!rom) {
-		/* Probe for option rom */
-		rom = pci_rom_probe(device);
-		if (!rom || !rom->size) {
-			printk(BIOS_WARNING, "%s: Missing PCI Option ROM\n",
-			dev_path(device));
-			return;
-		}
-
-		/* Supports up to four devices. */
-		if ((CBMEM_ID_ROM0 + ngfx) > CBMEM_ID_ROM3) {
-			printk(BIOS_ERR, "%s: Out of CBMEM IDs.\n", dev_path(device));
-			return;
-		}
-
-		/* Prepare memory */
-		const size_t cbrom_length = rom->size * 512;
-		if (!cbrom_length) {
-			printk(BIOS_ERR, "%s: ROM has zero length!\n",
-			dev_path(device));
-			return;
-		}
-
-		void *cbrom = cbmem_add(CBMEM_ID_ROM0 + ngfx, cbrom_length);
-		if (!cbrom) {
-			printk(BIOS_ERR, "%s: Failed to allocate CBMEM.\n",
-			dev_path(device));
-			return;
-		}
-		/* Increment CBMEM id for next device */
-		ngfx++;
-
-		memcpy(cbrom, rom, cbrom_length);
-
-		rom = cbrom;
+	/* Probe for option rom */
+	const struct rom_header *rom = pci_rom_probe(device);
+	if (!rom || !rom->size) {
+		printk(BIOS_WARNING, "%s: Missing PCI Option ROM\n",
+		       dev_path(device));
+		return;
 	}
 
 	const char *scope = acpi_device_path(device);
@@ -405,9 +310,34 @@ void pci_rom_ssdt(const struct device *device)
 		return;
 	}
 
+	/* Supports up to four devices. */
+	if ((CBMEM_ID_ROM0 + ngfx) > CBMEM_ID_ROM3) {
+		printk(BIOS_ERR, "%s: Out of CBMEM IDs.\n", dev_path(device));
+		return;
+	}
+
+	/* Prepare memory */
+	const size_t cbrom_length = rom->size * 512;
+	if (!cbrom_length) {
+		printk(BIOS_ERR, "%s: ROM has zero length!\n",
+		       dev_path(device));
+		return;
+	}
+
+	void *cbrom = cbmem_add(CBMEM_ID_ROM0 + ngfx, cbrom_length);
+	if (!cbrom) {
+		printk(BIOS_ERR, "%s: Failed to allocate CBMEM.\n",
+		       dev_path(device));
+		return;
+	}
+	/* Increment CBMEM id for next device */
+	ngfx++;
+
+	memcpy(cbrom, rom, cbrom_length);
+
 	/* write _ROM method */
 	acpigen_write_scope(scope);
-	acpigen_write_rom((void *)rom, rom->size * 512);
+	acpigen_write_rom(cbrom, cbrom_length);
 	acpigen_pop_len(); /* pop scope */
 }
 #endif

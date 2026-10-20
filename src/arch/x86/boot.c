@@ -7,6 +7,7 @@
 #include <program_loading.h>
 #include <symbols.h>
 #include <assert.h>
+#include <pc80/vga.h>
 
 int payload_arch_usable_ram_quirk(uint64_t start, uint64_t size)
 {
@@ -21,6 +22,12 @@ int payload_arch_usable_ram_quirk(uint64_t start, uint64_t size)
 
 void arch_prog_run(struct prog *prog)
 {
+	// char str[50];
+	// memset(str, ' ', sizeof(str));
+	// memcpy(str, "[MN] do_arch_prog_run", strlen("[MN] do_arch_prog_run"));
+
+	// vga_line_write(8, str);
+
 #if ENV_RAMSTAGE && ENV_X86_64
 	const uint32_t arg = pointer_to_uint32_safe(prog_entry_arg(prog));
 	const uint32_t entry = pointer_to_uint32_safe(prog_entry(prog));

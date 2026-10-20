@@ -2,7 +2,6 @@
 
 #include <cbfs.h>
 #include <cpu/x86/msr.h>
-#include <mainboard/gpio.h>
 #include <security/intel/cbnt/cbnt.h>
 #include <security/intel/txt/txt.h>
 #include <soc/meminit.h>
@@ -59,6 +58,4 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 #endif
 
 	memcfg_init(mupd, &board_cfg, &spd_info, half_populated);
-
-	mainboard_configure_gpios();
 }

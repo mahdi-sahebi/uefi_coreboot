@@ -60,24 +60,17 @@ static void read_spd_md(const struct soc_mem_cfg *soc_mem_cfg, const struct mem_
 
 	if (pop_mask == 0)
 		die("Memory technology does not support the selected configuration!\n");
-	if (!(info->spd_data.in_mem)) {
 
-		printk(BIOS_DEBUG, "SPD index = %zu\n", info->cbfs_index);
+	printk(BIOS_DEBUG, "SPD index = %zu\n", info->cbfs_index);
 
-		/* Memory leak is ok as long as we have memory mapped boot media */
-		_Static_assert(CONFIG(BOOT_DEVICE_MEMORY_MAPPED),
-				"Function assumes memory-mapped boot media");
+	/* Memory leak is ok as long as we have memory mapped boot media */
+	_Static_assert(CONFIG(BOOT_DEVICE_MEMORY_MAPPED),
+		"Function assumes memory-mapped boot media");
 
-		*spd_len = CONFIG_DIMM_SPD_SIZE;
-		spd_data = spd_cbfs_map(info->cbfs_index);
-		if (!spd_data)
-			die("SPD not found in CBFS or incorrect index!\n");
-	} else {
-		*spd_len = info->spd_data.len;
-		spd_data = info->spd_data.ptr;
-		if (!spd_data)
-			die("SPD data in memory expected but no buffer provided!\n");
-	}
+	*spd_len = CONFIG_DIMM_SPD_SIZE;
+	spd_data = spd_cbfs_map(info->cbfs_index);
+	if (!spd_data)
+		die("SPD not found in CBFS or incorrect index!\n");
 
 	print_spd_info((uint8_t *)spd_data);
 
@@ -117,7 +110,7 @@ static bool read_spd_dimm(FSPM_UPD *memupd, const struct soc_mem_cfg *soc_mem_cf
 	 */
 	uint32_t pop_mask = 0;
 
-	if (!(info->topo & (MEM_TOPO_DIMM_MODULE | MEM_TOPO_LP5_CAMM)))
+	if (!(info->topo & MEM_TOPO_DIMM_MODULE))
 		return false;
 
 	for (ch = 0; ch < num_phys_ch; ch++) {
@@ -212,8 +205,7 @@ void mem_populate_channel_data(FSPM_UPD *memupd, const struct soc_mem_cfg *soc_m
 
 	if (spd_info->topo == MEM_TOPO_MEMORY_DOWN) {
 		data->spd_len = spd_md_len;
-	} else if (spd_info->topo == MEM_TOPO_DIMM_MODULE ||
-			spd_info->topo == MEM_TOPO_LP5_CAMM) {
+	} else if (spd_info->topo == MEM_TOPO_DIMM_MODULE) {
 		data->spd_len = spd_dimm_len;
 	} else {
 		/*

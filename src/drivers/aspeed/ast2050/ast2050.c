@@ -25,7 +25,8 @@ static void aspeed_ast2050_init(struct device *dev)
 
 	drm_dev.pdev = dev;
 
-	printk(BIOS_INFO, "ASpeed AST2050: initializing video device\n");
+	printk(BIOS_INFO, "ASpeed AST2050: initializing video device -------------------\n");
+	printk(BIOS_INFO, "ASpeed AST2050: initializing video device --234-----------------\n");
 	ast_driver_load(&drm_dev, 0);
 
 	/* Unlock extended configuration registers */
@@ -40,13 +41,14 @@ static void aspeed_ast2050_init(struct device *dev)
 		vga_io_init();
 
 		vga_textmode_init();
-		printk(BIOS_INFO, "ASpeed VGA text mode initialized\n");
+		printk(BIOS_INFO, "ASpeed VGA text mode initialized mmmmmmmmmmmmmmmmmmmmmmmm\n");
+		printk(BIOS_INFO, "ASpeed VGA text mode initialized mmmmmm234234mmmmmmmmmmmmmmmmmm\n");
 
 		/* if we don't have console, at least print something... */
-		vga_line_write(0, "ASpeed VGA text mode initialized");
+		vga_line_write(0, "ASpeed VGA text mode initialized - sample text sdfgsdfgsdgds");
 	} else if (CONFIG(GENERIC_LINEAR_FRAMEBUFFER)) {
 		ast_driver_framebuffer_init(&drm_dev, 0);
-		printk(BIOS_INFO, "ASpeed high resolution framebuffer initialized\n");
+		printk(BIOS_INFO, "ASpeed high resolution framebuffer initialized dddddddddddddddddddddd\n");
 	}
 }
 

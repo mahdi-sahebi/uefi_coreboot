@@ -151,16 +151,21 @@ update_microcode:
 	jmp	update_bsp_microcode
 end_microcode_update:
 #endif
-
-	/* Disable caching. */
+	/* Disable caching to change MTRR's. */
 	movl	%cr0, %eax
 	orl	$CR0_CacheDisable, %eax
 	movl	%eax, %cr0
 
-	invd
+	/* Clear the mask valid to disable the MTRR */
+	movl	$MTRR_PHYS_MASK(1), %ecx
+	rdmsr
+	andl	$(~MTRR_PHYS_MASK_VALID), %eax
+	wrmsr
 
-	/* Enable caching */
+	/* Enable cache. */
+	movl	%cr0, %eax
 	andl	$(~(CR0_CacheDisable | CR0_NoWriteThrough)), %eax
+	invd
 	movl	%eax, %cr0
 
 	/* enable the 'no eviction' mode */
@@ -170,46 +175,36 @@ end_microcode_update:
 	andl	$~2, %eax
 	wrmsr
 
-	/* Fill up the cache next. */
+	/* Clear the cache memory region. This will also fill up the cache. */
+	cld
+	xorl	%eax, %eax
 	movl	$_car_mtrr_start, %edi
-
-	/* Number of loops. */
 	movl	$_car_mtrr_size, %ecx
-	shr	$6, %ecx
-	xorl	%ebx, %ebx
-	mov	$64, %bl
+	shr	$2, %ecx
+	rep	stosl
 
-1:
-	/*
-	 * BWG: *One* location in each 64-byte cache line must be written
-	 * to set all cached values to modified state.
-	 *
-	 * Value of %eax doesn't matter here. CAR is zeroed later.
-	 *
-	 * Zeroing the whole cache here *not* work when CR0.CD = 0.
-	 * Zeroing the whole cache here *does* work when CR0.CD = 1,
-	 * but will be a couple of times slower (4 times on Sandy Bridge).
-	 */
-	movl	%eax, (%edi)
-	addl	%ebx, %edi
-
-	loop	1b
-
-	/* enable the 'no eviction run' state. */
+	/* enable the 'no eviction run' state */
 	movl	$NoEvictMod_MSR, %ecx
 	rdmsr
-	or	$3, %al
+	orl	$3, %eax
+	wrmsr
+
+	post_code(POSTCODE_SOC_DISABLE_CACHE)
+	/* Enable Cache-as-RAM mode by disabling cache. */
+	movl	%cr0, %eax
+	orl	$CR0_CacheDisable, %eax
+	movl	%eax, %cr0
+
+	movl	$MTRR_PHYS_MASK(1), %ecx
+	rdmsr
+	orl	$MTRR_PHYS_MASK_VALID, %eax
 	wrmsr
 
 	post_code(POSTCODE_SOC_ENABLE_CACHE)
-
-	/* Now that CAR is enabled clear it. */
-	movl	$_car_mtrr_start, %edi
-	movl	$_car_mtrr_size, %ecx
-	cld
-	xorl	%eax, %eax
-	shr	$2, %ecx
-	rep	stosl
+	/* Enable cache. */
+	movl	%cr0, %eax
+	andl	$(~(CR0_CacheDisable | CR0_NoWriteThrough)), %eax
+	movl	%eax, %cr0
 
 	/* Setup the stack. */
 	mov	$_ecar_stack, %esp
@@ -219,7 +214,7 @@ end_microcode_update:
 	andl	$0xfffffff0, %esp
 
 #if ENV_X86_64
-	setup_longmode $PML4E
+	setup_longmode $PM4LE
 
 	movd	%mm2, %rdi
 	shlq	$32, %rdi

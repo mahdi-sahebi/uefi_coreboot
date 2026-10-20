@@ -60,8 +60,6 @@
 #define SRAM_END(addr) REGION_END(sram, addr)
 
 #define DRAM_START(addr) REGION_START(dram, addr)
-/* This should rarely be used because DRAM-size is usually not compile-time constant. */
-#define DRAM_END(addr) REGION_END(dram, addr)
 
 #define TIMESTAMP(addr, size) \
 	REGION(timestamp, addr, size, 8) \
@@ -99,32 +97,6 @@
 	#define POSTRAM_CBFS_CACHE(addr, size) \
 		REGION(postram_cbfs_cache, addr, size, 4) \
 		ALIAS_REGION(postram_cbfs_cache, cbfs_cache)
-#endif
-
-/* Use either DMA_COHERENT (unified) or both (PRERAM|POSTRAM)_DMA_COHERENT */
-#define DMA_COHERENT(addr, size) \
-	REGION(dma_coherent, addr, size, 4K) \
-	_ = ASSERT(size % 4K == 0, \
-		"DMA buffer should be multiple of smallest page size (4K)!"); \
-	ALIAS_REGION(dma_coherent, preram_dma_coherent) \
-	ALIAS_REGION(dma_coherent, postram_dma_coherent)
-
-#if ENV_ROMSTAGE_OR_BEFORE
-	#define PRERAM_DMA_COHERENT(addr, size) \
-		REGION(preram_dma_coherent, addr, size, 4K) \
-		_ = ASSERT(size % 4K == 0, \
-		"Pre-RAM DMA buffer should be multiple of smallest page size (4K)!"); \
-		ALIAS_REGION(preram_dma_coherent, dma_coherent)
-	#define POSTRAM_DMA_COHERENT(addr, size) \
-		REGION(postram_dma_coherent, addr, size, 4K)
-#else
-	#define PRERAM_DMA_COHERENT(addr, size) \
-		REGION(preram_dma_coherent, addr, size, 4K)
-	#define POSTRAM_DMA_COHERENT(addr, size) \
-		REGION(postram_dma_coherent, addr, size, 4K) \
-		_ = ASSERT(size % 4K == 0, \
-		"Post-RAM DMA buffer should be multiple of smallest page size (4K)!"); \
-		ALIAS_REGION(postram_dma_coherent, dma_coherent)
 #endif
 
 /* Careful: 'INCLUDE <filename>' must always be at the end of the output line */

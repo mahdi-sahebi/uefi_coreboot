@@ -9,7 +9,7 @@
 #include <cbmem.h>
 #include <console/console.h>
 #include <program_loading.h>
-#include <timestamp.h>
+
 #include <arm-trusted-firmware/include/export/common/bl_common_exp.h>
 
 static entry_point_info_t bl32_ep_info = {
@@ -81,23 +81,16 @@ void run_bl31(u64 payload_entry, u64 payload_arg0, u64 payload_spsr)
 	bl31_entry = prog_entry(&bl31);
 
 	if (CONFIG(ARM64_USE_SECURE_OS)) {
-		timestamp_add_now(TS_TFA_LOAD_BL32_START);
 		struct prog bl32 = PROG_INIT(PROG_BL32,
 					     CONFIG_CBFS_PREFIX"/secure_os");
 
-		if (CONFIG(ARM64_USE_SECURE_OS_PAYLOAD)) {
-			if (!selfload(&bl32))
-				die("BL32 load failed");
-		} else {
-			if (cbfs_prog_stage_load(&bl32))
-				die("BL32 load failed");
-		}
+		if (cbfs_prog_stage_load(&bl32))
+			die("BL32 load failed");
 
 		bl32_ep_info.pc = (uintptr_t)prog_entry(&bl32);
 		bl32_ep_info.spsr = SPSR_EXCEPTION_MASK |
 				get_eret_el(EL1, SPSR_USE_L);
 		bl33_params_node.next_params_info = &bl32_params_node;
-		timestamp_add_now(TS_TFA_LOAD_BL32_END);
 	}
 
 	bl33_ep_info.pc = payload_entry;
