@@ -8,13 +8,10 @@ chip soc/intel/xeon_sp/spr
 					chip superio/aspeed/ast2400
 						register "use_espi" = "1"
 						device pnp 2e.2 on	# SUART1
-							io 0x60 = 0x3f8
-							irq 0x70 = 0x04
-						end
-						device pnp 2e.3 on # SUART2
 							io 0x60 = 0x2f8
 							irq 0x70 = 0x03
 						end
+						device pnp 2e.3 off end # SUART2
 					end
 				end
 			end
