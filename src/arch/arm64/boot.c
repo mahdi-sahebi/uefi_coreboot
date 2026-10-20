@@ -26,16 +26,21 @@ static void run_payload(struct prog *prog)
 
 void arch_prog_run(struct prog *prog)
 {
+	vga_line_write(6, "[MN] arch_prog_run - 0");
 	void (*doit)(void *);
 
 	if (ENV_RAMSTAGE && prog_type(prog) == PROG_PAYLOAD) {
+		vga_line_write(6, "[MN] arch_prog_run - 1");
 		run_payload(prog);
 		return;
 	}
 
+	vga_line_write(6, "[MN] arch_prog_run - 2");
 	doit = prog_entry(prog);
 
+	vga_line_write(6, "[MN] arch_prog_run - 3");
 	doit(prog_entry_arg(prog));
+	vga_line_write(6, "[MN] arch_prog_run - 4");
 }
 
 /* Generic stage entry point. Can be overridden by board/SoC if needed. */

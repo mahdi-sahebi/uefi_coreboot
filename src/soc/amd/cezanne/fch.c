@@ -83,15 +83,8 @@ const struct irq_idx_name *sb_get_apic_reg_association(size_t *size)
 static void fch_clk_output_48Mhz(void)
 {
 	uint32_t ctrl = misc_read32(MISC_CLK_CNTL0);
-	const struct soc_amd_cezanne_config *cfg = config_of_soc();
-
-	/* If using external clock source for I2S, disable the internal clock output */
-	if (cfg->acp_i2s_use_external_48mhz_osc &&
-		cfg->common_config.acp_config.acp_pin_cfg == I2S_PINS_I2S_TDM)
-		ctrl &= ~BP_X48M0_OUTPUT_EN;
-	else
-		ctrl |= BP_X48M0_OUTPUT_EN;
-
+	/* Enable BP_X48M0 Clock Output */
+	ctrl |= BP_X48M0_OUTPUT_EN;
 	/* Disable clock output in S0i3 */
 	ctrl |= BP_X48M0_S0I3_DIS;
 	misc_write32(MISC_CLK_CNTL0, ctrl);
@@ -152,11 +145,7 @@ static void cgpll_clock_gate_init(void)
 	t = misc_read32(MISC_CLKGATEDCNTL);
 	t |= ALINKCLK_GATEOFFEN;
 	t |= BLINKCLK_GATEOFFEN;
-
-	if (!CONFIG(KEEP_ACP_RUNNING_IN_S3)) {
-		t |= XTAL_PAD_S3_TURNOFF_EN;
-	}
-
+	t |= XTAL_PAD_S3_TURNOFF_EN;
 	t |= XTAL_PAD_S5_TURNOFF_EN;
 	misc_write32(MISC_CLKGATEDCNTL, t);
 
@@ -173,9 +162,7 @@ static void cgpll_clock_gate_init(void)
 
 void fch_init(void *chip_info)
 {
-	if (!CONFIG(SOC_AMD_RENOIR))
-		set_resets_to_cold();
-
+	set_resets_to_cold();
 	i2c_soc_init();
 	fch_init_acpi_ports();
 

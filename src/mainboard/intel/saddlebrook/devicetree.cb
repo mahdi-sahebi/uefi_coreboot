@@ -2,8 +2,8 @@
 
 chip soc/intel/skylake
 
-	register "deep_s5_enable_ac" = "false"
-	register "deep_s5_enable_dc" = "false"
+	register "deep_s5_enable_ac" = "0"
+	register "deep_s5_enable_dc" = "0"
 	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN"
 
 	# GPE configuration
@@ -15,7 +15,7 @@ chip soc/intel/skylake
 	register "gpe0_dw2" = "GPP_E"
 
 	# FSP Configuration
-	register "DspEnable" = "true"
+	register "DspEnable" = "1"
 	register "IoBufferOwnership" = "3"
 	register "SkipExtGfxScan" = "1"
 
@@ -186,21 +186,25 @@ chip soc/intel/skylake
 		device ref i2c4		on end
 		device ref pcie_rp1	on end
 		device ref pcie_rp6	on
-			register "PcieRpClkReqSupport[5]" = "true"
+			register "PcieRpEnable[5]" = "1"
+			register "PcieRpClkReqSupport[5]" = "1"
 			register "PcieRpClkReqNumber[5]" = "0"
 		end
 		device ref pcie_rp8	on
 			# x1
-			register "PcieRpClkReqSupport[7]" = "true"
+			register "PcieRpEnable[7]" = "1"
+			register "PcieRpClkReqSupport[7]" = "1"
 			register "PcieRpClkReqNumber[7]" = "3"
 		end
 		device ref pcie_rp9	on
 			# x4
-			register "PcieRpClkReqSupport[8]" = "true"
+			register "PcieRpEnable[8]" = "1"
+			register "PcieRpClkReqSupport[8]" = "1"
 			register "PcieRpClkReqNumber[8]" = "4"
 		end
 		device ref pcie_rp13	on
-			register "PcieRpClkReqSupport[12]" = "true"
+			register "PcieRpEnable[12]" = "1"
+			register "PcieRpClkReqSupport[12]" = "1"
 			register "PcieRpClkReqNumber[12]" = "1"
 		end
 		device ref uart0	on end

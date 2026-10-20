@@ -86,8 +86,7 @@ static const struct pad_config gpio_table[] = {
 	/* GPP_B21 : net NC is not present in the given design */
 	PAD_NC(GPP_B21, NONE),
 	/* GPP_B22 : [] ==> USB_C_FORCE_PWR */
-	/* TODO: Set back to 0 when the Hayden Bridge Re-timer issue is fixed (b/386019934) */
-	PAD_CFG_GPO(GPP_B22, 1, DEEP),
+	PAD_CFG_GPO(GPP_B22, 0, DEEP),
 	/* GPP_B23 : net NC is not present in the given design */
 	PAD_NC(GPP_B23, NONE),
 

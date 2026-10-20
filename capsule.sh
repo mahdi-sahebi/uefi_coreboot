@@ -6,10 +6,6 @@ edk_workspace=payloads/external/edk2/workspace
 edk_basetools=${edk_workspace}/Dasharo/BaseTools
 edk_tools=${edk_basetools}/BinWrappers/PosixLike
 edk_scripts=${edk_basetools}/Scripts
-# gets overwritten with gencap/GenerateCapsule if it exists and is executable,
-# that directory is created by `box` subcommand and allows not depending on
-# EDK2's repository for resigning
-generate_capsule=${edk_tools}/GenerateCapsule
 
 function die() {
     echo error: "$@" 1>&2
@@ -41,55 +37,19 @@ function print_usage() {
     echo "Usage: $(basename "$0") subcommand [subcommand-args...]"
     echo
     echo 'Subcommands:'
-    echo '  box            export standalone GenerateCapsule out of EDK2'
-    echo '  help           print this message'
-    echo '  keygen         use OpenSSL to auto-generate test keys suitable for signing'
-    echo '                 positional argument: directory-path'
-    echo '  make           build a capsule, options:'
-    echo '                 -t root-certificate-file'
-    echo '                 -o subroot-certificate-file'
-    echo '                 -s signing-certificate-file'
-    echo '                 -b (the flag adds battery check DXE into the capsule)'
-    echo '  resign         resign an existing capsule with a different key'
-    echo '                 -t root-certificate-file'
-    echo '                 -o subroot-certificate-file'
-    echo '                 -s signing-certificate-file'
-    echo '                 positional arguments: input-capsule output-capsule'
-    echo '  create_cabinet create a fwupd cabinet (.cab) from a capsule'
-    echo '                 positional argument: capsule-file'
-    echo '  upload_lvfs    upload a cabinet (.cab) to LVFS, options'
-    echo '                 [-c credentials-file] (defaults to ~/.config/dasharo-credentials/lvfs)'
-    echo '                 [-u lvfs-base-url]    (defaults to $LVFS_URL)'
-    echo '                 [-e email]            (defaults to $LVFS_EMAIL)'
-    echo '                 [-t token]            (defaults to $LVFS_TOKEN)'
-    echo '                 positional argument:'
-    echo '                 cabinet-file (optional if exactly one .cab in current dir)'
+    echo '  box     export standalone GenerateCapsule out of EDK2'
+    echo '  help    print this message'
+    echo '  keygen  use OpenSSL to auto-generate test keys suitable for signing'
+    echo '          positional argument: directory-path'
+    echo '  make    build a capsule, options:'
+    echo '          -t root-certificate-file'
+    echo '          -o subroot-certificate-file'
+    echo '          -s signing-certificate-file'
+    echo '          -b (the flag adds battery check DXE into the capsule)'
 }
 
 function help_subcommand() {
     print_usage
-}
-
-function source_coreboot_config() {
-    local config_file=${1-.config}
-
-    if [ ! -f "$config_file" ]; then
-            die "config file '$config_file' doesn't exist"
-    fi
-
-    local line
-
-    while read -r line; do
-        if ! eval "$line"; then
-            die "failed to source '.config'"
-        fi
-    done <<< "$(sed 's/\$(\([^)]\+\))/${\1}/g' $config_file)"
-}
-
-function require_capsule_support() {
-    if [ "$CONFIG_DRIVERS_EFI_UPDATE_CAPSULES" != y ]; then
-        die "current board configuration lacks support of update capsules"
-    fi
 }
 
 function keygen_subcommand() {
@@ -218,17 +178,6 @@ function check_cert() {
     fi
 }
 
-function check_generate_capsule() {
-    if [ -x gencap/GenerateCapsule ]; then
-        info "found 'gencap/GenerateCapsule'"
-        generate_capsule=gencap/GenerateCapsule
-    fi
-
-    if [ ! -x "$generate_capsule" ]; then
-        die "'${generate_capsule}' can't be executed"
-    fi
-}
-
 function make_subcommand() {
     if [ ! -f .config ]; then
         die "no '.config' file in current directory"
@@ -239,18 +188,26 @@ function make_subcommand() {
     if [ ! build/coreboot.rom -nt .config ]; then
         die "'build/coreboot.rom' is not newer than .config'; need a re-build?"
     fi
+    if [ ! -x "${edk_tools}/GenerateCapsule" ]; then
+        die "'${edk_tools}/GenerateCapsule' can't be executed"
+    fi
 
-    check_generate_capsule
+    # import coreboot's config file replacing $(...) with ${...}
+    while read -r line; do
+        if ! eval "$line"; then
+            die "failed to source '.config'"
+        fi
+    done <<< "$(sed 's/\$(\([^)]\+\))/${\1}/g' .config)"
 
-    source_coreboot_config
-    require_capsule_support
+    if [ "$CONFIG_DRIVERS_EFI_UPDATE_CAPSULES" != y ]; then
+        die "current board configuration lacks support of update capsules"
+    fi
 
     # Option names match terminology of GenerateCapsule which conveniently start
     # with different letters:
     #  * t - trusted
     #  * o - other
     #  * s - signer
-
     local root_cert sub_cert sign_cert include_battery_check
     while getopts "t:o:s:b" OPTION; do
         case $OPTION in
@@ -273,12 +230,6 @@ function make_subcommand() {
     cap_file+=_${CONFIG_LOCALVERSION}
     cap_file+=.cap
 
-    local cap_flags="--capflag PersistAcrossReset"
-    # Capsules on AMD boards do not survive resets
-    if [ "$CONFIG_EDK2_CAPSULE_DOES_NOT_SURVIVE_RESET" == y ]; then
-        cap_flags=""
-    fi
-
     if [ -e "$cap_file" ]; then
         confirm "Overwrite already existing '$cap_file'?"
     fi
@@ -292,7 +243,7 @@ function make_subcommand() {
 
     local json_file
     json_file=$(mktemp --tmpdir --suffix -cap.json XXXXXXXX)
-    trap "$(printf 'rm -f -- %q %q' "$json_file" "$cap_file.inner")" EXIT
+    trap "$(printf 'rm -f %q' "$json_file")" EXIT
 
     cat > "$json_file" << EOF
 {
@@ -303,63 +254,22 @@ EOF
     if [ "$include_battery_check" = 1 ]; then
       cat >> "$json_file" << EOF
         {
-            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_GCC/X64/CapsuleChargerCheckDxe.efi"
+            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_COREBOOT/X64/CapsuleChargerCheckDxe.efi"
         },
 EOF
     fi
 
-    local opt_root_cert=$root_cert
-    local opt_sub_cert=$sub_cert
-    local opt_sign_cert=$sign_cert
-    if [ "${CONFIG_EDK2_CAPSULES_V2:-n}${CONFIG_EDK2_CAPSULES_V2_TRANSITION:-n}" = yn ]; then
-        # The inner capsule is always signed with the test key.  Not signing it
-        # at all doesn't work because FmpDxe doesn't accept unsigned payloads at
-        # least due to Image->AuthInfo.Hdr.wRevision check in
-        # AuthenticateFmpImage().
-        opt_root_cert=${edk_basetools}/Source/Python/Pkcs7Sign/TestRoot.pub.pem
-        opt_sub_cert=${edk_basetools}/Source/Python/Pkcs7Sign/TestSub.pub.pem
-        opt_sign_cert=${edk_basetools}/Source/Python/Pkcs7Sign/TestCert.pem
-    fi
-
     cat >> "$json_file" << EOF
         {
-            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_GCC/X64/CapsuleSplashDxe.efi"
+            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_COREBOOT/X64/CapsuleSplashDxe.efi"
         },
         {
-            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_GCC/X64/FmpDxe.efi"
+            "Driver": "${edk_workspace}/Build/DasharoPayloadPkgX64/${build_type}_COREBOOT/X64/FmpDxe.efi"
         }
     ],
     "Payloads": [
         {
             "Payload": "build/coreboot.rom",
-            "Guid": "${CONFIG_DRIVERS_EFI_MAIN_FW_GUID}",
-            "FwVersion": "${CONFIG_DRIVERS_EFI_MAIN_FW_VERSION}",
-            "LowestSupportedVersion": "${CONFIG_DRIVERS_EFI_MAIN_FW_LSV}",
-
-            "OpenSslSignerPrivateCertFile": "${opt_sign_cert}",
-            "OpenSslOtherPublicCertFile": "${opt_sub_cert}",
-            "OpenSslTrustedPublicCertFile": "${opt_root_cert}"
-        }
-    ]
-}
-EOF
-
-    if [ "${CONFIG_EDK2_CAPSULES_V2:-n}${CONFIG_EDK2_CAPSULES_V2_TRANSITION:-n}" = yn ]; then
-        # The capsule created above is the inner capsule.  Make it and then
-        # update JSON file to point at it as a payload.
-        if ! "$generate_capsule" --encode \
-                                 $cap_flags \
-                                 --json-file "$json_file" \
-                                 --output "$cap_file.inner"; then
-            die "GenerateCapsule failed"
-        fi
-
-        cat > "$json_file" << EOF
-{
-    "EmbeddedDrivers": [],
-    "Payloads": [
-        {
-            "Payload": "$cap_file.inner",
             "Guid": "${CONFIG_DRIVERS_EFI_MAIN_FW_GUID}",
             "FwVersion": "${CONFIG_DRIVERS_EFI_MAIN_FW_VERSION}",
             "LowestSupportedVersion": "${CONFIG_DRIVERS_EFI_MAIN_FW_LSV}",
@@ -371,232 +281,17 @@ EOF
     ]
 }
 EOF
-    fi
 
     # Linux doesn't support InitiateReset flag, omitting it to rely on manual
     # warm reset
-    if ! "$generate_capsule" --encode \
-                             $cap_flags \
-                             --json-file "$json_file" \
-                             --output "$cap_file"; then
+    if ! "${edk_tools}/GenerateCapsule" --encode \
+                                        --capflag PersistAcrossReset \
+                                        --json-file "$json_file" \
+                                        --output "$cap_file"; then
         die "GenerateCapsule failed"
     fi
 
     echo "Created the capsule at '$cap_file'"
-}
-
-function assert_file_exists() {
-    local path=$1
-
-    if [ ! -f "$path" ]; then
-        die "File '$path' not found"
-    fi
-}
-
-function assert_file_is_a_capsule() {
-    local path=$1
-
-    local fmp_guid_bytes_hex=edd5cb6d2de8444cbda17194199ad92a
-    if [ "$(xxd -l 16 -ps "$path")" != "$fmp_guid_bytes_hex" ]; then
-        die "'$path' is not an FMP capsule file"
-    fi
-}
-
-function assert_command_exists() {
-    local cmd=$1
-
-    if ! command -v "$cmd" >/dev/null 2>&1; then
-        die "'$cmd' not found in PATH"
-    fi
-}
-
-function decode_capsule() {
-    local tmp_dir=$1
-    local capsule=$2
-    local -n result=$3
-
-    "$generate_capsule" --decode "$capsule" \
-                        --output "$tmp_dir/decoded"
-
-    local json_file="$tmp_dir/decoded.json"
-    result["fw_version"]=$(jq -r '.Payloads[0].FwVersion' "$json_file")
-    result["guid"]=$(jq -r '.Payloads[0].Guid' "$json_file")
-    result["lowest_supported_version"]=$(jq -r '.Payloads[0].LowestSupportedVersion' "$json_file")
-    result["payload"]=$(jq -r '.Payloads[0].Payload' "$json_file")
-
-    local drivers
-    drivers=$(ls -v "$tmp_dir"/decoded.EmbeddedDriver* 2>/dev/null | while read -r f; do
-        printf '    { "Driver": "%s" },\n' "$f"
-    done | sed '$s/,$//')
-    result["drivers"]="$drivers"
-}
-
-function encode_capsule() {
-    local tmp_dir=$1
-    local cap_out=$2
-    local -n json_data=$3
-
-    cat > "$tmp_dir/cap.json" <<EOF
-{
-  "EmbeddedDrivers": [
-${json_data["drivers"]}
-  ],
-  "Payloads": [
-    {
-      "Payload": "${json_data["payload"]}",
-      "Guid": "${json_data["guid"]}",
-      "FwVersion": "${json_data["fw_version"]}",
-      "LowestSupportedVersion": "${json_data["lowest_supported_version"]}",
-      "OpenSslSignerPrivateCertFile": "${json_data["sign_cert"]}",
-      "OpenSslOtherPublicCertFile": "${json_data["sub_cert"]}",
-      "OpenSslTrustedPublicCertFile": "${json_data["root_cert"]}"
-    }
-  ]
-}
-EOF
-
-    local cap_flags=( --capflag PersistAcrossReset )
-    # Capsules on AMD boards do not survive resets
-    if [ "$CONFIG_EDK2_CAPSULE_DOES_NOT_SURVIVE_RESET" = y ]; then
-        cap_flags=()
-    fi
-
-    "$generate_capsule" --encode \
-                        "${cap_flags[@]}" \
-                        --json-file "$tmp_dir/cap.json" \
-                        --output "$cap_out"
-}
-
-function resign_subcommand() {
-    check_generate_capsule
-
-    local root_cert sub_cert sign_cert
-    OPTIND=1
-    while getopts "t:o:s:" OPTION; do
-        case $OPTION in
-            t) root_cert="$OPTARG" ;;
-            o) sub_cert="$OPTARG" ;;
-            s) sign_cert="$OPTARG" ;;
-            *) exit 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-
-    if [ $# -ne 2 ]; then
-        die "Incorrect number of positional parameters: $# (expected: 2)"
-    fi
-
-    local in_capsule=$1
-    local out_capsule=$2
-
-    assert_file_exists "$in_capsule"
-    assert_file_is_a_capsule "$in_capsule"
-    if [ -e "$out_capsule" ]; then
-        confirm "Overwrite already existing '$out_capsule'?"
-    fi
-    assert_command_exists jq
-    assert_command_exists cbfstool
-
-    local tmp_dir
-    tmp_dir=$(mktemp --tmpdir --directory --suffix -cap XXXXXXXX)
-    trap "$(printf 'rm -r -- %q' "$tmp_dir")" EXIT
-
-    check_cert root "$root_cert"
-    check_cert sub "$sub_cert"
-    check_cert sign "$sign_cert"
-
-    local -A metadata
-    decode_capsule "$tmp_dir" "$in_capsule" metadata
-    metadata[sign_cert]=$sign_cert
-    metadata[sub_cert]=$sub_cert
-    metadata[root_cert]=$root_cert
-
-    local -A metadata_inner
-    mkdir "$tmp_dir/inner"
-    decode_capsule "$tmp_dir/inner" "${metadata[payload]}" metadata_inner
-    cbfstool "${metadata_inner[payload]}" extract -f "$tmp_dir/inner/.config" -n config 2>/dev/null
-    source_coreboot_config "$tmp_dir/inner/.config"
-
-    encode_capsule "$tmp_dir" "$out_capsule" metadata
-}
-
-function create_cabinet_subcommand() {
-    if [ $# -ne 1 ]; then
-        die "Incorrect number of input parameters specified: $# (expected: 1)"
-    fi
-
-    local capsule=$1
-    local cabinet="${capsule%.cap}.cab"
-
-    if [ -z "$capsule" ]; then
-        die "No input capsule specified"
-    fi
-
-    assert_file_exists "$capsule"
-    assert_file_is_a_capsule "$capsule"
-    assert_command_exists fwupdtool
-
-    source_coreboot_config
-    require_capsule_support
-
-    local date vendor version
-    date=$(stat -c %w "$capsule" 2>/dev/null | cut -d ' ' -f 1)
-    if [ -z "$date" ] || [ "$date" = "-" ]; then
-        date=$(stat -c %y "$capsule" 2>/dev/null | cut -d ' ' -f 1)
-    fi
-
-    vendor=$(grep -e "CONFIG_VENDOR_.*=y" .config | cut -d '=' -f 1 | cut -d '_' -f 3- | awk '{ print tolower($0) }')
-    version=$(echo "$CONFIG_LOCALVERSION" | tr -d 'v' | cut -d '-' -f 1)
-
-    local archive_dir
-    archive_dir=$(mktemp --tmpdir -d XXXXXXXX)
-    trap 'rm -rf -- "$archive_dir"' EXIT
-
-    local id=com.${vendor}.${CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME}.${CONFIG_MAINBOARD_VERSION}.system.firmware
-    id=${id// /_}
-    id=${id////_}
-
-    cat > "${archive_dir}/firmware.metainfo.xml" << EOF
-<?xml version='1.0' encoding='utf-8'?>
-<component type="firmware">
-  <id>${id}</id>
-  <name>${CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME}</name>
-  <summary>${CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME} ${CONFIG_MAINBOARD_VERSION} system firmware</summary>
-  <description>
-    <p>Dasharo ${CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME} ${CONFIG_MAINBOARD_VERSION} system firmware</p>
-  </description>
-  <provides>
-    <firmware type="flashed">${CONFIG_DRIVERS_EFI_MAIN_FW_GUID}</firmware>
-  </provides>
-  <url type="homepage">https://docs.dasharo.com/</url>
-  <metadata_license>CC0-1.0</metadata_license>
-  <project_license>LicenseRef-proprietary</project_license>
-  <categories>
-    <category>X-System</category>
-  </categories>
-  <custom>
-    <value key="LVFS::VersionFormat">quad</value>
-    <value key="LVFS::VersionFormat">dell-bios-msb</value>
-    <value key="LVFS::UpdateProtocol">org.uefi.capsule</value>
-  </custom>
-  <releases>
-    <release version="${version}" date="${date}" tag="${CONFIG_LOCALVERSION}" urgency="high">
-      <checksum filename="firmware.bin" target="content"/>
-    </release>
-  </releases>
-</component>
-
-EOF
-
-    cp "$capsule" "${archive_dir}/firmware.bin"
-
-    pushd "$archive_dir" >/dev/null
-    fwupdtool build-cabinet "${cabinet}" firmware.bin firmware.metainfo.xml
-    popd >/dev/null
-
-    cp "${archive_dir}/${cabinet}" ./
-
-    echo "File ${cabinet} created"
 }
 
 function box_subcommand() {
@@ -648,121 +343,6 @@ EOF
     echo "  ${dst}/GenerateCapsule --output decoded --decode coreboot.cap"
 }
 
-function upload_lvfs_subcommand() {
-    local default_creds_file creds_file opt_creds_file opt_url opt_email opt_token
-    local env_email env_token env_url
-    local email token base_url cabinet
-    local url response status body curl_rc
-
-    default_creds_file="${XDG_CONFIG_HOME:-$HOME/.config}/dasharo-credentials/lvfs"
-    creds_file="$default_creds_file"
-
-    opt_creds_file=""
-    opt_url=""
-    opt_email=""
-    opt_token=""
-
-    OPTIND=1
-    while getopts "c:u:e:t:" OPTION; do
-        case $OPTION in
-            c) opt_creds_file="$OPTARG" ;;
-            u) opt_url="$OPTARG" ;;
-            e) opt_email="$OPTARG" ;;
-            t) opt_token="$OPTARG" ;;
-            *) exit 1 ;;
-        esac
-    done
-    shift $((OPTIND - 1))
-
-    cabinet="$1"
-
-    if [ -n "$opt_creds_file" ]; then
-        creds_file="$opt_creds_file"
-    fi
-
-    env_email="${LVFS_EMAIL-}"
-    env_token="${LVFS_TOKEN-}"
-    env_url="${LVFS_URL-}"
-
-    if [ -r "$creds_file" ]; then
-        # shellcheck disable=SC1090
-        . "$creds_file"
-    fi
-
-    if [ -n "$env_email" ]; then
-        LVFS_EMAIL="$env_email"
-    fi
-    if [ -n "$env_token" ]; then
-        LVFS_TOKEN="$env_token"
-    fi
-    if [ -n "$env_url" ]; then
-        LVFS_URL="$env_url"
-    fi
-
-    email="${LVFS_EMAIL-}"
-    token="${LVFS_TOKEN-}"
-    base_url="${LVFS_URL-https://fwupd.org}"
-
-    if [ -n "$opt_email" ]; then
-        email="$opt_email"
-    fi
-    if [ -n "$opt_token" ]; then
-        token="$opt_token"
-    fi
-    if [ -n "$opt_url" ]; then
-        base_url="$opt_url"
-    fi
-
-    if [ -z "$cabinet" ]; then
-        set -- ./*.cab
-        if [ ! -e "$1" ]; then
-            die "No cabinet specified and no .cab found in current directory"
-        fi
-        if [ $# -ne 1 ]; then
-            die "Multiple .cab files found in current directory, specify the cabinet path explicitly"
-        fi
-        cabinet="$1"
-    fi
-
-    assert_file_exists "$cabinet"
-
-    if [ -z "$email" ]; then
-        die "LVFS email is not set. Put LVFS_EMAIL into '$creds_file' or pass -e"
-    fi
-    if [ -z "$token" ]; then
-        die "LVFS token is not set. Put LVFS_TOKEN into '$creds_file' or pass -t"
-    fi
-
-    assert_command_exists curl
-
-    url="${base_url%/}/lvfs/upload/token"
-
-    set +e
-    response=$(curl -sS -X POST \
-        --connect-timeout 10 --max-time 300 \
-        --retry 3 --retry-delay 2 --retry-connrefused \
-        -F "file=@${cabinet}" \
-        --user "${email}:${token}" \
-        -w "\n%{http_code}" \
-        "$url")
-    curl_rc=$?
-    set -e
-
-    if [ "$curl_rc" -ne 0 ]; then
-        die "curl failed with exit code $curl_rc"
-    fi
-
-    status="${response##*$'\n'}"
-    body="${response%$'\n'*}"
-
-    if [ "$status" -lt 200 ] || [ "$status" -ge 300 ]; then
-        echo "$body" 1>&2
-        die "LVFS upload failed with HTTP status $status"
-    fi
-
-    echo "$body"
-}
-
 if [ $# -eq 0 ]; then
     print_usage
     exit 1
@@ -772,7 +352,7 @@ subcommand=$1
 shift
 
 case "$subcommand" in
-    box|help|keygen|make|resign|create_cabinet|upload_lvfs)
+    box|help|keygen|make)
         "$subcommand"_subcommand "$@" ;;
 
     *)

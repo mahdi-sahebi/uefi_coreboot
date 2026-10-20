@@ -10,7 +10,6 @@
 #include <soc/dimm_slot.h>
 #include <soc/iio.h>
 #include <soc/romstage.h>
-#include <spi_flash.h>
 #include <static.h>
 
 #include "chip.h"
@@ -33,10 +32,7 @@ void mainboard_memory_init_params(FSPM_UPD *mupd)
 			CONFIG_BMC_KCS_BASE);
 
 	/* Set BIOS regeion UPD, otherwise MTRR might set incorrectly during TempRamExit API */
-	struct flash_mmap_window table;
-	spi_flash_get_mmap_windows(&table);
-
-	m_cfg->BiosRegionBase = table.host_base + FMAP_SECTION_SI_BIOS_START;
+	m_cfg->BiosRegionBase = FMAP_SECTION_SI_BIOS_START;
 	m_cfg->BiosRegionSize = FMAP_SECTION_SI_BIOS_SIZE;
 	printk(BIOS_INFO, "BiosRegionBase is set to %x\n", mupd->FspmConfig.BiosRegionBase);
 	printk(BIOS_INFO, "BiosRegionSize is set to %x\n", mupd->FspmConfig.BiosRegionSize);

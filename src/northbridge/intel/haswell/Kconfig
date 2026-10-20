@@ -6,17 +6,17 @@ config NORTHBRIDGE_INTEL_HASWELL
 	select CACHE_MRC_SETTINGS
 	select INTEL_DDI
 	select INTEL_GMA_ACPI
-	select DRAM_SUPPORT_DDR3
+	select USE_DDR3
 
 if NORTHBRIDGE_INTEL_HASWELL
 
 config USE_NATIVE_RAMINIT
-	bool "[NOT COMPLETE] Use native raminit"
+	bool "[NOT WORKING] Use native raminit"
 	default n
 	select HAVE_DEBUG_RAM_SETUP
 	help
 	  Select if you want to use coreboot implementation of raminit rather than
-	  MRC.bin. Currently incomplete and does not support S3 resume.
+	  MRC.bin. Currently incomplete and does not boot.
 
 config HASWELL_VBOOT_IN_BOOTBLOCK
 	depends on VBOOT

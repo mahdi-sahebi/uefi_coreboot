@@ -3,8 +3,6 @@
 #ifndef _WIFI_GENERIC_H_
 #define _WIFI_GENERIC_H_
 
-#include <acpi/acpi_device.h>
-
 /**
  * struct drivers_wifi_generic_config - Data structure to contain generic wifi config
  * @wake: Wake pin for ACPI _PRW
@@ -22,14 +20,8 @@ struct drivers_wifi_generic_config {
 	 */
 	bool enable_cnvi_ddr_rfim;
 
-	/*
-	 * Enable GPIO for CNVi that will be used for WiFi SW RF Kill (Low
-	 * Power Mode).
-	 */
-	struct acpi_gpio cnvi_enable_gpio;
-
 	/* Pointer to the Bluetooth companion device */
 	DEVTREE_CONST struct device *bluetooth_companion;
 };
 
-#endif /* _WIFI_GENERIC_H_ */
+#endif /* _GENERIC_WIFI_H_ */

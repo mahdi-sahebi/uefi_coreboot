@@ -606,4 +606,5 @@ const BL_HSIO_INFORMATION harcuvar_hsio_config[] = {
 		   BL_FIA_PCIE_ROOT_PORT_7)} } }
 };
 #endif
-#endif /* _MAINBOARD_HSIO_H */
+#endif
+/* _MAINBOARD_HSIO_H */

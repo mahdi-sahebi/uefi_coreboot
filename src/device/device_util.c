@@ -232,7 +232,7 @@ const char *dev_path(const struct device *dev)
 			snprintf(buffer, sizeof(buffer), "MDIO: %02x", dev->path.mdio.addr);
 			break;
 		case DEVICE_PATH_GICC_V3:
-			snprintf(buffer, sizeof(buffer), "GICV3: %02llx", dev->path.gicc_v3.mpidr);
+			snprintf(buffer, sizeof(buffer), "GICV3: %02x", dev->path.gicc_v3.mpidr);
 			break;
 		default:
 			printk(BIOS_ERR, "Unknown device path type: %d\n",
@@ -293,7 +293,7 @@ bool is_dev_on_domain0(const struct device *dev)
 /**
  * Allocate 64 more resources to the free list.
  *
- * @return Return 0 for allocation failure, Return 1 for allocation success.
+ * @return TODO.
  */
 static int allocate_more_resources(void)
 {
@@ -317,9 +317,10 @@ static int allocate_more_resources(void)
 /**
  * Remove resource res from the device's list and add it to the free list.
  *
- * @param dev The device which contains a resource to be freed(detached).
- * @param res The resource to be freed(detached) which is part of 'dev'.
- * @param prev The resource for 'dev' to be linked to next resource after 'res' is removed.
+ * @param dev TODO
+ * @param res TODO
+ * @param prev TODO
+ * @return TODO.
  */
 static void free_resource(struct device *dev, struct resource *res,
 			  struct resource *prev)
@@ -382,7 +383,7 @@ struct resource *probe_resource(const struct device *dev, unsigned int index)
  *
  * @param dev The device to find the resource on.
  * @param index The index of the resource on the device.
- * @return The resource. if it exists, then return existing one, else return new one.
+ * @return TODO.
  */
 struct resource *new_resource(struct device *dev, unsigned int index)
 {
@@ -430,7 +431,7 @@ struct resource *new_resource(struct device *dev, unsigned int index)
  *
  * @param dev The device to find the resource on.
  * @param index The index of the resource on the device.
- * @return The resource found in 'dev' for 'index'.
+ * return TODO.
  */
 struct resource *find_resource(const struct device *dev, unsigned int index)
 {
@@ -519,7 +520,7 @@ resource_t resource_max(const struct resource *resource)
  * Return the resource type of a resource.
  *
  * @param resource The resource type to decode.
- * @return The string representation of type.
+ * @return TODO.
  */
 const char *resource_type(const struct resource *resource)
 {
@@ -541,12 +542,12 @@ const char *resource_type(const struct resource *resource)
  *
  * @param dev The device the stored resource lives on.
  * @param resource The resource that was just stored.
- * @param comment The comment just for additional information.
+ * @param comment TODO
  */
 void report_resource_stored(struct device *dev, const struct resource *resource,
 			    const char *comment)
 {
-	char buf[16];
+	char buf[10];
 	unsigned long long base, end;
 
 	if (!(resource->flags & IORESOURCE_STORED))

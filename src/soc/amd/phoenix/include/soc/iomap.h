@@ -6,7 +6,6 @@
 #define I2C_MASTER_DEV_COUNT		4
 #define I2C_PERIPHERAL_DEV_COUNT	0 /* TODO: Only master for now. */
 #define I2C_CTRLR_COUNT			(I2C_MASTER_DEV_COUNT + I2C_PERIPHERAL_DEV_COUNT)
-#define I3C_CTRLR_COUNT			4
 
 #if ENV_X86
 
@@ -34,11 +33,6 @@
 #define APU_DMAC4_BASE			0xfedd0000
 #define APU_UART4_BASE			0xfedd1000
 
-#define APU_I3C0_BASE			0xfedd2000
-#define APU_I3C1_BASE			0xfedd3000
-#define APU_I3C2_BASE			0xfedd4000
-#define APU_I3C3_BASE			0xfedd6000
-
 #endif /* ENV_X86 */
 
 #define FLASH_BASE_ADDR			((0xffffffff - CONFIG_ROM_SIZE) + 1)
@@ -51,7 +45,6 @@
 #define  ACPI_PM1_CNT_BLK		(ACPI_IO_BASE + 0x04)
 #define  ACPI_PM_TMR_BLK		(ACPI_IO_BASE + 0x08)
 #define  ACPI_CSTATE_CONTROL		(ACPI_IO_BASE + 0x10)
-#define  ACPI_CPU_CONTROL		(ACPI_IO_BASE + 0x18)
 #define  ACPI_GPE0_BLK			(ACPI_IO_BASE + 0x20)
 #define   ACPI_GPE0_STS			(ACPI_GPE0_BLK + 0x00)
 #define   ACPI_GPE0_EN			(ACPI_GPE0_BLK + 0x04)

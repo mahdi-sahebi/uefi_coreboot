@@ -11,6 +11,9 @@
 #include <soc/soc_pch.h>
 #include <soc/util.h>
 #include <spd.h>
+#include <pc80/vga.h>
+
+void vga_cb_print(unsigned int line, const char *string);
 
 void mainboard_romstage_entry(void)
 {
@@ -21,6 +24,8 @@ void mainboard_romstage_entry(void)
 		mainboard_rtc_failed();
 
 	fsp_memory_init(false);
+	printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=success phase=fsp_memory_init\n");
+	vga_cb_print(0, "[GX] module=Coreboot event=checkpoint status=success phase=fsp_memory_init");
 	printk(BIOS_DEBUG, "coreboot fsp_memory_init finished...\n");
 	mainboard_ewl_check();
 

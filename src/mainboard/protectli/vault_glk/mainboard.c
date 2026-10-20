@@ -4,7 +4,6 @@
 #include <device/device.h>
 #include <fsp/api.h>
 #include <pc80/i8254.h>
-#include <soc/pci_devs.h>
 #include <soc/ramstage.h>
 
 static void mainboard_final(void *chip_info)
@@ -78,11 +77,6 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *silconfig)
 	silconfig->PcieRpClkReqSupported[5] = 0x0;
 	silconfig->AdvancedErrorReporting[5] = 0x1;
 	silconfig->PmeInterrupt[5] = 0x1;
-
-	if (!CONFIG(ENABLE_EMMC)) {
-		silconfig->eMMCEnabled = 0;
-		pcidev_path_on_root(PCH_DEVFN_EMMC)->enabled = 0;
-	}
 }
 
 struct chip_operations mainboard_ops = {

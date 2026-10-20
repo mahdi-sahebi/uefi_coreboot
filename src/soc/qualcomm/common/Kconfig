@@ -6,39 +6,11 @@ config SOC_QUALCOMM_COMMON
 	help
 	  Selected by platforms that use the common code.
 
-config QC_COMMON_QUPV3_2
-	bool
-	default n
-	help
-	  Selected by chipsets that has QUPv3 HW Version 2.
-
-config QMP_PHY_2X2_1X4
-	bool
-	default n
-	help
-	  Selected by chipsets that have PCIE QMP PHY 2X2/1X4
-
 if SOC_QUALCOMM_COMMON
 
 config QC_SDI_ENABLE
 	bool
 	default n
 	prompt "Debug Build: enable SDI"
-
-config QC_APDP_ENABLE
-	bool
-	default n
-	prompt "Debug Build: enable APDP"
-	help
-	  Application Processor Debug Policy (APDP) is a configuration image
-	  to define and enforce debugging capabilities and restrictions for APPS.
-
-config QC_RAMDUMP_ENABLE
-	bool
-	default n
-	prompt "Debug Build: enable Ramdump"
-	help
-	  Ramdump is a debug image that is loaded during a system crash to capture
-	  memory contents for post-crash analysis.
 
 endif

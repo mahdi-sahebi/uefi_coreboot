@@ -20,22 +20,11 @@ chip soc/intel/skylake
 		[PchSerialIoIndexUart2]		= PchSerialIoSkipInit,
 	}"
 
-	register "common_soc_config" = "{
-		.i2c[0] = {
-			.speed				= I2C_SPEED_FAST,
-		},
-	}"
-
 	# Power
-	register "PmConfigSlpS3MinAssert"	= "2"				# 1ms
-	register "PmConfigSlpS4MinAssert"	= "3"				# 3s
-	register "PmConfigSlpSusMinAssert"	= "3"				# 1s
-	register "PmConfigSlpAMinAssert"	= "3"				# 98ms
-
-	# GPE configuration
-	register "gpe0_dw0"			= "GPP_B"
-	register "gpe0_dw1"			= "GPP_C"
-	register "gpe0_dw2"			= "GPP_E"
+	register "PmConfigSlpS3MinAssert"	= "2"				# 50ms
+	register "PmConfigSlpS4MinAssert"	= "3"				# 1s
+	register "PmConfigSlpSusMinAssert"	= "3"				# 500ms
+	register "PmConfigSlpAMinAssert"	= "3"				# 2s
 
 	# Enable the correct decode ranges on the LPC bus.
 	register "lpc_ioe"			= "LPC_IOE_EC_4E_4F |
@@ -44,12 +33,10 @@ chip soc/intel/skylake
 
 # Actual device tree.
 	device domain 0 on
-		device ref igpu		on
-			register "gfx"				= "GMA_DEFAULT_PANEL(0)"
-		end
+		device ref igpu		on  end
 		device ref south_xhci	on
 			# Motherboard USB Type C
-			register "usb2_ports[0]"		= "USB2_PORT_MID(OC_SKIP)"
+			register "usb2_ports[0]"		= "USB2_PORT_TYPE_C(OC_SKIP)"
 			register "usb3_ports[0]"		= "USB3_PORT_DEFAULT(OC_SKIP)"
 
 			# Motherboard USB 3.0
@@ -75,6 +62,7 @@ chip soc/intel/skylake
 				register "generic.hid"		= ""STAR0001""
 				register "generic.desc"		= ""Touchpad""
 				register "generic.irq"		= "ACPI_IRQ_LEVEL_LOW(GPP_C23_IRQ)"
+				register "generic.detect"	= "1"
 				register "hid_desc_reg_offset"	= "0x20"
 				device i2c 2c on end
 			end
@@ -88,31 +76,33 @@ chip soc/intel/skylake
 		end
 		device ref uart2	on  end
 		device ref pcie_rp6	on
-			register "PcieRpClkReqSupport[5]"	= "true"
+			register "PcieRpEnable[5]"		= "1"
+			register "PcieRpClkReqSupport[5]"	= "1"
 			register "PcieRpClkReqNumber[5]"	= "4"
 			register "PcieRpClkSrcNumber[5]"	= "4"
-			register "PcieRpLtrEnable[5]"		= "true"
+			register "PcieRpLtrEnable[5]"		= "1"
 			chip drivers/wifi/generic
-				register "add_acpi_dma_property"	= "true"
-				register "enable_cnvi_ddr_rfim"		= "true"
 				device generic 0 on end
 			end
 		end
 		device ref pcie_rp9	on
-			register "PcieRpClkReqSupport[8]"	= "true"
+			register "PcieRpEnable[8]"		= "1"
+			register "PcieRpClkReqSupport[8]"	= "1"
 			register "PcieRpClkReqNumber[8]"	= "0"
 			register "PcieRpClkSrcNumber[8]"	= "0"
-			register "PcieRpLtrEnable[8]"		= "true"
+			register "PcieRpLtrEnable[8]"		= "1"
 			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther" "M.2/M 2280" "SlotDataBusWidth4X"
 		end
 		device ref uart0	on  end
 		device ref lpc_espi on
-			register "gen1_dec"			= "0x00040069"
-			register "gen2_dec"			= "0x00fc0201"
-			register "gen3_dec"			= "0x000c0081"
+			register "gen1_dec"			= "0x000c0681"
+			register "gen2_dec"			= "0x000c1641"
+			register "gen3_dec"			= "0x00000069"
+			register "gen4_dec"			= "0x0000006d"
 
 			chip ec/starlabs/merlin
 				# Port pair 4Eh/4Fh
+				device pnp 4e.00 on  end			# IO Interface
 				device pnp 4e.01 off end			# Com 1
 				device pnp 4e.02 off end			# Com 2
 				device pnp 4e.04 off end			# System Wake-Up

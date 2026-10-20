@@ -167,18 +167,20 @@ static void mem_init_dqs_upds(FSP_M_CONFIG *mem_cfg, const struct mem_channel_da
 	mem_init_dq_dqs_upds(dqs_upds, mb_cfg->dqs_map, upd_size, data, auto_detect);
 }
 
-#define CH_DIMM_OFFSET(ch, dimm)        ((ch) * CONFIG_DIMMS_PER_CHANNEL + (dimm))
+#define DDR5_CH_DIMM_OFFSET(ch, dimm)        ((ch) * CONFIG_DIMMS_PER_CHANNEL + (dimm))
 
-static void fill_dimm_module_info(FSP_M_CONFIG *mem_cfg, const struct mb_cfg *mb_cfg,
+static void ddr5_fill_dimm_module_info(FSP_M_CONFIG *mem_cfg, const struct mb_cfg *mb_cfg,
 				       const struct mem_spd *spd_info)
 {
-	for (size_t ch = 0; ch < soc_mem_cfg[mb_cfg->type].num_phys_channels; ch++) {
+	for (size_t ch = 0; ch < soc_mem_cfg[MEM_TYPE_DDR5].num_phys_channels; ch++) {
 		for (size_t dimm = 0; dimm < CONFIG_DIMMS_PER_CHANNEL; dimm++) {
-			size_t mrc_ch = soc_mem_cfg[mb_cfg->type].phys_to_mrc_map[ch];
-			mem_cfg->SpdAddressTable[CH_DIMM_OFFSET(mrc_ch, dimm)] =
+			size_t mrc_ch = soc_mem_cfg[MEM_TYPE_DDR5].phys_to_mrc_map[ch];
+			mem_cfg->SpdAddressTable[DDR5_CH_DIMM_OFFSET(mrc_ch, dimm)] =
 				spd_info->smbus[ch].addr_dimm[dimm] << 1;
 		}
 	}
+	mem_init_dq_upds(mem_cfg, NULL, mb_cfg, true);
+	mem_init_dqs_upds(mem_cfg, NULL, mb_cfg, true);
 }
 
 void memcfg_init(FSPM_UPD *memupd, const struct mb_cfg *mb_cfg,
@@ -194,7 +196,6 @@ void memcfg_init(FSPM_UPD *memupd, const struct mb_cfg *mb_cfg,
 
 	switch (mb_cfg->type) {
 	case MEM_TYPE_DDR5:
-		printk(BIOS_DEBUG, "%s: module type is DDR5\n", __func__);
 		meminit_ddr(mem_cfg, &mb_cfg->ddr_config);
 		dq_dqs_auto_detect = true;
 		/*
@@ -202,17 +203,12 @@ void memcfg_init(FSPM_UPD *memupd, const struct mb_cfg *mb_cfg,
 		 * updated to support DDR5 EEPROM reading.
 		 */
 		if (spd_info->topo == MEM_TOPO_DIMM_MODULE) {
-			fill_dimm_module_info(mem_cfg, mb_cfg, spd_info);
-			mem_init_dq_upds(mem_cfg, NULL, mb_cfg, true);
-			mem_init_dqs_upds(mem_cfg, NULL, mb_cfg, true);
+			ddr5_fill_dimm_module_info(mem_cfg, mb_cfg, spd_info);
 			return;
 		}
 		break;
 	case MEM_TYPE_LP5X:
 		meminit_lp5x(mem_cfg, &mb_cfg->lp5x_config);
-		/* For LPCAMM, read SPD using SMBus driver */
-		if (spd_info->topo == MEM_TOPO_LP5_CAMM)
-			fill_dimm_module_info(mem_cfg, mb_cfg, spd_info);
 		break;
 	default:
 		die("Unsupported memory type(%d)\n", mb_cfg->type);

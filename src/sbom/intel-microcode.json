@@ -1,24 +1,15 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 {
   "lang": "en-US",
-  "tag-id": "<tag_id>",
+  "tag-id": "23edb84c-5d68-544e-b389-8a67f6c80247",
   "tag-version": 0,
-  "software-name": "Intel-Microcode-<ucode_name>",
+  "software-name": "Intel-Microcode",
   "software-version": "<software_version>",
   "version-scheme": "alphanumeric",
   "software-meta": [
     {
-      "product": "Intel Microcode",
-      "edition": "<cpuid>",
-      "colloquial-version": "<colloquial_version>",
       "persistent-id": "com.intel.microcode",
-      "summary": "Microcode Updates for Intel Processors"
-    }
-  ],
-  "link": [
-    {
-      "rel": "license",
-      "href": "https://github.com/intel/Intel-Linux-Processor-Microcode-Data-Files/blob/main/license"
+      "summary": "Micrcode Updates for Intel Processors"
     }
   ],
   "entity": [

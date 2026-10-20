@@ -120,9 +120,8 @@ var CommentFormatStrings map[Filetype]string = map[Filetype]string {
 type License string
 
 const (
-    CC_PDDC License	= "CC-PDDC"
-    GPL2_only		= "GPL-2.0-only"
-    GPL2_or_later	= "GPL-2.0-or-later"
+    GPL2_only License = "GPL-2.0-only"
+    GPL2_or_later     = "GPL-2.0-or-later"
 )
 
 var KconfigBool map[string]bool = map[string]bool{}
@@ -233,13 +232,6 @@ func Create(ctx Context, name string) *os.File {
 		log.Fatal(err)
 	}
 	return mf
-}
-func Create_Empty(ctx Context, name string, filetype Filetype) {
-	f := Create(ctx, name)
-	defer f.Close()
-	Add_SPDX(f, filetype, CC_PDDC)
-	Add_Comment(f, filetype,
-		"Please update the license if adding licensable material.")
 }
 
 func Add_SPDX(f *os.File, filetype Filetype, license License) {

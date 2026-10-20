@@ -86,7 +86,6 @@ const char *soc_acpi_name(const struct device *dev)
 	case PCI_DEVFN_NPU:		return "NPU";
 	case PCI_DEVFN_IPU:		return "IPU0";
 	case PCI_DEVFN_ISH:		return "ISHB";
-	case PCI_DEVFN_GSPI2:		return "SPI2";
 	case PCI_DEVFN_XHCI:		return "XHCI";
 	case PCI_DEVFN_SRAM:		return "SRAM";
 	case PCI_DEVFN_I2C0:		return "I2C0";
@@ -102,14 +101,12 @@ const char *soc_acpi_name(const struct device *dev)
 	case PCI_DEVFN_PCIE4:		return "RP04";
 	case PCI_DEVFN_PCIE5:		return "RP05";
 	case PCI_DEVFN_PCIE6:		return "RP06";
-#if CONFIG(SOC_INTEL_PANTHERLAKE)
 	case PCI_DEVFN_PCIE7:		return "RP07";
 	case PCI_DEVFN_PCIE8:		return "RP08";
 	case PCI_DEVFN_PCIE9:		return "RP09";
 	case PCI_DEVFN_PCIE10:		return "RP10";
 	case PCI_DEVFN_PCIE11:		return "RP11";
 	case PCI_DEVFN_PCIE12:		return "RP12";
-#endif
 	case PCI_DEVFN_PMC:		return "PMC";
 	case PCI_DEVFN_UART0:		return "UAR0";
 	case PCI_DEVFN_UART1:		return "UAR1";
@@ -177,7 +174,7 @@ void soc_init_pre_device(void *chip_info)
 		return;
 	}
 	/* Validate TBT image authentication */
-	config->tbt_authentication = p2sb2_sbi_read(PID_IOM,
+	config->tbt_authentication = ioe_p2sb_sbi_read(PID_IOM,
 					IOM_CSME_IMR_TBT_STATUS) & TBT_VALID_AUTHENTICATION;
 
 	if (CONFIG(SOC_INTEL_COMMON_BLOCK_TRACEHUB))
@@ -247,9 +244,6 @@ static struct device_operations cpu_bus_ops = {
 
 static void soc_enable(struct device *dev)
 {
-	struct device_operations *soc_p2sb_ops = (struct device_operations *)&p2sb_ops;
-	struct device_operations *soc_p2sb2_ops = (struct device_operations *)&p2sb2_ops;
-
 	/*
 	 * Set the operations if it is a special bus type or a hidden PCI
 	 * device.
@@ -263,10 +257,10 @@ static void soc_enable(struct device *dev)
 		dev->ops = &pmc_ops;
 	else if (dev->path.type == DEVICE_PATH_PCI &&
 		 dev->path.pci.devfn == PCI_DEVFN_P2SB)
-		dev->ops = soc_p2sb_ops;
+		dev->ops = &pcd_p2sb_ops;
 	else if (dev->path.type == DEVICE_PATH_PCI &&
 		 dev->path.pci.devfn == PCI_DEVFN_P2SB2)
-		dev->ops = soc_p2sb2_ops;
+		dev->ops = &pcd_p2sb_2_ops;
 	else if (dev->path.type == DEVICE_PATH_GPIO)
 		block_gpio_enable(dev);
 }

@@ -12,7 +12,6 @@ ramstage-y += mainboard.c
 ramstage-y += ec.c
 ramstage-y += board_info.c
 ramstage-y += fw_config.c
-ramstage-$(CONFIG_DRIVERS_OPTION_CFR) += cfr.c
 
 
 subdirs-y += variants/baseboard

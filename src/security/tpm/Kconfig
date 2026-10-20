@@ -22,7 +22,7 @@ config TPM1
 
 config TPM2
 	bool "TPM 2.0"
-	depends on I2C_TPM || MEMORY_MAPPED_TPM || SPI_TPM || CRB_TPM || AMD_CRB_FTPM
+	depends on I2C_TPM || MEMORY_MAPPED_TPM || SPI_TPM || CRB_TPM
 	default y if MAINBOARD_HAS_TPM2
 	help
 	  Select this option if your TPM uses the newer TPM 2.0 protocol.
@@ -78,17 +78,6 @@ config TPM_MEASURED_BOOT
 	help
 	  Enables measured boot (experimental)
 
-config TPM_MEASURE_MRC_CACHE
-	bool "Measure MRC cache"
-	default n
-	depends on TPM_MEASURED_BOOT
-	depends on CACHE_MRC_SETTINGS
-	help
-	  Measures MRC cache as runtime data to guarantee that a
-	  tamper with the memory will be detected. The runtime data
-	  measurement becomes stable after the second boot after
-	  changing DIMM.
-
 choice
 	prompt "TPM event log format"
 	depends on TPM_MEASURED_BOOT
@@ -107,7 +96,6 @@ config TPM_LOG_TCG
 config TPM_LOG_TPM1
 	bool "TPM 1.2 format"
 	depends on TPM1 && !TPM2
-	select TPM_HASH_SHA1
 	help
 	  Log per TPM 1.2 specification.
 	  See "TCG PC Client Specific Implementation Specification for Conventional BIOS".
@@ -120,28 +108,22 @@ config TPM_LOG_TPM2
 
 endchoice
 
-if TPM_MEASURED_BOOT && !TPM_LOG_CB
+choice
+	prompt "TPM2 hashing algorithm"
+	depends on TPM_MEASURED_BOOT && (TPM_LOG_TCG || TPM_LOG_TPM2)
+	default TPM_HASH_SHA1 if TPM1
+	default TPM_HASH_SHA256 if TPM2
 
 config TPM_HASH_SHA1
-	bool "SHA1 PCR hashing"
-	default y if TPM1 || TPM2
-
-endif
-
-if TPM_MEASURED_BOOT && (TPM_LOG_TCG || TPM_LOG_TPM2)
-
+	bool "SHA1"
 config TPM_HASH_SHA256
-	bool "SHA256 PCR hashing"
-	default y if TPM2
-	depends on !TPM_LOG_TPM1
+	bool "SHA256"
 config TPM_HASH_SHA384
-	bool "SHA384 PCR hashing"
-	depends on !TPM_LOG_TPM1
+	bool "SHA384"
 config TPM_HASH_SHA512
-	bool "SHA512 PCR hashing"
-	depends on !TPM_LOG_TPM1
+	bool "SHA512"
 
-endif
+endchoice
 
 config TPM_MEASURED_BOOT_INIT_BOOTBLOCK
 	bool

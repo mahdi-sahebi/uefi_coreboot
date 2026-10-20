@@ -36,10 +36,6 @@ BOOTBLOCK_ADDR = BOOTBLOCK_END - CONFIG_C_ENV_BOOTBLOCK_SIZE;
  *                     |          (VERSTAGE_SIZE)       |
  *                     +--------------------------------+ VERSTAGE_ADDR
  *                     |                                |
- *                     |     Promontory FW (if reqd)    |
- *                     |              (256K)            |
- *                     +--------------------------------+ PROMONTORY_FW_ADDR
- *                     |                                |
  *                     |            FSP-M               |
  *                     |         (FSP_M_SIZE)           |
  *                     +--------------------------------+ FSP_M_ADDR
@@ -99,7 +95,6 @@ SECTIONS
 	PSP_SHAREDMEM_DRAM_END(CONFIG_PSP_SHAREDMEM_BASE + CONFIG_PSP_SHAREDMEM_SIZE)
 #endif
 	_ = ASSERT(BOOTBLOCK_END == ((BOOTBLOCK_END + 0xFFFF) & 0xFFFF0000), "Bootblock end must be 16 bit aligned");
-	REGION(bootblock_overlap_detection, BOOTBLOCK_ADDR, CONFIG_C_ENV_BOOTBLOCK_SIZE, 1)
 	ROMSTAGE(CONFIG_ROMSTAGE_ADDR, CONFIG_ROMSTAGE_SIZE)
 
 #if CONFIG(PLATFORM_USES_FSP2_0)
@@ -108,10 +103,6 @@ SECTIONS
 
 #if CONFIG(VBOOT_SEPARATE_VERSTAGE) && !CONFIG(VBOOT_STARTS_BEFORE_BOOTBLOCK)
 	VERSTAGE(CONFIG_VERSTAGE_ADDR, CONFIG_VERSTAGE_SIZE)
-#endif
-
-#if CONFIG_PROMONTORY_FW_ADDR > 0
-	REGION(promontory, CONFIG_PROMONTORY_FW_ADDR, 256K, 4K)
 #endif
 
         PRERAM_CBMEM_CONSOLE(., CONFIG_PRERAM_CBMEM_CONSOLE_SIZE)
@@ -139,65 +130,14 @@ MEMORY
 }
 
 SECTIONS {
-	/*
-	 * AMD's PSP will verify the integrity of the BIOS Reset Image at S3 resume,
-	 * thus it must not change during execution. Having .data and .bss between
-	 * .text and .reset breaks the integrity, as .bss or .data might get modified.
-	 *
-	 * Enable ENV_SEPARATE_DATA_AND_BSS for AMD's bootblock and mark as
-	 * data_segment to place it in the second PT_LOAD area. The second PT_LOAD area
-	 * must be removed using objcopy since AMDCOMPRESS doesn't support multiple
-	 * PT_LOAD segments.
-	 */
-	. = BOOTBLOCK_ADDR & ~(16 - 1);
-	.data . : {
-		_data = .;
-		*(.data);
-		*(.data.*);
-		*(.ldata);
-		*(.ldata.*);
-		*(.sdata);
-		*(.sdata.*);
-		. = ALIGN(ARCH_POINTER_ALIGN_SIZE);
-		_edata = .;
-		RECORD_SIZE(data)
-	} : data_segment
-
-	. = ALIGN(ARCH_POINTER_ALIGN_SIZE);
-
-	.bss . (NOLOAD) : {
-		_bss = .;
-		*(.bss)
-		*(.bss.*)
-		*(.lbss)
-		*(.lbss.*)
-		*(.sbss)
-		*(.sbss.*)
-		. = ALIGN(ARCH_POINTER_ALIGN_SIZE);
-		_ebss = .;
-		RECORD_SIZE(bss)
-	} : data_segment
-
+	/* Page tables need to be at a 4K boundary so align the bootblock downwards */
 	. = (BOOTBLOCK_TOP - PROGRAM_SZ) & ~(4096 - 1);
 	_bootblock = .;
 
 	INCLUDE "bootblock/lib/program.ld"
 
-	/*
-	 * Add free space for a copy of the data section. The assembly code will copy
-	 * the section to .data at runtime when ENV_SEPARATE_DATA_AND_BSS is set.
-	 *
-	 * objcopy will be used during build to copy the .data to the .datacopy section.
-	 * This ensures that only *one* loadable segment is being used as bootblock.
-	 */
-	.datacopy . : {
-		_datacopy = .;
-		. += SIZEOF(.data);
-		_edatacopy = .;
-	} : to_load = 0xff
-	_data_load = LOADADDR(.datacopy);
+	PROGRAM_SZ = SIZEOF(.text) + SIZEOF(.bss) + SIZEOF(.data);
 
-	PROGRAM_SZ = SIZEOF(.text) + SIZEOF(.data);
 	. = _X86_RESET_VECTOR - EARLYASM_SZ;
 	. = ALIGN(16);
 	BOOTBLOCK_TOP = .;
@@ -219,12 +159,9 @@ SECTIONS {
 	.reset (_X86_RESET_VECTOR) : {
 		*(.reset);
 	} >resetsection
-
 	.last_byte (BOOTBLOCK_END - 1) : {
 		BYTE(0xff);
 	} >resetsection
 	_ebootblock = BOOTBLOCK_END;
-
-	ASSERT(_ebootblock - _bootblock <= CONFIG_C_ENV_BOOTBLOCK_SIZE, "CONFIG_C_ENV_BOOTBLOCK_SIZE is not big enough")
 }
 #endif  /* ENV_BOOTBLOCK */

@@ -41,10 +41,10 @@
 #define _D    (1ULL << 6)
 #define _PS   (1ULL << 7)
 
-.section .bss.pml4e
-.global pml4e
+.section .bss.pm4le
+.global pm4le
 .align 4096
-pml4e:
+pm4le:
 .skip 8
 
 .section .bss.main_page_table
@@ -144,6 +144,6 @@ no_overflow_1gb:
 
 leave:
 	or $(_PRES + _RW + _US + _A), %eax
-	mov %eax, pml4e
+	mov %eax, pm4le
 
 	ret

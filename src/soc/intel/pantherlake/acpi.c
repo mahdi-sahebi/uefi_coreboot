@@ -193,7 +193,6 @@ static struct min_sleep_state min_pci_sleep_states[] = {
 	{ PCI_DEVFN_TCSS_XDCI,	ACPI_DEVICE_SLEEP_D3 },
 	{ SA_DEVFN_TCSS_DMA0,	ACPI_DEVICE_SLEEP_D3 },
 	{ SA_DEVFN_TCSS_DMA1,	ACPI_DEVICE_SLEEP_D3 },
-	{ PCI_DEVFN_VMD,        ACPI_DEVICE_SLEEP_D3 },
 	{ PCI_DEVFN_THC0,	ACPI_DEVICE_SLEEP_D3 },
 	{ PCI_DEVFN_THC1,	ACPI_DEVICE_SLEEP_D3 },
 	{ PCH_DEVFN_XHCI,	ACPI_DEVICE_SLEEP_D3 },
@@ -214,14 +213,12 @@ static struct min_sleep_state min_pci_sleep_states[] = {
 	{ PCI_DEVFN_PCIE4,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE5,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE6,	ACPI_DEVICE_SLEEP_D0 },
-#if CONFIG(SOC_INTEL_PANTHERLAKE)
 	{ PCI_DEVFN_PCIE7,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE8,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE9,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE10,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE11,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_PCIE12,	ACPI_DEVICE_SLEEP_D0 },
-#endif
 	{ PCI_DEVFN_UART0,	ACPI_DEVICE_SLEEP_D3 },
 	{ PCI_DEVFN_UART1,	ACPI_DEVICE_SLEEP_D3 },
 	{ PCI_DEVFN_GSPI0,	ACPI_DEVICE_SLEEP_D3 },
@@ -253,7 +250,6 @@ static unsigned long soc_fill_dmar(unsigned long current)
 	bool is_dptf_enabled = is_devfn_enabled(PCI_DEVFN_DPTF);
 	bool is_npu_enabled = is_devfn_enabled(PCI_DEVFN_NPU);
 	bool is_iaa_enabled = is_devfn_enabled(PCI_DEVFN_IAA);
-	bool is_telemetry_enabled = is_devfn_enabled(PCI_DEVFN_TELEMETRY);
 
 	printk(BIOS_DEBUG, "%s - gfxvtbar:0x%llx  0x%x\n", __func__, gfxvtbar, MCHBAR32(GFXVTBAR));
 	if (vtd_engine_enabled & GFXVT_ENABLED) {
@@ -264,8 +260,8 @@ static unsigned long soc_fill_dmar(unsigned long current)
 		acpi_dmar_drhd_fixup(tmp, current);
 	}
 
-	if ((is_ipu_enabled || is_dptf_enabled || is_telemetry_enabled || is_npu_enabled ||
-		is_iaa_enabled) && (vtd_engine_enabled & NONGFXVT_ENABLED)) {
+	if ((is_ipu_enabled || is_dptf_enabled || is_npu_enabled || is_iaa_enabled) &&
+		(vtd_engine_enabled & NONGFXVT_ENABLED)) {
 		const unsigned long tmp = current;
 		current += acpi_create_dmar_drhd(current,
 			0, 0, (uint64_t)VTVC0_BASE_ADDRESS, VTVC0_BASE_SIZE);
@@ -273,8 +269,6 @@ static unsigned long soc_fill_dmar(unsigned long current)
 			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_IPU, 0);
 		if (is_dptf_enabled)
 			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_DPTF, 0);
-		if (is_telemetry_enabled)
-			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_TELEMETRY, 0);
 		if (is_npu_enabled)
 			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_NPU, 0);
 		if (is_iaa_enabled)
@@ -305,10 +299,12 @@ static unsigned long soc_fill_dmar(unsigned long current)
 		acpi_dmar_rmrr_fixup(tmp, current);
 	}
 
-	if (is_ipu_enabled || is_npu_enabled || is_iaa_enabled) {
+	if (is_ipu_enabled || is_dptf_enabled || is_npu_enabled || is_iaa_enabled) {
 		const unsigned long tmp = current;
 		current += acpi_create_dmar_satc(current, ATC_REQUIRED, 0);
 			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_IGD, 0);
+		if (is_dptf_enabled)
+			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_DPTF, 0);
 		if (is_ipu_enabled)
 			current += acpi_create_dmar_ds_pci(current, 0, PCI_DEV_SLOT_IPU, 0);
 		if (is_npu_enabled)

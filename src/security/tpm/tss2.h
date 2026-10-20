@@ -4,6 +4,7 @@
 #define TSS2_H_
 
 #include <types.h>
+#include <vb2_sha.h>
 
 #include <security/tpm/tss/tcg-2.0/tss_structures.h>
 #include <security/tpm/tss_errors.h>
@@ -41,21 +42,6 @@ tpm_result_t tlcl2_get_capability(TPM_CAP capability, uint32_t property,
 				  uint32_t property_count,
 				  TPMS_CAPABILITY_DATA *capability_data);
 
-/*
- * tlcl2_get_capability_pcrs
- *
- * Return the TPM PCR information.
- *
- * This function parses the data got from tlcl2_get_capability and returns the
- * PcrSelection.
- *
- * @param[out] pcrs		The Pcr Selection
- *
- * @retval TPM_SUCCESS		Operation completed successfully.
- * @retval TPM_IOERROR		The command was unsuccessful.
- */
-tpm_result_t tlcl2_get_capability_pcrs(TPML_PCR_SELECTION *pcrs);
-
 /* Issue TPM2_NV_SetBits command */
 tpm_result_t tlcl2_set_bits(uint32_t index, uint64_t bits);
 
@@ -88,8 +74,6 @@ tpm_result_t tlcl2_disable_platform_hierarchy(void);
  * based on TPM family.
  */
 
-struct tpm_digest;
-
 tpm_result_t tlcl2_save_state(void);
 tpm_result_t tlcl2_resume(void);
 tpm_result_t tlcl2_startup(void);
@@ -100,6 +84,7 @@ tpm_result_t tlcl2_assert_physical_presence(void);
 tpm_result_t tlcl2_physical_presence_cmd_enable(void);
 tpm_result_t tlcl2_finalize_physical_presence(void);
 tpm_result_t tlcl2_force_clear(void);
-tpm_result_t tlcl2_extend(int pcr_num, const struct tpm_digest *digests);
+tpm_result_t tlcl2_extend(int pcr_num, const uint8_t *digest_data,
+			  enum vb2_hash_algorithm digest_algo);
 
 #endif /* TSS2_H_ */

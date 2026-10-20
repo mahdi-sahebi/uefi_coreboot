@@ -42,17 +42,11 @@ const char *smbios_mainboard_product_name(void)
 	}
 
 	if (strstr(str, "i3-10110U") != NULL)
-		return CONFIG(ENABLE_EMMC) ? "VP4630" : "VP4630e";
+		return "VP4630";
 	else if (strstr(str, "i5-10210U") != NULL)
-		return CONFIG(ENABLE_EMMC) ? "VP4650" : "VP4650e";
-	else if (strstr(str, "i5-10310U") != NULL)
-	{
-		if (CONFIG(ENABLE_EMMC))
-			printk(BIOS_WARNING, "VP4651 has no eMMC variant. Rebuild with ENABLE_EMMC=n\n");
-		return "VP4651";
-	}
+		return "VP4650";
 	else if (strstr(str, "i7-10810U") != NULL)
-		return CONFIG(ENABLE_EMMC) ? "VP4670" : "VP4670e";
+		return "VP4670";
 	else
 		return CONFIG_MAINBOARD_SMBIOS_PRODUCT_NAME;
 }
@@ -90,9 +84,6 @@ void mainboard_silicon_init_params(FSPS_UPD *supd)
 		soc_conf->tdp_pl4 = 90;
 		soc_conf->psys_pmax = 100;
 	}
-
-	if (!CONFIG(ENABLE_EMMC))
-		pcidev_path_on_root(PCH_DEVFN_EMMC)->enabled = 0;
 
 	supd->FspsTestConfig.PkgCStateLimit = 0;
 	supd->FspsTestConfig.PkgCStateDemotion = 0;

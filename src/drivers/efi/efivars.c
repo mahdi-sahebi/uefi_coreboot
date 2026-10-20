@@ -607,7 +607,7 @@ enum cb_err efi_fv_set_option(struct region_device *rdev,
 	found_existing = ret == CB_SUCCESS;
 
 	if (found_existing) {
-		printk(BIOS_DEBUG, "found existing variable %s, match = %d\n", name, args.match);
+		printk(BIOS_ERR, "found existing variable %s, match =%d\n", name, args.match);
 
 		if (args.match)
 			return CB_SUCCESS;
@@ -615,7 +615,7 @@ enum cb_err efi_fv_set_option(struct region_device *rdev,
 		rdev_old = store_rdev;
 
 		/* Mark as to be deleted */
-		hdr.State &= VAR_IN_DELETED_TRANSITION;
+		hdr.State = VAR_IN_DELETED_TRANSITION;
 		if (rdev_writeat(&store_rdev, &hdr.State, offsetof(VARIABLE_HEADER, State),
 			sizeof(hdr.State)) != sizeof(hdr.State))
 			return CB_EFI_ACCESS_ERROR;
@@ -642,7 +642,7 @@ enum cb_err efi_fv_set_option(struct region_device *rdev,
 
 	if (found_existing) {
 		/* Mark old variable as deleted */
-		hdr.State &= VAR_DELETED;
+		hdr.State = VAR_DELETED;
 		if (rdev_writeat(&rdev_old, &hdr.State, offsetof(VARIABLE_HEADER, State),
 			sizeof(hdr.State)) != sizeof(hdr.State))
 			return CB_EFI_ACCESS_ERROR;

@@ -17,7 +17,7 @@ chip soc/intel/cannonlake
 
 	# FSP configuration
 	register "SaGv" = "SaGv_Enabled"
-	register "ScsEmmcHs400Enabled" = "CONFIG(ENABLE_EMMC)"
+	register "ScsEmmcHs400Enabled" = "1"
 
 	# Enable eDP device
 	register "DdiPortEdp" = "1" # Display Port
@@ -53,6 +53,18 @@ chip soc/intel/cannonlake
 	register "SataPortsEnable[0]" = "1"
 	register "SataPortsEnable[2]" = "1"
 
+	register "PcieRpEnable[4]" = "1" # LAN1
+	register "PcieRpEnable[5]" = "1" # LAN2
+	register "PcieRpEnable[6]" = "1" # LAN3
+	register "PcieRpEnable[7]" = "1" # LAN4
+	register "PcieRpEnable[8]" = "1" # LAN5
+	register "PcieRpEnable[9]" = "1" # LAN6
+	register "PcieRpEnable[11]" = "1" # M.2 WiFi
+	register "PcieRpEnable[12]" = "1" # M.2 NVMe x4
+	register "PcieRpEnable[13]" = "1"
+	register "PcieRpEnable[14]" = "1"
+	register "PcieRpEnable[15]" = "1"
+
 	# Enable Advanced Error Reporting for RP 5-10, 12, 13
 	register "PcieRpAdvancedErrorReporting[4]" = "1"
 	register "PcieRpAdvancedErrorReporting[5]" = "1"
@@ -67,17 +79,17 @@ chip soc/intel/cannonlake
 	register "PcieRpAdvancedErrorReporting[15]" = "1"
 
 	# Enable Latency Tolerance Reporting Mechanism RP 5-10, 12, 13
-	register "PcieRpLtrEnable[4]" = "true"
-	register "PcieRpLtrEnable[5]" = "true"
-	register "PcieRpLtrEnable[6]" = "true"
-	register "PcieRpLtrEnable[7]" = "true"
-	register "PcieRpLtrEnable[8]" = "true"
-	register "PcieRpLtrEnable[9]" = "true"
-	register "PcieRpLtrEnable[11]" = "true"
-	register "PcieRpLtrEnable[12]" = "true"
-	register "PcieRpLtrEnable[13]" = "true"
-	register "PcieRpLtrEnable[14]" = "true"
-	register "PcieRpLtrEnable[15]" = "true"
+	register "PcieRpLtrEnable[4]" = "1"
+	register "PcieRpLtrEnable[5]" = "1"
+	register "PcieRpLtrEnable[6]" = "1"
+	register "PcieRpLtrEnable[7]" = "1"
+	register "PcieRpLtrEnable[8]" = "1"
+	register "PcieRpLtrEnable[9]" = "1"
+	register "PcieRpLtrEnable[11]" = "1"
+	register "PcieRpLtrEnable[12]" = "1"
+	register "PcieRpLtrEnable[13]" = "1"
+	register "PcieRpLtrEnable[14]" = "1"
+	register "PcieRpLtrEnable[15]" = "1"
 
 	register "PcieClkSrcUsage[0]" = "PCIE_CLK_FREE"
 	register "PcieClkSrcUsage[1]" = "PCIE_CLK_FREE"
@@ -198,9 +210,7 @@ chip soc/intel/cannonlake
 				end
 				device pnp 2e.5 off end	# Keyboard
 				device pnp 2e.6 off end	# Mouse
-				device pnp 2e.7 on
-					io 0x62 = 0xa00
-				end	# GPIO
+				device pnp 2e.7 off end	# GPIO
 				device pnp 2e.a off end	# CIR
 			end
 			chip drivers/pc80/tpm

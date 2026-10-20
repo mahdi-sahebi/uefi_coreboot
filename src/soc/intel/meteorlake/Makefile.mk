@@ -57,7 +57,6 @@ smm-y += smihandler.c
 smm-y += soc_info.c
 smm-y += uart.c
 smm-y += xhci.c
-
 CPPFLAGS_common += -I$(src)/soc/intel/meteorlake
 CPPFLAGS_common += -I$(src)/soc/intel/meteorlake/include
 

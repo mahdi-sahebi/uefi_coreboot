@@ -1,13 +1,11 @@
 config BOARD_CLEVO_ADLP_COMMON
 	def_bool n
-	select AZALIA_USE_LEGACY_VERB_TABLE
 	select BOARD_ROMSIZE_KB_32768
 	select DRIVERS_I2C_HID
 	select DRIVERS_INTEL_PMC
 	select DRIVERS_INTEL_USB4_RETIMER
 	select EC_DASHARO_EC
 	select EC_ACPI
-	select FSP_TYPE_IOT
 	select HAVE_ACPI_TABLES
 	select HAVE_ACPI_RESUME
 	select HAVE_CMOS_DEFAULT
@@ -125,10 +123,6 @@ config SOC_INTEL_CSE_SEND_EOP_EARLY
 
 config VBOOT_FWID_VERSION
 	default "\$(CONFIG_LOCALVERSION)"
-
-# A terrible workaround for SMI issues when BWP is on until a better solution is found.
-config DEBUG_SMI
-	default y if BOOTMEDIA_SMM_BWP
 
 if PAYLOAD_EDK2
 

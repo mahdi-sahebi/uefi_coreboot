@@ -40,7 +40,7 @@ void pnp_exit_conf_state(pnp_devfn_t dev)
 	u16 port = dev >> 8;
 	outb(ASPEED_EXIT_KEY, port);
 }
-
+	
 /* Bring up early serial debugging output before the RAM is initialized. */
 void aspeed_enable_serial(pnp_devfn_t dev, u16 iobase)
 {

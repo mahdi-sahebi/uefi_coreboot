@@ -20,6 +20,7 @@ chip soc/intel/cannonlake
 	}"
 
 	# No PCIe WiFi
+	register "PcieRpEnable[13]" = "0"
 
 	# Intel Common SoC Config
 	#+-------------------+---------------------------+
@@ -90,7 +91,7 @@ chip soc/intel/cannonlake
 				register "desc" = ""ELAN Touchpad""
 				register "irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_A21_IRQ)"
 				register "wake" = "GPE0_DW0_21"
-				device i2c 15 alias touchpad on end
+				device i2c 15 on end
 			end
 		end
 		device ref i2c1		on
@@ -175,7 +176,6 @@ chip soc/intel/cannonlake
 				device i2c 3b on end
 			end
 		end #I2C #4
-		device ref pcie_rp14	off end # No PCIe Wifi
 		device ref gspi1	on
 			chip drivers/spi/acpi
 				register "name" = ""CRFP""

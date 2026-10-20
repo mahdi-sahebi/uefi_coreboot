@@ -97,7 +97,7 @@ chip soc/intel/meteorlake
 	#  slew rate for IA Domain: Fast/8
 	#  slew rate for GT Domain: Fast/8
 	#  Ignore slew rate configuration for SA Domain
-	register "enable_acoustic_noise_mitigation" = "true"
+	register "enable_acoustic_noise_mitigation" = "1"
 	register "disable_fast_pkgc_ramp[VR_DOMAIN_IA]" = "1"
 	register "slow_slew_rate_config[VR_DOMAIN_IA]" = "SLEW_FAST_8"
 	register "disable_fast_pkgc_ramp[VR_DOMAIN_GT]" = "1"
@@ -272,7 +272,7 @@ chip soc/intel/meteorlake
 				}"
 
 				## Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 0 alias dptf_policy on end
@@ -445,13 +445,12 @@ chip soc/intel/meteorlake
 				register "generic.hid" = ""ILTK0001""
 				register "generic.desc" = ""ILITEK Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_C07_IRQ)"
-				register "generic.detect" = "1"
+				register "generic.probed" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_D07)"
 				register "generic.reset_delay_ms" = "200"
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B17)"
 				register "generic.enable_delay_ms" = "12"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 41 on
 					probe TOUCHSCREEN TOUCHSCREEN_ILITEK
@@ -461,14 +460,13 @@ chip soc/intel/meteorlake
 				register "generic.hid" = ""EKTH7B18U""
 				register "generic.desc" = ""ELAN Touchscreen""
 				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_C07_IRQ)"
-				register "generic.detect" = "1"
+				register "generic.probed" = "1"
 				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_D07)"
 				register "generic.reset_delay_ms" = "20"
 				register "generic.reset_off_delay_ms" = "2"
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B17)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 10 on
 					probe TOUCHSCREEN TOUCHSCREEN_ELAN
@@ -500,7 +498,7 @@ chip soc/intel/meteorlake
 				register "compat_string" = ""google,cros-ec-spi""
 				register "irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_E10_IRQ)"
 				register "wake" = "GPE0_DW1_10"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C21)"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B08)"
 				register "enable_delay_ms" = "3"
@@ -516,15 +514,12 @@ chip soc/intel/meteorlake
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
 				register "ssdb.lanes_used" = "4"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_MTL"
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C64"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "400 * MHz"
 				register "remote_name" = ""IPU0""
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "IMGCLKOUT_2"
 				register "clk_panel.clks[0].freq" = "FREQ_19_2_MHZ"
@@ -554,7 +549,7 @@ chip soc/intel/meteorlake
 				register "chip_name" = ""M24C64X""
 				register "device_type" = "INTEL_ACPI_CAMERA_NVM"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_A12" #EN_UCAM_PWR
 

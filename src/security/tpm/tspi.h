@@ -43,20 +43,28 @@ static inline bool tpm_log_use_tpm2_format(void)
 }
 
 /**
- * Checks whether a PCR banks corresponding to a hash algorithm is active.
+ * Retrieves hash algorithm used by TPM event log or VB2_HASH_INVALID.
  */
-static inline bool tpm_log_alg_active(enum vb2_hash_algorithm alg)
+static inline enum vb2_hash_algorithm tpm_log_alg(void)
 {
 	if (CONFIG(TPM_LOG_CB))
-		return alg == (tlcl_get_family() == TPM_1 ? VB2_HASH_SHA1 : VB2_HASH_SHA256);
+		return (tlcl_get_family() == TPM_1 ? VB2_HASH_SHA1 : VB2_HASH_SHA256);
 
 	if (tpm_log_use_tpm1_format())
-		return alg == VB2_HASH_SHA1;
+		return VB2_HASH_SHA1;
 
-	if (tpm_log_use_tpm2_format())
-		return tpm2_log_alg_active(alg);
+	if (tpm_log_use_tpm2_format()) {
+		if (CONFIG(TPM_HASH_SHA1))
+			return VB2_HASH_SHA1;
+		if (CONFIG(TPM_HASH_SHA256))
+			return VB2_HASH_SHA256;
+		if (CONFIG(TPM_HASH_SHA384))
+			return VB2_HASH_SHA384;
+		if (CONFIG(TPM_HASH_SHA512))
+			return VB2_HASH_SHA512;
+	}
 
-	return false;
+	return VB2_HASH_INVALID;
 }
 
 /**
@@ -124,15 +132,15 @@ static inline void tpm_log_copy_entries(const void *from, void *to)
 /**
  * Retrieves an entry from a log. Returns non-zero on invalid index or error.
  */
-static inline int tpm_log_get(int entry_idx, int *pcr, struct tpm_digest *digests,
-			      const char **event_name, uint32_t *event_type)
+static inline int tpm_log_get(int entry_idx, int *pcr, const uint8_t **digest_data,
+			      enum vb2_hash_algorithm *digest_algo, const char **event_name)
 {
 	if (CONFIG(TPM_LOG_CB))
-		return tpm_cb_log_get(entry_idx, pcr, digests, event_name, event_type);
+		return tpm_cb_log_get(entry_idx, pcr, digest_data, digest_algo, event_name);
 	if (tpm_log_use_tpm1_format())
-		return tpm1_log_get(entry_idx, pcr, digests, event_name, event_type);
+		return tpm1_log_get(entry_idx, pcr, digest_data, digest_algo, event_name);
 	if (tpm_log_use_tpm2_format())
-		return tpm2_log_get(entry_idx, pcr, digests, event_name, event_type);
+		return tpm2_log_get(entry_idx, pcr, digest_data, digest_algo, event_name);
 	return 1;
 }
 
@@ -140,17 +148,21 @@ static inline int tpm_log_get(int entry_idx, int *pcr, struct tpm_digest *digest
  * Add table entry for cbmem TPM log.
  * @param name Name of the hashed data
  * @param pcr PCR used to extend hashed data
- * @param digests An array of digests terminated by an entry with VB2_HASH_NONE
+ * @param diget_algo sets the digest algorithm
+ * @param digest sets the hash extended into the tpm
+ * @param digest_len the length of the digest
  */
 static inline void tpm_log_add_table_entry(const char *name, const uint32_t pcr,
-					   const struct tpm_digest *digests)
+					   enum vb2_hash_algorithm digest_algo,
+					   const uint8_t *digest,
+					   const size_t digest_len)
 {
 	if (CONFIG(TPM_LOG_CB))
-		tpm_cb_log_add_table_entry(name, pcr, digests);
+		tpm_cb_log_add_table_entry(name, pcr, digest_algo, digest, digest_len);
 	else if (tpm_log_use_tpm1_format())
-		tpm1_log_add_table_entry(name, pcr, digests);
+		tpm1_log_add_table_entry(name, pcr, digest_algo, digest, digest_len);
 	else if (tpm_log_use_tpm2_format())
-		tpm2_log_add_table_entry(name, pcr, digests);
+		tpm2_log_add_table_entry(name, pcr, digest_algo, digest, digest_len);
 }
 
 /**
@@ -161,15 +173,6 @@ static inline void tpm_log_startup_locality(int locality)
 	/* Locality 0 is the default and doesn't need to be logged. */
 	if (locality != 0 && tpm_log_use_tpm2_format())
 		tpm2_log_startup_locality(locality);
-}
-
-/**
- * Align TPM log with the TPM if necessary.
- */
-static inline void tpm_log_align_with_tpm(void)
-{
-	if (tpm_log_use_tpm2_format())
-		tpm2_log_align_with_tpm();
 }
 
 /**
@@ -188,11 +191,15 @@ static inline void tpm_log_dump(void *unused)
 /**
  * Ask vboot for a digest and extend a TPM PCR with it.
  * @param pcr sets the pcr index
- * @param digests An array of digests terminated by an entry with VB2_HASH_NONE
+ * @param diget_algo sets the digest algorithm
+ * @param digest sets the hash to extend into the tpm
+ * @param digest_len the length of the digest
  * @param name sets additional info where the digest comes from
  * @return TPM_SUCCESS on success. If not a tpm error is returned
  */
-tpm_result_t tpm_extend_pcr(int pcr, const struct tpm_digest *digests, const char *name);
+tpm_result_t tpm_extend_pcr(int pcr, enum vb2_hash_algorithm digest_algo,
+			    const uint8_t *digest, size_t digest_len,
+			    const char *name);
 
 /**
  * Issue a TPM_Clear and re-enable/reactivate the TPM.
@@ -216,45 +223,5 @@ tpm_result_t tpm_setup(int s3flag);
  */
 tpm_result_t tpm_measure_region(const struct region_device *rdev, uint8_t pcr,
 				const char *rname);
-
-/*
- * Arrays of tpm_digest structures should generally have `ENABLED_TPM_ALGS_NUM + 1` entries.
- * The extra entry terminates the list.  Functions that fill such arrays rely on this
- * assumption.
- */
-#define ENABLED_TPM_ALGS_NUM  ARRAY_SIZE(enabled_tpm_algs)
-
-/*
- * This is a list of supported digests to be used in loops.
- */
-static const enum vb2_hash_algorithm enabled_tpm_algs[] __maybe_unused = {
-#if CONFIG(TPM_HASH_SHA1) || CONFIG(TPM_LOG_CB)
-	VB2_HASH_SHA1,
-#endif
-#if CONFIG(TPM_HASH_SHA256) || CONFIG(TPM_LOG_CB)
-	VB2_HASH_SHA256,
-#endif
-#if CONFIG(TPM_HASH_SHA384)
-	VB2_HASH_SHA384,
-#endif
-#if CONFIG(TPM_HASH_SHA512)
-	VB2_HASH_SHA512,
-#endif
-};
-
-_Static_assert(ENABLED_TPM_ALGS_NUM <= HASH_COUNT,
-	       "Marshalling code of TSS 2.0 can't accommodate all enabled hashes.");
-
-struct tpm_digests {
-	struct vb2_hash hashes[ENABLED_TPM_ALGS_NUM];
-	struct tpm_digest values[ENABLED_TPM_ALGS_NUM + 1];
-};
-
-/**
- * Compute all supported hashes of a buffer.  hash_hint can be passed in to avoid recomputing
- * the digest if it's already known.
- */
-bool tpm_make_digests(const void *buffer, size_t size, const struct vb2_hash *hash_hint,
-		      struct tpm_digests *digests);
 
 #endif /* TSPI_H_ */

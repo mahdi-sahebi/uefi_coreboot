@@ -4,7 +4,7 @@
 #include <cpu/x86/mtrr.h>
 #include <cpu/x86/cr.h>
 #include <cpu/x86/msr.h>
-#include <cpu/x86/gdt.h>
+#include <arch/ram_segs.h>
 
 #include <security/intel/txt/txt_register.h>
 
@@ -295,10 +295,10 @@ mca_clean_done:
 	lgdt	-48(%ebp)
 
 	/* Set cs */
-	ljmp	$GDT_CODE_SEG, $1f
+	ljmp	$RAM_CODE_SEG, $1f
 1:
 	/* Fix segment registers */
-	movl	$GDT_DATA_SEG, %eax
+	movl	$RAM_DATA_SEG, %eax
 	movl	%eax, %ds
 	movl	%eax, %es
 	movl	%eax, %ss

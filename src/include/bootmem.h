@@ -29,7 +29,6 @@ enum bootmem_type {
 	BM_MEM_VENDOR_RSVD,	/* Vendor Reserved */
 	BM_MEM_OPENSBI,		/* Risc-V OpenSBI */
 	BM_MEM_BL31,		/* Arm64 BL31 executable */
-	BM_MEM_TAG,		/* Armv9-A tag storage for MTE */
 	BM_MEM_TABLE,		/* Ram configuration tables are kept in */
 	/* Tags below this point are ignored for the OS table. */
 	BM_MEM_OS_CUTOFF = BM_MEM_TABLE,
@@ -61,22 +60,6 @@ void bootmem_platform_add_ranges(void);
 /* Add a range of a given type to the bootmem address space. */
 void bootmem_add_range(uint64_t start, uint64_t size,
 		       const enum bootmem_type tag);
-
-/*
- * bootmem_add_range_from - Add a memory range of a specific type from another range
- * @start: Start address of the new memory range
- * @size: Size of the new memory range
- * @new_tag: The new bootmem_type for the range
- * @from_tag: The bootmem_type from which the new range should be carved out
- *
- * This function adds a memory range with `new_tag` only if it is fully
- * contained within an existing range of `from_tag`. This is useful for
- * carving out specific memory regions from a larger, already defined area.
- *
- * Return: 0 on success, or a negative error code on failure.
- */
-int bootmem_add_range_from(uint64_t start, uint64_t size, const enum bootmem_type new_tag,
-			   const enum bootmem_type from_tag);
 
 /* Print current range map of boot memory. */
 void bootmem_dump_ranges(void);

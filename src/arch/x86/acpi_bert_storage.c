@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <acpi/acpi_apei.h>
 #include <bootstate.h>
 #include <cbmem.h>
 #include <console/console.h>
@@ -531,7 +530,7 @@ acpi_generic_error_status_t *bert_new_event(guid_t *guid)
 
 	if (!guidcmp(guid, &CPER_SEC_PROC_GENERIC_GUID))
 		r = bert_append_genproc(status);
-	else if (!guidcmp(guid, &CPER_SEC_PROC_IA32X64_GUID))
+	else if (!guidcmp(guid, &CPER_SEC_PROC_GENERIC_GUID))
 		r = bert_append_ia32x64(status);
 	else if (!guidcmp(guid, &CPER_SEC_FW_ERR_REC_REF_GUID))
 		r = bert_append_fw_err(status);

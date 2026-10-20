@@ -1,12 +1,9 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <fmap.h>
 #include <intelblocks/pcr.h>
 #include <intelblocks/rtc.h>
-#include <option.h>
-#include <pc80/mc146818rtc.h>
-#include <reset.h>
 #include <soc/pcr_ids.h>
+#include <pc80/mc146818rtc.h>
 
 /* RTC PCR configuration */
 #define PCR_RTC_CONF		0x3400
@@ -56,31 +53,4 @@ enum ts_config get_rtc_buc_top_swap_status(void)
 	else
 		return TS_DISABLE;
 }
-
-void sync_rtc_buc_top_swap(void)
-{
-	uint8_t cmos_slotb_option, topswap_control_bit;
-	cmos_slotb_option = get_uint_option(TOP_SWAP_ENABLE_CMOS_OPTION, 0);
-	topswap_control_bit = get_rtc_buc_top_swap_status();
-	printk(BIOS_INFO, "Top Swap: CMOS option state: %d\n", cmos_slotb_option);
-	printk(BIOS_INFO, "Top Swap: RTC BUC control bit: %d\n", topswap_control_bit);
-	if (cmos_slotb_option != topswap_control_bit) {
-		configure_rtc_buc_top_swap(cmos_slotb_option);
-		printk(BIOS_INFO, "Top Swap: RTC BUC control bit set to: %d, platform reset is necessary\n", get_rtc_buc_top_swap_status());
-		board_reset();
-	}
-}
-
-/*
- * Select the FMAP region to continue booting from, depending on the state of
- * Top Swap
- */
-const char *cbfs_fmap_region_hint(void)
-{
-	if (CONFIG(INTEL_TOP_SWAP_OPTION_CONTROL) && get_rtc_buc_top_swap_status())
-		return "COREBOOT_TS";
-	else
-		return "COREBOOT";
-}
-
 #endif

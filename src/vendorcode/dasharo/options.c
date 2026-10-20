@@ -178,33 +178,18 @@ bool dasharo_resizeable_bars_enabled(void)
 	return enabled;
 }
 
-static bool fum_is_active(void)
-{
-	bool fum = false;
-
-	if (!CONFIG(DASHARO_FIRMWARE_UPDATE_MODE))
-		return false;
-
-	/* Handling capsules implies active FUM. */
-	if (dasharo_is_disk_capsules_boot())
-		return true;
-
-	/* Check the FUM Request variable. FUM Active var is created by the payload. */
-	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
-		read_bool_var("FirmwareUpdateModeRequest", &fum);
-
-	return fum;
-}
-
 bool is_vboot_locking_permitted(void)
 {
 	bool lock = true;
+	bool fum = false;
 
-	if (!CONFIG(DRIVERS_EFI_VARIABLE_STORE))
+	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
+		read_bool_var("FirmwareUpdateMode", &fum);
+	else
 		return !CONFIG(BOOTMEDIA_LOCK_NONE);
 
 	/* Disable lock if in Firmware Update Mode */
-	if (fum_is_active())
+	if (CONFIG(DASHARO_FIRMWARE_UPDATE_MODE) && fum)
 		return false;
 
 	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
@@ -281,19 +266,19 @@ hmrfpo_error:
 uint8_t cse_get_me_disable_mode(void)
 {
 	uint8_t var = CONFIG_INTEL_ME_DEFAULT_STATE;
+	bool fum = false;
 
-	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
+	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE)) {
+		read_bool_var("FirmwareUpdateMode", &fum);
 		read_u8_var("MeMode", &var);
+	}
 
 	/*
 	 * Disable ME via HMRPFO if in Firmware Update Mode
-	 *
-	 * If capsules are supported, don't do this unless it's on-disk
-	 * capsules, because in-RAM capsules do not survive a cold reset
-	 * required for HMRFPO.
+	 * Don't do it if capsules are supported, as capsule updates are not
+	 * currently compatible with HMRFPO
 	 */
-	if (fum_is_active() &&
-	    (!CONFIG(DRIVERS_EFI_UPDATE_CAPSULES) || dasharo_is_disk_capsules_boot())) {
+	if (CONFIG(DASHARO_FIRMWARE_UPDATE_MODE) && fum	&& !(CONFIG(DRIVERS_EFI_UPDATE_CAPSULES))) {
 		/* Check if already in HMRFPO mode */
 		if (cse_is_hfs1_com_secover_mei_msg())
 			return ME_MODE_DISABLE_HMRFPO;
@@ -328,9 +313,13 @@ uint8_t cse_get_me_disable_mode(void)
 bool is_smm_bwp_permitted(void)
 {
 	bool smm_bwp = false;
+	bool fum = false;
+
+	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
+		read_bool_var("FirmwareUpdateMode", &fum);
 
 	/* Disable SMM BWP if in Firmware Update Mode */
-	if (fum_is_active())
+	if (CONFIG(DASHARO_FIRMWARE_UPDATE_MODE) && fum)
 		return false;
 
 	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
@@ -557,18 +546,6 @@ bool get_ibecc_option(bool ibecc_default)
 		read_bool_var("IBECC", &ibecc_en);
 
 	return ibecc_en;
-}
-
-bool dasharo_is_disk_capsules_boot(void)
-{
-	if (!CONFIG(EDK2_CAPSULES_V2))
-		return false;
-
-	bool disk_capsules_boot = false;
-	if (CONFIG(DRIVERS_EFI_VARIABLE_STORE))
-		read_bool_var("DiskCapsulesBoot", &disk_capsules_boot);
-
-	return disk_capsules_boot;
 }
 
 /* Flash Master 1 : HOST/BIOS */

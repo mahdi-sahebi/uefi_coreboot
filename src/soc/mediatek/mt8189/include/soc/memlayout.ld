@@ -4,12 +4,9 @@
 
 SECTIONS
 {
-	/*
-	 * MT8189 has 64KB SRAM. Per HW design, on SoC reset via GPIO
-	 * AP_SYSRST_ODL (SYSRSTB), SRAM will be powered down. That means
-	 * SRAM data will be lost across SoC resets.
-	 */
+	/* MT8189 has 64KB SRAM. */
 	SRAM_START(0x00100000)
+	WATCHDOG_TOMBSTONE(0x00100030, 4)
 
 	/*
 	 * MCUPM uses the following regions to exchange data with kernel.
@@ -47,7 +44,7 @@ SECTIONS
 	 * is fixed at SRAM_L2C_START + 4K, and the 4K can be reused after bootblock is started.
 	 * To move the address, gen-bl-img.py also needs to be modified accordingly.
 	 */
-	BOOTBLOCK(0x02001000, 70K)
+	BOOTBLOCK(0x02001000, 60K)
 	#endif
 
 	OVERLAP_DECOMPRESSOR_VERSTAGE_ROMSTAGE(0x0207D000, 272K)
@@ -61,15 +58,13 @@ SECTIONS
 	DMA_COHERENT(0x020DC000, 4K)
 	STACK(0x020DD000, 15K)
 	TIMESTAMP(0x020E0C00, 1K)
-	PRERAM_CBMEM_CONSOLE(0x020E1000, 123K)
-	WATCHDOG_TOMBSTONE(0x0020FFC00, 4)
+	PRERAM_CBMEM_CONSOLE(0x020E1000, 124K)
 	SRAM_L2C_END(0x02100000)
 
 	DRAM_START(0x40000000)
 	DRAM_DMA(0x40000000, 1M)
 	POSTRAM_CBFS_CACHE(0x40100000, 2M)
 	RAMSTAGE(0x40300000, 2M)
-	FSP_RAMSTAGE_INIT_CODE(0x40500000, 2M)
 
 	BL31(0x54600000, 0x60000)
 }

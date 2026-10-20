@@ -198,7 +198,7 @@ chip soc/intel/tigerlake
 	register "s0ix_enable" = "true"
 
 	# Enable DPTF
-	register "dptf_enable" = "true"
+	register "dptf_enable" = "1"
 
 	# Enable External Bypass
 	register "external_bypass" = "1"
@@ -384,7 +384,7 @@ chip soc/intel/tigerlake
 					[9] = {   0,    0,   0,   50, }}"
 
 				# Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 0 on end
@@ -425,14 +425,14 @@ chip soc/intel/tigerlake
 		end
 		device ref pcie_rp7 on
 			# WLAN PCIE 7 using clk 1
-			register "PcieRpLtrEnable[6]" = "true"
+			register "PcieRpLtrEnable[6]" = "1"
 			register "PcieClkSrcUsage[1]" = "6"
 			register "PcieClkSrcClkReq[1]" = "1"
-			register "PcieRpSlotImplemented[6]" = "true"
+			register "PcieRpSlotImplemented[6]" = "1"
 		end
 		device ref pcie_rp8 on
 			# SD Card PCIE 8 using clk 3
-			register "PcieRpLtrEnable[7]" = "true"
+			register "PcieRpLtrEnable[7]" = "1"
 			register "PcieRpHotPlug[7]" = "1"
 			register "PcieClkSrcUsage[3]" = "7"
 			register "PcieClkSrcClkReq[3]" = "3"
@@ -464,16 +464,16 @@ chip soc/intel/tigerlake
 		end
 		device ref pcie_rp9 on
 			# NVMe PCIE 9 using clk 0
-			register "PcieRpLtrEnable[8]" = "true"
+			register "PcieRpLtrEnable[8]" = "1"
 			register "PcieClkSrcUsage[0]" = "8"
 			register "PcieClkSrcClkReq[0]" = "0"
-			register "PcieRpSlotImplemented[8]" = "true"
+			register "PcieRpSlotImplemented[8]" = "1"
 		end
 		device ref pcie_rp11 on
 			# Optane PCIE 11 using clk 0
-			register "PcieRpLtrEnable[10]" = "true"
+			register "PcieRpLtrEnable[10]" = "1"
 			register "HybridStorageMode" = "0"
-			register "PcieRpSlotImplemented[10]" = "true"
+			register "PcieRpSlotImplemented[10]" = "1"
 		end
 		device ref uart0 on end
 		device ref gspi0 on
@@ -491,7 +491,7 @@ chip soc/intel/tigerlake
 				register "uid" = "1"
 				register "compat_string" = ""google,cros-ec-spi""
 				register "irq_gpio" = "ACPI_GPIO_IRQ_LEVEL_LOW_WAKE(GPP_C20)"
-				device spi 0 hidden end
+				device spi 0 on end
 			end # FPMCU
 		end
 		device ref pch_espi on
@@ -506,7 +506,7 @@ chip soc/intel/tigerlake
 			end
 		end
 		device ref hda on
-			register "PchHdaDspEnable" = "true"
+			register "PchHdaDspEnable" = "1"
 
 			chip drivers/sof
 				register "spkr_tplg" = "max98373"

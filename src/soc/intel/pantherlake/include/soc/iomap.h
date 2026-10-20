@@ -74,6 +74,8 @@
 /* PCH P2SB2 256MB */
 #define P2SB2_BAR		CONFIG_P2SB_2_PCR_BASE_ADDRESS
 #define P2SB2_SIZE		(256 * MiB)
+#define IOE_P2SB_BAR		P2SB2_BAR
+#define IOE_P2SB_SIZE		P2SB2_SIZE
 
 /* IOM_BASE_ADDR = ((long int) Ps2bMmioBase | (int) (((Offset) & 0x0F0000) << 8) \
  * | ((unsigned char)(Pid) << 16) | (short int) ((Offset) & 0xFFFF))
@@ -83,10 +85,6 @@
 #define IOM_BASE_ADDR		0x4010800000
 #define IOM_BASE_SIZE		0x10000
 #define IOM_BASE_ADDR_MAX	0x401080ffff /* ((IOM_BASE_ADDR + IOM_BASE_SIZE) - 1) */
-
-/* Temporary MMIO address for GMADR (aka LMEMBAR) with 256MB */
-#define GMADR_BASE		0xB0000000
-#define GMADR_SIZE		0x10000000
 
 /* I/O port address space */
 #define ACPI_BASE_ADDRESS	0x1800

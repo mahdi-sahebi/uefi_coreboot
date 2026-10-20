@@ -66,7 +66,9 @@ chip soc/intel/cannonlake
 		device ref igpu		on
 			register "gfx" = "GMA_DEFAULT_PANEL(0)"
 		end
-		device ref dptf		on	end
+		device ref dptf		on
+			register "Device4Enable" = "1"
+		end
 		device ref thermal	on	end
 		device ref xhci		on
 			register "usb2_ports" = "{
@@ -107,34 +109,36 @@ chip soc/intel/cannonlake
 		device ref uart2	on	end
 		device ref pcie_rp21	on
 			# PCI Express root port #21 x4, Clock 11 (SSD2)
-			register "PcieRpLtrEnable[20]" = "true"
+			register "PcieRpEnable[20]" = "1"
+			register "PcieRpLtrEnable[20]" = "1"
 			register "PcieClkSrcUsage[11]" = "20"
 			register "PcieClkSrcClkReq[11]" = "11"
-			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther" "M.2/M 2280 (J_SSD2)" "SlotDataBusWidth4X"
 		end
 		device ref pcie_rp9	on
 			# PCI Express root port #9 x4, Clock 12 (SSD)
-			register "PcieRpLtrEnable[8]" = "true"
+			register "PcieRpEnable[8]" = "1"
+			register "PcieRpLtrEnable[8]" = "1"
 			register "PcieClkSrcUsage[12]" = "8"
 			register "PcieClkSrcClkReq[12]" = "12"
-			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther" "M.2/M 2280 (J_SSD1)" "SlotDataBusWidth4X"
 		end
 		device ref pcie_rp14	on
 			# PCI Express root port #14 x1, Clock 13 (WLAN)
-			register "PcieRpLtrEnable[13]" = "true"
+			register "PcieRpEnable[13]" = "1"
+			register "PcieRpLtrEnable[13]" = "1"
 			register "PcieClkSrcUsage[13]" = "13"
 			register "PcieClkSrcClkReq[13]" = "13"
-			smbios_slot_desc "SlotTypeM2Socket1_SD" "SlotLengthOther" "M.2/E 2230 (J_WLAN1)" "SlotDataBusWidth1X"
 		end
 		device ref pcie_rp15	on
 			# PCI Express root port #15 x1, Clock 14 (GLAN)
-			register "PcieRpLtrEnable[14]" = "true"
+			register "PcieRpEnable[14]" = "1"
+			register "PcieRpLtrEnable[14]" = "1"
 			register "PcieClkSrcUsage[14]" = "14"
 			register "PcieClkSrcClkReq[14]" = "14"
 		end
 		device ref pcie_rp16	on
 			# PCI Express root port #16 x1, Clock 15 (Card Reader)
-			register "PcieRpLtrEnable[15]" = "true"
+			register "PcieRpEnable[15]" = "1"
+			register "PcieRpLtrEnable[15]" = "1"
 			register "PcieClkSrcUsage[15]" = "15"
 			register "PcieClkSrcClkReq[15]" = "15"
 		end

@@ -48,7 +48,7 @@ romstage-y += emi.c dramc_pi_basic_api.c dramc_pi_calibration_api.c
 romstage-$(CONFIG_MEMORY_TEST) += ../common/memory_test.c
 romstage-y += ../common/wdt.c ../common/reset.c
 romstage-y += ../common/mmu_operations.c mmu_operations.c
-romstage-y += ../common/rtc.c ../common/rtc_pwrap_ops.c rtc.c
+romstage-y += ../common/rtc.c rtc.c
 
 ################################################################################
 
@@ -66,13 +66,12 @@ ramstage-y += da9212.c
 ramstage-y += ../common/gpio.c gpio.c
 ramstage-y += ../common/wdt.c ../common/reset.c
 ramstage-y += ../common/pll.c pll.c
-ramstage-y += ../common/rtc.c ../common/rtc_pwrap_ops.c rtc.c
+ramstage-y += ../common/rtc.c rtc.c
 
 ramstage-y += ../common/usb.c usb.c
 
 ramstage-y += ../common/ddp.c ddp.c
-ramstage-y += ../common/dsi_common.c dsi.c
-ramstage-y += ../common/mtk_mipi_dphy_v1.c
+ramstage-y += ../common/dsi.c dsi.c
 
 BL31_MAKEARGS += PLAT=mt8173
 
@@ -80,7 +79,7 @@ BL31_MAKEARGS += PLAT=mt8173
 
 # Generate the actual coreboot bootblock code
 $(objcbfs)/bootblock.bin: $(objcbfs)/bootblock.raw.bin
-	./util/mediatek/gen-bl-img.py mt8173 sf $< $@
+	./util/mtkheader/gen-bl-img.py mt8173 sf $< $@
 
 CPPFLAGS_common += -Isrc/soc/mediatek/mt8173/include
 CPPFLAGS_common += -Isrc/soc/mediatek/common/include

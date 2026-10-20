@@ -7,7 +7,6 @@
 #include <cbmem.h>
 #include <console/console.h>
 #include <cpu/x86/pae.h>
-#include <dasharo/options.h>
 #include <delay.h>
 #include <drivers/efi/efivars.h>
 #include <drivers/efi/capsules.h>
@@ -131,14 +130,6 @@ static void *map_range(uint64_t base, uint32_t len)
 	size_t window_size = 2 * MiB;
 
 	printk(BIOS_SPEW, "capsules: mapping %#010x bytes at %#010llx.\n", len, base);
-
-	/* Don't bother with the mapping if we run in x86_64 */
-	if (ENV_X86_64) {
-		if ((base + len) > (uint64_t)CONFIG_CPU_PT_ROM_MAP_GB * GiB)
-			die("capsules: page tables in ROM can't reach requested block\n");
-
-		return (void *)(uintptr_t)base;
-	}
 
 	if (base + len <= 4ULL * GiB &&
 	    (base + len <= window_base || base >= window_base + window_size)) {
@@ -295,9 +286,7 @@ static bool is_good_capsule_head(struct block_descr *block)
 static bool is_good_capsule_block(struct block_descr *block, uint32_t size_left)
 {
 	if (is_final_block(block)) {
-		printk(BIOS_ERR,
-		       "capsules: not enough SG blocks to cover a capsule (%#x bytes more).\n",
-		       size_left);
+		printk(BIOS_ERR, "capsules: not enough SG blocks to cover a capsule.\n");
 		return false;
 	}
 
@@ -307,8 +296,7 @@ static bool is_good_capsule_block(struct block_descr *block, uint32_t size_left)
 	}
 
 	if (block->len > size_left) {
-		printk(BIOS_ERR, "capsules: SG block reaches beyond a capsule: %#llx > %#x.\n",
-		       block->len, size_left);
+		printk(BIOS_ERR, "capsules: SG blocks reach beyond a capsule.\n");
 		return false;
 	}
 
@@ -372,9 +360,6 @@ static struct block_descr check_capsule_block(struct block_descr first_block,
 		while (size_left != 0) {
 			/* is_good_block() holds here whether it's the first iteration or
 			   not. */
-
-			printk(BIOS_SPEW, "capsules: checking SG block @ %#010llx.\n",
-			       block.self);
 
 			if (!is_good_capsule_block(&block, size_left))
 				goto error;
@@ -680,38 +665,23 @@ void efi_parse_capsules(uintptr_t *base, size_t *size)
 	/* EDK2 starts with 20 items and then grows the list, but it's unlikely
 	   to be necessary in practice. */
 	enum { MAX_CAPSULE_BLOCKS = MAX_CAPSULES };
-	static bool parsed;
-	static uintptr_t capsule_base = 0;
-	static uintptr_t capsule_size = 0;
 
 	/* Assume no capsules at the start. */
-	if (base)
-		*base = 0;
-	if (size)
-		*size = 0;
-
-	/* Return early if already parsed */
-	if (parsed) {
-		if (base)
-			*base = capsule_base;
-		if (size)
-			*size = capsule_size;
-		return;
-	}
-
-	parsed = true;
+	*base = 0;
+	*size = 0;
 
 	struct region_device rdev;
-	if (smmstore_lookup_region(&rdev))
+	if (smmstore_lookup_region(&rdev)) {
 		printk(BIOS_INFO, "capsules: no SMMSTORE region, no update capsules.\n");
+		return;
+	}
 
 	memranges_init(&memory_map, IORESOURCE_MEM | IORESOURCE_FIXED | IORESOURCE_STORED |
 		       IORESOURCE_ASSIGNED | IORESOURCE_CACHEABLE, IORESOURCE_MEM |
 		       IORESOURCE_FIXED | IORESOURCE_STORED | IORESOURCE_ASSIGNED |
 		       IORESOURCE_CACHEABLE, BM_MEM_RAM);
 
-	if (!ENV_X86_64)
-		init_pae_pagetables(&pae_page_tables);
+	init_pae_pagetables(&pae_page_tables);
 
 	/* Blocks are collected here when traversing CapsuleUpdateData*
 	   variables, duplicates are skipped. */
@@ -772,19 +742,11 @@ void efi_parse_capsules(uintptr_t *base, size_t *size)
 	       coalesce_buffer.base, coalesce_buffer.base + coalesce_buffer.len);
 	coalesce_capsules(block_chain, (void *)(uintptr_t)coalesce_buffer.base);
 
-	if (base)
-		*base = coalesce_buffer.base;
-	if (size)
-		*size = coalesce_buffer.len;
-
-	capsule_base = coalesce_buffer.base;
-	capsule_size = coalesce_buffer.len;
+	*base = coalesce_buffer.base;
+	*size = coalesce_buffer.len;
 
 exit:
-
-	if (!ENV_X86_64)
-		paging_disable_pae();
-
+	paging_disable_pae();
 	memranges_teardown(&memory_map);
 }
 
@@ -842,13 +804,11 @@ static void enable_capsule_smi(void *unused)
 {
 	uint32_t ret;
 
-	bool full_flash_access = (uefi_capsule_count > 0) || dasharo_is_disk_capsules_boot();
-
 	/* SMI can occasionally be ignored, so retry several times on failure. */
 	uint8_t retries_left = 10;
 	while (1) {
 		ret = call_smm(APM_CNT_SMMSTORE, SMMSTORE_CMD_USE_FULL_FLASH,
-			       (void *)(uintptr_t)full_flash_access);
+			       (void *)(uintptr_t)uefi_capsule_count);
 		if (ret == SMMSTORE_RET_SUCCESS)
 			break;
 

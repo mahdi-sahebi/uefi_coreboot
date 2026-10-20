@@ -181,20 +181,6 @@ static const char *const me_progress_bup_values[] = {
 	"M0 kernel load",
 };
 
-unsigned int soc_get_heci_dev(unsigned int heci_idx)
-{
-	if (heci_idx > 2)
-		return 0;
-
-	static const unsigned int heci_devs[] = {
-		PCH_DEVFN_CSE,
-		PCH_DEVFN_CSE_2,
-		PCH_DEVFN_CSE_3
-	};
-
-	return heci_devs[heci_idx];
-}
-
 void intel_me_status(void)
 {
 	union me_hfsts1 hfs1;
@@ -352,9 +338,9 @@ void intel_me_status(void)
 	}
 }
 
-enum cse_tx_rx_status send_global_reset(void)
+int send_global_reset(void)
 {
-	enum cse_tx_rx_status status = CSE_TX_ERR_CSE_NOT_READY;
+	int status = 0;
 	union me_hfsts1 hfs1;
 
 	if (!is_cse_enabled())

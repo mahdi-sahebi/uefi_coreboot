@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <assert.h>
-#include <boot/coreboot_tables.h>
 #include <bootmode.h>
 #include <bootsplash.h>
 #include <cbfs.h>
@@ -18,12 +17,10 @@
 #include <fsp/ppi/mp_service_ppi.h>
 #include <fsp/util.h>
 #include <option.h>
-#include <intelblocks/aspm.h>
 #include <intelblocks/cse.h>
 #include <intelblocks/irq.h>
 #include <intelblocks/lpss.h>
 #include <intelblocks/mp_init.h>
-#include <intelblocks/pmclib.h>
 #include <intelblocks/systemagent.h>
 #include <intelblocks/xdci.h>
 #include <intelpch/lockdown.h>
@@ -300,6 +297,47 @@ static const pci_devfn_t uart_dev[] = {
 	PCI_DEVFN_UART2
 };
 
+/*
+ * Chip config parameter PcieRpL1Substates uses (UPD value + 1)
+ * because UPD value of 0 for PcieRpL1Substates means disabled for FSP.
+ * In order to ensure that mainboard setting does not disable L1 substates
+ * incorrectly, chip config parameter values are offset by 1 with 0 meaning
+ * use FSP UPD default. get_l1_substate_control() ensures that the right UPD
+ * value is set in fsp_params.
+ * 0: Use FSP UPD default
+ * 1: Disable L1 substates
+ * 2: Use L1.1
+ * 3: Use L1.2 (FSP UPD default)
+ */
+static int get_l1_substate_control(enum L1_substates_control ctl)
+{
+	if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
+		ctl = L1_SS_DISABLED;
+	else if ((ctl > L1_SS_L1_2) || (ctl == L1_SS_FSP_DEFAULT))
+		ctl = L1_SS_L1_2;
+	return ctl - 1;
+}
+
+/*
+ * Chip config parameter pcie_rp_aspm uses (UPD value + 1) because
+ * a UPD value of 0 for pcie_rp_aspm means disabled. In order to ensure
+ * that the mainboard setting does not disable ASPM incorrectly, chip
+ * config parameter values are offset by 1 with 0 meaning use FSP UPD default.
+ * get_aspm_control() ensures that the right UPD value is set in fsp_params.
+ * 0: Use FSP UPD default
+ * 1: Disable ASPM
+ * 2: L0s only
+ * 3: L1 only
+ * 4: L0s and L1
+ * 5: Auto configuration
+ */
+static unsigned int get_aspm_control(enum ASPM_control ctl)
+{
+	if ((ctl > ASPM_AUTO) || (ctl == ASPM_DEFAULT))
+		ctl = ASPM_AUTO;
+	return ctl - 1;
+}
+
 __weak void mainboard_update_soc_chip_config(struct soc_intel_meteorlake_config *config)
 {
 	/* Override settings per board. */
@@ -399,13 +437,6 @@ static void fill_fsps_tcss_params(FSP_S_CONFIG *s_cfg,
 
 	/* Explicitly clear this field to avoid using defaults */
 	memset(s_cfg->IomTypeCPortPadCfg, 0, sizeof(s_cfg->IomTypeCPortPadCfg));
-
-	/*
-	 * Set ITbtConnectTopologyTimeoutInMs to 0 if config selected,
-	 * in order to skip sending the connect toplogy (CNTP) command.
-	 */
-	if (CONFIG(SKIP_SEND_CONNECT_TOPOLOGY_CMD))
-		s_cfg->ITbtConnectTopologyTimeoutInMs = 0;
 
 	/* D3Hot and D3Cold for TCSS */
 	s_cfg->D3HotEnable = !config->tcss_d3_hot_disable;
@@ -639,12 +670,15 @@ static void fill_fsps_pcie_params(FSP_S_CONFIG *s_cfg,
 		if (!(enable_mask & BIT(i)))
 			continue;
 		const struct pcie_rp_config *rp_cfg = &config->pcie_rp[i];
+		s_cfg->PcieRpL1Substates[i] =
+				get_l1_substate_control(rp_cfg->PcieRpL1Substates);
 		s_cfg->PcieRpLtrEnable[i] = !!(rp_cfg->flags & PCIE_RP_LTR);
 		s_cfg->PcieRpAdvancedErrorReporting[i] = !!(rp_cfg->flags & PCIE_RP_AER);
 		s_cfg->PcieRpHotPlug[i] = !!(rp_cfg->flags & PCIE_RP_HOTPLUG)
 				|| CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE);
 		s_cfg->PcieRpClkReqDetect[i] = !!(rp_cfg->flags & PCIE_RP_CLK_REQ_DETECT);
-		configure_pch_rp_power_management(s_cfg, rp_cfg, i);
+		if (rp_cfg->pcie_rp_aspm)
+			s_cfg->PcieRpAspm[i] = get_aspm_control(rp_cfg->pcie_rp_aspm);
 	}
 	s_cfg->PcieComplianceTestMode = CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE);
 }
@@ -662,27 +696,6 @@ static void fill_fsps_misc_power_params(FSP_S_CONFIG *s_cfg,
 	/* Enable the energy efficient turbo mode */
 	s_cfg->EnergyEfficientTurbo = 1;
 	s_cfg->PmcLpmS0ixSubStateEnableMask = get_supported_lpm_mask();
-#if CONFIG(PLATFORM_USES_FSP2_X86_32)
-	s_cfg->PmcPchLpmS0ixSubStateEnableMask = get_supported_lpm_mask();
-#endif
-
-	/* Apply minimum assertion width settings if non-zero */
-	if (config->pch_slp_s3_min_assertion_width)
-		s_cfg->PchPmSlpS3MinAssert = config->pch_slp_s3_min_assertion_width;
-	if (config->pch_slp_s4_min_assertion_width)
-		s_cfg->PchPmSlpS4MinAssert = config->pch_slp_s4_min_assertion_width;
-	if (config->pch_slp_sus_min_assertion_width)
-		s_cfg->PchPmSlpSusMinAssert = config->pch_slp_sus_min_assertion_width;
-	if (config->pch_slp_a_min_assertion_width)
-		s_cfg->PchPmSlpAMinAssert = config->pch_slp_a_min_assertion_width;
-
-	/* Set Power Cycle Duration */
-	if (config->pch_reset_power_cycle_duration)
-		s_cfg->PchPmPwrCycDur = get_pm_pwr_cyc_dur(config->pch_slp_s4_min_assertion_width,
-							   config->pch_slp_s3_min_assertion_width,
-							   config->pch_slp_a_min_assertion_width,
-							   config->pch_reset_power_cycle_duration);
-
 	/* Un-Demotion from Demoted C1 need to be disable when
 	 * C1 auto demotion is disabled */
 	s_cfg->C1StateUnDemotion = !config->disable_c1_state_auto_demotion;
@@ -816,9 +829,6 @@ static void soc_silicon_init_params(FSP_S_CONFIG *s_cfg,
 	/* Override settings per board if required. */
 	mainboard_update_soc_chip_config(config);
 
-	/* Runtime configuration of S0ix */
-	config->s0ix_enable = get_uint_option("s0ix_enable", config->s0ix_enable);
-
 	 void (*fill_fsps_params[])(FSP_S_CONFIG *s_cfg,
 			const struct soc_intel_meteorlake_config *config) = {
 		fill_fsps_lpss_params,
@@ -903,27 +913,12 @@ __weak void mainboard_silicon_init_params(FSP_S_CONFIG *s_cfg)
 }
 
 /* Handle FSP logo params */
-void soc_load_logo_by_fsp(FSPS_UPD *supd)
+void soc_load_logo(FSPS_UPD *supd)
 {
-	struct soc_intel_common_config *config = chip_get_common_soc_structure();
-	FSP_S_CONFIG *s_cfg = &supd->FspsConfig;
-
-	/*
-	 * Adjusts panel orientation for external display when the lid is closed.
-	 *
-	 * When the lid is closed (LidStatus == 0), indicating the onboard display is inactive,
-	 * this function forces the panel orientation to normal. This ensures proper display
-	 * on an external monitor, as rotated orientations are typically not suitable in
-	 * such state.
-	 */
-	if (s_cfg->LidStatus == 0)
-		config->panel_orientation = LB_FB_ORIENTATION_NORMAL;
-
-	fsp_load_and_convert_bmp_to_gop_blt(&supd->FspsConfig.LogoPtr,
+	fsp_convert_bmp_to_gop_blt(&supd->FspsConfig.LogoPtr,
 			 &supd->FspsConfig.LogoSize,
 			 &supd->FspsConfig.BltBufferAddress,
 			 &supd->FspsConfig.BltBufferSize,
 			 &supd->FspsConfig.LogoPixelHeight,
-			 &supd->FspsConfig.LogoPixelWidth,
-			 config->panel_orientation);
+			 &supd->FspsConfig.LogoPixelWidth);
 }

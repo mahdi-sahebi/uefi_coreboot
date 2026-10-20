@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <assert.h>
-#include <bootsplash.h>
 #include <cbfs.h>
 #include <console/console.h>
 #include <delay.h>
@@ -9,11 +7,10 @@
 #include <framebuffer_info.h>
 #include <soc/ddp.h>
 #include <soc/display.h>
-#include <soc/display_dsi.h>
 #include <soc/dptx.h>
+#include <soc/dsi.h>
 #include <soc/mtcmos.h>
 #include <stdio.h>
-#include <symbols.h>
 
 static struct panel_serializable_data *get_mipi_cmd_from_cbfs(struct panel_description *desc)
 {
@@ -40,13 +37,7 @@ static struct panel_serializable_data *get_mipi_cmd_from_cbfs(struct panel_descr
 	return NULL;
 }
 
-__weak int mtk_edp_init(struct mtk_dp *mtk_dp, struct edid *edid)
-{
-	printk(BIOS_WARNING, "%s: Not supported\n", __func__);
-	return -1;
-}
-
-__weak int mtk_edp_enable(struct mtk_dp *mtk_dp)
+__weak int mtk_edp_init(struct edid *edid)
 {
 	printk(BIOS_WARNING, "%s: Not supported\n", __func__);
 	return -1;
@@ -59,52 +50,12 @@ __weak int mtk_dsi_init(u32 mode_flags, u32 format, u32 lanes,
 	return -1;
 }
 
-static void process_panel_quirks(struct mtk_dp *mtk_dp,
-				 struct panel_description *panel)
-{
-	if (panel->quirks & PANEL_QUIRK_FORCE_MAX_SWING)
-		mtk_dp->force_max_swing = true;
-}
-
-static void panel_configure_backlight(struct panel_description *panel,
-				      bool enable)
-{
-	assert(panel);
-
-	if (!panel->configure_backlight)
-		return;
-	panel->configure_backlight(enable);
-}
-
-static void display_logo(struct panel_description *panel,
-			 uintptr_t fb_addr,
-			 const struct edid *edid)
-{
-	memset((void *)fb_addr, 0, edid->bytes_per_line * edid->y_resolution);
-
-	struct logo_config config = {
-		.panel_orientation = panel->orientation,
-		.halignment = FW_SPLASH_HALIGNMENT_CENTER,
-		.valignment = FW_SPLASH_VALIGNMENT_CENTER,
-		.logo_bottom_margin = 100,
-	};
-	render_logo_to_framebuffer(&config);
-
-	mtk_ddp_ovlsys_start(fb_addr);
-
-	panel_configure_backlight(panel, true);
-}
-
 int mtk_display_init(void)
 {
-	struct edid edid = {0};
-	struct mtk_dp mtk_edp = {0};
-	struct dsc_config *dsc_config_var = NULL;
+	struct edid edid;
 	struct fb_info *info;
 	const char *name;
 	struct panel_description *panel = get_active_panel();
-	uintptr_t fb_addr;
-	u32 lanes;
 
 	if (!panel || panel->disp_path == DISP_PATH_NONE) {
 		printk(BIOS_ERR, "%s: Failed to get the active panel\n", __func__);
@@ -116,18 +67,16 @@ int mtk_display_init(void)
 	mtcmos_display_power_on();
 	mtcmos_protect_display_bus();
 
-	/* Set up backlight control pins as output pin and turn-off the backlight */
-	panel_configure_backlight(panel, false);
-
+	if (panel->configure_backlight)
+		panel->configure_backlight();
 	if (panel->power_on)
 		panel->power_on();
 
 	mtk_ddp_init();
-	process_panel_quirks(&mtk_edp, panel);
 
 	if (panel->disp_path == DISP_PATH_EDP) {
-		/* Currently eDP does not support DSC */
-		if (mtk_edp_init(&mtk_edp, &edid) < 0) {
+		mdelay(200);
+		if (mtk_edp_init(&edid) < 0) {
 			printk(BIOS_ERR, "%s: Failed to initialize eDP\n", __func__);
 			return -1;
 		}
@@ -144,31 +93,12 @@ int mtk_display_init(void)
 			edid = mipi_data->edid;
 		}
 
-		dsc_config_var = &mipi_data->dsc_config;
 		u32 mipi_dsi_flags = (MIPI_DSI_MODE_VIDEO |
 				      MIPI_DSI_MODE_VIDEO_SYNC_PULSE |
 				      MIPI_DSI_MODE_LPM |
 				      MIPI_DSI_MODE_EOT_PACKET);
 
-		if (panel->disp_path == DISP_PATH_DUAL_MIPI) {
-			mipi_dsi_flags |= MIPI_DSI_DUAL_CHANNEL;
-			printk(BIOS_INFO, "%s: DSI dual mode\n", __func__);
-		}
-
-		if (dsc_config_var->dsc_version_major) {
-			mipi_dsi_flags |= MIPI_DSI_DSC_MODE;
-			printk(BIOS_INFO, "%s: DSC main version: %d\n", __func__,
-			       dsc_config_var->dsc_version_major);
-		}
-
-		if (mipi_data->flags & PANEL_FLAG_CPHY) {
-			mipi_dsi_flags |= MIPI_DSI_MODE_CPHY;
-			lanes = 3;
-		} else {
-			lanes = 4;
-		}
-
-		if (mtk_dsi_init(mipi_dsi_flags, MIPI_DSI_FMT_RGB888, lanes, &edid,
+		if (mtk_dsi_init(mipi_dsi_flags, MIPI_DSI_FMT_RGB888, 4, &edid,
 				 mipi_data ? mipi_data->init : NULL) < 0) {
 			printk(BIOS_ERR, "%s: Failed in DSI init\n", __func__);
 			return -1;
@@ -189,53 +119,10 @@ int mtk_display_init(void)
 
 	edid_set_framebuffer_bits_per_pixel(&edid, 32, 0);
 
-	mtk_ddp_mode_set(&edid, panel->disp_path, dsc_config_var);
-
-	if (panel->disp_path == DISP_PATH_EDP) {
-		if (mtk_edp_enable(&mtk_edp) < 0) {
-			printk(BIOS_ERR, "%s: Failed to enable eDP\n", __func__);
-			return -1;
-		}
-	}
-
-	fb_addr = (REGION_SIZE(framebuffer)) ? (uintptr_t)_framebuffer : 0;
-
-	info = fb_new_framebuffer_info_from_edid(&edid, fb_addr);
-
+	mtk_ddp_mode_set(&edid, panel->disp_path);
+	info = fb_new_framebuffer_info_from_edid(&edid, (uintptr_t)0);
 	if (info)
 		fb_set_orientation(info, panel->orientation);
 
-	if (panel->disp_path == DISP_PATH_DUAL_MIPI)
-		fb_set_dual_pipe_flag(info, true);
-
-	if (CONFIG(BMP_LOGO))
-		display_logo(panel, fb_addr, &edid);
-
 	return 0;
-}
-
-void mtk_ddp_mode_set(const struct edid *edid, enum disp_path_sel path,
-		      struct dsc_config *dsc_config)
-{
-	u32 fmt = OVL_INFMT_RGBA8888;
-	u32 bpp = edid->framebuffer_bits_per_pixel / 8;
-	u32 width = edid->mode.ha;
-	u32 height = edid->mode.va;
-	u32 vrefresh = edid->mode.refresh;
-
-	printk(BIOS_DEBUG, "%s: display resolution: %ux%u@%u bpp %u\n", __func__, width, height,
-	       vrefresh, bpp);
-
-	if (!vrefresh) {
-		if (!width || !height)
-			vrefresh = 60;
-		else
-			vrefresh = edid->mode.pixel_clock * 1000 /
-				   ((width + edid->mode.hbl) * (height + edid->mode.vbl));
-
-		printk(BIOS_WARNING, "%s: vrefresh is not provided; using %u\n", __func__,
-		       vrefresh);
-	}
-
-	mtk_ddp_soc_mode_set(fmt, bpp, width, height, vrefresh, path, dsc_config);
 }

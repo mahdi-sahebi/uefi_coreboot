@@ -59,7 +59,6 @@ static const uint32_t action_keymaps[] = {
 	[PS2_KEY_DICTATE] = KEYMAP(0xa7, KEY_DICTATE),		/* e027*/
 	[PS2_KEY_ACCESSIBILITY] = KEYMAP(0xa9, KEY_ACCESSIBILITY),	/* e029 */
 	[PS2_KEY_DO_NOT_DISTURB] = KEYMAP(0xa8, KEY_DO_NOT_DISTURB),	/* e028 */
-	[PS2_KEY_HOMEPAGE] = KEYMAP(0xaa, KEY_HOMEPAGE),	/* e02a */
 };
 
 /* Keymap for numeric keypad keys */
@@ -175,10 +174,6 @@ static uint32_t rest_of_keymaps[] = {
 	KEYMAP(0xc8, KEY_UP),
 	/* Power Key */
 	KEYMAP(0xde, KEY_POWER),
-	/* Caps Lock */
-	KEYMAP(0x3a, KEY_CAPSLOCK),
-	/* Insert Key */
-	KEYMAP(0xd2, KEY_INSERT),
 };
 
 static void ssdt_generate_physmap(struct acpi_dp *dp, uint8_t num_top_row_keys,

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-2.0-only
 
 # TODO: Evaluate what can be moved to a common directory
+# TODO: Update for Phoenix
 
 config SOC_AMD_PHOENIX_BASE
 	bool
@@ -21,22 +22,22 @@ config SOC_AMD_PHOENIX_BASE
 	select PSP_SUPPORTS_EFS2_RELATIVE_ADDR if VBOOT_STARTS_BEFORE_BOOTBLOCK
 	# TODO: (b/303516266) Re-enable CCP DMA after addressing a stall
 	# select PSP_VERSTAGE_CCP_DMA if VBOOT_STARTS_BEFORE_BOOTBLOCK
+	select RESET_VECTOR_IN_RAM
 	select RTC
 	select SOC_AMD_COMMON
 	select SOC_AMD_COMMON_BLOCK_ACP_GEN2
 	select SOC_AMD_COMMON_BLOCK_ACPI		# TODO: Check if this is still correct
 	select SOC_AMD_COMMON_BLOCK_ACPIMMIO		# TODO: Check if this is still correct
 	select SOC_AMD_COMMON_BLOCK_ACPI_ALIB		# TODO: Check if this is still correct
-	select SOC_AMD_COMMON_BLOCK_ACPI_CPPC
+	select SOC_AMD_COMMON_BLOCK_ACPI_CPPC if !SOC_AMD_PHOENIX_OPENSIL # TODO: add support for openSIL case
 	select SOC_AMD_COMMON_BLOCK_ACPI_CPU_POWER_STATE
 	select SOC_AMD_COMMON_BLOCK_ACPI_GPIO		# TODO: Check if this is still correct
 	select SOC_AMD_COMMON_BLOCK_ACPI_IVRS		# TODO: Check if this is still correct
-	select SOC_AMD_COMMON_BLOCK_ACPI_LPI
 	select SOC_AMD_COMMON_BLOCK_ACPI_MADT
 	select SOC_AMD_COMMON_BLOCK_AOAC
 	select SOC_AMD_COMMON_BLOCK_APOB
+	select SOC_AMD_COMMON_BLOCK_APOB_HASH
 	select SOC_AMD_COMMON_BLOCK_BANKED_GPIOS
-	select SOC_AMD_COMMON_BLOCK_CPU_SYNC_PSP_ADDR_MSR
 	select SOC_AMD_COMMON_BLOCK_CPUFREQ_FAM17H_19H
 	select SOC_AMD_COMMON_BLOCK_DATA_FABRIC
 	select SOC_AMD_COMMON_BLOCK_DATA_FABRIC_DOMAIN
@@ -48,14 +49,12 @@ config SOC_AMD_PHOENIX_BASE
 	select SOC_AMD_COMMON_BLOCK_HAS_ESPI_ALERT_ENABLE
 	select SOC_AMD_COMMON_BLOCK_I2C
 	select SOC_AMD_COMMON_BLOCK_I23C_PAD_CTRL
-	select SOC_AMD_COMMON_BLOCK_I3C
 	select SOC_AMD_COMMON_BLOCK_IOMMU
 	select SOC_AMD_COMMON_BLOCK_LPC
 	select SOC_AMD_COMMON_BLOCK_MCAX
 	select SOC_AMD_COMMON_BLOCK_NONCAR
 	select SOC_AMD_COMMON_BLOCK_PCI
 	select SOC_AMD_COMMON_BLOCK_PCI_MMCONF
-	select SOC_AMD_COMMON_BLOCK_PCI_MMCONF_SYNC_WITH_DF
 	select SOC_AMD_COMMON_BLOCK_PCIE_GPP_DRIVER
 	select SOC_AMD_COMMON_BLOCK_PM
 	select SOC_AMD_COMMON_BLOCK_PM_CHIPSET_STATE_SAVE
@@ -65,7 +64,6 @@ config SOC_AMD_PHOENIX_BASE
 	select SOC_AMD_COMMON_BLOCK_SMBUS
 	select SOC_AMD_COMMON_BLOCK_SMI
 	select SOC_AMD_COMMON_BLOCK_SMM
-	select SOC_AMD_COMMON_BLOCK_SMM_LOCK_SMM_BASE
 	select SOC_AMD_COMMON_BLOCK_SMU
 	select SOC_AMD_COMMON_BLOCK_SMU_SX_ENTRY
 	select SOC_AMD_COMMON_BLOCK_SPI
@@ -76,7 +74,7 @@ config SOC_AMD_PHOENIX_BASE
 	select SOC_AMD_COMMON_BLOCK_XHCI
 	select SOC_AMD_COMMON_ROMSTAGE_LEGACY_DMA_FIXUP
 	select SSE2
-	select DRAM_SUPPORT_DDR5
+	select USE_DDR5
 	select VBOOT_DEFINE_WIDEVINE_COUNTERS if VBOOT_STARTS_BEFORE_BOOTBLOCK
 	select VBOOT_X86_SHA256_ACCELERATION if VBOOT
 	select X86_AMD_FIXED_MTRRS
@@ -90,7 +88,6 @@ config SOC_AMD_PHOENIX_FSP
 	select FSP_COMPRESS_FSP_S_LZ4
 	select HAVE_FSP_GOP
 	select PLATFORM_USES_FSP2_0
-	select SOC_AMD_COMMON_BLOCK_APOB_HASH
 	select SOC_AMD_COMMON_FSP_CCX_CPPC_HOB
 	select SOC_AMD_COMMON_FSP_DMI_TABLES
 	select SOC_AMD_COMMON_FSP_PCI			# TODO: Check if this is still correct
@@ -103,29 +100,10 @@ config SOC_AMD_PHOENIX_FSP
 	help
 	  AMD Phoenix support using FSP
 
-config SOC_AMD_PHOENIX_AM5
-	bool
-	select SOC_AMD_PHOENIX_BASE
-	help
-	  AMD Phoenix AM5 support
-
 config SOC_AMD_PHOENIX_OPENSIL
 	bool
-	select HAVE_X86_64_SUPPORT
-	select USE_X86_64_SUPPORT
-	select OPENSIL_DRIVER
 	select SOC_AMD_PHOENIX_BASE
 	select SOC_AMD_OPENSIL
-	select SOC_AMD_OPENSIL_PHOENIX_POC
-	select SOC_AMD_COMMON_BLOCK_APOB_MEMCTX_CMOS
-	select UDK_2017_BINDING
-	help
-	 AMD Phoenix support using OpenSIL (Proof of Comcept)
-
-config SOC_AMD_PHOENIX_AM5_OPENSIL
-	bool
-	select SOC_AMD_PHOENIX_AM5
-	select SOC_AMD_PHOENIX_OPENSIL
 
 if SOC_AMD_PHOENIX_BASE
 
@@ -148,9 +126,6 @@ config EARLYRAM_BSP_STACK_SIZE
 	hex
 	default 0x1000
 
-config STACK_SIZE
-	default 0x8000
-
 config PSP_APOB_DRAM_ADDRESS
 	hex
 	default 0x2001000
@@ -164,7 +139,7 @@ config PSP_APOB_DRAM_SIZE
 
 config PSP_SHAREDMEM_BASE
 	hex
-	default 0x2041000 if VBOOT && VBOOT_STARTS_BEFORE_BOOTBLOCK
+	default 0x2041000 if VBOOT
 	default 0x0
 	help
 	  This variable defines the base address in DRAM memory where PSP copies
@@ -174,7 +149,7 @@ config PSP_SHAREDMEM_BASE
 
 config PSP_SHAREDMEM_SIZE
 	hex
-	default 0x8000 if VBOOT && VBOOT_STARTS_BEFORE_BOOTBLOCK
+	default 0x8000 if VBOOT
 	default 0x0
 	help
 	  Sets the maximum size for the PSP to pass the vboot workbuf and
@@ -234,15 +209,6 @@ config VERSTAGE_SIZE
 	help
 	  Sets the size of DRAM allocation for verstage in linker script if
 	  running as a separate stage on x86.
-
-config PROMONTORY_FW_ADDR
-	hex
-	default 0x2220000 if SOC_AMD_PHOENIX_AM5
-	default 0x0
-	help
-	  Sets the address in DRAM where Promontory FW should be loaded on AM5.
-	  Promontory needs ~160KB of space. We allocate 256KB between romstage
-	  and verstage, so that it will be placed in early reserved DRAM.
 
 config ASYNC_FILE_LOADING
 	bool "Loads files from SPI asynchronously"
@@ -392,7 +358,6 @@ config PSP_WHITELIST_FILE
 
 config PSP_SOFTFUSE_BITS
 	string "PSP Soft Fuse bits to enable"
-	default "29 15 6 0" if SOC_AMD_PHOENIX_AM5
 	default "36 28 6"
 	help
 	  Space separated list of Soft Fuse bits to enable.
@@ -503,3 +468,11 @@ config FSP_TEMP_RAM_SIZE
 	  The amount of coreboot-allocated heap and stack usage by the FSP.
 
 endif # SOC_AMD_PHOENIX_FSP
+
+if SOC_AMD_PHOENIX_OPENSIL
+
+config SOC_AMD_OPENSIL_STUB
+	prompt "Build with openSIL stub"
+	default y
+
+endif # SOC_AMD_PHOENIX_OPENSIL

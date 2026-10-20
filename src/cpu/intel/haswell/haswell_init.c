@@ -78,11 +78,25 @@ static const u8 power_limit_time_msr_to_sec[] = {
 	[0x11] = 128,
 };
 
-/*
- * The core 100MHz BCLK is disabled in deeper c-states. One needs to calibrate
+/* The core 100MHz BCLK is disabled in deeper c-states. One needs to calibrate
  * the 100MHz BCLK against the 24MHz BCLK to restore the clocks properly
- * when a core is woken up.
- */
+ * when a core is woken up. */
+static int pcode_ready(void)
+{
+	int wait_count;
+	const int delay_step = 10;
+
+	wait_count = 0;
+	do {
+		if (!(mchbar_read32(BIOS_MAILBOX_INTERFACE) & MAILBOX_RUN_BUSY))
+			return 0;
+		wait_count += delay_step;
+		udelay(delay_step);
+	} while (wait_count < 1000);
+
+	return -1;
+}
+
 static void calibrate_24mhz_bclk(void)
 {
 	int err_code;
@@ -104,7 +118,8 @@ static void calibrate_24mhz_bclk(void)
 
 	err_code = mchbar_read32(BIOS_MAILBOX_INTERFACE) & 0xff;
 
-	printk(BIOS_DEBUG, "PCODE: 24MHz BCLK calibration response: %d\n", err_code);
+	printk(BIOS_DEBUG, "PCODE: 24MHz BCLK calibration response: %d\n",
+	       err_code);
 
 	/* Read the calibrated value. */
 	mchbar_write32(BIOS_MAILBOX_INTERFACE,
@@ -117,6 +132,45 @@ static void calibrate_24mhz_bclk(void)
 
 	printk(BIOS_DEBUG, "PCODE: 24MHz BCLK calibration value: 0x%08x\n",
 	       mchbar_read32(BIOS_MAILBOX_DATA));
+}
+
+static u32 pcode_mailbox_read(u32 command)
+{
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on wait ready.\n");
+		return 0;
+	}
+
+	/* Send command and start transaction */
+	mchbar_write32(BIOS_MAILBOX_INTERFACE, command | MAILBOX_RUN_BUSY);
+
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on completion.\n");
+		return 0;
+	}
+
+	/* Read mailbox */
+	return mchbar_read32(BIOS_MAILBOX_DATA);
+}
+
+static int pcode_mailbox_write(u32 command, u32 data)
+{
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on wait ready.\n");
+		return -1;
+	}
+
+	mchbar_write32(BIOS_MAILBOX_DATA, data);
+
+	/* Send command and start transaction */
+	mchbar_write32(BIOS_MAILBOX_INTERFACE, command | MAILBOX_RUN_BUSY);
+
+	if (pcode_ready() < 0) {
+		printk(BIOS_ERR, "PCODE: mailbox timeout on completion.\n");
+		return -1;
+	}
+
+	return 0;
 }
 
 static struct device *cpu_cluster;
@@ -583,10 +637,6 @@ void mp_init_cpus(struct bus *cpu_bus)
 	cpu_cluster = cpu_bus->dev;
 	/* TODO: Handle mp_init_with_smm failure? */
 	mp_init_with_smm(cpu_bus, &mp_ops);
-
-	/* pre_mp_init made the flash not cacheable. Reset to WP for performance. */
-	mtrr_use_temp_range(CACHE_ROM_BASE, CAR_CACHE_ROM_SIZE,
-			    MTRR_TYPE_WRPROT);
 }
 
 static struct device_operations cpu_dev_ops = {

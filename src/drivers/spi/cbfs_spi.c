@@ -17,11 +17,6 @@
 static struct spi_flash spi_flash_info;
 static bool spi_flash_init_done;
 
-__weak int boot_device_spi_cs(void)
-{
-	return 0;	/* Default to chip select 0 */
-}
-
 /*
  * SPI speed logging for big transfers available with BIOS_DEBUG. The format is:
  *
@@ -87,7 +82,7 @@ static struct mmap_helper_region_device mdev =
 void boot_device_init(void)
 {
 	int bus = CONFIG_BOOT_DEVICE_SPI_FLASH_BUS;
-	int cs = boot_device_spi_cs();
+	int cs = 0;
 
 	if (spi_flash_init_done == true)
 		return;

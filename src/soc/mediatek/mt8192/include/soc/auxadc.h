@@ -4,7 +4,6 @@
 #define _MTK_ADC_H
 
 #include <soc/auxadc_common.h>
-#include <soc/auxadc_v1.h>
 #include <soc/infracfg.h>
 #include <stdint.h>
 

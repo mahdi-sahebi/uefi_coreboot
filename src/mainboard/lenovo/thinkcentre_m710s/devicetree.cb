@@ -160,6 +160,7 @@ chip soc/intel/skylake
 			}"
 		end
 		device ref pcie_rp5	on	# USB_LAN
+			register "PcieRpEnable[4]"                 = "true"
 			register "PcieRpLtrEnable[4]"              = "true"
 			register "PcieRpClkReqSupport[4]"          = "true"
 			register "PcieRpClkReqNumber[4]"           = "5"
@@ -172,6 +173,7 @@ chip soc/intel/skylake
 			                 "PCIE1X_2"
 			                 "SlotDataBusWidth1X"
 
+			register "PcieRpEnable[6]"                 = "true"
 			register "PcieRpLtrEnable[6]"              = "true"
 			register "PcieRpClkReqSupport[6]"          = "true"
 			register "PcieRpClkReqNumber[6]"           = "7"
@@ -184,6 +186,8 @@ chip soc/intel/skylake
 			                 "PCIE1X_1"
 			                 "SlotDataBusWidth1X"
 
+			register "PcieRpEnable[7]"                 = "true"
+			register "PcieRpLtrEnable[7]"              = "true"
 			register "PcieRpClkReqSupport[7]"          = "true"
 			register "PcieRpClkReqNumber[7]"           = "8"
 			register "PcieRpClkSrcNumber[7]"           = "8"
@@ -195,6 +199,7 @@ chip soc/intel/skylake
 			                 "M2_WIFI"
 			                 "SlotDataBusWidth1X"
 
+			register "PcieRpEnable[10]"                 = "true"
 			register "PcieRpLtrEnable[10]"              = "true"
 			register "PcieRpClkReqSupport[10]"          = "true"
 			register "PcieRpClkReqNumber[10]"           = "1"
@@ -207,6 +212,7 @@ chip soc/intel/skylake
 			                 "M2_SSD"
 			                 "SlotDataBusWidth1X"
 
+			register "PcieRpEnable[20]"                 = "true"
 			register "PcieRpLtrEnable[20]"              = "true"
 			register "PcieRpClkReqSupport[20]"          = "true"
 			register "PcieRpClkReqNumber[20]"           = "6"

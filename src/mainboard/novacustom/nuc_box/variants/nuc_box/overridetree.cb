@@ -1,9 +1,4 @@
 chip soc/intel/meteorlake
-
-	# set EPP to 45%: 45 * 256/100 = 115 = 0x73
-	register "enable_energy_perf_pref" = "true"
-	register "energy_perf_pref_value" = "0x73"
-
 	device domain 0 on
 		#TODO: all the devices have different subsystem product IDs
 		#subsystemid 0x1849 TODO inherit
@@ -35,8 +30,6 @@ chip soc/intel/meteorlake
 		end
 		device ref tcss_dma0 on end
 		device ref xhci on
-			register "usb2_wake_enable_bitmap" = "0xFF"
-			register "usb3_wake_enable_bitmap" = "0x3"
 			register "usb2_ports" = "{
 				[0] = USB2_PORT_MID(OC_SKIP),	/* USB3 Rear */
 				[1] = USB2_PORT_MID(OC_SKIP),	/* USB3 Rear */
@@ -83,11 +76,10 @@ chip soc/intel/meteorlake
 			# M.2 Key-M1
 			# XXX: Schematics show RP[13:16] used
 			register "pcie_rp[PCH_RP(10)]" = "{
-				.flags = PCIE_RP_LTR | PCIE_RP_AER | PCIE_RP_CLK_REQ_UNUSED | PCIE_RP_CLK_SRC_UNUSED,
-				.pcie_rp_aspm = ASPM_DISABLE,
-				.PcieRpL1Substates = L1_SS_DISABLED,
+				.clk_src = 8,
+				.clk_req = 8,
+				.flags = PCIE_RP_LTR | PCIE_RP_AER,
 			}"
-			register "pcie_clk_config_flag[8]" = "PCIE_CLK_FREE_RUNNING"
 		end
 		device ref pcie_rp11 on
 			# M.2 Key-M2

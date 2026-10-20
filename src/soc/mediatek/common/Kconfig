@@ -54,21 +54,6 @@ config MEDIATEK_DRAM_SCRAMBLE
 	  This option enables DRAM data scramble, which can prevent DRAM data from
 	  being hacked.
 
-config MEDIATEK_DSI_CPHY
-	bool
-	default n
-	help
-	  The configuration to support DSI C-PHY.
-
-config MEDIATEK_WDT_RESET_BY_SW
-	bool
-	default n
-	help
-	  This option allows triggering secondary watchdog (WDT) reset by the
-	  software driver, as opposed to by the watchdog hardware.
-	  If the kernel disables WDT external reset (mediatek,disable-extrst),
-	  then this option must be disabled to allow WDT hardware external reset.
-
 config MEMORY_TEST
 	bool
 	default y
@@ -81,12 +66,6 @@ config DPM_FOUR_CHANNEL
 	default n
 	help
 	  This option enables four channel configuration for DPM.
-
-config DPM_BROADCAST
-	bool
-	default n
-	help
-	  This option enables the DPM Broadcast function, applicable only for dpm_v2.
 
 config MTK_DFD
 	bool "Enable MediaTek DFD (Design For Debug) settings"

@@ -39,8 +39,8 @@ The following things are still missing from this coreboot port:
 
 Internal flashing is possible. The SPI flash can be accessed using [flashrom],
 but you have to short the FDO pins located near the rear USB3 ports on the
-motherboard using a jumper to temporarily disable write protections while on the
-stock firmware. Remove the jumper once coreboot is installed.
+motherboard using a jumper, to temporarily disable write protections while on the
+stock firmware. Once the coreboot rom is flashed, one should remove the jumper.
 
 ### External programming
 
@@ -70,4 +70,4 @@ as otherwise there's not enough space near the flash.
 
 [Compaq 8300 Elite SFF]: https://support.hp.com/us-en/document/c03345460
 [HP]: https://www.hp.com/
-[flashrom]: https://flashrom.org/
+[flashrom]: https://flashrom.org/Flashrom

@@ -105,7 +105,6 @@ static void fch_init_acpi_ports(void)
 		   response of the I/O write. */
 		reg = pm_read32(PM_PCI_CTRL);
 		reg |= FORCE_SLPSTATE_RETRY;
-		reg &= ~FORCE_STPCLK_RETRY;
 		pm_write32(PM_PCI_CTRL, reg);
 
 		/* Disable SlpTyp feature */
@@ -114,9 +113,6 @@ static void fch_init_acpi_ports(void)
 		pm_write8(PM_RST_CTRL1, reg);
 
 		configure_smi(SMITYPE_SLP_TYP, SMI_MODE_SMI);
-
-		/* Enable power button SMI */
-		configure_smi(SMITYPE_PWRBUTTON_UP, SMI_MODE_SMI);
 	} else {
 		pm_write16(PM_ACPI_SMI_CMD, 0);
 	}
@@ -148,7 +144,6 @@ static void cgpll_clock_gate_init(void)
 	misc_write32(MISC_CLKGATEDCNTL, t);
 
 	t = misc_read32(MISC_CGPLL_CONFIGURATION0);
-	t |= USB_PHY_CMCLK_ZSTATE_DIS;
 	t |= USB_PHY_CMCLK_S3_DIS;
 	t |= USB_PHY_CMCLK_S0I3_DIS;
 	t |= USB_PHY_CMCLK_S5_DIS;
@@ -173,8 +168,6 @@ void fch_init(void *chip_info)
 
 	fch_clk_output_48Mhz();
 	cgpll_clock_gate_init();
-
-	fch_enable_ioapic_decode();
 }
 
 void fch_final(void *chip_info)

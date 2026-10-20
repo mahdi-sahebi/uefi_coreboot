@@ -4,6 +4,7 @@
 #include <console/console.h>
 #include <console/usb.h>
 #include <string.h>
+#include <cbmem.h>
 #include <cbfs.h>
 #include <cf9_reset.h>
 #include <memory_info.h>
@@ -56,6 +57,53 @@ static void prepare_mrc_cache(struct pei_data *pei_data)
 
 	printk(BIOS_DEBUG, "%s: at %p, size %zx\n", __func__,
 	       pei_data->mrc_input, mrc_size);
+}
+
+static const char *const ecc_decoder[] = {
+	"inactive",
+	"active on IO",
+	"disabled on IO",
+	"active",
+};
+
+/* Print out the memory controller configuration, as per the values in its registers. */
+static void report_memory_config(void)
+{
+	int i;
+
+	const u32 addr_decoder_common = mchbar_read32(MAD_CHNL);
+
+	printk(BIOS_DEBUG, "memcfg DDR3 clock %d MHz\n",
+	       DIV_ROUND_CLOSEST(mchbar_read32(MC_BIOS_DATA) * 13333 * 2, 100));
+
+	printk(BIOS_DEBUG, "memcfg channel assignment: A: %d, B % d, C % d\n",
+	       (addr_decoder_common >> 0) & 3,
+	       (addr_decoder_common >> 2) & 3,
+	       (addr_decoder_common >> 4) & 3);
+
+	for (i = 0; i < NUM_CHANNELS; i++) {
+		const u32 ch_conf = mchbar_read32(MAD_DIMM(i));
+
+		printk(BIOS_DEBUG, "memcfg channel[%d] config (%8.8x):\n", i, ch_conf);
+		printk(BIOS_DEBUG, "   ECC %s\n", ecc_decoder[(ch_conf >> 24) & 3]);
+		printk(BIOS_DEBUG, "   enhanced interleave mode %s\n",
+		       ((ch_conf >> 22) & 1) ? "on" : "off");
+
+		printk(BIOS_DEBUG, "   rank interleave %s\n",
+		       ((ch_conf >> 21) & 1) ? "on" : "off");
+
+		printk(BIOS_DEBUG, "   DIMMA %d MB width %s %s rank%s\n",
+		       ((ch_conf >> 0) & 0xff) * 256,
+		       ((ch_conf >> 19) & 1) ? "x16" : "x8 or x32",
+		       ((ch_conf >> 17) & 1) ? "dual" : "single",
+		       ((ch_conf >> 16) & 1) ? "" : ", selected");
+
+		printk(BIOS_DEBUG, "   DIMMB %d MB width %s %s rank%s\n",
+		       ((ch_conf >> 8) & 0xff) * 256,
+		       ((ch_conf >> 20) & 1) ? "x16" : "x8 or x32",
+		       ((ch_conf >> 18) & 1) ? "dual" : "single",
+		       ((ch_conf >> 16) & 1) ? ", selected" : "");
+	}
 }
 
 /**
@@ -135,6 +183,101 @@ static void sdram_initialize(struct pei_data *pei_data)
 	report_memory_config();
 }
 
+static uint8_t nb_get_ecc_type(const uint32_t capid0_a)
+{
+	return capid0_a & CAPID_ECCDIS ? MEMORY_ARRAY_ECC_NONE : MEMORY_ARRAY_ECC_SINGLE_BIT;
+}
+
+static uint16_t nb_slots_per_channel(const uint32_t capid0_a)
+{
+	return !(capid0_a & CAPID_DDPCD) + 1;
+}
+
+static uint16_t nb_number_of_channels(const uint32_t capid0_a)
+{
+	return !(capid0_a & CAPID_PDCD) + 1;
+}
+
+static uint32_t nb_max_chan_capacity_mib(const uint32_t capid0_a)
+{
+	uint32_t ddrsz;
+
+	/* Values from documentation, which assume two DIMMs per channel */
+	switch (CAPID_DDRSZ(capid0_a)) {
+	case 1:
+		ddrsz = 8192;
+		break;
+	case 2:
+		ddrsz = 2048;
+		break;
+	case 3:
+		ddrsz = 512;
+		break;
+	default:
+		ddrsz = 16384;
+		break;
+	}
+
+	/* Account for the maximum number of DIMMs per channel */
+	return (ddrsz / 2) * nb_slots_per_channel(capid0_a);
+}
+
+static void setup_sdram_meminfo(struct pei_data *pei_data)
+{
+	struct memory_info *mem_info;
+	struct dimm_info *dimm;
+	int ch, d_num;
+	int dimm_cnt = 0;
+
+	mem_info = cbmem_add(CBMEM_ID_MEMINFO, sizeof(struct memory_info));
+	if (!mem_info)
+		die("Failed to add memory info to CBMEM.\n");
+
+	memset(mem_info, 0, sizeof(struct memory_info));
+
+	const u32 ddr_freq_mhz = (mchbar_read32(MC_BIOS_DATA) * 13333 * 2 + 50) / 100;
+
+	for (ch = 0; ch < NUM_CHANNELS; ch++) {
+		const u32 ch_conf = mchbar_read32(MAD_DIMM(ch));
+		/* DIMMs A/B */
+		for (d_num = 0; d_num < NUM_SLOTS; d_num++) {
+			const u32 dimm_size = ((ch_conf >> (d_num * 8)) & 0xff) * 256;
+			if (dimm_size) {
+				const int index = ch * NUM_SLOTS + d_num;
+				dimm = &mem_info->dimm[dimm_cnt];
+				dimm->dimm_size = dimm_size;
+				dimm->ddr_type = MEMORY_TYPE_DDR3;
+				dimm->ddr_frequency = ddr_freq_mhz * 2; /* In MT/s */
+				dimm->rank_per_dimm = 1 + ((ch_conf >> (17 + d_num)) & 1);
+				dimm->channel_num = ch;
+				dimm->dimm_num = d_num;
+				dimm->bank_locator = ch * 2;
+				memcpy(dimm->serial,
+					&pei_data->spd_data[index][SPD_DDR3_SERIAL_NUM],
+					SPD_DDR3_SERIAL_LEN);
+				memcpy(dimm->module_part_number,
+					&pei_data->spd_data[index][SPD_DDR3_PART_NUM],
+					SPD_DDR3_PART_LEN);
+				dimm->mod_id =
+					(pei_data->spd_data[index][SPD_DDR3_MOD_ID2] << 8) |
+					(pei_data->spd_data[index][SPD_DDR3_MOD_ID1] & 0xff);
+				dimm->mod_type = SPD_DDR3_DIMM_TYPE_SO_DIMM;
+				dimm->bus_width = MEMORY_BUS_WIDTH_64;
+				dimm_cnt++;
+			}
+		}
+	}
+	mem_info->dimm_cnt = dimm_cnt;
+
+	const uint32_t capid0_a = pci_read_config32(HOST_BRIDGE, CAPID0_A);
+
+	const uint16_t channels = nb_number_of_channels(capid0_a);
+
+	mem_info->ecc_type = nb_get_ecc_type(capid0_a);
+	mem_info->max_capacity_mib = channels * nb_max_chan_capacity_mib(capid0_a);
+	mem_info->number_of_devices = channels * nb_slots_per_channel(capid0_a);
+}
+
 /* Copy SPD data for on-board memory */
 static void copy_spd(struct pei_data *pei_data, struct spd_info *spdi)
 {
@@ -197,7 +340,7 @@ static uint8_t map_to_pei_oc_pin(const uint8_t oc_pin)
 	return oc_pin >= USB_OC_PIN_SKIP ? PEI_USB_OC_PIN_SKIP : oc_pin;
 }
 
-void perform_raminit(const bool s3resume)
+void perform_raminit(const int s3resume)
 {
 	const struct device *gbe = pcidev_on_root(0x19, 0);
 
@@ -274,7 +417,7 @@ void perform_raminit(const bool s3resume)
 
 	intel_early_me_status();
 
-	bool cbmem_was_initted = !cbmem_recovery(s3resume);
+	int cbmem_was_initted = !cbmem_recovery(s3resume);
 	if (s3resume && !cbmem_was_initted) {
 		/* Failed S3 resume, reset to come up cleanly */
 		printk(BIOS_CRIT, "Failed to recover CBMEM in S3 resume.\n");
@@ -285,23 +428,5 @@ void perform_raminit(const bool s3resume)
 	if (!s3resume)
 		save_mrc_data(&pei_data);
 
-	/*
-	 * TODO: `setup_sdram_info()` uses SPD data to fill in various fields. However,
-	 * even though Haswell MRC reads SPD data over SMBus, it does not pass the data
-	 * back to coreboot. So, we currently only have SPD data for memory-down slots.
-	 *
-	 * We have to read the SPD data over SMBus again for coreboot to use it. But we
-	 * can be smart and only read the bytes that `setup_sdram_meminfo()` needs.
-	 */
-	const uint8_t *spd_data[NUM_CHANNELS][NUM_SLOTS] = {
-		[0] = {
-			[0] = pei_data.spd_data[0],
-			[1] = pei_data.spd_data[1],
-		},
-		[1] = {
-			[0] = pei_data.spd_data[2],
-			[1] = pei_data.spd_data[3],
-		},
-	};
-	setup_sdram_meminfo(spd_data);
+	setup_sdram_meminfo(&pei_data);
 }

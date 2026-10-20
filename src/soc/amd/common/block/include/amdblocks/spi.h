@@ -29,12 +29,6 @@ enum spi_read_mode {
 #define   SPI_READ_MODE(x)		(SPI_READ_MODE_UPPER_BITS(x) | \
 					 SPI_READ_MODE_LOWER_BITS(x))
 #define   SPI_ACCESS_MAC_ROM_EN		BIT(22)
-#define   SPI_HOST_ACCESS_ROM_EN	BIT(23)
-
-#define SPI_ALT_CS_REG			0x1d
-#define   SPI_ALT_CS_REG_MASK		0x03
-#define   SPI_PROTECT_EN		BIT(3)
-#define   SPI_PROTECT_LOCK		BIT(5)
 
 #define SPI100_ENABLE			0x20
 #define   SPI_USE_SPI100		BIT(0)
@@ -76,30 +70,7 @@ enum spi100_speed {
 #define SPI100_HOST_PREF_CONFIG		0x2c
 #define   SPI_RD4DW_EN_HOST		BIT(15)
 
-#define SPI_ROM2_OVERRIDE		0x30
-#define   SPI_ROM2_ADDR_BIT24_VAL	BIT(0)
-#define   SPI_ROM2_ADDR_BIT25_VAL	BIT(1)
-#define   SPI_ROM2_ADDR_BIT24_MASK	BIT(2)
-#define   SPI_ROM2_ADDR_BIT25_MASK	BIT(3)
-/* Below bit is only mentioned in PPRs in section
- * "Programming for ROM Protection register".
- * The register definition marks this bit as reserved.
- */
-#define   SPI_FORCE_ROM3_MAP_TO_BANK3	BIT(4)
-
-#define SPI_STATUS			0x4c
-#define   SPI_DONE_BYTE_COUNT_SHIFT	0
-#define   SPI_DONE_BYTE_COUNT_MASK	0xff
-#define   SPI_FIFO_WR_PTR_SHIFT		8
-#define   SPI_FIFO_WR_PTR_MASK		0x7f
-#define   SPI_FIFO_RD_PTR_SHIFT		16
-#define   SPI_FIFO_RD_PTR_MASK		0x7f
-
-#define SPI_ROM_ADDR32_CTRL0		0x50
-#define   SPI_ROM_ADDR32		BIT(0)
-
 #define SPI_ROM_PAGE			0x5c
-#define   SPI_ROM_PAGE_SEL		(BIT(0) | BIT(1))
 
 #define SPI_FIFO			0x80
 #define SPI_FIFO_LAST_BYTE		0xc6 /* 0xc7 for Cezanne */
@@ -109,7 +80,6 @@ enum spi100_speed {
 /* AMD has re-purposed this unused SPI controller register bit as a semaphore to synchronize
    access to the SPI controller between SMM and non-SMM software/OS driver. */
 #define   SPI_SEMAPHORE_DRIVER_LOCKED	BIT(4)
-#define   SPI_SEMAPHORE_BIOS_LOCKED	BIT(3)
 
 struct spi_config {
 	/*
@@ -139,9 +109,6 @@ struct spi_config {
  */
 void fch_spi_early_init(void);
 
-/* Locks the SPI controller registers */
-void fch_spi_lock(void);
-
 /* Set the SPI base address variable */
 void spi_set_base(void *base);
 
@@ -157,19 +124,7 @@ void spi_write8(uint8_t reg, uint8_t val);
 void spi_write16(uint8_t reg, uint16_t val);
 void spi_write32(uint8_t reg, uint32_t val);
 
-/* Returns the active SPI ROM remapping */
-uint8_t fch_spi_rom_remapping(void);
-uint32_t fch_spi_get_rom2_page(uint32_t rom2_base);
-uint64_t fch_spi_get_rom3_page(uint64_t rom3_base);
-bool fch_spi_rom3_maps_to_bank3(void);
-bool fch_spi_rom_32bit(void);
-
-/* Configures 4DW burst mode */
-void fch_spi_configure_4dw_burst(void);
-
 void fch_spi_config_modes(void);
-void fch_spi_backup_registers(void);
-void fch_spi_restore_registers(void);
 void mainboard_spi_cfg_override(uint8_t *fast_speed, uint8_t *read_mode);
 
 /* Ensure you hold the mutex when performing SPI transactions */
