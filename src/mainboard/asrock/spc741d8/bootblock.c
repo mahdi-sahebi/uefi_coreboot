@@ -34,7 +34,8 @@ void bootblock_mainboard_early_init(void)
 	pci_write_config16(PCH_DEV_LPC, LPC_IO_ENABLES, lpcioe);
 	pci_write_config16(PCH_DEV_LPC, ESPI_CS1_ENABLE, lpcioe);
 
-	/* Enable AST2600 SuperIO UART1 at the board's config port. */
-	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART1);
+	/* Route the coreboot console to AST2600 SUART2, the board's SOL port. */
+	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART2);
 	aspeed_enable_serial(ast_serial_dev, CONFIG_TTYS0_BASE);
+	aspeed_enable_uart_pin(ast_serial_dev);
 }
