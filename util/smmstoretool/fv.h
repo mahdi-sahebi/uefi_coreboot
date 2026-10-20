@@ -14,6 +14,6 @@ bool fv_init(struct mem_range_t fv);
 
 bool fv_parse(struct mem_range_t fv,
 	      struct mem_range_t *var_store,
-	      bool *is_auth_var_store);
+	      bool *auth_vars);
 
 #endif // SMMSTORETOOL__FV_H__

@@ -42,10 +42,8 @@ static const struct pad_config override_gpio_table[] = {
 
 	/* F6  : CNV_PA_BLANKING ==> NC */
 	PAD_NC(GPP_F6, NONE),
-	/* F15 : GSXSRESET# ==> GPIO */
-	PAD_CFG_GPO(GPP_F15, 0, DEEP),
-	/* F13 : GSXSLOAD ==> GPIO */
-	PAD_CFG_GPO(GPP_F13, 0, DEEP),
+	/* F15 : GSXSRESET# ==> SOC_PEN_DETECT_ODL */
+	PAD_CFG_GPI_SCI_HIGH(GPP_F15, NONE, PLTRST, EDGE_BOTH),
 	/* F18 : THC1_SPI2_INT# ==> NC */
 	PAD_NC(GPP_F18, NONE),
 	/* F23 : V1P05_CTRL ==> NC*/
@@ -68,9 +66,6 @@ static const struct pad_config override_gpio_table[] = {
 	PAD_NC_LOCK(GPP_R6, NONE, LOCK_CONFIG),
 	/* R7 : DMIC_DATA_1A ==> NC */
 	PAD_NC_LOCK(GPP_R7, NONE, LOCK_CONFIG),
-
-	/* E19 : DDP1_CTRLDATA ==> GPP_E19_STRAP */
-	PAD_CFG_GPI_LOCK(GPP_E19, DN_20K, LOCK_CONFIG),
 
 	/* Configure the virtual CNVi Bluetooth I2S GPIO pads */
 	/* BT_I2S_BCLK */
@@ -96,7 +91,7 @@ static const struct pad_config early_gpio_table[] = {
 	/* C0  : SMBCLK ==> EN_PP3300_TCHSCR_X */
 	PAD_CFG_GPO(GPP_C0, 1, DEEP),
 	/* C1  : SMBDATA ==> TCHSCR_RST_L */
-	PAD_CFG_GPO(GPP_C1, 0, DEEP),
+	PAD_CFG_GPO(GPP_C1, 1, DEEP),
 
 	/* H20 : IMGCLKOUT1 ==> WLAN_PERST_L */
 	PAD_CFG_GPO(GPP_H20, 0, DEEP),
@@ -115,8 +110,6 @@ static const struct pad_config early_gpio_table[] = {
 	PAD_CFG_NF(GPP_H10, NONE, DEEP, NF2),
 	/* H11 : UART0_TXD ==> UART_SOC_TX_DBG_RX */
 	PAD_CFG_NF(GPP_H11, NONE, DEEP, NF2),
-	/* E19 : DDP1_CTRLDATA ==> GPP_E19_STRAP */
-	PAD_CFG_GPI_LOCK(GPP_E19, DN_20K, LOCK_CONFIG),
 };
 
 const struct pad_config *variant_gpio_override_table(size_t *num)

@@ -2,7 +2,10 @@
 
 #include <device/azalia_device.h>
 
-static const u32 via_vt1708s_verbs[] = {
+const u32 cim_verb_data[] = {
+	0x11060397,	/* Codec Vendor / Device ID: VIA VT1708S */
+	0x10438415,	/* Subsystem ID */
+	12,		/* Number of 4 dword sets */
 	AZALIA_SUBVENDOR(0, 0x10438415),
 	AZALIA_PIN_CFG(0, 0x19, 0x410110f0),
 	AZALIA_PIN_CFG(0, 0x1a, 0x01a19036),
@@ -18,17 +21,5 @@ static const u32 via_vt1708s_verbs[] = {
 };
 
 const u32 pc_beep_verbs[0] = {};
-
-struct azalia_codec mainboard_azalia_codecs[] = {
-	{
-		.name         = "VIA VT1708S",
-		.vendor_id    = 0x11060397,
-		.subsystem_id = 0x10438415,
-		.address      = 0,
-		.verbs        = via_vt1708s_verbs,
-		.verb_count   = ARRAY_SIZE(via_vt1708s_verbs),
-	},
-	{ /* terminator */ }
-};
 
 AZALIA_ARRAY_SIZES;

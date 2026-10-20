@@ -288,15 +288,13 @@ chip soc/intel/alderlake
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
 
 				register "ssdb.lanes_used" = "2"
-				register "ssdb.platform" = "PLAT_ADL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "450000000"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "0" #IMGCLKOUT_0
 				register "clk_panel.clks[0].freq" = "1" #19.2 Mhz
@@ -343,12 +341,11 @@ chip soc/intel/alderlake
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
 
 				register "ssdb.lanes_used" = "2"
-				register "ssdb.platform" = "PLAT_ADL"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "450000000"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "1" #IMGCLKOUT_1
 				register "clk_panel.clks[0].freq" = "1" #19.2 Mhz

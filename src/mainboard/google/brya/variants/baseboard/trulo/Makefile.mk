@@ -2,4 +2,3 @@
 
 romstage-$(CONFIG_MAINBOARD_USE_EARLY_LIBGFXINIT) += gma-mainboard.ads
 romstage-y += memory.c
-ramstage-y += ramstage.c

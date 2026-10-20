@@ -265,6 +265,53 @@ config FSP_PLATFORM_MEMORY_SETTINGS_VERSIONS
 	  This allows deployed systems to bump their version number
 	  with the same FSP which will trigger a retrain of the memory.
 
+config HAVE_FSP_LOGO_SUPPORT
+	bool
+	default n
+
+config BMP_LOGO
+	bool "Enable logo"
+	default n
+	depends on HAVE_FSP_LOGO_SUPPORT
+	help
+	  Uses the FSP to display the boot logo. This method supports a
+	  BMP file only. The uncompressed size can be up to 1 MB. The logo can
+	  be compressed based on either `BMP_LOGO_COMPRESS_*` configs (default LZMA).
+
+config HAVE_BMP_LOGO_COMPRESS_LZMA
+	bool
+	depends on BMP_LOGO
+	default y
+
+choice
+	prompt "BMP Logo compression"
+	depends on BMP_LOGO
+	default BMP_LOGO_COMPRESS_LZMA if HAVE_BMP_LOGO_COMPRESS_LZMA
+	default BMP_LOGO_COMPRESS_LZ4
+
+config BMP_LOGO_COMPRESS_LZMA
+	bool "Use LZMA compression for BMP logo"
+	help
+	  This option enables the use of LZMA compression for the BMP logo.
+	  LZMA is a lossless compression algorithm that can significantly reduce
+	  the size of the logo, without sacrificing quality.
+
+	  If this option is not enabled, the BMP logo will be uncompressed.
+
+config BMP_LOGO_COMPRESS_LZ4
+	bool "Compress BMP logo using LZ4"
+	help
+	  This option enables compression of the BMP logo using the LZ4 algorithm.
+	  Although the size reduction is not as efficient as LZMA compression, however,
+	  it can also make the boot process slightly faster compared to the LZMA.
+
+endchoice
+
+config FSP2_0_LOGO_FILE_NAME
+	string "Logo file"
+	depends on BMP_LOGO
+	default "3rdparty/blobs/mainboard/\$(MAINBOARDDIR)/logo.bmp"
+
 config FSP_COMPRESS_FSP_S_LZMA
 	bool
 
@@ -474,57 +521,5 @@ config BUILDING_WITH_DEBUG_FSP
 	help
 	  Enable this option if you are using a debug build of the FSP (Firmware Support Package)
 	  in your project.
-
-config USE_COREBOOT_FOR_BMP_RENDERING
-	bool
-	default n
-	help
-	  This option forces coreboot to use its native bitmap (BMP) image rendering
-	  and skip using the FSP for this purpose during the boot process.
-
-	  If this option is selected (y), the platform will rely on the
-	  coreboot native implementation for rendering BMP images. This might be
-	  chosen if there are issues with FSP rendering or if native rendering
-	  is preferred for specific reasons.
-
-	  If this option is not selected (n), the FSP's capabilities for BMP rendering
-	  will be utilized.
-
-	  Platforms can choose to override this Kconfig option based on their
-	  specific graphics requirements and FSP capabilities.
-
-config FSP_DIMM_INFO
-	bool
-	default n
-	help
-	  Select this option to retrieve DIMM (Memory) related information by relying on
-	  the Intel FSP. coreboot relies on this information to prepare SMBIOS table 17.
-
-config FSP_VGA_MODE12
-	bool
-	default n
-	depends on VGA || ROMSTAGE_VGA
-	help
-	  Select this if the FSP supports VGA mode 12.
-
-config FSP_VGA_MODE12_MONOCHROME
-	bool
-	default n
-	depends on VGA || ROMSTAGE_VGA
-	select FSP_VGA_MODE12
-	help
-	  Select this if the FSP supports monochrome VGA mode 12. This implies
-	  that FSP can accept 1 bit-per-pixel planar buffer instead of 4 to save
-	  the crucial space. The FSP internally replicates the pixel data to other
-	  3 planes.
-
-config FSP_VGA_MODE12_BPP
-	hex
-	default 0x1 if FSP_VGA_MODE12_MONOCHROME
-	default 0x4 if FSP_VGA_MODE12
-	default 0x0
-	help
-	  This is the number of bits per pixel used by FSP in VGA mode 12.
-	  A bitmap buffer is allocated based on this value and supplied to FSP.
 
 endif

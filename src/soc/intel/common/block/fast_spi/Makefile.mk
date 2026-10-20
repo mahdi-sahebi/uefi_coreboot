@@ -10,7 +10,6 @@ romstage-$(CONFIG_SOC_INTEL_COMMON_BLOCK_FAST_SPI) += fast_spi_flash.c
 
 ramstage-$(CONFIG_SOC_INTEL_COMMON_BLOCK_FAST_SPI) += fast_spi.c
 ramstage-$(CONFIG_SOC_INTEL_COMMON_BLOCK_FAST_SPI) += fast_spi_flash.c
-ramstage-$(CONFIG_FAST_SPI_DMA) += fast_spi_dma.c
 
 postcar-$(CONFIG_SOC_INTEL_COMMON_BLOCK_FAST_SPI) += fast_spi.c
 postcar-$(CONFIG_SOC_INTEL_COMMON_BLOCK_FAST_SPI) += fast_spi_flash.c
@@ -46,6 +45,7 @@ smm-y += mmap_boot.c
 $(call add_intermediate, check-fmap-16mib-crossing, $(obj)/fmap_config.h)
 	fmap_get() { awk "/$$1/ { print \$$NF }" < $<; };		\
 									\
+	flash_offset=$$(fmap_get FMAP_SECTION_FLASH_START);		\
 	flash_size=$$(fmap_get FMAP_SECTION_FLASH_SIZE);		\
 	if [ $$((flash_size)) -le $$((0x1000000)) ]; then		\
 	   exit;							\
@@ -55,6 +55,7 @@ $(call add_intermediate, check-fmap-16mib-crossing, $(obj)/fmap_config.h)
 	do								\
 	    start=$$(fmap_get "FMAP_SECTION_$${x}_START");		\
 	    size=$$(fmap_get "FMAP_SECTION_$${x}_SIZE");		\
+	    start=$$((start-flash_offset));				\
 	    end=$$((start+size-1));					\
 	    if [ $$((start)) -lt $$((bios_16M_boundary)) ] &&		\
 			[ $$((end)) -ge $$((bios_16M_boundary)) ];	\

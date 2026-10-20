@@ -10,28 +10,6 @@ config SBOM
 
 if SBOM
 
-config SBOM_MANUFACTURER
-	string "Product manufacturer for SBOM (CRA manufacturer identification)"
-	default BIOS_VENDOR
-	help
-	  Organization identified as the product manufacturer in the SBOM. When
-	  set, it is added to the coreboot (parent) CoSWID tag as an entity with
-	  the softwareCreator and maintainer roles, and surfaces in the decoded
-	  CycloneDX as metadata.manufacture - satisfying CRA Art. 13(15)
-	  manufacturer identification. Defaults to BIOS_VENDOR.
-
-config SBOM_AMD_BLOB_LICENSE
-	string "License link for AMD firmware blobs (CRA license information)"
-	default "https://www.dasharo.com/pages/terms/"
-	help
-	  Link recorded as the license of the redistributable AMD firmware blobs
-	  (PSP firmware and CPU microcode) in the SBOM, satisfying CRA Art. 13(5)
-	  license information. These blobs carry no SPDX license identifier, so
-	  this points at the redistribution terms they are covered by rather than
-	  at an spdx.org URL like the open source components use.
-
-	  Set to an empty string to omit the license link.
-
 config SBOM_COMPILER
 	bool "Include compiler metadata in SBOM"
 	default n
@@ -63,7 +41,7 @@ config SBOM_PAYLOAD
 
 config SBOM_PAYLOAD_GENERATE
 	bool "Auto-generate generic SBOM info for payload"
-	depends on SBOM_PAYLOAD && (PAYLOAD_BOOTBOOT || PAYLOAD_DEPTHCHARGE || PAYLOAD_EDK2 || PAYLOAD_FILO || PAYLOAD_GRUB2 || PAYLOAD_LINUXBOOT || PAYLOAD_SEABIOS || PAYLOAD_SKIBOOT || PAYLOAD_UBOOT)
+	depends on SBOM_PAYLOAD && (PAYLOAD_BOOTBOOT || PAYLOAD_DEPTHCHARGE || PAYLOAD_FILO || PAYLOAD_GRUB2 || PAYLOAD_LINUXBOOT || PAYLOAD_SEABIOS || PAYLOAD_SKIBOOT || PAYLOAD_UBOOT)
 	default y
 	help
 	  Select this option if you want coreboot to generate and include
@@ -76,36 +54,6 @@ config SBOM_PAYLOAD_GENERATE
 config SBOM_PAYLOAD_PATH
 	string "Path to SBOM file for the payload"
 	depends on SBOM_PAYLOAD && !SBOM_PAYLOAD_GENERATE
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_EDK2_PLATFORMS
-	bool "Include edk2-platforms metadata in SBOM"
-	depends on SBOM_PAYLOAD && PAYLOAD_EDK2 && EDK2_USE_EDK2_PLATFORMS
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the edk2-platforms
-	  source tree into the SBOM (Software Bill of Materials) File in your
-	  build. edk2-platforms is a separate git repository compiled into the
-	  edk2 UEFI payload, so it needs its own SBOM entry in addition to the
-	  edk2 payload itself.
-
-config SBOM_EDK2_PLATFORMS_GENERATE
-	bool "Auto-generate edk2-platforms revision in SBOM"
-	depends on SBOM_EDK2_PLATFORMS
-	default y
-	help
-	  When enabled, coreboot reads the git commit hash of the edk2-platforms
-	  source tree (payloads/external/edk2/workspace/edk2-platforms) and records
-	  it as the SBOM version, with the tree hash stored as colloquial-version.
-	  If disabled, set SBOM_EDK2_PLATFORMS_PATH to a custom file.
-
-config SBOM_EDK2_PLATFORMS_PATH
-	string "Path to SBOM file for edk2-platforms"
-	depends on SBOM_EDK2_PLATFORMS && !SBOM_EDK2_PLATFORMS_GENERATE
-	default "src/sbom/payload-edk2-platforms.json"
 	help
 	  The path of the SBOM file describing the Software included in the build
 	  File can be a .json, .xml, .cbor, .uswid, or .pc
@@ -141,7 +89,7 @@ config SBOM_ME_PATH
 
 config SBOM_EC
 	bool "Include EC metadata in SBOM"
-	depends on HAVE_EC_BIN || EC_DASHARO_EC || EC_SYSTEM76_EC
+	depends on HAVE_EC_BIN
 	default n
 	help
 	  Select this option if you want to include a
@@ -149,31 +97,9 @@ config SBOM_EC
 	  EC (Embedded Controller) firmware into the
 	  SBOM (Software Bill of Materials) File in your build
 
-config SBOM_EC_GENERATE
-	bool "Auto-generate EC version in SBOM"
-	depends on SBOM_EC && (EC_DASHARO_EC || EC_SYSTEM76_EC)
-	default y
-	help
-	  When enabled, coreboot extracts the EC firmware version from the EC
-	  binary at SBOM_EC_BIN_PATH using strings(1) and includes it in the
-	  SBOM.  The version string is matched by the pattern _VERSION= in the
-	  binary (e.g. 76EC_VERSION=2025-10-31_af6bd04).
-	  If disabled, set SBOM_EC_PATH to a custom file.
-
-config SBOM_EC_BIN_PATH
-	string "Path to EC firmware binary for version extraction"
-	depends on SBOM_EC_GENERATE
-	default EC_DASHARO_EC_UPDATE_FILE if EC_DASHARO_EC
-	default "ec.rom"
-	help
-	  Path to the EC firmware binary from which the version string is
-	  extracted.  For EC_DASHARO_EC this defaults to the same path used
-	  by EC_DASHARO_EC_UPDATE_FILE.  For EC_SYSTEM76_EC the binary is not
-	  embedded by coreboot, so the path must point to the file on disk.
-
 config SBOM_EC_PATH
 	string "Path to SBOM file for the EC firmware"
-	depends on SBOM_EC && !SBOM_EC_GENERATE
+	depends on SBOM_EC
 	default "src/sbom/generic-ec.json"
 	help
 	  The path of the SBOM file describing the Software included in the build
@@ -181,7 +107,7 @@ config SBOM_EC_PATH
 
 config SBOM_SINIT_ACM
 	bool "Include SINIT ACM metadata in SBOM"
-	depends on INTEL_ACM
+	depends on INTEL_TXT_SINITACM_FILE != ""
 	default n
 	help
 	  Select this option if you want to include a
@@ -189,23 +115,9 @@ config SBOM_SINIT_ACM
 	  SINIT ACM (Authenticated Code Module) firmware into the
 	  SBOM (Software Bill of Materials) File in your build
 
-config SBOM_SINIT_ACM_GENERATE
-	bool "Auto-generate SINIT ACM version in SBOM"
-	depends on SBOM_SINIT_ACM
-	default y
-	help
-	  When enabled, coreboot extracts the SINIT ACM version from the built
-	  ROM image (build/coreboot.rom) via cbfstool and includes it in the
-	  SBOM.  The version is the BCD date field at offset 0x14 in the ACM
-	  header, formatted as YYYY-MM-DD.
-	  Run 'make sbom' after post-build ACM provisioning to ensure the SBOM
-	  reflects the actual ACM present in the ROM rather than a build-time
-	  placeholder.
-	  If disabled, set SBOM_SINIT_ACM_PATH to a custom file.
-
 config SBOM_SINIT_ACM_PATH
-	string "Path to SBOM file for the SINIT ACM firmware"
-	depends on SBOM_SINIT_ACM && !SBOM_SINIT_ACM_GENERATE
+	string "Path to SBOM file for the SINIT AMC firmware"
+	depends on SBOM_SINIT_ACM
 	default "src/sbom/intel-sinit-acm.json"
 	help
 	  The path of the SBOM file describing the Software included in the build
@@ -213,7 +125,7 @@ config SBOM_SINIT_ACM_PATH
 
 config SBOM_BIOS_ACM
 	bool "Include BIOS ACM metadata in SBOM"
-	depends on INTEL_ACM
+	depends on INTEL_TXT_BIOSACM_FILE != ""
 	default n
 	help
 	  Select this option if you want to include a
@@ -221,162 +133,37 @@ config SBOM_BIOS_ACM
 	  BIOS ACM (Authenticated Code Module) firmware into the
 	  SBOM (Software Bill of Materials) File in your build
 
-config SBOM_BIOS_ACM_GENERATE
-	bool "Auto-generate BIOS ACM version in SBOM"
-	depends on SBOM_BIOS_ACM
-	default y
-	help
-	  When enabled, coreboot extracts the BIOS ACM version from the built
-	  ROM image (build/coreboot.rom) via cbfstool and includes it in the
-	  SBOM.  The version is the BCD date field at offset 0x14 in the ACM
-	  header, formatted as YYYY-MM-DD.
-	  Run 'make sbom' after post-build ACM provisioning to ensure the SBOM
-	  reflects the actual ACM present in the ROM rather than a build-time
-	  placeholder.
-	  If disabled, set SBOM_BIOS_ACM_PATH to a custom file.
-
 config SBOM_BIOS_ACM_PATH
-	string "Path to SBOM file for the BIOS ACM firmware"
-	depends on SBOM_BIOS_ACM && !SBOM_BIOS_ACM_GENERATE
+	string "Path to SBOM file for the BIOS AMC firmware"
+	depends on SBOM_SINIT_ACM
 	default "src/sbom/intel-bios-acm.json"
 	help
 	  The path of the SBOM file describing the Software included in the build
 	  File can be a .json, .xml, .cbor, .uswid, or .pc
 
-config SBOM_INTEL_MICROCODE
-	bool "Include Intel microcode metadata in SBOM"
-	default n
-	depends on CPU_INTEL_COMMON
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  Intel CPU microcode into the SBOM (Software Bill of Materials)
-	  File in your build.
-	  This option is only available on Intel platforms.
-
-config SBOM_AMD_MICROCODE
-	bool "Include AMD microcode metadata in SBOM"
-	default n
-	depends on SOC_AMD_COMMON || CPU_AMD_PI
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  AMD CPU microcode patches into the SBOM (Software Bill of Materials)
-	  File in your build.
-	  This option is only available on AMD platforms.
-
-config SBOM_INTEL_FSP
-	bool "Include Intel FSP metadata in SBOM"
-	default n
-	depends on HAVE_IFD_BIN && (FSP_S_FILE != "" || FSP_M_FILE != "" || FSP_T_FILE != "")
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  Intel FSP (Firmware Support Package) into the SBOM
-	  (Software Bill of Materials) File in your build.
-	  This option is only available on Intel platforms that use the IFD.
-
-config SBOM_INTEL_FSP_GENERATE
-	bool "Auto-generate Intel FSP version info in SBOM"
-	depends on SBOM_INTEL_FSP && FSP_USE_REPO
-	default y
-	help
-	  When enabled, coreboot extracts the FSP version from the FSP git
-	  repository (3rdparty/fsp) commit history and includes it in the SBOM.
-	  If disabled, set SBOM_INTEL_FSP_PATH to a custom file that already
-	  contains version information.
-
-config SBOM_INTEL_FSP_PATH
-	string "Path to SBOM file for the Intel FSP firmware"
-	depends on SBOM_INTEL_FSP && !SBOM_INTEL_FSP_GENERATE
-	default "src/sbom/intel-fsp.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_AGESA
-	bool "Include AMD AGESA metadata in SBOM"
-	default n
-	depends on AGESA_BINARY_PI_FILE != ""
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  AMD AGESA (Generic Encapsulated Software Architecture) PI binary
-	  into the SBOM (Software Bill of Materials) File in your build.
-	  This option is only available on AMD platforms using a binary AGESA blob.
-
-config SBOM_AGESA_GENERATE
-	bool "Auto-generate AMD AGESA version info in SBOM"
-	depends on SBOM_AGESA
-	default y
-	help
-	  When enabled, coreboot attempts to extract a version string from the
-	  AGESA binary (AGESA_BINARY_PI_FILE) using strings(1) and records it
-	  in the SBOM.  If no version string is found the field is omitted.
-	  If disabled, set SBOM_AGESA_PATH to a custom file.
-
-config SBOM_AGESA_PATH
-	string "Path to SBOM file for AMD AGESA"
-	depends on SBOM_AGESA && !SBOM_AGESA_GENERATE
-	default "src/sbom/amd-agesa.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_OPENSIL
-	bool "Include AMD openSIL metadata in SBOM"
-	default n
-	depends on SOC_AMD_OPENSIL
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  AMD openSIL (open Silicon Initialization Library) into the
-	  SBOM (Software Bill of Materials) File in your build.
-	  This option is only available on AMD platforms using openSIL.
-
-config SBOM_OPENSIL_GENERATE
-	bool "Auto-generate AMD openSIL revision in SBOM"
-	depends on SBOM_OPENSIL
-	default y
-	help
-	  When enabled, coreboot reads the git commit hash of the openSIL
-	  source tree (AMD_OPENSIL_PATH) and records it in the SBOM.
-	  If disabled, set SBOM_OPENSIL_PATH to a custom file.
-
-config SBOM_OPENSIL_PATH
-	string "Path to SBOM file for AMD openSIL"
-	depends on SBOM_OPENSIL && !SBOM_OPENSIL_GENERATE
-	default "src/sbom/amd-opensil.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_IFD
-	bool "Include Intel Flash Descriptor metadata in SBOM"
-	depends on HAVE_IFD_BIN
+config SBOM_MICROCODE
+	bool "Include microcode metadata in SBOM"
 	default n
 	help
 	  Select this option if you want to include a
 	  coswid (Concise Software Identification Tag) of the
-	  Intel Flash Descriptor into the SBOM (Software Bill of Materials)
+	  microcode firmware into the SBOM (Software Bill of Materials)
 	  File in your build
 
-config SBOM_IFD_GENERATE
-	bool "Auto-generate IFD revision in SBOM"
-	depends on SBOM_IFD
-	default y
+config SBOM_FSP
+	bool "Include Intel FSP metadata in SBOM"
+	default n
+	depends on (FSP_S_FILE != "" || FSP_M_FILE != "" || FSP_T_FILE != "")
 	help
-	  When enabled, coreboot determines the git repository that contains
-	  IFD_BIN_PATH (typically 3rdparty/dasharo-blobs) and records its
-	  HEAD commit hash as the SBOM version.  The IFD binary itself carries
-	  no embedded version, so the enclosing repo commit is the best
-	  available proxy for its revision.
-	  If disabled, set SBOM_IFD_PATH to a custom file.
+	  Select this option if you want to include a
+	  coswid (Concise Software Identification Tag) of the
+	  FSP firmware into the SBOM (Software Bill of Materials)
+	  File in your build
 
-config SBOM_IFD_PATH
-	string "Path to SBOM file for the Intel Flash Descriptor"
-	depends on SBOM_IFD && !SBOM_IFD_GENERATE
-	default "src/sbom/intel-ifd.json"
+config SBOM_FSP_PATH
+	string "Path to SBOM file for the FSP firmware"
+	depends on SBOM_FSP
+	default "build/sbom/generic-fsp.json"
 	help
 	  The path of the SBOM file describing the Software included in the build
 	  File can be a .json, .xml, .cbor, .uswid, or .pc
@@ -390,214 +177,5 @@ config SBOM_VBOOT
 	  coswid (Concise Software Identification Tag) of the
 	  VBOOT Software into the SBOM (Software Bill of Materials)
 	  File in your build
-
-config SBOM_VBOOT_GENERATE
-	bool "Auto-generate vboot revision in SBOM"
-	depends on SBOM_VBOOT
-	default y
-	help
-	  When enabled, coreboot reads the git commit hash of the vboot
-	  submodule (3rdparty/vboot) and records it as the SBOM version,
-	  with the tree hash stored as colloquial-version.  This gives a
-	  meaningful source revision instead of the library API version "2"
-	  that comes from the pkgconfig .pc files.
-	  If disabled, the pkgconfig .pc files generated during the vboot
-	  build are used instead (original behaviour).
-
-config SBOM_IPXE
-	bool "Include iPXE metadata in SBOM"
-	default n
-	depends on BUILD_IPXE
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the
-	  iPXE network boot firmware into the SBOM
-	  (Software Bill of Materials) File in your build.
-
-config SBOM_IPXE_GENERATE
-	bool "Auto-generate iPXE revision in SBOM"
-	depends on SBOM_IPXE
-	default y
-	help
-	  When enabled, coreboot reads the git commit hash of the iPXE
-	  source tree (payloads/external/iPXE/ipxe) and records it as the
-	  SBOM version, with the tree hash stored as colloquial-version.
-	  If disabled, set SBOM_IPXE_PATH to a custom file.
-
-config SBOM_IPXE_PATH
-	string "Path to SBOM file for iPXE"
-	depends on SBOM_IPXE && !SBOM_IPXE_GENERATE
-	default "src/sbom/payload-iPXE.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_AMD_PSP_FW
-	bool "Include AMD PSP firmware metadata in SBOM"
-	default n
-	depends on USE_AMDFWTOOL
-	help
-	  When enabled, amdfwtool generates a CoSWID (Concise Software
-	  Identification) SBOM JSON file for each AMD Platform Security
-	  Processor (PSP) firmware blob included in the build.
-
-	  Output files are written to build/sbom/ as
-	  amd-pspfw-<firmware-filename>.json.  A Makefile fragment
-	  (build/sbom/amd-pspfw-sbom.mk) is also generated so that the
-	  SBOM assembly step can incorporate the per-blob tags into the
-	  final sbom.uswid.
-
-	  Type classifications follow PSPTool conventions
-	  (https://github.com/PSPReverse/PSPTool):
-	    - Public key types use a dedicated tag template.
-	    - No-header types are skipped (soft fuse is never included).
-	    - Wrapped KEK types (0x21, 0x82, 0x84, 0x8d) use a template
-	      that stores the raw blob content as the version field.
-	    - Key store types (0x50, 0x51) and SEV driver (0x1a, if the
-	      $PS1 magic is present) are treated as regular PSP FW.
-
-config SBOM_VGA_BIOS
-	bool "Include primary VGA BIOS Option ROM metadata in SBOM"
-	depends on VGA_BIOS
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the primary VGA BIOS
-	  Option ROM (VGA_BIOS_FILE) into the SBOM (Software Bill of Materials)
-	  File in your build.
-
-config SBOM_VGA_BIOS_GENERATE
-	bool "Auto-generate primary VGA BIOS Option ROM info in SBOM"
-	depends on SBOM_VGA_BIOS
-	default y
-	help
-	  When enabled, coreboot records the sha256 hash of the VGA BIOS Option
-	  ROM binary and its target PCI vendor:device ID (VGA_BIOS_ID) in the
-	  SBOM.  VGA BIOS blobs carry no extractable semantic version, so a
-	  vendor-supplied SBOM (SBOM_VGA_BIOS_PATH) is strongly preferred.
-	  If disabled, set SBOM_VGA_BIOS_PATH to a custom file.
-
-config SBOM_VGA_BIOS_PATH
-	string "Path to SBOM file for the primary VGA BIOS Option ROM"
-	depends on SBOM_VGA_BIOS && !SBOM_VGA_BIOS_GENERATE
-	default "src/sbom/vga-bios.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_VGA_BIOS_SECOND
-	bool "Include second VGA BIOS Option ROM metadata in SBOM"
-	depends on VGA_BIOS_SECOND
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the second VGA BIOS
-	  Option ROM (VGA_BIOS_SECOND_FILE) into the SBOM (Software Bill of
-	  Materials) File in your build.
-
-config SBOM_VGA_BIOS_SECOND_GENERATE
-	bool "Auto-generate second VGA BIOS Option ROM info in SBOM"
-	depends on SBOM_VGA_BIOS_SECOND
-	default y
-	help
-	  When enabled, coreboot records the sha256 hash of the second VGA BIOS
-	  Option ROM binary and its target PCI vendor:device ID
-	  (VGA_BIOS_SECOND_ID) in the SBOM.
-	  If disabled, set SBOM_VGA_BIOS_SECOND_PATH to a custom file.
-
-config SBOM_VGA_BIOS_SECOND_PATH
-	string "Path to SBOM file for the second VGA BIOS Option ROM"
-	depends on SBOM_VGA_BIOS_SECOND && !SBOM_VGA_BIOS_SECOND_GENERATE
-	default "src/sbom/vga-bios-second.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_VGA_BIOS_DGPU
-	bool "Include discrete-GPU VGA BIOS Option ROM metadata in SBOM"
-	depends on VGA_BIOS_DGPU
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the discrete-GPU VGA
-	  BIOS Option ROM (VGA_BIOS_DGPU_FILE) into the SBOM (Software Bill of
-	  Materials) File in your build.
-
-config SBOM_VGA_BIOS_DGPU_GENERATE
-	bool "Auto-generate discrete-GPU VGA BIOS Option ROM info in SBOM"
-	depends on SBOM_VGA_BIOS_DGPU
-	default y
-	help
-	  When enabled, coreboot records the sha256 hash of the discrete-GPU VGA
-	  BIOS Option ROM binary and its target PCI vendor:device ID
-	  (VGA_BIOS_DGPU_ID) in the SBOM.
-	  If disabled, set SBOM_VGA_BIOS_DGPU_PATH to a custom file.
-
-config SBOM_VGA_BIOS_DGPU_PATH
-	string "Path to SBOM file for the discrete-GPU VGA BIOS Option ROM"
-	depends on SBOM_VGA_BIOS_DGPU && !SBOM_VGA_BIOS_DGPU_GENERATE
-	default "src/sbom/vga-bios-dgpu.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_EDK2_GOP
-	bool "Include GOP driver metadata in SBOM"
-	depends on SBOM_PAYLOAD && (EDK2_GOP_DRIVER || EDK2_AMD_GOP_DRIVER)
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the external GOP
-	  (Graphics Output Protocol) driver (EDK2_GOP_FILE) compiled into the
-	  edk2 payload into the SBOM (Software Bill of Materials) File.  Covers
-	  both the Intel (EDK2_GOP_DRIVER) and AMD (EDK2_AMD_GOP_DRIVER) drivers.
-
-config SBOM_EDK2_GOP_GENERATE
-	bool "Auto-generate GOP driver info in SBOM"
-	depends on SBOM_EDK2_GOP
-	default y
-	help
-	  When enabled, coreboot records the sha256 hash of the GOP driver
-	  binary (EDK2_GOP_FILE) in the SBOM.  The proprietary GOP driver carries
-	  no extractable semantic version, so a vendor-supplied SBOM
-	  (SBOM_EDK2_GOP_PATH) is strongly preferred.
-	  If disabled, set SBOM_EDK2_GOP_PATH to a custom file.
-
-config SBOM_EDK2_GOP_PATH
-	string "Path to SBOM file for the GOP driver"
-	depends on SBOM_EDK2_GOP && !SBOM_EDK2_GOP_GENERATE
-	default "src/sbom/edk2-gop.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
-
-config SBOM_EDK2_LAN_ROM
-	bool "Include LAN Option ROM driver metadata in SBOM"
-	depends on SBOM_PAYLOAD && PAYLOAD_EDK2 && EDK2_LAN_ROM_DRIVER != ""
-	default n
-	help
-	  Select this option if you want to include a
-	  coswid (Concise Software Identification Tag) of the external LAN Option
-	  ROM network driver (EDK2_LAN_ROM_DRIVER) compiled into the edk2 payload
-	  into the SBOM (Software Bill of Materials) File.
-
-config SBOM_EDK2_LAN_ROM_GENERATE
-	bool "Auto-generate LAN Option ROM driver info in SBOM"
-	depends on SBOM_EDK2_LAN_ROM
-	default y
-	help
-	  When enabled, coreboot records the sha256 hash of the LAN Option ROM
-	  driver binary (EDK2_LAN_ROM_DRIVER) in the SBOM.  The proprietary
-	  network driver carries no extractable semantic version, so a
-	  vendor-supplied SBOM (SBOM_EDK2_LAN_ROM_PATH) is strongly preferred.
-	  If disabled, set SBOM_EDK2_LAN_ROM_PATH to a custom file.
-
-config SBOM_EDK2_LAN_ROM_PATH
-	string "Path to SBOM file for the LAN Option ROM driver"
-	depends on SBOM_EDK2_LAN_ROM && !SBOM_EDK2_LAN_ROM_GENERATE
-	default "src/sbom/edk2-lan-rom.json"
-	help
-	  The path of the SBOM file describing the Software included in the build
-	  File can be a .json, .xml, .cbor, .uswid, or .pc
 
 endif

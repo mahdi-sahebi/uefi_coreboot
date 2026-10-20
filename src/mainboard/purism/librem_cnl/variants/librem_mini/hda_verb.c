@@ -2,7 +2,11 @@
 
 #include <device/azalia_device.h>
 
-static const u32 realtek_alc269_verbs[] = {
+const u32 cim_verb_data[] = {
+	0x10ec0269,	/* Codec Vendor/Device ID: Realtek ALC269 */
+	0x10ec0269,	/* Subsystem ID */
+	12,		/* Number of entries */
+
 	AZALIA_RESET(0x1),
 
 	AZALIA_SUBVENDOR(0, 0x10ec0269),
@@ -16,9 +20,11 @@ static const u32 realtek_alc269_verbs[] = {
 	AZALIA_PIN_CFG(0, 0x1b, AZALIA_PIN_CFG_NC(0)), /* NC */
 	AZALIA_PIN_CFG(0, 0x1d, AZALIA_PIN_CFG_NC(0)), /* NC */
 	AZALIA_PIN_CFG(0, 0x1e, AZALIA_PIN_CFG_NC(0)), /* NC */
-};
 
-static const u32 intel_display_audio_verbs[] = {
+	0x8086280b,	/* Codec Vendor/Device ID: Intel CannonPoint HDMI */
+	0x80860101,	/* Subsystem ID */
+	4,		/* Number of entries */
+
 	AZALIA_SUBVENDOR(2, 0x80860101),
 	AZALIA_PIN_CFG(2, 0x05, 0x18560010),
 	AZALIA_PIN_CFG(2, 0x06, 0x18560010),
@@ -26,25 +32,5 @@ static const u32 intel_display_audio_verbs[] = {
 };
 
 const u32 pc_beep_verbs[] = {};
-
-struct azalia_codec mainboard_azalia_codecs[] = {
-	{
-		.name         = "Realtek ALC269",
-		.vendor_id    = 0x10ec0269,
-		.subsystem_id = 0x10ec0269,
-		.address      = 0,
-		.verbs        = realtek_alc269_verbs,
-		.verb_count   = ARRAY_SIZE(realtek_alc269_verbs),
-	},
-	{
-		.name         = "Intel Display Audio (HDMI/DP)",
-		.vendor_id    = 0x8086280b,
-		.subsystem_id = 0x80860101,
-		.address      = 2,
-		.verbs        = intel_display_audio_verbs,
-		.verb_count   = ARRAY_SIZE(intel_display_audio_verbs),
-	},
-	{ /* terminator */ }
-};
 
 AZALIA_ARRAY_SIZES;

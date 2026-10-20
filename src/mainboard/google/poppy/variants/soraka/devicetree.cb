@@ -13,10 +13,10 @@ chip soc/intel/skylake
 	}"
 
 	# Deep Sx states
-	register "deep_s3_enable_ac" = "false"
-	register "deep_s3_enable_dc" = "false"
-	register "deep_s5_enable_ac" = "true"
-	register "deep_s5_enable_dc" = "true"
+	register "deep_s3_enable_ac" = "0"
+	register "deep_s3_enable_dc" = "0"
+	register "deep_s5_enable_ac" = "1"
+	register "deep_s5_enable_dc" = "1"
 	register "deep_sx_config" = "DSX_EN_LAN_WAKE_PIN | DSX_EN_WAKE_PIN | DSX_DIS_AC_PRESENT_PD"
 
 	# GPE configuration
@@ -28,13 +28,13 @@ chip soc/intel/skylake
 	register "gpe0_dw2" = "GPP_E"
 
 	# Enable DPTF
-	register "dptf_enable" = "true"
+	register "dptf_enable" = "1"
 
 	# Enable S0ix
 	register "s0ix_enable" = true
 
 	# FSP Configuration
-	register "DspEnable" = "true"
+	register "DspEnable" = "1"
 	register "IoBufferOwnership" = "3"
 	register "ScsEmmcHs400Enabled" = "1"
 	register "SkipExtGfxScan" = "1"
@@ -305,10 +305,11 @@ chip soc/intel/skylake
 		end
 		device ref i2c4			on  end
 		device ref pcie_rp1		on
-			register "PcieRpClkReqSupport[0]" = "true"
+			register "PcieRpEnable[0]" = "1"
+			register "PcieRpClkReqSupport[0]" = "1"
 			register "PcieRpClkReqNumber[0]" = "1"
 			register "PcieRpAdvancedErrorReporting[0]" = "1"
-			register "PcieRpLtrEnable[0]" = "true"
+			register "PcieRpLtrEnable[0]" = "1"
 			register "PcieRpClkSrcNumber[0]" = "1"
 			chip drivers/wifi/generic
 				register "wake" = "GPE0_PCI_EXP"

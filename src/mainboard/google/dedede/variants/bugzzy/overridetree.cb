@@ -152,7 +152,7 @@ chip soc/intel/jasperlake
 					chip drivers/usb/acpi
 						register "desc" = ""UFCamera""
 						register "type" = "UPC_TYPE_INTERNAL"
-						register "has_power_resource" = "true"
+						register "has_power_resource" = "1"
 						register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_D13)"
 						register "enable_delay_ms" = "20"
 						device usb 2.5 on end
@@ -160,7 +160,7 @@ chip soc/intel/jasperlake
 					chip drivers/usb/acpi
 						register "desc" = ""LTE""
 						register "type" = "UPC_TYPE_INTERNAL"
-						register "has_power_resource" = "true"
+						register "has_power_resource" = "1"
 						register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_H17)"
 						register "reset_off_delay_ms" = "20"
 						register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_A10)"
@@ -240,18 +240,14 @@ chip soc/intel/jasperlake
 
 				register "ssdb.lanes_used" = "4"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_JSL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "2"
 				register "link_freq[0]" = "360000000"
 				register "link_freq[1]" = "180000000"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "1" #IMGCLKOUT_1
 				register "clk_panel.clks[0].freq" = "1" #19.2 Mhz

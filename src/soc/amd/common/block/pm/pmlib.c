@@ -3,7 +3,6 @@
 #include <amdblocks/acpimmio.h>
 #include <amdblocks/pmlib.h>
 #include <console/console.h>
-#include <dasharo/options.h>
 #include <types.h>
 
 /* This register is a bit of an odd one. The configuration gets written into the lower nibble,
@@ -18,7 +17,7 @@ void pm_set_power_failure_state(void)
 {
 	uint8_t pwr_fail = PWR_PWRSTATE;
 
-	switch (dasharo_get_power_on_after_fail()) {
+	switch (CONFIG_MAINBOARD_POWER_FAILURE_STATE) {
 	case MAINBOARD_POWER_STATE_OFF:
 		printk(BIOS_INFO, "Set power off after power failure.\n");
 		pwr_fail |= PWR_FAIL_OFF;

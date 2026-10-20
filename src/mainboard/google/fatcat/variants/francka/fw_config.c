@@ -12,55 +12,35 @@
 #define GPIO_CONFIGURE_PADS(t) gpio_configure_pads(t, ARRAY_SIZE(t))
 
 static const struct pad_config hda_enable_pads[] = {
-	/* GPP_D10:     HDA_BIT_CLK */
+	/* HDA_BIT_CLK */
 	PAD_CFG_NF(GPP_D10, NONE, DEEP, NF1),
-	/* GPP_D11:     HDA_SYNC */
+	/* HDA_SYNC */
 	PAD_CFG_NF(GPP_D11, NATIVE, DEEP, NF1),
-	/* GPP_D12:     HDA_SDOUT */
+	/* HDA_SDOUT */
 	PAD_CFG_NF(GPP_D12, NATIVE, DEEP, NF1),
-	/* GPP_D13:     HDA_SDIN0 */
+	/* HDA_SDIN0 */
 	PAD_CFG_NF(GPP_D13, NATIVE, DEEP, NF1),
-	/* GPP_S06:     SOC_DMIC_CLK1 */
+	/* SOC_DMIC_CLK1 */
 	PAD_CFG_NF(GPP_S06, NONE, DEEP, NF5),
-	/* GPP_S07:     SOC_DMIC_DATA1 */
+	/* SOC_DMIC_DATA1 */
 	PAD_CFG_NF(GPP_S07, NONE, DEEP, NF5),
-};
 
-static const struct pad_config sndw_alc721_enable_pads[] = {
-	/* GPP_S02:     SNDW0_CLK */
-	PAD_CFG_NF(GPP_S02, NONE, DEEP, NF3),
-	/* GPP_S03:     SNDW0_DATA0 */
-	PAD_CFG_NF(GPP_S03, NONE, DEEP, NF3),
-	/* GPP_S06:     SOC_DMIC_CLK1 */
-	PAD_CFG_NF(GPP_S06, NONE, DEEP, NF5),
-	/* GPP_S07:     SOC_DMIC_DATA1 */
-	PAD_CFG_NF(GPP_S07, NONE, DEEP, NF5),
-};
-
-static const struct pad_config sndw_alc722_alc1320_enable_pads[] = {
+	/* GPP_D09:     PCH_DGPU_HOLD_RST#_R */
+	PAD_NC(GPP_D09, NONE),
+	/* GPP_D16:     HDA_RST# */
+	PAD_NC(GPP_D16, NONE),
 	/* GPP_S00:     SNDW_3_SCL */
-	PAD_CFG_NF(GPP_S00, NONE, DEEP, NF1),
+	PAD_NC(GPP_S00, NONE),
 	/* GPP_S01:     SNDW_3_SDA */
-	PAD_CFG_NF(GPP_S01, NONE, DEEP, NF1),
-	/* GPP_S02:     SNDW0_CLK */
-	PAD_CFG_NF(GPP_S02, NONE, DEEP, NF3),
-	/* GPP_S03:     SNDW0_DATA0 */
-	PAD_CFG_NF(GPP_S03, NONE, DEEP, NF3),
-	/* GPP_S04:     SNDW_2_SCL */
-	PAD_CFG_NF(GPP_S04, NONE, DEEP, NF2),
-	/* GPP_S05:     SNDW_2_SDA */
-	PAD_CFG_NF(GPP_S05, NONE, DEEP, NF2),
-	/* GPP_S06:     SOC_DMIC_CLK1 */
-	PAD_CFG_NF(GPP_S06, NONE, DEEP, NF5),
-	/* GPP_S07:     SOC_DMIC_DATA1 */
-	PAD_CFG_NF(GPP_S07, NONE, DEEP, NF5),
-};
-
-static const struct pad_config enable_dmic_0_pads[] = {
+	PAD_NC(GPP_S01, NONE),
 	/* GPP_S02:     SOC_DMIC_CLK0 */
-	PAD_CFG_NF(GPP_S02, NONE, DEEP, NF5),
+	PAD_NC(GPP_S02, NONE),
 	/* GPP_S03:     SOC_DMIC_DATA0 */
-	PAD_CFG_NF(GPP_S03, NONE, DEEP, NF5),
+	PAD_NC(GPP_S03, NONE),
+	/* GPP_S04:     SNDW2_CLK */
+	PAD_NC(GPP_S04, NONE),
+	/* GPP_S05:     SNDW2_DATA0 */
+	PAD_NC(GPP_S05, NONE),
 };
 
 /*
@@ -143,17 +123,8 @@ void fw_config_gpio_padbased_override(struct pad_config *padbased_table)
 		return;
 	}
 
-	if (fw_config_probe(FW_CONFIG(AUDIO, AUDIO_ALC256M_CG_HDA))) {
-		printk(BIOS_INFO, "Configure GPIOs for HDA ALC256 mode.\n");
+	if (fw_config_probe(FW_CONFIG(AUDIO, AUDIO_ALC256M_CG_HDA)))
 		GPIO_PADBASED_OVERRIDE(padbased_table, hda_enable_pads);
-		GPIO_PADBASED_OVERRIDE(padbased_table, enable_dmic_0_pads);
-	} else if (fw_config_probe(FW_CONFIG(AUDIO, AUDIO_ALC721_SNDW))) {
-		printk(BIOS_INFO, "Configure GPIOs for Soundwire ALC721 mode.\n");
-		GPIO_PADBASED_OVERRIDE(padbased_table, sndw_alc721_enable_pads);
-	} else if (fw_config_probe(FW_CONFIG(AUDIO, AUDIO_ALC722_ALC1320_SNDW))) {
-		printk(BIOS_INFO, "Configure GPIOs for Soundwire ALC722 & ALC1320 mode.\n");
-		GPIO_PADBASED_OVERRIDE(padbased_table, sndw_alc722_alc1320_enable_pads);
-	}
 
 	if (fw_config_probe(FW_CONFIG(WWAN, WWAN_PRESENT))) {
 		GPIO_PADBASED_OVERRIDE(padbased_table, wwan_pwr_seq3_pads);

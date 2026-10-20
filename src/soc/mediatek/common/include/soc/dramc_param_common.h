@@ -90,8 +90,7 @@ enum SDRAM_VOLTAGE_TYPE {
 };
 
 struct ddr_base_info {
-	u16 config_dvfs;		/* SDRAM_DVFS_FLAG */
-	u16 data_version;
+	u32 config_dvfs;		/* SDRAM_DVFS_FLAG */
 	struct sdram_info sdram;
 	u16 lpddr_type;
 	u16 voltage_type;		/* SDRAM_VOLTAGE_TYPE */
@@ -104,11 +103,5 @@ struct ddr_base_info {
 };
 
 const struct sdram_info *get_sdram_config(void);
-struct dramc_param *get_dramc_param_from_blob(void *blob);
-const char *get_status_string(u16 status);
-void dump_param_header(const void *blob);
-int validate_dramc_param(const void *blob);
-int is_valid_dramc_param(const void *blob);
-int initialize_dramc_param(void *blob);
 
 #endif

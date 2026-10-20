@@ -155,8 +155,8 @@ testas() {
 		2>/dev/null || return 1
 
 	# Check output content type.
-	local obj_type="$(LANG=C LC_ALL='' "${gccprefix}"objdump -f "$obj_file" 2>/dev/null)"
-	local obj_arch="$(printf '%s\n' "$obj_type" | sed -n 's/.*file format \([a-z0-9-]*\).*/\1/p')"
+	local obj_type="$(LANG=C LC_ALL='' "${gccprefix}"objdump -p "$obj_file" 2>/dev/null)"
+	local obj_arch="$(expr "$obj_type" : '.*format \(.[a-z0-9-]*\)')"
 	[ "$obj_arch" = "$full_arch" ] || return 1
 
 	unset ASFLAGS LDFLAGS
@@ -207,9 +207,6 @@ detect_special_flags() {
 
 	testcc "$GCC"      "$CFLAGS_GCC -Wcalloc-transposed-args" &&
 		CFLAGS_GCC="$CFLAGS_GCC -Wcalloc-transposed-args"
-
-	testcc "$GCC"	"$CFLAGS_GCC -Walloc-size" &&
-		CFLAGS_GCC="$CFLAGS_GCC -Walloc-size"
 
 	testcc "$GCC"      "$CFLAGS_GCC -Wno-unused-parameter" &&
 		CFLAGS_GCC="$CFLAGS_GCC -Wno-unused-parameter"

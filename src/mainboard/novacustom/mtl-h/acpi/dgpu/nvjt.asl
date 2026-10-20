@@ -20,7 +20,7 @@ Method (NVJT, 2, Serialized)
 		{
 			Return (ITOB(
 				(1 << 0) |		/* JTE: G-Sync NVSR Power Features Enabled */
-				(1 << 1) |		/* NVSE: NVSR Disabled */
+				(1 << 0) |		/* NVSE: NVSR Disabled */
 				(2 << 3) |		/* PPR: Panel Power Rail */
 				(0 << 5) |		/* SRPR: Self-Refresh Controller Power Rail */
 				(0 << 6) |		/* FBPR: FB Power Rail */

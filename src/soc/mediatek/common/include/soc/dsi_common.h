@@ -8,8 +8,44 @@
 #include <mipi/dsi.h>
 #include <types.h>
 #include <soc/addressmap.h>
-#include <soc/display_dsi.h>
-#include <soc/dsi_reg.h>
+
+enum mipi_dsi_pixel_format {
+	MIPI_DSI_FMT_RGB888,
+	MIPI_DSI_FMT_RGB666,
+	MIPI_DSI_FMT_RGB666_PACKED,
+	MIPI_DSI_FMT_RGB565
+};
+
+/* video mode */
+enum {
+	MIPI_DSI_MODE_VIDEO = BIT(0),
+	/* video burst mode */
+	MIPI_DSI_MODE_VIDEO_BURST = BIT(1),
+	/* video pulse mode */
+	MIPI_DSI_MODE_VIDEO_SYNC_PULSE = BIT(2),
+	/* enable auto vertical count mode */
+	MIPI_DSI_MODE_VIDEO_AUTO_VERT = BIT(3),
+	/* enable hsync-end packets in vsync-pulse and v-porch area */
+	MIPI_DSI_MODE_VIDEO_HSE = BIT(4),
+	/* disable hfront-porch area */
+	MIPI_DSI_MODE_VIDEO_HFP = BIT(5),
+	/* disable hback-porch area */
+	MIPI_DSI_MODE_VIDEO_HBP = BIT(6),
+	/* disable hsync-active area */
+	MIPI_DSI_MODE_VIDEO_HSA = BIT(7),
+	/* flush display FIFO on vsync pulse */
+	MIPI_DSI_MODE_VSYNC_FLUSH = BIT(8),
+	/* disable EoT packets in HS mode */
+	MIPI_DSI_MODE_EOT_PACKET = BIT(9),
+	/* device supports non-continuous clock behavior (DSI spec 5.6.1) */
+	MIPI_DSI_CLOCK_NON_CONTINUOUS = BIT(10),
+	/* transmit data in low power */
+	MIPI_DSI_MODE_LPM = BIT(11),
+	/* dsi per line's data end same time on all lanes */
+	MIPI_DSI_MODE_LINE_END = BIT(12),
+};
+
+static struct dsi_regs *const dsi0 = (void *)DSI0_BASE;
 
 /* DSI_INTSTA */
 enum {
@@ -19,11 +55,6 @@ enum {
 	VM_DONE_INT_FLAG     = BIT(3),
 	EXT_TE_RDY_INT_FLAG  = BIT(4),
 	DSI_BUSY             = BIT(31),
-};
-
-/* DSI_CMD_TYPE1_HS */
-enum {
-	CMD_CPHY_6BYTE_EN = BIT(18),
 };
 
 /* DSI_CON_CTRL */
@@ -72,7 +103,6 @@ enum {
 /* DSI_CMDQ_SIZE */
 enum {
 	CMDQ_SIZE = 0x3f,
-	CMDQ_SIZE_SEL = BIT(15),
 };
 
 /* DSI_PHY_LCCON */
@@ -161,27 +191,15 @@ struct mtk_phy_timing {
 };
 
 /* Functions that each SOC should provide. */
-void mtk_dsi_reset(struct dsi_regs *dsi_reg);
+void mtk_dsi_reset(void);
+void mtk_dsi_configure_mipi_tx(u32 data_rate, u32 lanes);
 
 /* Functions as weak no-ops that can be overridden. */
 void mtk_dsi_override_phy_timing(struct mtk_phy_timing *timing);
 
-/*
- * DSI-internal APIs provided in common/dsi_common.c, common/dsi_v1.c,
- * and common/mtk_mipi_{c/d}phy.c
- */
-void mtk_dsi_cphy_enable(struct mipi_tx_regs *mipi_tx_reg);
-void mtk_dsi_cphy_enable_cmdq_6byte(struct dsi_regs *dsi_reg);
-void mtk_dsi_cphy_lane_sel_setting(struct mipi_tx_regs *mipi_tx_reg);
-void mtk_dsi_cphy_timing(u32 data_rate, struct mtk_phy_timing *timing);
-void mtk_dsi_cphy_vdo_timing(const u32 lanes, const struct edid *edid,
-			     const struct mtk_phy_timing *phy_timing,
-			     const u32 bytes_per_pixel, const u32 hbp, const u32 hfp,
-			     s32 *hbp_byte, s32 *hfp_byte, u32 *hsync_active_byte);
-void mtk_dsi_cphy_disable_ck_mode(struct mipi_tx_regs *mipi_tx_reg);
-void mtk_dsi_dphy_disable_ck_mode(struct mipi_tx_regs *mipi_tx_reg);
-void mtk_dsi_dphy_timing_calculation(u32 data_rate_mhz, struct mtk_phy_timing *timing);
-void mtk_dsi_configure_mipi_tx(struct mipi_tx_regs *mipi_tx_reg,
-			       u32 data_rate, u32 lanes, bool is_cphy);
+/* Public API provided in common/dsi.c */
+int mtk_dsi_bpp_from_format(u32 format);
+int mtk_dsi_init(u32 mode_flags, u32 format, u32 lanes, const struct edid *edid,
+		 const u8 *init_commands);
 
 #endif /* SOC_MEDIATEK_DSI_COMMON_H */

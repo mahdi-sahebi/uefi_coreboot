@@ -17,10 +17,8 @@
 	GUID_INIT(0x8A395669, 0x11F7, 0x4EA9, \
 	0x9C, 0x7D, 0x20, 0xEE, 0x0A, 0xB5, 0xCA, 0x40)
 
-#define UUID_DSM_SENSOR		"822ace8f-2814-4174-a56b-5f029fe079ee"
-#define UUID_DSM_I2C		"26257549-9271-4ca4-bb43-c4899d5a4881"
-#define UUID_DSM_I2C_V2		"5815c5c8-c47d-477b-9a8d-76173176414b"
-#define UUID_DSM_CVF		"02f55f0c-2e63-4f05-84f3-bf1980f9af79"
+#define SENSOR_NAME_UUID	"822ace8f-2814-4174-a56b-5f029fe079ee"
+#define SENSOR_TYPE_UUID	"26257549-9271-4ca4-bb43-c4899d5a4881"
 #define DEFAULT_ENDPOINT	0
 #define DEFAULT_REMOTE_NAME	"\\_SB.PCI0.CIO2"
 #define CIO2_PCI_DEV		0x14
@@ -171,14 +169,15 @@ static void apply_pld_defaults(struct drivers_intel_mipi_camera_config *config)
 
 	/*
 	 * PLD_PANEL_TOP has a value of zero, so the following will change any instance of
-	 * PLD_PANEL_TOP to PLD_PANEL_FRONT.
+	 * PLD_PANEL_TOP to PLD_PANEL_FRONT unless disable_pld_defaults is set.
 	 */
 	if (!config->pld.panel)
 		config->pld.panel = PLD_PANEL_FRONT;
 
 	/*
 	 * PLD_HORIZONTAL_POSITION_LEFT has a value of zero, so the following will change any
-	 * instance of that value to PLD_HORIZONTAL_POSITION_CENTER.
+	 * instance of that value to PLD_HORIZONTAL_POSITION_CENTER unless disable_pld_defaults
+	 * is set.
 	 */
 	if (!config->pld.horizontal_position)
 		config->pld.horizontal_position = PLD_HORIZONTAL_POSITION_CENTER;
@@ -194,9 +193,12 @@ static void camera_generate_pld(const struct device *dev)
 {
 	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
 
-	apply_pld_defaults(config);
+	if (config->use_pld) {
+		if (!config->disable_pld_defaults)
+			apply_pld_defaults(config);
 
-	acpigen_write_pld(&config->pld);
+		acpigen_write_pld(&config->pld);
+	}
 }
 
 static uint32_t address_for_dev_type(const struct device *dev, uint8_t dev_type)
@@ -222,217 +224,58 @@ static uint32_t address_for_dev_type(const struct device *dev, uint8_t dev_type)
 	return (((uint32_t)i2c_bus) << 24 | ((uint32_t)i2c_addr) << 8 | dev_type);
 }
 
-/*
- * Generate ASL DSM code for Sensor Device
- *
- * Generated ASL:
- * If (LEqual (Local0, ToUUID ("822ace8f-2814-4174-a56b-5f029fe079ee"))) {
- *     If (LEqual (Arg2, Zero)) {
- *         If (LEqual (Arg1, Zero)) {
- *             Return (Buffer (One) { 0x3 })
- *         } Else {
- *             Return (Buffer (One) { 0x1 })
- *         }
- *     }
- *     If (LEqual (Arg2, One)) {
- *         If (sensor_name exists)
- *             Return ("sensor_name")
- *         Else
- *             Return ("UNKNOWN")
- *     }
- * }
- */
-static void camera_generate_dsm_sensor(const struct device *dev)
-{
-	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
-
-	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(LOCAL0_OP);
-	acpigen_write_uuid(UUID_DSM_SENSOR);
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 0);
-	acpigen_write_if_lequal_op_int(ARG1_OP, 0);
-	acpigen_write_return_singleton_buffer(0x3);
-	acpigen_write_else();
-	acpigen_write_return_singleton_buffer(0x1);
-	acpigen_pop_len();	/* If Arg1=0 */
-
-	acpigen_pop_len();	/* If Arg2=0 */
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 1);
-	acpigen_write_return_string(config && config->sensor_name ? config->sensor_name : "UNKNOWN");
-	acpigen_pop_len();	/* If Arg2=1 */
-
-	acpigen_pop_len();	/* If uuid */
-}
-
-/*
- * Generate ASL DSM code for I2C device count and addresses
- *
- * Generated ASL:
- * If (LEqual (Local0, ToUUID ("26257549-9271-4ca4-bb43-c4899d5a4881"))) {
- *     ToInteger (Arg2, Local1)
- *     If (LEqual (Local1, 1)) {
- *         Return (i2c_dev_count)
- *     }
- *     If (LEqual (Local1, 2)) {
- *         Return (sensor_address)
- *     }
- *     If (LEqual (Local1, 3)) {
- *         Return (vcm_address)  // if vcm_type exists
- *     }
- *     If (LEqual (Local1, 3 or 4)) {
- *         Return (rom_address)  // if rom_type exists (index depends on vcm)
- *     }
- * }
- */
-static void camera_generate_dsm_i2c(const struct device *dev)
-{
-	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
-	int i2c_dev_count = 1 + (config->ssdb.vcm_type ? 1 : 0) + (config->ssdb.rom_type ? 1 : 0);
-	int i2c_dev_idx = 1;
-
-	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(LOCAL0_OP);
-	acpigen_write_uuid(UUID_DSM_I2C);
-	acpigen_write_to_integer(ARG2_OP, LOCAL1_OP);
-
-	acpigen_write_if_lequal_op_int(LOCAL1_OP, i2c_dev_idx++);
-	acpigen_write_return_integer(i2c_dev_count);
-	acpigen_pop_len();	/* If Arg2=1 */
-
-	acpigen_write_if_lequal_op_int(LOCAL1_OP, i2c_dev_idx++);
-	acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_SENSOR));
-	acpigen_pop_len();	/* If Arg2=2 */
-
-	if (config->ssdb.vcm_type) {
-		acpigen_write_if_lequal_op_int(LOCAL1_OP, i2c_dev_idx++);
-		acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_VCM));
-		acpigen_pop_len();      /* If Arg2=3 */
-	}
-
-	if (config->ssdb.rom_type) {
-		acpigen_write_if_lequal_op_int(LOCAL1_OP, i2c_dev_idx);
-		acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_ROM));
-		acpigen_pop_len();      /* If Arg2=3 or 4 */
-	}
-
-	acpigen_pop_len();      /* If uuid */
-}
-
-/*
- * Generate ASL DSM code for I2C device count and addresses (V2)
- *
- * Generated ASL:
- * If (LEqual (Local0, ToUUID ("5815c5c8-c47d-477b-9a8d-76173176414b"))) {
- *     If (LEqual (Arg2, Zero)) {
- *         If (LEqual (Arg1, Zero)) {
- *             Return (Buffer (One) { 0x3 })
- *         } Else {
- *             Return (Buffer (One) { 0x1 })
- *         }
- *     }
- *     If (LEqual (Arg2, One)) {
- *         Return (Buffer (52) {
- *             i2c_count, sensor_addr, [vcm_addr], [rom_addr], 0, 0, ...
- *         })
- *         // Buffer is 13 * 4 = 52 bytes: count + up to 12 device addresses
- *     }
- * }
- */
-static void camera_generate_dsm_i2c_v2(const struct device *dev)
-{
-	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
-	if (!config)
-		return;
-
-	int i2c_count = 1 + (config->ssdb.vcm_type ? 1 : 0) + (config->ssdb.rom_type ? 1 : 0);
-	int i2c_idx = 1;
-
-	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(LOCAL0_OP);
-	acpigen_write_uuid(UUID_DSM_I2C_V2);
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 0);
-
-	acpigen_write_if_lequal_op_int(ARG1_OP, 0);
-	acpigen_write_return_singleton_buffer(0x3);
-	acpigen_write_else();
-	acpigen_write_return_singleton_buffer(0x1);
-	acpigen_pop_len();	/* If Arg1=0 */
-
-	acpigen_pop_len();	/* If Arg2=0 */
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 1);
-
-	/* Buffer is 13 * 4 = 52 bytes: count + up to 12 device addresses */
-	uint32_t i2c_buffer[13] = {0};
-	_Static_assert(sizeof(i2c_buffer) == 52, "i2c_buffer size must be 52 bytes");
-
-	i2c_buffer[0] = i2c_count;
-	i2c_buffer[i2c_idx++] = address_for_dev_type(dev, DEV_TYPE_SENSOR);
-
-	if (config->ssdb.vcm_type) {
-		i2c_buffer[i2c_idx++] = address_for_dev_type(dev, DEV_TYPE_VCM);
-	}
-
-	if (config->ssdb.rom_type) {
-		i2c_buffer[i2c_idx] = address_for_dev_type(dev, DEV_TYPE_ROM);
-	}
-
-	acpigen_write_return_byte_buffer((uint8_t *)i2c_buffer, sizeof(i2c_buffer));
-
-	acpigen_pop_len();	/* If Arg2=1 */
-
-	acpigen_pop_len();	/* If uuid */
-}
-
-/*
- * Generate ASL DSM code for Computer Vision Framework (CVF)
- *
- * Generated ASL:
- * If (LEqual (Local0, ToUUID ("02f55f0c-2e63-4f05-84f3-bf1980f9af79"))) {
- *     If (LEqual (Arg2, Zero)) {
- *         Return (Buffer (One) { 0x3 })
- *     }
- *     If (LEqual (Arg2, One)) {
- *         Return (Zero)
- *     }
- * }
- */
-static void camera_generate_dsm_cvf(const struct device *dev)
-{
-	acpigen_write_if();
-	acpigen_emit_byte(LEQUAL_OP);
-	acpigen_emit_byte(LOCAL0_OP);
-	acpigen_write_uuid(UUID_DSM_CVF);
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 0);
-	acpigen_write_return_singleton_buffer(0x3);
-	acpigen_pop_len();
-
-	acpigen_write_if_lequal_op_int(ARG2_OP, 1);
-	acpigen_write_return_integer(0);
-	acpigen_pop_len();
-
-	acpigen_pop_len();	/* If uuid */
-}
-
 static void camera_generate_dsm(const struct device *dev)
 {
+	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
+	int local1_ret = 1 + (config->ssdb.vcm_type ? 1 : 0) + (config->ssdb.rom_type ? 1 : 0);
+	int next_local1 = 1;
 	/* Method (_DSM, 4, NotSerialized) */
 	acpigen_write_method("_DSM", 4);
 
 	/* ToBuffer (Arg0, Local0) */
 	acpigen_write_to_buffer(ARG0_OP, LOCAL0_OP);
 
-	camera_generate_dsm_sensor(dev);
-	camera_generate_dsm_i2c(dev);
-	camera_generate_dsm_i2c_v2(dev);
-	camera_generate_dsm_cvf(dev);
+	/* If (LEqual (Local0, ToUUID(uuid))) */
+	acpigen_write_if();
+	acpigen_emit_byte(LEQUAL_OP);
+	acpigen_emit_byte(LOCAL0_OP);
+	acpigen_write_uuid(SENSOR_NAME_UUID);
+	acpigen_write_return_string(config->sensor_name ? config->sensor_name : "UNKNOWN");
+	acpigen_pop_len();	/* If */
+
+	/* If (LEqual (Local0, ToUUID(uuid))) */
+	acpigen_write_if();
+	acpigen_emit_byte(LEQUAL_OP);
+	acpigen_emit_byte(LOCAL0_OP);
+	acpigen_write_uuid(SENSOR_TYPE_UUID);
+	/* ToInteger (Arg2, Local1) */
+	acpigen_write_to_integer(ARG2_OP, LOCAL1_OP);
+
+	/* If (LEqual (Local1, 1)) */
+	acpigen_write_if_lequal_op_int(LOCAL1_OP, next_local1++);
+	acpigen_write_return_integer(local1_ret);
+	acpigen_pop_len();	/* If Arg2=1 */
+
+	/* If (LEqual (Local1, 2)) */
+	acpigen_write_if_lequal_op_int(LOCAL1_OP, next_local1++);
+	acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_SENSOR));
+	acpigen_pop_len();	/* If Arg2=2 */
+
+	if (config->ssdb.vcm_type) {
+		/* If (LEqual (Local1, 3)) */
+		acpigen_write_if_lequal_op_int(LOCAL1_OP, next_local1++);
+		acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_VCM));
+		acpigen_pop_len();      /* If Arg2=3 */
+	}
+
+	if (config->ssdb.rom_type) {
+		/* If (LEqual (Local1, 3 or 4)) */
+		acpigen_write_if_lequal_op_int(LOCAL1_OP, next_local1);
+		acpigen_write_return_integer(address_for_dev_type(dev, DEV_TYPE_ROM));
+		acpigen_pop_len();      /* If Arg2=3 or 4 */
+	}
+
+	acpigen_pop_len();      /* If uuid */
 
 	/* Return (Buffer (One) { 0x0 }) */
 	acpigen_write_return_singleton_buffer(0x0);
@@ -442,15 +285,19 @@ static void camera_generate_dsm(const struct device *dev)
 
 static void camera_fill_ssdb_defaults(struct drivers_intel_mipi_camera_config *config)
 {
-	config->ssdb.version = 1;
+	struct device *cio2 = pcidev_on_root(CIO2_PCI_DEV, CIO2_PCI_FN);
+	struct drivers_intel_mipi_camera_config *cio2_config;
 
-	if (!config->ssdb.sensor_card_sku.card_type)
-		config->ssdb.sensor_card_sku.card_type = SKU_CRD_D;
+	if (config->disable_ssdb_defaults)
+		return;
 
 	guidcpy(&config->ssdb.csi2_data_stream_interface, &CSI2_DATA_STREAM_INTERFACE_GUID);
 
 	if (!config->ssdb.bdf_value)
 		config->ssdb.bdf_value = PCI_DEVFN(CIO2_PCI_DEV, CIO2_PCI_FN);
+
+	if (!config->ssdb.platform)
+		config->ssdb.platform = PLATFORM_SKC;
 
 	if (!config->ssdb.flash_support)
 		config->ssdb.flash_support = FLASH_DISABLE;
@@ -463,47 +310,48 @@ static void camera_fill_ssdb_defaults(struct drivers_intel_mipi_camera_config *c
 
 	if (!config->ssdb.mclk_speed)
 		config->ssdb.mclk_speed = CLK_FREQ_19_2MHZ;
+
+	if (!config->ssdb.lanes_used) {
+		cio2_config = cio2 ? cio2->chip_info : NULL;
+
+		if (!cio2_config) {
+			printk(BIOS_ERR, "Failed to get CIO2 config\n");
+		} else if (cio2_config->device_type != INTEL_ACPI_CAMERA_CIO2) {
+			printk(BIOS_ERR, "Device type isn't CIO2: %u\n",
+			       (u32)cio2_config->device_type);
+		} else if (config->ssdb.link_used >= cio2_config->cio2_num_ports) {
+			printk(BIOS_ERR, "%u exceeds CIO2's %u links\n",
+			       (u32)config->ssdb.link_used,
+			       (u32)cio2_config->cio2_num_ports);
+		} else {
+			config->ssdb.lanes_used =
+				cio2_config->cio2_lanes_used[config->ssdb.link_used];
+		}
+	}
 }
 
 /*
- * Adds settings for a camera sensor device (typically at "\_SB.PCI0.I2Cx.CAMy").
- *
- * Single ACPI device mode: The drivers for Windows and Linux want the sensor and any associated
- * VCM or NVM devices to be grouped together in the camera sensor ACPI device. The OS driver
- * uses the "_DSM" method to disambiguate the I2C resources in the camera sensor ACPI device.
- * Drivers typically query "SSDB" for configuration information (represented as a binary blob
- * dump of struct).
- *
- * Multi ACPI device mode: The drivers for ChromeOS expect the camera sensor device and any
- * related nvram / vcm devices to be separate ACPI devices.
+ * Adds settings for a camera sensor device (typically at "\_SB.PCI0.I2Cx.CAMy"). The drivers
+ * for Linux tends to expect the camera sensor device and any related nvram / vcm devices to be
+ * separate ACPI devices, while the drivers for Windows want all of these to be grouped
+ * together in the camera sensor ACPI device. This implementation tries to satisfy both,
+ * though the unfortunate tradeoff is that the same I2C address for nvram and vcm is advertised
+ * by multiple devices in ACPI (via "_CRS"). The Windows driver can use the "_DSM" method to
+ * disambiguate the I2C resources in the camera sensor ACPI device.  Drivers for Windows
+ * typically query "SSDB" for configuration information (represented as a binary blob dump of
+ * struct), while Linux drivers typically consult individual parameters in "_DSD".
  *
  * The tree of tables in "_DSD" is analogous to what's used for the "CIO2" device.  The _DSD
  * specifies a child table for the sensor's port (e.g., PRT0 for "port0"--this implementation
  * assumes a camera only has 1 port). The PRT0 table specifies a table for each endpoint
  * (though only 1 endpoint is supported by this implementation so the table only has an
  * "endpoint0" that points to a EP00 table). The EP00 table primarily describes the # of lanes
- * in "data-lanes", a list of frequencies in "list-frequencies", and specifies the name of the
+ * in "data-lines", a list of frequencies in "list-frequencies", and specifies the name of the
  * other side in "remote-endpoint" (typically "\_SB.PCI0.CIO2").
  */
 static void camera_fill_sensor(const struct device *dev)
 {
 	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
-
-	camera_generate_pld(dev);
-
-	camera_fill_ssdb_defaults(config);
-
-	/* _DSM */
-	camera_generate_dsm(dev);
-
-	if (CONFIG(MIPI_ACPI_TYPE_WINDOWS_LINUX)) {
-		acpigen_write_method_serialized("SSDB", 0);
-		acpigen_write_return_byte_buffer((uint8_t *)&config->ssdb, sizeof(config->ssdb));
-		acpigen_pop_len(); /* Method */
-		return;
-	}
-
-	/* Multi-device mode: add _DSD with endpoint information */
 	struct acpi_dp *ep00 = NULL;
 	struct acpi_dp *prt0 = NULL;
 	struct acpi_dp *dsd = NULL;
@@ -512,6 +360,13 @@ static void camera_fill_sensor(const struct device *dev)
 	struct acpi_dp *lens_focus = NULL;
 	const char *remote_name;
 	struct device *cio2 = pcidev_on_root(CIO2_PCI_DEV, CIO2_PCI_FN);
+
+	camera_generate_pld(dev);
+
+	camera_fill_ssdb_defaults(config);
+
+	/* _DSM */
+	camera_generate_dsm(dev);
 
 	ep00 = acpi_dp_new_table("EP00");
 	acpi_dp_add_integer(ep00, "endpoint", DEFAULT_ENDPOINT);
@@ -989,19 +844,17 @@ static void write_i2c_camera_device(const struct device *dev, const char *scope)
 		acpigen_pop_len(); /* Power Resource */
 	}
 
+	if (config->device_type == INTEL_ACPI_CAMERA_SENSOR)
+		acpigen_write_name_integer("_ADR", 0);
+
 	if (config->acpi_hid)
 		acpigen_write_name_string("_HID", config->acpi_hid);
 	else if (config->device_type == INTEL_ACPI_CAMERA_VCM ||
 		 config->device_type == INTEL_ACPI_CAMERA_NVM)
 		acpigen_write_name_string("_HID", ACPI_DT_NAMESPACE_HID);
-	else if (config->device_type == INTEL_ACPI_CAMERA_SENSOR)
-		acpigen_write_name_integer("_ADR", 0);
 
 	acpigen_write_name_integer("_UID", config->acpi_uid);
-	if (CONFIG(MIPI_ACPI_TYPE_WINDOWS_LINUX))
-		acpigen_write_name_string("_DDN", config->sensor_name);
-	else
-		acpigen_write_name_string("_DDN", config->chip_name);
+	acpigen_write_name_string("_DDN", config->chip_name);
 	acpigen_write_STA(acpi_device_status(dev));
 	acpigen_write_method("_DSC", 0);
 	acpigen_write_return_integer(config->max_dstate_for_probe);
@@ -1037,12 +890,11 @@ static void write_camera_device_common(const struct device *dev)
 {
 	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
 
-	/* Mark it as Camera related device (multi-device mode only) */
-	if (CONFIG(MIPI_ACPI_TYPE_CHROMEOS) &&
-	    (config->device_type == INTEL_ACPI_CAMERA_CIO2 ||
-	     config->device_type == INTEL_ACPI_CAMERA_IMGU ||
-	     config->device_type == INTEL_ACPI_CAMERA_SENSOR ||
-	     config->device_type == INTEL_ACPI_CAMERA_VCM)) {
+	/* Mark it as Camera related device */
+	if (config->device_type == INTEL_ACPI_CAMERA_CIO2 ||
+	    config->device_type == INTEL_ACPI_CAMERA_IMGU ||
+	    config->device_type == INTEL_ACPI_CAMERA_SENSOR ||
+	    config->device_type == INTEL_ACPI_CAMERA_VCM) {
 		acpigen_write_name_integer("CAMD", config->device_type);
 	}
 
@@ -1079,39 +931,10 @@ static void camera_fill_ssdt(const struct device *dev)
 {
 	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
 	const char *scope = NULL;
-	const struct device *pdev = dev->upstream->dev;
+	const struct device *pdev;
 
-	if (CONFIG(MIPI_ACPI_TYPE_WINDOWS_LINUX)) {
-		/* Only generate SSDT for an i2c-attached sensor device */
-		if (dev->path.type != DEVICE_PATH_I2C || config->device_type != INTEL_ACPI_CAMERA_SENSOR)
-			return;
-
-		scope = acpi_device_scope(dev);
-		if (!scope) {
-			printk(BIOS_ERR, "Failed to get scope for device %s\n", dev_path(dev));
-			return;
-		}
-
-		acpigen_write_scope(scope);
-
-		if (config->has_power_resource && pdev && pdev->enabled) {
-			add_guarded_operations(config, &config->on_seq);
-			add_guarded_operations(config, &config->off_seq);
-		}
-
-		write_i2c_camera_device(dev, scope);
-		write_camera_device_common(dev);
-
-		acpigen_pop_len(); /* Device */
-		acpigen_pop_len(); /* Scope */
-
-		printk(BIOS_INFO, "%s: %s at I2C 0x%02x\n", acpi_device_path(dev),
-		       dev->chip_ops->name, dev->path.i2c.device);
-		return;
-	}
-
-	/* Multi-device mode */
 	if (config->has_power_resource) {
+		pdev = dev->upstream->dev;
 		if (!pdev || !pdev->enabled)
 			return;
 
@@ -1135,6 +958,7 @@ static void camera_fill_ssdt(const struct device *dev)
 		write_i2c_camera_device(dev, scope);
 		break;
 	case DEVICE_PATH_GENERIC:
+		pdev = dev->upstream->dev;
 		scope = acpi_device_scope(pdev);
 		if (!scope)
 			return;
@@ -1153,12 +977,11 @@ static void camera_fill_ssdt(const struct device *dev)
 	acpigen_pop_len(); /* Device */
 	acpigen_pop_len(); /* Scope */
 
-	if (dev->path.type == DEVICE_PATH_GENERIC) {
-		printk(BIOS_INFO, "%s: %s at PCI %02x.%01x\n", acpi_device_path(pdev),
-		       dev->chip_ops->name, PCI_SLOT(pdev->path.pci.devfn),
-		       PCI_FUNC(pdev->path.pci.devfn));
+	if (dev->path.type == DEVICE_PATH_PCI) {
+		printk(BIOS_INFO, "%s: %s PCI address 0%x\n", acpi_device_path(dev),
+		       dev->chip_ops->name, dev->path.pci.devfn);
 	} else {
-		printk(BIOS_INFO, "%s: %s at I2C 0x%02x\n", acpi_device_path(dev),
+		printk(BIOS_INFO, "%s: %s I2C address 0%xh\n", acpi_device_path(dev),
 		       dev->chip_ops->name, dev->path.i2c.device);
 	}
 }
@@ -1172,12 +995,6 @@ static const char *camera_acpi_name(const struct device *dev)
 	if (config->acpi_name)
 		return config->acpi_name;
 
-	if (CONFIG(MIPI_ACPI_TYPE_WINDOWS_LINUX)) {
-		snprintf(name, sizeof(name), "CAM%1u", config->acpi_uid);
-		return name;
-	}
-
-	/* Multi-device mode */
 	switch (config->device_type) {
 	case INTEL_ACPI_CAMERA_CIO2:
 		return "CIO2";
@@ -1219,36 +1036,6 @@ static struct device_operations camera_ops = {
 
 static void camera_enable(struct device *dev)
 {
-	//Validate Camera Parameters
-	struct drivers_intel_mipi_camera_config *config = dev->chip_info;
-	bool params_error = false;
-
-	if (!config->ssdb.lanes_used) {
-		printk(BIOS_ERR, "MIPI camera: SSDB lanes_used not set\n");
-		params_error = true;
-	}
-
-	if (!config->ssdb.platform) {
-		printk(BIOS_ERR, "MIPI camera: SSDB platform not set\n");
-		params_error = true;
-	}
-
-	if (config->ssdb.rom_type && !config->rom_address) {
-		printk(BIOS_ERR, "MIPI camera: ROM address not set\n");
-		params_error = true;
-	}
-
-	if (config->ssdb.vcm_type && !config->vcm_address) {
-		printk(BIOS_ERR, "MIPI camera: VCM address not set\n");
-		params_error = true;
-	}
-
-	if (params_error) {
-		printk(BIOS_ERR, "MIPI camera: Parameters missing, ACPI device(s) will not be created.\n");
-		printk(BIOS_ERR, "MIPI camera: Please fix your devicetree configuration.\n");
-		return;
-	}
-
 	dev->ops = &camera_ops;
 }
 

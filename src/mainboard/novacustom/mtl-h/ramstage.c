@@ -6,10 +6,9 @@
 #include <ec/dasharo/ec/acpi.h>
 #include <fmap.h>
 #include <gpio.h>
-#include <intelblocks/cse.h>
 #include <lib.h>
-#include <mainboard/gpio.h>
 #include <mainboard/variants.h>
+#include <security/vboot/vboot_common.h>
 #include <smbios.h>
 #include <soc/ramstage.h>
 #include <static.h>
@@ -140,7 +139,6 @@ static void mainboard_init(void *chip_info)
 
 	dasharo_ec_smfi_cmd(CMD_WIFI_BT_ENABLEMENT_SET, 1, (uint8_t *)&radio_enable);
 
-	variant_configure_gpios();
 	set_fan_curve();
 	set_camera_enablement();
 	set_battery_thresholds();
@@ -212,21 +210,12 @@ static void mainboard_smbios_strings(struct device *dev, struct smbios_type11 *t
 	}
 
 }
-static int mainboard_smbios_data(struct device *dev, int *handle, unsigned long *current)
-{
-	int len = 0;
-
-	len += cse_write_smbios_type14(handle, current);
-
-	return len;
-}
 #endif
 
 
 static void mainboard_enable(struct device *dev)
 {
 #if CONFIG(GENERATE_SMBIOS_TABLES)
-	dev->ops->get_smbios_data = mainboard_smbios_data;
 	dev->ops->get_smbios_strings = mainboard_smbios_strings;
 #endif
 }
@@ -250,8 +239,8 @@ static void mainboard_final(void *chip_info)
 }
 
 struct chip_operations mainboard_ops = {
-	.init = mainboard_init,
 	.enable_dev = mainboard_enable,
+	.init = mainboard_init,
 	.final = mainboard_final,
 };
 
@@ -270,8 +259,8 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 	params->PchSerialIoI2cSdaPinMux[5] = 0x8A46CE0D; // GPP_F13
 	params->PchSerialIoI2cSclPinMux[5] = 0x8A46AE0C; // GPP_F12
 
-	params->CnviRfResetPinMux = 0x194CE404; // GPP_F04
-	params->CnviClkreqPinMux = 0x394CE605;  // GPP_F05
+	params->CnviRfResetPinMux = 0x194CE404; // GPP_F4
+	params->CnviClkreqPinMux = 0x394CE605;  // GPP_F5
 
 	/*
 	 * [3:0] MappingPchXhciUsbA (1-based USB2 port numbering)
@@ -281,13 +270,13 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *params)
 	 */
 	params->EnableTcssCovTypeA[1] = 0x82;
 
+	/* Disable S0i2.x due to wake issues */
+	params->PmcLpmS0ixSubStateEnableMask = BIT(0);
+
 	params->LidStatus = dasharo_ec_get_lid_state();
 
 	params->PortResetMessageEnable[1] = 1;
 	params->PortResetMessageEnable[5] = 1;
-
-	/* Disable S0i2.x due to wake issues */
-	params->PmcLpmS0ixSubStateEnableMask = BIT(0);
 
 	params->PmcPdEnable = 1;
 	params->TcCstateLimit = 10;

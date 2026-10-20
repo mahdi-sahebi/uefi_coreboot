@@ -265,7 +265,7 @@ chip soc/intel/alderlake
 				}"
 
 				## Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 1 on
@@ -311,7 +311,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 15 on end
 			end
@@ -390,17 +389,13 @@ chip soc/intel/alderlake
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_ADL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "DEFAULT_LINK_FREQ"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				# Controls
@@ -437,7 +432,7 @@ chip soc/intel/alderlake
 				register "device_type" = "INTEL_ACPI_CAMERA_VCM"
 
 				register "vcm_compat" = ""dongwoon,dw9714""
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				# Controls
@@ -464,7 +459,7 @@ chip soc/intel/alderlake
 				register "acpi_name" = ""NVM0""
 				register "chip_name" = ""GT24C08""
 				register "device_type" = "INTEL_ACPI_CAMERA_NVM"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				# Controls

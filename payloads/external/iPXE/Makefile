@@ -1,10 +1,10 @@
 ## SPDX-License-Identifier: GPL-2.0-only
 
-# 2026.2 - Last commit of February 2026
+# 2023.8 - Last commit of August 2023
 # When updating, change the name both here and in payloads/external/iPXE/Kconfig
 
-# Temporarily Dasharo fork is used until i225/i226 and i219 native support is merged.
-STABLE_COMMIT_ID=ad8cbcee950840547f87394179a7e712e1c3c06f
+# Temporarily Dasharo fork is used until i225/i226 native support is merged.
+STABLE_COMMIT_ID=6c7068fce4bba31b4d03a6990dedc530c0727588
 
 TAG-$(CONFIG_IPXE_MASTER)=origin/master
 TAG-$(CONFIG_IPXE_STABLE)=$(STABLE_COMMIT_ID)
@@ -19,14 +19,6 @@ unexport KCONFIG_DEPENDENCIES
 unexport KCONFIG_SPLITCONFIG
 unexport KCONFIG_TRISTATE
 unexport KCONFIG_NEGATIVES
-
-ifeq ($(CONFIG_IPXE_BUILD_EFI),y)
-IPXE_BUILD_TARGET := bin-x86_64-efi-sb/ipxe.efi
-# Workaround problems with unrecognized ipxe/util/elf2efi relocations
-PXE_MAKE_OPTS += EXTRA_CFLAGS="$(CFLAGS_x86_64) -fno-pic"
-else
-IPXE_BUILD_TARGET := bin/$(PXE_ROM_PCI_ID).rom
-endif
 
 ifneq ($(CONFIG_IPXE_CUSTOM_BUILD_ID),)
 PXE_MAKE_OPTS := BUILD_ID_CMD="echo 0x$(CONFIG_IPXE_CUSTOM_BUILD_ID)"

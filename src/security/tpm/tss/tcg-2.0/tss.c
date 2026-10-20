@@ -140,29 +140,27 @@ static TPM_ALG_ID tpmalg_from_vb2_hash(enum vb2_hash_algorithm hash_type)
 	}
 }
 
-tpm_result_t tlcl2_extend(int pcr_num, const struct tpm_digest *digests)
+/*
+ * The caller will provide the digest in a 32 byte buffer, let's consider it a
+ * sha256 digest.
+ */
+tpm_result_t tlcl2_extend(int pcr_num, const uint8_t *digest_data,
+			  enum vb2_hash_algorithm digest_type)
 {
 	struct tpm2_pcr_extend_cmd pcr_ext_cmd;
 	struct tpm2_response *response;
-	int i;
+	TPM_ALG_ID alg;
 
-	for (i = 0; digests[i].hash_type != VB2_HASH_INVALID; ++i) {
-		TPM_ALG_ID alg = tpmalg_from_vb2_hash(digests[i].hash_type);
-		if (alg == TPM_ALG_ERROR)
-			return TPM_CB_HASH_ERROR;
-
-		pcr_ext_cmd.digests.digests[i].hashAlg = alg;
-
-		/* Always copying to sha512 as it's the largest one. */
-		memcpy(pcr_ext_cmd.digests.digests[i].digest.sha512, digests[i].hash,
-		       vb2_digest_size(digests[i].hash_type));
-	}
-
-	if (i == 0)
+	alg = tpmalg_from_vb2_hash(digest_type);
+	if (alg == TPM_ALG_ERROR)
 		return TPM_CB_HASH_ERROR;
 
 	pcr_ext_cmd.pcrHandle = HR_PCR + pcr_num;
-	pcr_ext_cmd.digests.count = i;
+	pcr_ext_cmd.digests.count = 1;
+	pcr_ext_cmd.digests.digests[0].hashAlg = alg;
+	/* Always copying to sha512 as it's the largest one */
+	memcpy(pcr_ext_cmd.digests.digests[0].digest.sha512, digest_data,
+	       vb2_digest_size(digest_type));
 
 	response = tlcl2_process_command(TPM2_PCR_Extend, &pcr_ext_cmd);
 
@@ -494,33 +492,5 @@ tpm_result_t tlcl2_get_capability(TPM_CAP capability, uint32_t property,
 	}
 
 	memcpy(capability_data, &response->gc.cd, sizeof(TPMS_CAPABILITY_DATA));
-	return TPM_SUCCESS;
-}
-
-tpm_result_t tlcl2_get_capability_pcrs(TPML_PCR_SELECTION *pcrs)
-{
-	TPMS_CAPABILITY_DATA TpmCap;
-	tpm_result_t rc;
-	int index;
-
-	rc = tlcl2_get_capability(TPM_CAP_PCRS, 0, 1, &TpmCap);
-	if (rc != TPM_SUCCESS)
-		return rc;
-
-	pcrs->count = TpmCap.data.assignedPCR.count;
-	printk(BIOS_DEBUG, "%s(): pcrs->count = %d\n", __func__, pcrs->count);
-
-	for (index = 0; index < pcrs->count; index++) {
-		pcrs->pcrSelections[index].hash =
-			be16toh(TpmCap.data.assignedPCR.pcrSelections[index].hash);
-		printk(BIOS_DEBUG, "%s(): pcrs->pcrSelections[%d].hash = %#x\n",
-		       __func__, index, pcrs->pcrSelections[index].hash);
-		pcrs->pcrSelections[index].sizeofSelect =
-			TpmCap.data.assignedPCR.pcrSelections[index].sizeofSelect;
-		memcpy(pcrs->pcrSelections[index].pcrSelect,
-			TpmCap.data.assignedPCR.pcrSelections[index].pcrSelect,
-			pcrs->pcrSelections[index].sizeofSelect);
-	}
-
 	return TPM_SUCCESS;
 }

@@ -1,6 +1,7 @@
 ## SPDX-License-Identifier: GPL-2.0-only
 
 bootblock-y += bootblock.c
+all-y += console.c
 romstage-y += romstage.c
 romstage-y += util.c
 ramstage-y += ramstage.c

@@ -165,14 +165,13 @@ static inline size_t fit_free_space(struct fit_table *fit,
 static void sort_fit_table(struct fit_table *fit)
 {
 	struct fit_entry tmp;
-	int i, j, num_entries, swapped;
-
-	num_entries = fit_table_entries(fit);
+	size_t i, j;
+	int swapped;
 
 	/* Bubble sort entries */
-	for (j = 0; j < num_entries - 1; j++) {
+	for (j = 0; j < fit_table_entries(fit) - 1; j++) {
 		swapped = 0;
-		for (i = 0; i < num_entries - j - 1; i++) {
+		for (i = 0; i < fit_table_entries(fit) - j - 1; i++) {
 			if (fit->entries[i].type_checksum_valid <=
 			    fit->entries[i + 1].type_checksum_valid)
 				continue;
@@ -492,7 +491,7 @@ static void update_fit_key_manifest_entry(struct fit_table *fit,
 
 /* Special case for ucode CBFS file, as it might contain more than one ucode */
 int fit_add_microcode_file(struct fit_table *fit,
-			   struct cbfs_image *file_source_image,
+			   struct cbfs_image *image,
 			   const char *blob_name,
 			   fit_offset_converter_t offset_helper,
 			   const size_t max_fit_entries)
@@ -508,7 +507,7 @@ int fit_add_microcode_file(struct fit_table *fit,
 		return 1;
 	}
 
-	if (parse_microcode_blob(file_source_image, blob_name, &mcus_found, mcus,
+	if (parse_microcode_blob(image, blob_name, &mcus_found, mcus,
 				 max_fit_entries)) {
 		free(mcus);
 		return 1;
@@ -516,7 +515,7 @@ int fit_add_microcode_file(struct fit_table *fit,
 
 	for (i = 0; i < mcus_found; i++) {
 		if (fit_add_entry(fit,
-				  offset_to_ptr(offset_helper, &file_source_image->buffer,
+				  offset_to_ptr(offset_helper, &image->buffer,
 						mcus[i].offset),
 				  0,
 				  FIT_TYPE_MICROCODE,
@@ -720,12 +719,12 @@ int fit_add_entry(struct fit_table *fit,
 	struct fit_entry *entry;
 
 	if (!fit) {
-		ERROR("Internal error.\n");
+		ERROR("Internal error.");
 		return 1;
 	}
 
 	if (fit_free_space(fit, max_fit_entries) < 1) {
-		ERROR("No space left in FIT.\n");
+		ERROR("No space left in FIT.");
 		return 1;
 	}
 
@@ -782,12 +781,12 @@ int fit_delete_entry(struct fit_table *fit,
 		     const size_t idx)
 {
 	if (!fit) {
-		ERROR("Internal error.\n");
+		ERROR("Internal error.");
 		return 1;
 	}
 
 	if (idx >= fit_table_entries(fit)) {
-		ERROR("Index out of range.\n");
+		ERROR("Index out of range.");
 		return 1;
 	}
 

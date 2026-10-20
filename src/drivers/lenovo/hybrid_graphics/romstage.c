@@ -1,11 +1,12 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <console/console.h>
-#include <device/device.h>
-#include <ec/lenovo/pmh7/pmh7.h>
-#include <option.h>
-#include <gpio.h>
 #include <types.h>
+#include <option.h>
+#include <device/device.h>
+
+#include <southbridge/intel/common/gpio.h>
+#include <ec/lenovo/pmh7/pmh7.h>
+#include <console/console.h>
 
 #include "hybrid_graphics.h"
 #include "chip.h"
@@ -30,7 +31,7 @@ void early_hybrid_graphics(bool *enable_igd, bool *enable_peg)
 	}
 
 	config = dev->chip_info;
-	if (gpio_get(config->detect_gpio) == DGPU_NOT_INSTALLED) {
+	if (get_gpio(config->detect_gpio) == DGPU_NOT_INSTALLED) {
 		printk(BIOS_DEBUG, "Hybrid graphics:"
 		       " No discrete GPU present.\n");
 		*enable_igd = true;
@@ -66,10 +67,10 @@ void early_hybrid_graphics(bool *enable_igd, bool *enable_peg)
 	 */
 	if (config->has_dgpu_power_gpio) {
 		if (*enable_peg)
-			gpio_set(config->dgpu_power_gpio,
+			set_gpio(config->dgpu_power_gpio,
 				 !config->dgpu_power_off_lvl);
 		else
-			gpio_set(config->dgpu_power_gpio,
+			set_gpio(config->dgpu_power_gpio,
 				 config->dgpu_power_off_lvl);
 	} else if (config->has_thinker1) {
 		bool power_en = pmh7_dgpu_power_state();

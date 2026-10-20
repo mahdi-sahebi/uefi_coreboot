@@ -4,7 +4,6 @@
 #define _CPU_INTEL_HASWELL_H
 
 #include <cpu/cpu.h>
-#include <stdbool.h>
 #include <stdint.h>
 
 /* CPU types without stepping */
@@ -171,11 +170,6 @@ int cpu_config_tdp_levels(void);
 
 void set_max_freq(void);
 
-/* pcode_mailbox.c */
-int pcode_ready(void);
-u32 pcode_mailbox_read(u32 command);
-int pcode_mailbox_write(u32 command, u32 data);
-
 /* CPU identification */
 static inline u32 cpu_family_model(void)
 {
@@ -187,7 +181,7 @@ static inline u32 cpu_stepping(void)
 	return cpuid_eax(1) & 0xf;
 }
 
-static inline bool haswell_is_ult(void)
+static inline int haswell_is_ult(void)
 {
 	return CONFIG(INTEL_LYNXPOINT_LP);
 }

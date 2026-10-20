@@ -122,7 +122,6 @@ _car_region_end = . + CONFIG_DCACHE_RAM_SIZE - (. - _car_region_start)
 }
 
 #if ENV_BOOTBLOCK
-. = ALIGN(64);
 _car_mtrr_end = .;
 _car_mtrr_start = _car_region_start;
 

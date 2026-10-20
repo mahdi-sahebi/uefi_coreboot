@@ -1236,7 +1236,7 @@ static void dump_fd(char *image, int size)
 
 	if (!is_platform_with_100x_series_pch()) {
 		printf("FLMAP2:    0x%08x\n", fdb->flmap2);
-		printf("  MSL:     0x%04x\n", (fdb->flmap2 >> 8) & 0xffff);
+		printf("  PSL:     0x%04x\n", (fdb->flmap2 >> 8) & 0xffff);
 		printf("  FMSBA:   0x%x\n", ((fdb->flmap2) & 0xff) << 4);
 	}
 
@@ -1295,7 +1295,7 @@ static void create_fmap_template(char *image, int size, const char *layout_fname
 		exit(EXIT_FAILURE);
 	}
 
-	char *bbuf = "FLASH ##ROM_SIZE## {\n";
+	char *bbuf = "FLASH@##ROM_BASE## ##ROM_SIZE## {\n";
 	if (write(layout_fd, bbuf, strlen(bbuf)) < 0) {
 		perror("Could not write to file");
 		exit(EXIT_FAILURE);
@@ -2389,16 +2389,6 @@ static void new_layout(const char *filename, char *image, int size,
 	free(new_image);
 }
 
-static uint32_t uint_log2(uint32_t n)
-{
-	int log = -1;
-	while (n) {
-		n >>= 1;
-		++log;
-	}
-	return log;
-}
-
 static void print_version(void)
 {
 	printf("ifdtool v%s -- ", IFDTOOL_VERSION);
@@ -2457,9 +2447,6 @@ static void print_usage(const char *name)
 	       "                                         wbg    - Wellsburg\n"
 	       "   -S | --setpchstrap                    Write a PCH strap\n"
 	       "   -V | --newvalue                       The new value to write into PCH strap specified by -S\n"
-	       "   -T | --topswapsize                    Set the Top Swap Block Size PCH strap value\n"
-	       "                                         Possible values: 0x10000, 0x20000, 0x40000, 0x80000,\n"
-	       "                                         0x100000, 0x200000, 0x400000, 0x800000\n"
 	       "   -v | --version:                       print the version\n"
 	       "   -h | --help:                          print this help\n\n"
 	       "<region> is one of Descriptor, BIOS, ME, GbE, Platform Data, Secondary BIOS, "
@@ -2475,9 +2462,9 @@ int main(int argc, char *argv[])
 	int mode_layout = 0, mode_newlayout = 0, mode_density = 0, mode_setstrap = 0;
 	int mode_read = 0, mode_altmedisable = 0, altmedisable = 0, mode_fmap_template = 0;
 	int mode_gpr0_disable = 0, mode_gpr0_enable = 0, mode_gpr0_status = 0;
-	int mode_settopswapsize = 0;
-	char *region_type_string = NULL, *region_fname = NULL, *layout_fname = NULL;
-	char *new_filename = NULL, *top_swap_size_arg = NULL;
+	char *region_type_string = NULL, *region_fname = NULL;
+	const char *layout_fname = NULL;
+	char *new_filename = NULL;
 	int region_type = -1, inputfreq = 0;
 	unsigned int value = 0;
 	unsigned int pchstrap = 0;
@@ -2509,11 +2496,10 @@ int main(int argc, char *argv[])
 		{"validate", 0, NULL, 't'},
 		{"setpchstrap", 1, NULL, 'S'},
 		{"newvalue", 1, NULL, 'V'},
-		{"topswapsize", 1, NULL, 'T'},
 		{0, 0, 0, 0}
 	};
 
-	while ((opt = getopt_long(argc, argv, "S:V:df:F:D:C:M:xi:n:O:s:p:T:elrugEcvth?",
+	while ((opt = getopt_long(argc, argv, "S:V:df:F:D:C:M:xi:n:O:s:p:elrugEcvth?",
 					long_options, &option_index)) != EOF) {
 		switch (opt) {
 		case 'd':
@@ -2764,10 +2750,6 @@ int main(int argc, char *argv[])
 		case 't':
 			mode_validate = 1;
 			break;
-		case 'T':
-			mode_settopswapsize = 1;
-			top_swap_size_arg = optarg;
-			break;
 		case 'v':
 			print_version();
 			exit(EXIT_SUCCESS);
@@ -2785,7 +2767,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((mode_dump + mode_layout + mode_fmap_template + mode_extract + mode_inject +
-			mode_setstrap + mode_settopswapsize + mode_newlayout + (mode_spifreq | mode_em100 |
+			mode_setstrap + mode_newlayout + (mode_spifreq | mode_em100 |
 			mode_unlocked | mode_locked) + mode_altmedisable + mode_validate +
 			(mode_gpr0_disable | mode_gpr0_enable) + mode_gpr0_status) > 1) {
 		fprintf(stderr, "You may not specify more than one mode.\n\n");
@@ -2794,7 +2776,7 @@ int main(int argc, char *argv[])
 	}
 
 	if ((mode_dump + mode_layout + mode_fmap_template + mode_extract + mode_inject +
-			mode_setstrap + mode_settopswapsize + mode_newlayout + mode_spifreq + mode_em100 +
+			mode_setstrap + mode_newlayout + mode_spifreq + mode_em100 +
 			mode_locked + mode_unlocked + mode_density + mode_altmedisable +
 			mode_validate + (mode_gpr0_disable | mode_gpr0_enable) + mode_gpr0_status) == 0) {
 		fprintf(stderr, "You need to specify a mode.\n\n");
@@ -2902,59 +2884,6 @@ int main(int argc, char *argv[])
 	if (mode_gpr0_status)
 		is_gpr0_protected(image, size);
 
-	if (mode_settopswapsize) {
-		if (platform == -1) {
-			fprintf(stderr, "Error: No platform specified.\n");
-			exit(EXIT_FAILURE);
-		}
-		struct fpsba *fpsba = find_fpsba(image, size);
-		uint32_t top_swap_size_offset = 0;
-		switch (platform) {
-		case PLATFORM_ADL:
-			// fixed bits for ADL-P / ADL-N
-			if (fpsba->pchstrp[0xd0 / 4] == 0x00000300) {
-				// fixed bits for ADL-P
-				if (((fpsba->pchstrp[0x7c / 4] >> 1) & 0xff) == 0x18) {
-					printf("Detected ADL-P flash descriptor\n");
-					pchstrap = 0x4C / 4;
-					top_swap_size_offset = 4;
-					// fixed bits for ADL-N
-				} else if (((fpsba->pchstrp[0x7c / 4] >> 1) & 0xff) == 0x51) {
-					printf("Detected ADL-N flash descriptor\n");
-					pchstrap = 0x4C / 4;
-					top_swap_size_offset = 4;
-				}
-			}
-			break;
-		default:
-			break;
-		}
-		if (pchstrap == 0) {
-			fprintf(stderr, "Setting top swap size not supported on selected platform.\n");
-			exit(EXIT_FAILURE);
-		}
-
-		uint32_t top_swap_size = strtoul(top_swap_size_arg, NULL, 0);
-		if (top_swap_size < 0x10000 || !IS_POWER_OF_2(top_swap_size) || top_swap_size > 0x800000) {
-			fprintf(stderr,
-				"Unsupported top swap size: %s\n"
-				"Supported top swap sizes:\n"
-				"\t0x10000, 0x20000, 0x40000, 0x80000, 0x100000,\n"
-				"\t0x200000, 0x400000, 0x800000\n",
-				top_swap_size_arg);
-			exit(EXIT_FAILURE);
-		}
-		// convert to 0x00-0x07
-		top_swap_size = uint_log2(top_swap_size / 0x10000);
-		const struct fdbar *fdb = find_fd(image, size);
-		value = fpsba->pchstrp[pchstrap];
-		value &= ~(0x7 << top_swap_size_offset);
-		value |= (top_swap_size << top_swap_size_offset);
-
-		set_pchstrap(fpsba, fdb, pchstrap, value);
-		write_image(new_filename, image, size);
-	}
-
 	if (mode_setstrap) {
 		struct fpsba *fpsba = find_fpsba(image, size);
 		const struct fdbar *fdb = find_fd(image, size);
@@ -2969,8 +2898,6 @@ int main(int argc, char *argv[])
 		write_image(new_filename, image, size);
 	}
 
-	free(region_type_string);
-	free(layout_fname);
 	free(new_filename);
 	free(image);
 

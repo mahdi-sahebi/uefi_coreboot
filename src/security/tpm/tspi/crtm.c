@@ -65,20 +65,7 @@ tpm_result_t tspi_init_crtm(void)
 		/* Mapping measures the file. We know we can safely map here because
 		   bootblock-as-a-file is only used on x86, where we don't need cache to map. */
 		enum cbfs_type type = CBFS_TYPE_BOOTBLOCK;
-		void *mapping = NULL;
-
-		if (CONFIG(INTEL_TOP_SWAP_SEPARATE_REGIONS)) {
-			/*
-			 * Whether Top Swap is active or not, FMAP always refers to the same
-			 * memory ranges but the contents of BOOTBLOCK and TOPSWAP are swapped.
-			 * Hence always using BOOTBLOCK region to access the active bootblock.
-			 */
-			mapping = cbfs_unverified_area_type_alloc("BOOTBLOCK", "bootblock",
-								  NULL, NULL, NULL, &type);
-		} else {
-			mapping = cbfs_ro_type_map("bootblock", NULL, &type);
-		}
-
+		void *mapping = cbfs_ro_type_map("bootblock", NULL, &type);
 		if (!mapping) {
 			printk(BIOS_INFO,
 			       "TSPI: Couldn't measure bootblock into CRTM!\n");
@@ -118,8 +105,7 @@ static bool is_runtime_data(const char *name)
 	return !strcmp(allowlist, name);
 }
 
-tpm_result_t tspi_cbfs_measurement(const char *name, const void *buffer, size_t size,
-				   uint32_t type, const struct vb2_hash *hash_hint)
+tpm_result_t tspi_cbfs_measurement(const char *name, uint32_t type, const struct vb2_hash *hash)
 {
 	uint32_t pcr_index;
 	char tpm_log_metadata[TPM_CB_LOG_PCR_HASH_NAME];
@@ -146,15 +132,10 @@ tpm_result_t tspi_cbfs_measurement(const char *name, const void *buffer, size_t 
 		break;
 	}
 
-	struct tpm_digests digests;
-	if (!tpm_make_digests(buffer, size, hash_hint, &digests)) {
-		printk(BIOS_ERR, "%s: failed to fill digests!\n", __func__);
-		return TPM_FAIL;
-	}
-
 	snprintf(tpm_log_metadata, TPM_CB_LOG_PCR_HASH_NAME, "CBFS: %s", name);
 
-	return tpm_extend_pcr(pcr_index, digests.values, tpm_log_metadata);
+	return tpm_extend_pcr(pcr_index, hash->algo, hash->raw, vb2_digest_size(hash->algo),
+			      tpm_log_metadata);
 }
 
 void *tpm_log_init(void)
@@ -182,7 +163,8 @@ tpm_result_t tspi_measure_cache_to_pcr(void)
 	int i;
 	int pcr;
 	const char *event_name;
-	struct tpm_digest digests[ENABLED_TPM_ALGS_NUM + 1];
+	const uint8_t *digest_data;
+	enum vb2_hash_algorithm digest_algo;
 
 	/* This means the table is empty. */
 	if (!tspi_tpm_log_available())
@@ -193,28 +175,9 @@ tpm_result_t tspi_measure_cache_to_pcr(void)
 		return TPM_CB_FAIL;
 	}
 
-	/*
-	 * At this point TPM has been initialized, but none of coreboot's measurements have been
-	 * submitted to it yet.  Before extending cached digests, invoke a log-specific function
-	 * to do modifications based on the information queried from a TPM.
-	 */
-	tpm_log_align_with_tpm();
-
 	printk(BIOS_DEBUG, "TPM: Write digests cached in TPM log to PCR\n");
 	i = 0;
-	uint32_t event_type;
-	while (!tpm_log_get(i++, &pcr, digests, &event_name, &event_type)) {
-		/*
-		 * EV_NO_ACTION events (e.g. the StartupLocality event logged by
-		 * tspi_init_crtm()) must never be extended into any PCR per the TCG spec.
-		 * They carry all-zero digests and are informational-only.  This can happen
-		 * when CBFS files are loaded before tpm_setup() is called (e.g. due to
-		 * CMOS option reads), which triggers tspi_init_crtm() early and buffers
-		 * these events in the pre-RAM log.
-		 */
-		if (event_type == EV_NO_ACTION)
-			continue;
-
+	while (!tpm_log_get(i++, &pcr, &digest_data, &digest_algo, &event_name)) {
 		/*
 		 * Skip log entries that coreboot synthesized to account for PCR extends
 		 * performed by hardware S-CRTM.
@@ -230,12 +193,11 @@ tpm_result_t tspi_measure_cache_to_pcr(void)
 			continue;
 
 		printk(BIOS_DEBUG, "TPM: Write digest for %s into PCR %d\n", event_name, pcr);
-
-		tpm_result_t rc = tlcl_extend(pcr, digests);
+		tpm_result_t rc = tlcl_extend(pcr, digest_data, digest_algo);
 		if (rc != TPM_SUCCESS) {
 			printk(BIOS_ERR,
 			       "TPM: Writing digest of %s into PCR failed with error %d\n",
-			       event_name, rc);
+				event_name, rc);
 			return rc;
 		}
 	}

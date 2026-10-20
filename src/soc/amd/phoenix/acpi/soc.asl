@@ -23,10 +23,7 @@ Scope(\_SB) {
 
 	Scope(PCI0) {
 		#include <soc/amd/common/acpi/lpc.asl>
-		#include <soc/amd/common/acpi/thermal_zone_smu.asl>
 	} /* End PCI0 scope */
-
-	#include "ioapic_routing.asl"
 } /* End \_SB scope */
 
 #include <soc/amd/common/acpi/alib.asl>

@@ -8,11 +8,10 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_UID, 0)
 		Name (_DDN, "OV 13858 Camera") /* _DDN: DOS Device Name */
 		Name (CAMD, 0x02)
-		External (CSTA, IntObj)
 
 		Method (_STA, 0, NotSerialized)
 		{
-			Return (CSTA)
+			Return (0x0F)
 		}
 
 		Name (_DEP, Package() { \_SB.PCI0.I2C2.PMIC })
@@ -96,11 +95,10 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_UID, 0)
 		Name (_DDN, "Dongwoon AF DAC") /* _DDN: DOS Device Name */
 		Name (CAMD, 0x03)
-		External (CSTA, IntObj)
 
 		Method (_STA, 0, NotSerialized)
 		{
-			Return (CSTA)
+			Return (0x0F)
 		}
 
 		Name (_DEP, Package() { \_SB.PCI0.I2C2.PMIC })
@@ -128,11 +126,10 @@ Scope (\_SB.PCI0.I2C2)
 		Name (_HID, "INT3499")
 		Name (_UID, 0)
 		Name (_DDN, "GT24C16S/CAT24C16")  /* _DDN: DOS Device Name */
-		External (CSTA, IntObj)
 
 		Method (_STA, 0, NotSerialized)
 		{
-			Return (CSTA)
+			Return (0x0F)
 		}
 
 		Name (_DEP, Package() { \_SB.PCI0.I2C2.PMIC })

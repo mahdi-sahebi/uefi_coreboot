@@ -697,7 +697,6 @@ void platform_fsp_silicon_init_params_cb(FSPS_UPD *silupd)
 	memcpy(silconfig->SataPortsHotPlug, cfg->sata_ports_hot_plug,
 		sizeof(silconfig->SataPortsHotPlug));
 
-	cfg->lpss_s0ix_enable = get_uint_option("s0ix_enable", cfg->lpss_s0ix_enable);
 	silconfig->LPSS_S0ixEnable = cfg->lpss_s0ix_enable;
 
 	/* Disable monitor mwait since it is broken due to a hardware bug
@@ -936,7 +935,7 @@ void mainboard_silicon_init_params(FSP_S_CONFIG *silconfig)
 }
 
 /* Handle FSP logo params */
-void soc_load_logo_by_fsp(FSPS_UPD *supd)
+void soc_load_logo(FSPS_UPD *supd)
 {
 	size_t logo_size;
 	supd->FspsConfig.LogoPtr = (uint32_t)(uintptr_t)bmp_load_logo(&logo_size);

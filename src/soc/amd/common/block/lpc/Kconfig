@@ -58,12 +58,6 @@ config SOC_AMD_COMMON_BLOCK_USE_ESPI
 	  Select this option if mainboard uses eSPI instead of LPC (if supported
 	  by platform).
 
-config SOC_AMD_COMMON_BLOCK_HAS_ESPI1
-	bool
-	depends on SOC_AMD_COMMON_BLOCK_HAS_ESPI
-	help
-	  Select this option if SoC has eSPI1.
-
 config SOC_AMD_COMMON_BLOCK_ESPI_RETAIN_PORT80_EN
 	bool
 	depends on SOC_AMD_COMMON_BLOCK_USE_ESPI
@@ -71,46 +65,3 @@ config SOC_AMD_COMMON_BLOCK_ESPI_RETAIN_PORT80_EN
 	  SMU will lock up at times if the port80h enable bit is cleared. Select
 	  this option to retain the port80 enable bit while clearing other enable
 	  bits in the ESPI Decode register.
-
-config SOC_AMD_COMMON_BLOCK_ESPI_DECODES_BY_PSP
-	bool
-	depends on SOC_AMD_COMMON_BLOCK_USE_ESPI
-	help
-	  Select this option on platforms where the PSP/ABL configures the eSPI
-	  IO and MMIO decode windows before ramstage. When set, coreboot leaves
-	  the decodes as configured by firmware instead of reprogramming them
-	  from the assigned device resources, which can otherwise disrupt the
-	  firmware-configured setup (for example knocking a SuperIO off the
-	  eSPI bus and hanging on the next port 0x80 POST write).
-
-config EFS_ESPI0_CONFIG
-	hex
-	default 0xff
-	help
-	  eSPI0 configuration byte to be programmed by the PSP. This value
-	  should be consumed by amdfwtool if integrated in the SoC Makefile.
-	  Boards should override this value to their needs.
-
-config EFS_ESPI1_CONFIG
-	hex
-	default 0xff
-	help
-	  eSPI1 configuration byte to be programmed by the PSP. This value
-	  should be consumed by amdfwtool if integrated in the SoC Makefile.
-	  Boards should override this value to their needs.
-
-config EFS_ESPI0_CONFIG1
-	hex
-	default 0xff
-	help
-	  eSPI0 configuration 2nd byte to be programmed by the PSP. This value
-	  should be consumed by amdfwtool if integrated in the SoC Makefile.
-	  Boards should override this value to their needs.
-
-config EFS_ESPI1_CONFIG1
-	hex
-	default 0xff
-	help
-	  eSPI1 configuration 2nd byte to be programmed by the PSP. This value
-	  should be consumed by amdfwtool if integrated in the SoC Makefile.
-	  Boards should override this value to their needs.

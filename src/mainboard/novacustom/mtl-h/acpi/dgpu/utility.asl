@@ -12,19 +12,15 @@ Method (GPPL, 3, Serialized)
 	Local1 = Arg2 * 10
 	While (Local0 < Local1)
 	{
-		If (\_SB.PCI0.GRXS (Arg0) == Arg1)
-		{
+		If (\_SB.PCI0.GRXS (Arg0) == Arg1) {
 			Return (0)
-		}
-		Else
-		{
+		} Else {
 			Local0++
 		}
 		Stall (100)
 	}
 
-	If (Local0 == Arg2)
-	{
+	If (Local0 == Arg2) {
 		Printf("[ERROR] GPPL for %o timed out", Arg0)
 	}
 

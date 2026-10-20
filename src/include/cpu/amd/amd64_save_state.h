@@ -2,6 +2,7 @@
 
 #ifndef __AMD64_SAVE_STATE_H__
 #define __AMD64_SAVE_STATE_H__
+#endif
 
 #include <types.h>
 #include <cpu/x86/smm.h>
@@ -110,5 +111,3 @@ typedef struct {
 	u64	rcx;
 	u64	rax;
 } __packed amd64_smm_state_save_area_t;
-
-#endif // __AMD64_SAVE_STATE_H__

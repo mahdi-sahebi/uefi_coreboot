@@ -72,18 +72,6 @@ config BOOTMEDIA_LOCK_WPRO_VBOOT_RO
 	  is either triggered by coreboot (when INTEL_CHIPSET_LOCKDOWN is set) or
 	  has to be triggered later (e.g. by the payload or the OS).
 
-config BOOTMEDIA_LOCK_TOPSWAP
-	bool "Write-protect the COREBOOT & BOOTBLOCK regions"
-	depends on TOP_SWAP_REDUNDANCY
-	depends on BOOTMEDIA_LOCK_CONTROLLER
-	help
-	  Select this if you want to write-protect the BOOTBLOCK and COREBOOT
-	  (Slot A) regions as specified in the Top Swap FMAP. You will be able to
-	  write to the TOPSWAP and COREBOOT_TS (Slot B) regions and set the
-	  attempt_slot_b CMOS option to run updated firmware. The BOOTBLOCK and
-	  COREBOOT regions will remain a read-only golden copy, which you can
-	  then revert to by resetting CMOS.
-
 endchoice
 
 config BOOTMEDIA_LOCK_IN_VERSTAGE
@@ -97,12 +85,9 @@ config BOOTMEDIA_LOCK_IN_VERSTAGE
 
 config BOOTMEDIA_SMM_BWP
 	bool "Boot media only writable in SMM"
-	depends on !(BOOT_DEVICE_SPI_FLASH && CONSOLE_SPI_FLASH)
-	depends on HAVE_SMI_HANDLER
-	depends on (BOOT_DEVICE_SPI_FLASH && SOUTHBRIDGE_INTEL_COMMON_SPI) || \
-		   (BOOT_DEVICE_SPI_FLASH && SOC_INTEL_COMMON_BLOCK_SPI) || \
-		   (SOC_AMD_COMMON_BLOCK_SPI && SOC_AMD_COMMON_BLOCK_PSP)
-	select SOC_INTEL_COMMON_BLOCK_SMM_TCO_ENABLE if SOC_INTEL_COMMON_BLOCK_SPI
+	depends on !CONSOLE_SPI_FLASH
+	depends on BOOT_DEVICE_SPI_FLASH && HAVE_SMI_HANDLER
+	depends on SOUTHBRIDGE_INTEL_COMMON_SPI || SOC_INTEL_COMMON_BLOCK_SPI
 	select SOC_INTEL_COMMON_BLOCK_SMM_TCO_ENABLE if SOC_INTEL_COMMON_BLOCK_SPI
 	help
 	  Only allow flash writes in SMM. Select this if you want to use SMMSTORE

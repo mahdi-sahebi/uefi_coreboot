@@ -39,7 +39,7 @@ chip soc/intel/jasperlake
 	register "SerialIoUartMode[2]" = "PchSerialIoSkipInit"
 
 	# Audio related configurations
-	register "PchHdaDspEnable" = "true"
+	register "PchHdaDspEnable" = "1"
 	register "PchHdaAudioLinkHdaEnable" = "1"
 
 	device domain 0 on

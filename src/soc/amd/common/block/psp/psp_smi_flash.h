@@ -6,7 +6,6 @@
 
 enum psp_spi_id_type {
 	SMI_TARGET_NVRAM		= 0,
-	SMI_TARGET_VM_GUARD		= 2,
 	SMI_TARGET_RPMC_NVRAM		= 5,
 };
 

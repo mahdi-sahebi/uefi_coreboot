@@ -20,11 +20,10 @@ static const uint8_t pcie_swizzle_table[][4] = {
 	{PIN_D, PIN_A, PIN_B, PIN_C},
 };
 
-const struct pci_routing_info *get_pci_routing_info(const struct device *dev)
+const struct pci_routing_info *get_pci_routing_info(unsigned int devfn)
 {
 	const struct pci_routing_info *routing_info;
 	size_t entries = 0;
-	uint32_t pci_addr = PCI_DEV_TO_ADDR(dev);
 
 	routing_info = get_pci_routing_table(&entries);
 
@@ -32,10 +31,11 @@ const struct pci_routing_info *get_pci_routing_info(const struct device *dev)
 		return NULL;
 
 	for (size_t i = 0; i < entries; ++i, ++routing_info)
-		if (routing_info->pci_addr == pci_addr)
+		if (routing_info->devfn == devfn)
 			return routing_info;
 
-	printk(BIOS_ERR, "Failed to find PCIe routing info for %s\n", dev_path(dev));
+	printk(BIOS_ERR, "Failed to find PCIe routing info for dev: %#x, fn: %#x\n",
+	       PCI_SLOT(devfn), PCI_FUNC(devfn));
 
 	return NULL;
 }
@@ -79,7 +79,7 @@ void populate_pirq_data(void)
 	for (size_t i = 0; i < entries; ++i) {
 		routing_entry = &routing_table[i];
 
-		pirq[i].pci_addr = routing_entry->pci_addr;
+		pirq[i].devfn = routing_entry->devfn;
 		for (size_t j = 0; j < 4; ++j) {
 			irq = pci_calculate_irq(routing_entry, j);
 

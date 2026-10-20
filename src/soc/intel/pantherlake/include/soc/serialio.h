@@ -12,11 +12,6 @@ enum {
 };
 
 enum {
-	PchSerialPio,
-	PchSerialDma
-};
-
-enum {
 	PchSerialIoIndexI2C0,
 	PchSerialIoIndexI2C1,
 	PchSerialIoIndexI2C2,
@@ -28,7 +23,7 @@ enum {
 enum {
 	PchSerialIoIndexGSPI0,
 	PchSerialIoIndexGSPI1,
-	PchSerialIoIndexGSPI0A,
+	PchSerialIoIndexGSPI2,
 };
 
 enum {

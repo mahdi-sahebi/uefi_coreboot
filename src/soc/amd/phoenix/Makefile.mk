@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: BSD-3-Clause
 
 # TODO: Move as much as possible to common
+# TODO: Update for Phoenix
 
 ifeq ($(CONFIG_SOC_AMD_PHOENIX_BASE),y)
 
@@ -13,11 +14,7 @@ all-y		+= i2c.c
 
 # all_x86-y adds the compilation unit to all stages that run on the x86 cores
 all_x86-y	+= gpio.c
-all_x86-y	+= i3c.c
 all_x86-y	+= uart.c
-
-all_x86-y	+= lpc.c
-smm-y		+= lpc.c
 
 bootblock-y	+= early_fch.c
 bootblock-y	+= espi_util.c
@@ -36,7 +33,6 @@ ramstage-y	+= graphics.c
 ramstage-y	+= mca.c
 ramstage-y	+= memmap.c
 ramstage-$(CONFIG_SOC_AMD_PHOENIX_OPENSIL) += pci_irq_routing.c
-ramstage-$(CONFIG_SOC_AMD_PHOENIX_OPENSIL) += psp.c
 ramstage-y	+= root_complex.c
 ramstage-y	+= soc_util.c
 ramstage-y	+= xhci.c
@@ -54,14 +50,6 @@ CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/phoenix
 CPPFLAGS_common += -I$(src)/vendorcode/amd/fsp/common
 endif
 
-ifeq ($(CONFIG_SOC_AMD_PHOENIX_AM5),y)
-ifeq ($(call int-gt, $(CONFIG_ROM_SIZE) 0x1000000), 1)
-CBFSTOOL_ADD_CMD_OPTIONS+= --mmap 0x1000000:0xff000000:0x1000000
-endif
-endif
-
-ifneq ($(call strip_quotes, $(CONFIG_AMDFW_CONFIG_FILE)),)
-
 # Building the cbfs image will fail if the offset, aligned to 64 bytes, isn't large enough
 ifeq ($(CONFIG_CBFS_VERIFICATION),y)
 # 0x80 accounts for the cbfs_file struct + filename + metadata structs
@@ -76,6 +64,8 @@ PHOENIX_FW_A_POSITION=$(call int-add, \
 
 PHOENIX_FW_B_POSITION=$(call int-add, \
 	$(call get_fmap_value,FMAP_SECTION_FW_MAIN_B_START) $(AMD_FW_AB_POSITION))
+
+FMAP_FLASH_START=$(call get_fmap_value,FMAP_SECTION_FLASH_START)
 
 #
 # PSP Directory Table items
@@ -140,7 +130,7 @@ PSP_APOB_BASE=$(CONFIG_PSP_APOB_DRAM_ADDRESS)
 
 # type = 0x62
 PSP_BIOSBIN_FILE=$(obj)/amd_biospsp.img
-PSP_ELF_FILE=$(objcbfs)/bootblock_fixed_data.elf
+PSP_ELF_FILE=$(objcbfs)/bootblock.elf
 PSP_BIOSBIN_SIZE=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$5}')
 PSP_BIOSBIN_DEST=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$3}')
 
@@ -148,13 +138,15 @@ ifneq ($(CONFIG_SOC_AMD_COMMON_BLOCK_APOB_NV_DISABLE),y)
 # type = 0x63 - construct APOB NV base/size from flash map
 # The flashmap section used for this is expected to be named RW_MRC_CACHE
 APOB_NV_SIZE=$(call get_fmap_value,FMAP_SECTION_RW_MRC_CACHE_SIZE)
-APOB_NV_BASE=$(call get_fmap_value,FMAP_SECTION_RW_MRC_CACHE_START)
+APOB_NV_BASE=$(call _tohex,$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_RW_MRC_CACHE_START) $(FMAP_FLASH_START)))
 
 ifeq ($(CONFIG_HAS_RECOVERY_MRC_CACHE)$(CONFIG_VBOOT),yy)
 # On boards with recovery MRC cache, point type 0x63 entry to RECOVERY_MRC_CACHE.
 # Else use RW_MRC_CACHE. This entry will be added in the RO section.
 APOB_NV_RO_SIZE=$(call get_fmap_value,FMAP_SECTION_RECOVERY_MRC_CACHE_SIZE)
-APOB_NV_RO_BASE=$(call get_fmap_value,FMAP_SECTION_RECOVERY_MRC_CACHE_START)
+APOB_NV_RO_BASE=$(call _tohex,$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_RECOVERY_MRC_CACHE_START) $(FMAP_FLASH_START)))
 else
 APOB_NV_RO_SIZE=$(APOB_NV_SIZE)
 APOB_NV_RO_BASE=$(APOB_NV_BASE)
@@ -163,12 +155,6 @@ endif # !CONFIG_SOC_AMD_COMMON_BLOCK_APOB_NV_DISABLE
 
 ifeq ($(CONFIG_AMDFW_SPLIT),y)
 FMAP_AMDFW_BODY_LOCATION=$(call get_fmap_value,FMAP_SECTION_AMDFWBODY_START)
-endif
-
-ifeq ($(CONFIG_SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR3)$(CONFIG_SMMSTORE),yy)
-# Rom Armor needs the SMM Store region to be whitelisted
-PSP_BIOS_NV_ST_BASE=$(call get_fmap_value,FMAP_SECTION_SMMSTORE_START)
-PSP_BIOS_NV_ST_SIZE=$(call get_fmap_value,FMAP_SECTION_SMMSTORE_SIZE)
 endif
 
 ifeq ($(CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK),y)
@@ -184,8 +170,10 @@ PSP_VERSTAGE_SIG_FILE=$(call strip_quotes,$(CONFIG_PSP_VERSTAGE_SIGNING_TOKEN))
 endif # CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK
 
 ifeq ($(CONFIG_SEPARATE_SIGNED_PSPFW),y)
-SIGNED_AMDFW_A_POSITION=$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_A_START)
-SIGNED_AMDFW_B_POSITION=$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_B_START)
+SIGNED_AMDFW_A_POSITION=$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_A_START) $(FMAP_FLASH_START))
+SIGNED_AMDFW_B_POSITION=$(call int-subtract, \
+	$(call get_fmap_value,FMAP_SECTION_SIGNED_AMDFW_B_START) $(FMAP_FLASH_START))
 SIGNED_AMDFW_A_FILE=$(obj)/amdfw_a.rom.signed
 SIGNED_AMDFW_B_FILE=$(obj)/amdfw_b.rom.signed
 endif # CONFIG_SEPARATE_SIGNED_PSPFW
@@ -227,8 +215,6 @@ OPT_APOB_NV_SIZE=$(call add_opt_prefix, $(APOB_NV_SIZE), --apob-nv-size)
 OPT_APOB_NV_BASE=$(call add_opt_prefix, $(APOB_NV_BASE),--apob-nv-base)
 OPT_APOB_NV_RO_SIZE=$(call add_opt_prefix, $(APOB_NV_RO_SIZE), --apob-nv-size)
 OPT_APOB_NV_RO_BASE=$(call add_opt_prefix, $(APOB_NV_RO_BASE),--apob-nv-base)
-OPT_BIOS_NV_ST_BASE=$(call add_opt_prefix, $(PSP_BIOS_NV_ST_BASE), --variable-nvram-base)
-OPT_BIOS_NV_ST_SIZE=$(call add_opt_prefix, $(PSP_BIOS_NV_ST_SIZE), --variable-nvram-size)
 OPT_EFS_SPI_READ_MODE=$(call add_opt_prefix, $(CONFIG_EFS_SPI_READ_MODE), --spi-read-mode)
 OPT_EFS_SPI_SPEED=$(call add_opt_prefix, $(CONFIG_EFS_SPI_SPEED), --spi-speed)
 OPT_EFS_SPI_MICRON_FLAG=$(call add_opt_prefix, $(CONFIG_EFS_SPI_MICRON_FLAG), --spi-micron-flag)
@@ -252,20 +238,11 @@ OPT_AMDFW_BODY_LOCATION=$(call add_opt_prefix, $(FMAP_AMDFW_BODY_LOCATION), --bo
 MANIFEST_FILE=$(obj)/amdfw_manifest
 OPT_MANIFEST=$(call add_opt_prefix, $(MANIFEST_FILE), --output-manifest)
 
-microcode_sbins=$(wildcard ${FIRMWARE_LOCATION}/*U?odePatch_*.sbin)
-
-OPT_UCODE_FILES=$(foreach i, $(shell seq $(words $(microcode_sbins))), \
-	$(call add_opt_prefix, $(word $(i), $(microcode_sbins)), \
-	--instance $(shell printf "%x" $$(($(i)-1))) --ucode))
-
-
 AMDFW_COMMON_ARGS=$(OPT_PSP_APCB_FILES) \
 		$(OPT_PSP_NVRAM_BASE) \
 		$(OPT_PSP_NVRAM_SIZE) \
 		$(OPT_PSP_RPMC_NVRAM_BASE) \
 		$(OPT_PSP_RPMC_NVRAM_SIZE) \
-		$(OPT_BIOS_NV_ST_BASE) \
-		$(OPT_BIOS_NV_ST_SIZE) \
 		$(OPT_APOB_ADDR) \
 		$(OPT_DEBUG_AMDFWTOOL) \
 		$(OPT_PSP_BIOSBIN_FILE) \
@@ -285,9 +262,7 @@ AMDFW_COMMON_ARGS=$(OPT_PSP_APCB_FILES) \
 		--config $(CONFIG_AMDFW_CONFIG_FILE) \
 		--flashsize $(CONFIG_ROM_SIZE) \
 		$(OPT_RECOVERY_AB_SINGLE_COPY) \
-		$(OPT_AMDFW_BODY_LOCATION) \
-		$(OPT_UCODE_FILES) \
-		$(OPT_SBOM_DIR)
+		$(OPT_AMDFW_BODY_LOCATION)
 
 $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$(PSP_VERSTAGE_FILE) \
@@ -296,7 +271,7 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$(DEP_FILES) \
 			$(AMDFWTOOL) \
 			$(obj)/fmap_config.h \
-			$(objcbfs)/bootblock_fixed_data.elf # this target also creates the .map file
+			$(objcbfs)/bootblock.elf # this target also creates the .map file
 	rm -f $@
 	@printf "    AMDFWTOOL  $(subst $(obj)/,,$(@))\n"
 	$(AMDFWTOOL) \
@@ -316,13 +291,6 @@ $(call add_intermediate, add_amdfwbody, $(obj)/amdfw.rom.body)
 	$(CBFSTOOL) $(obj)/coreboot.pre write -r AMDFWBODY -f $(obj)/amdfw.rom.body --fill-upward
 endif
 
-#
-# Extracts everything from the ELF's first PT_LOAD area and compresses it.
-# This discards everything before PT_LOAD, every symbol, debug information
-# and relocations. The generated binary is expected to run at PSP_BIOSBIN_DEST
-# with a maximum size of PSP_BIOSBIN_SIZE. The entrypoint is fixed at
-# PSP_BIOSBIN_DEST + PSP_BIOSBIN_SIZE - 0x10.
-#
 $(PSP_BIOSBIN_FILE): $(PSP_ELF_FILE) $(AMDCOMPRESS)
 	rm -f $@
 	@printf "    AMDCOMPRS  $(subst $(obj)/,,$(@))\n"
@@ -410,7 +378,5 @@ ifeq ($(CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK),y)
 vboot-gscvd-ranges += $(call amdfwread-range-cmd,PSPL2: 0x52)
 endif # ifeq ($(CONFIG_VBOOT_STARTS_BEFORE_BOOTBLOCK),y)
 endif # ifeq ($(CONFIG_VBOOT_GSCVD),y)
-
-endif # ifneq ($(call strip_quotes, $(CONFIG_AMDFW_CONFIG_FILE)),)
 
 endif # ($(CONFIG_SOC_AMD_PHOENIX_BASE),y)

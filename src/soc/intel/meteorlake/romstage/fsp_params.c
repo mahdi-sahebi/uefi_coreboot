@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <acpi/acpi.h>
 #include <assert.h>
 #include <bootmode.h>
 #include <cbfs.h>
@@ -8,7 +7,6 @@
 #include <cpu/intel/common/common.h>
 #include <cpu/intel/cpu_ids.h>
 #include <cpu/x86/msr.h>
-#include <cpu/x86/mtrr.h>
 #include <dasharo/options.h>
 #include <device/device.h>
 #include <device/pci.h>
@@ -41,45 +39,40 @@
 #define FSP_CLK_LAN			0x70
 #define FSP_CLK_FREE_RUNNING		0x80
 
-static void configure_rp_clocks(FSP_M_CONFIG *m_cfg,
-				const struct pcie_rp_config *rp_cfg,
-				size_t index)
-{
-	static unsigned int clk_req_mapping = 0;
-
-	if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
-		return;
-	if (rp_cfg->flags & PCIE_RP_CLK_SRC_UNUSED)
-		return;
-	if (!rp_cfg->flags && rp_cfg->clk_src == 0 && rp_cfg->clk_req == 0) {
-		printk(BIOS_WARNING, "Missing root port %zu clock structure definition\n",
-			index + 1);
-		return;
-	}
-	if (!(rp_cfg->flags & PCIE_RP_CLK_REQ_UNUSED)) {
-		if (clk_req_mapping & BIT(rp_cfg->clk_req)) {
-			printk(BIOS_WARNING,
-			       "Found overlapped clkreq assignment on clk req %u\n",
-			       rp_cfg->clk_req);
-		}
-		m_cfg->PcieClkSrcClkReq[rp_cfg->clk_src] = rp_cfg->clk_req;
-		clk_req_mapping |= BIT(rp_cfg->clk_req);
-	}
-	/*
-	 * Override the usage only if the clock is unused, otherwise we lose
-	 * FSP_CLK_FREE_RUNNING and FSP_CLK_LAN setting from fill_fspm_pcie_rp_params.
-	 */
-	if (m_cfg->PcieClkSrcUsage[rp_cfg->clk_src] == FSP_CLK_NOTUSED)
-		m_cfg->PcieClkSrcUsage[rp_cfg->clk_src] = index;
-}
-
 static void pcie_rp_init(FSP_M_CONFIG *m_cfg, uint32_t en_mask,
 			const struct pcie_rp_config *cfg, size_t cfg_count)
 {
-	for (size_t i = 0; i < cfg_count; i++) {
+	size_t i;
+	static unsigned int clk_req_mapping = 0;
+
+	for (i = 0; i < cfg_count; i++) {
+		if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE)) {
+			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
+			continue;
+		}
 		if (!(en_mask & BIT(i)))
 			continue;
-		configure_rp_clocks(m_cfg, &cfg[i], i);
+		if (cfg[i].flags & PCIE_RP_CLK_SRC_UNUSED)
+			continue;
+		if (!cfg[i].flags && cfg[i].clk_src == 0 && cfg[i].clk_req == 0) {
+			printk(BIOS_WARNING, "Missing root port clock structure definition\n");
+			continue;
+		}
+
+		if (!(cfg[i].flags & PCIE_RP_CLK_REQ_UNUSED)) {
+			if (clk_req_mapping & (1 << cfg[i].clk_req))
+				printk(BIOS_WARNING,
+				       "Found overlapped clkreq assignment on clk req %d\n",
+				       cfg[i].clk_req);
+			m_cfg->PcieClkSrcClkReq[cfg[i].clk_src] = cfg[i].clk_req;
+			clk_req_mapping |= 1 << cfg[i].clk_req;
+		}
+		/*
+		 * Override the usage only if the clock is unused, otherwise we lose
+		 * FSP_CLK_FREE_RUNNING and FSP_CLK_LAN setting from fill_fspm_pcie_rp_params.
+		 */
+		if (m_cfg->PcieClkSrcUsage[cfg[i].clk_src] == FSP_CLK_NOTUSED)
+			m_cfg->PcieClkSrcUsage[cfg[i].clk_src] = i;
 	}
 }
 
@@ -91,9 +84,7 @@ static void fill_fspm_pcie_rp_params(FSP_M_CONFIG *m_cfg,
 	uint8_t max_clock = get_max_pcie_clock();
 
 	for (i = 0; i < max_clock; i++) {
-		if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
-			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
-		else if (config->pcie_clk_config_flag[i] & PCIE_CLK_FREE_RUNNING)
+		if (config->pcie_clk_config_flag[i] & PCIE_CLK_FREE_RUNNING)
 			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
 		else if (config->pcie_clk_config_flag[i] & PCIE_CLK_LAN)
 			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_LAN;
@@ -133,10 +124,10 @@ static void fill_fspm_igd_params(FSP_M_CONFIG *m_cfg,
 		[DDI_PORT_3] = {&m_cfg->DdiPort3Ddc, &m_cfg->DdiPort3Hpd},
 		[DDI_PORT_4] = {&m_cfg->DdiPort4Ddc, &m_cfg->DdiPort4Hpd},
 	};
-	m_cfg->InternalGfx = get_uint_option("igd_enabled", !CONFIG(SOC_INTEL_DISABLE_IGD)) && is_devfn_enabled(PCI_DEVFN_IGD);
+	m_cfg->InternalGfx = !CONFIG(SOC_INTEL_DISABLE_IGD) && is_devfn_enabled(PCI_DEVFN_IGD);
 	if (m_cfg->InternalGfx) {
 		/* IGD is enabled, set IGD stolen size to 128MB. */
-		m_cfg->IgdDvmt50PreAlloc = get_uint_option("igd_dvmt_prealloc", IGD_SM_128MB);
+		m_cfg->IgdDvmt50PreAlloc = IGD_SM_128MB;
 		/* DP port config */
 		m_cfg->DdiPortAConfig = config->ddi_port_A_config;
 		m_cfg->DdiPortBConfig = config->ddi_port_B_config;
@@ -209,7 +200,7 @@ static void fill_fspm_cpu_params(FSP_M_CONFIG *m_cfg,
 static void fill_tme_params(FSP_M_CONFIG *m_cfg)
 {
 	m_cfg->TmeEnable = CONFIG(INTEL_TME) && is_tme_supported();
-	if (!m_cfg->TmeEnable || acpi_is_wakeup_s3())
+	if (!m_cfg->TmeEnable)
 		return;
 	m_cfg->GenerateNewTmeKey = CONFIG(TME_KEY_REGENERATION_ON_WARM_BOOT) &&
 			 CONFIG(SOC_INTEL_COMMON_BASECODE_RAMTOP);
@@ -220,8 +211,8 @@ static void fill_tme_params(FSP_M_CONFIG *m_cfg)
 						"Full memory encryption is enabled.\n");
 			return;
 		}
-		m_cfg->TmeExcludeBase = (ram_top - CACHE_TMP_RAMTOP);
-		m_cfg->TmeExcludeSize = CACHE_TMP_RAMTOP;
+		m_cfg->TmeExcludeBase = (ram_top - 16*MiB);
+		m_cfg->TmeExcludeSize = 16*MiB;
 	}
 }
 
@@ -381,7 +372,7 @@ static void fill_fspm_usb4_params(FSP_M_CONFIG *m_cfg,
 static void fill_fspm_vtd_params(FSP_M_CONFIG *m_cfg,
 		const struct soc_intel_meteorlake_config *config)
 {
-	m_cfg->VtdDisable = !get_uint_option("vtd", 1);
+	m_cfg->VtdDisable = 0;
 	m_cfg->VtdBaseAddress[0] = GFXVT_BASE_ADDRESS;
 	m_cfg->VtdBaseAddress[1] = VTVC0_BASE_ADDRESS;
 
@@ -422,7 +413,7 @@ static void fill_fspm_ibecc_params(FSP_M_CONFIG *m_cfg,
 	}
 }
 
-static void fill_fspm_acoustic_params(FSP_M_CONFIG *m_cfg,
+static void fill_fsps_acoustic_params(FSP_M_CONFIG *m_cfg,
 		const struct soc_intel_meteorlake_config *config)
 {
 	if (!config->enable_acoustic_noise_mitigation)
@@ -501,13 +492,15 @@ static void soc_memory_init_params(FSP_M_CONFIG *m_cfg,
 		fill_fspm_trace_params,
 		fill_fspm_vr_config_params,
 		fill_fspm_ibecc_params,
-		fill_fspm_acoustic_params,
+		fill_fsps_acoustic_params,
 		fill_txt_params,
 	};
 
 	for (size_t i = 0; i < ARRAY_SIZE(fill_fspm_params); i++)
 		fill_fspm_params[i](m_cfg, config);
 }
+
+#define UX_MEMORY_TRAINING_DESC	"memory_training_desc"
 
 #define VGA_INIT_CONTROL_ENABLE		BIT(0)
 /* Tear down legacy VGA mode before exiting FSP-M. */
@@ -536,7 +529,12 @@ static void fill_fspm_sign_of_life(FSP_M_CONFIG *m_cfg,
 	if (!vga_init_control)
 		return;
 
-	const char *text = ux_locales_get_text(UX_LOCALE_MSG_MEMORY_TRAINING);
+	const char *text = ux_locales_get_text(UX_MEMORY_TRAINING_DESC);
+	/* No localized text found; fallback to built-in English. */
+	if (!text)
+		text = "Your device is finishing an update. "
+		       "This may take 1-2 minutes.\n"
+		       "Please do not turn off your device.";
 
 	vbt = cbfs_map("vbt.bin", &vbt_size);
 	if (!vbt) {
