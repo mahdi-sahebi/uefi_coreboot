@@ -43,6 +43,12 @@ endif
 
 BUILD_STR += -D BUILD_ARCH=X64
 
+# The board's SOL UART is shared by SEC, DXE Core, and the PCD-based drivers.
+ifeq ($(CONFIG_BOARD_ASROCK_SPC741D8),y)
+BUILD_STR += -D SOL_UART_BASE=$(CONFIG_TTYS0_BASE)
+BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase=$(CONFIG_TTYS0_BASE)
+endif
+
 #
 # EDK II (edk2/master) has the following build options relevant to coreboot:
 #
