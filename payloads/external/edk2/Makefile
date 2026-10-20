@@ -47,6 +47,22 @@ BUILD_STR += -D BUILD_ARCH=X64
 ifeq ($(CONFIG_BOARD_ASROCK_SPC741D8),y)
 BUILD_STR += -D SOL_UART_BASE=$(CONFIG_TTYS0_BASE)
 BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase=$(CONFIG_TTYS0_BASE)
+ifeq ($(CONFIG_EDK2_SERIAL_SUPPORT),y)
+BUILD_STR += -D DISABLE_SERIAL_TERMINAL=FALSE
+BUILD_STR += -D SERIAL_TERMINAL=TRUE
+ifeq ($(CONFIG_EDK2_SERIAL_ON_SUPERIO),y)
+BUILD_STR += -D UART_ON_SUPERIO=TRUE
+endif
+ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION_DEFAULT_ENABLE),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirectionDefaultState=TRUE
+endif
+ifeq ($(CONFIG_EDK2_HAVE_2ND_UART),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdHave2ndUart=TRUE
+ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION2_DEFAULT_ENABLE),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirection2DefaultState=TRUE
+endif
+endif
+endif
 endif
 
 #
