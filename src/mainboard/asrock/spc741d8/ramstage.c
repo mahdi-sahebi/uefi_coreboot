@@ -1,10 +1,44 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
+#include <bootstate.h>
+#include <console/console.h>
 #include <cpu/x86/smm.h>
 #include <soc/ramstage.h>
 #include <soc/smmrelocate.h>
 #include <device/i2c_simple.h>
 #include "gpio.h"
+
+/* Use BIOS_ERR so bring-up checkpoints survive the board's error-only filter. */
+static struct serial_checkpoint {
+	const char *name;
+} checkpoints[] = {
+	{ "ramstage devices begin" },
+	{ "device init begin" },
+	{ "device init complete" },
+	{ "post-device complete" },
+	{ "write tables begin" },
+	{ "write tables complete" },
+	{ "payload load begin" },
+	{ "payload load complete" },
+	{ "payload boot begin" },
+};
+
+static void serial_checkpoint(void *arg)
+{
+	const struct serial_checkpoint *checkpoint = arg;
+
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT %s\n", checkpoint->name);
+}
+
+BOOT_STATE_INIT_ENTRY(BS_PRE_DEVICE, BS_ON_ENTRY, serial_checkpoint, &checkpoints[0]);
+BOOT_STATE_INIT_ENTRY(BS_DEV_INIT, BS_ON_ENTRY, serial_checkpoint, &checkpoints[1]);
+BOOT_STATE_INIT_ENTRY(BS_DEV_INIT, BS_ON_EXIT, serial_checkpoint, &checkpoints[2]);
+BOOT_STATE_INIT_ENTRY(BS_POST_DEVICE, BS_ON_EXIT, serial_checkpoint, &checkpoints[3]);
+BOOT_STATE_INIT_ENTRY(BS_WRITE_TABLES, BS_ON_ENTRY, serial_checkpoint, &checkpoints[4]);
+BOOT_STATE_INIT_ENTRY(BS_WRITE_TABLES, BS_ON_EXIT, serial_checkpoint, &checkpoints[5]);
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_ENTRY, serial_checkpoint, &checkpoints[6]);
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_LOAD, BS_ON_EXIT, serial_checkpoint, &checkpoints[7]);
+BOOT_STATE_INIT_ENTRY(BS_PAYLOAD_BOOT, BS_ON_ENTRY, serial_checkpoint, &checkpoints[8]);
 
 void mainboard_silicon_init_params(FSPS_UPD *params)
 {
