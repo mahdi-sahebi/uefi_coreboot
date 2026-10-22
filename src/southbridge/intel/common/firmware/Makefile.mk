@@ -45,6 +45,9 @@ endif
 ifeq ($(CONFIG_HAVE_GBE_BIN),y)
 add_intel_firmware: $(call strip_quotes,$(CONFIG_GBE_BIN_PATH))
 endif
+ifeq ($(CONFIG_HAVE_DEVICE_EXP1_BIN),y)
+add_intel_firmware: $(call strip_quotes,$(CONFIG_DEVICE_EXP1_BIN_PATH))
+endif
 ifeq ($(CONFIG_HAVE_EC_BIN),y)
 add_intel_firmware: $(call strip_quotes,$(CONFIG_EC_BIN_PATH))
 endif
@@ -88,6 +91,14 @@ ifeq ($(CONFIG_HAVE_GBE_BIN),y)
 	$(objutil)/ifdtool/ifdtool \
 		$(IFDTOOL_USE_CHIPSET) \
 		-i GbE:$(CONFIG_GBE_BIN_PATH) \
+		-O $(obj)/coreboot.pre \
+		$(obj)/coreboot.pre
+endif
+ifeq ($(CONFIG_HAVE_DEVICE_EXP1_BIN),y)
+	printf "    IFDTOOL    device_exp1.bin -> coreboot.pre\n"
+	$(objutil)/ifdtool/ifdtool \
+		$(IFDTOOL_USE_CHIPSET) \
+		-i "Device Exp1:$(CONFIG_DEVICE_EXP1_BIN_PATH)" \
 		-O $(obj)/coreboot.pre \
 		$(obj)/coreboot.pre
 endif

@@ -177,6 +177,17 @@ config GBE_BIN_PATH
 	depends on HAVE_GBE_BIN
 	default "3rdparty/blobs/mainboard/\$(MAINBOARDDIR)/gbe.bin"
 
+config HAVE_DEVICE_EXP1_BIN
+	bool "Add Intel descriptor Device Exp1 region"
+	depends on HAVE_IFD_BIN
+	help
+	  Preserve the board-specific Device Exp1 region from a factory image.
+
+config DEVICE_EXP1_BIN_PATH
+	string "Path to Device Exp1 region"
+	depends on HAVE_DEVICE_EXP1_BIN
+	default "3rdparty/blobs/mainboard/\$(MAINBOARDDIR)/device_exp1.bin"
+
 config MAINBOARD_USES_IFD_EC_REGION
 	def_bool n
 
