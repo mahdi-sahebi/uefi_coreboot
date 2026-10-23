@@ -111,3 +111,33 @@ If the next capture stops later in DXE/BDS, use the first missing paired
 checkpoint in the EDK2 report, change that failing operation, rebuild and
 repeat. Do not alter FSP, IIO or flash layout solely because the previous
 recording ended after `DxeCore entry`.
+
+## Additional essential checkpoint coverage
+
+The next diagnostics revision adds a G4DEL callback at payload-load entry in
+`src/mainboard/gooxi/g4del/ramstage.c`. `[GX-CONFIG]` prints effective board,
+socket, flash, serial, SMMSTORE, graphics and payload options; `[GX-FMAP]`
+prints actual named-region offsets/sizes and flags lookup/bounds/size errors.
+The FMAP summary is also written to VGA text rows 14–22. This reads metadata;
+it does not write flash or change `board.fmd`.
+
+`src/drivers/intel/fsp2_0/memory_init.c` and `silicon_init.c` now log the
+FSP-M/FSP-S identity, revision, base/size, entry/UPD pointers and raw status
+before normal error/reset handling, guarded by `BOARD_GOOXI_G4DEL`.
+These complement the outer SoC begin/return checkpoints. FSP-M diagnostics
+are available on serial before normal VGA initialization.
+
+See the companion EDK2 [checkpoint coverage report](../payloads/external/edk2/workspace/mahdi-sahebi/doc/g4del_checkpoint_coverage.md)
+for PEIM and PPI callback status, dependency diagnostics, early DXE memory
+initialization, VGA limitations and the new image's validation results. The
+hashes in the preceding section refer to the earlier build.
+
+The final forced integrated rebuild for these additions passed on 2026-10-23.
+ROM SHA-256: `fda8fc3f5e2af29fb05e24d844370b52a20e47b6f56e560101bf42a7986a410a`.
+Payload SHA-256: `dec023502f5e6b3fc32fc92eb0977f2ed64114dc69d3bc52a4e2f7531bb02283`.
+The ROM is 67,108,864 bytes; its first 50,331,648 bytes match the earlier
+`build/coreboot_07-30.rom`. Both diff checks pass. Final wrapper FV manifests
+and marker strings were checked, including the last PEI dependency additions.
+Full build output is `/tmp/g4del-essential-trace-final-build.log`; detailed
+checks are saved in the companion coverage report. No board test of this
+image has been performed.
