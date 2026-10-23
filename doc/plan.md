@@ -1,5 +1,9 @@
 # Gooxixe G4DEL / Xeon Sapphire Rapids bring-up plan
 
+This is an earlier planning record. Current implementation status, image
+verification, USB/splash diagnostics and the next hardware test are maintained
+in [G4DEL current status](g4del_status_and_test_plan.md).
+
 ## Purpose
 
 Bring up the Gooxixe/Gooxi G4DEL platform using the coreboot implementation

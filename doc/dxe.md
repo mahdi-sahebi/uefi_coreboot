@@ -1,5 +1,11 @@
 # Gooxie G4DEL DXE, boot menu, and Shell investigation
 
+This records an older capture. For the current `feature/dxe-log` image,
+USB/logo diagnostics, build hash and next board test, see
+[G4DEL current status](g4del_status_and_test_plan.md) and the linked EDK2
+investigation. The old video reaching DXE Core does not prove current-image
+DXE completion or menu/Shell operation.
+
 ## Evidence and current result
 
 - `SOLHostCapture_Archive_1_01011970_08_06_43.log` is 97,280 zero bytes and contains no recoverable serial text. The accompanying `Screencast from 20-10-26 15_40_30.m4v` shows the later DXE display. A second supplied capture, `SOLHostCapture_Archive_1_01011970_08_04_54 (7).log`, contains valid coreboot, SEC, and early PEI text; its findings are below.

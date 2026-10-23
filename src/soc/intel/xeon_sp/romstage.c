@@ -23,7 +23,11 @@ void mainboard_romstage_entry(void)
 	if (soc_get_rtc_failed())
 		mainboard_rtc_failed();
 
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FspMemoryInit begin\n");
 	fsp_memory_init(false);
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FspMemoryInit returned hob=%p\n", fsp_get_hob_list());
 	printk(BIOS_DEBUG, "[GX] module=Coreboot event=checkpoint status=success phase=fsp_memory_init\n");
 	vga_cb_print(0, "[GX] module=Coreboot event=checkpoint status=success phase=fsp_memory_init");
 	printk(BIOS_DEBUG, "coreboot fsp_memory_init finished...\n");

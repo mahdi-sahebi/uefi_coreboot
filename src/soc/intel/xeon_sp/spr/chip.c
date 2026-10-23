@@ -82,7 +82,11 @@ static void chip_final(void *data)
 static void chip_init(void *data)
 {
 	printk(BIOS_DEBUG, "coreboot: calling fsp_silicon_init\n");
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FspSiliconInit begin\n");
 	fsp_silicon_init();
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FspSiliconInit returned\n");
 
 	setup_pds();
 	attach_iio_stacks();
