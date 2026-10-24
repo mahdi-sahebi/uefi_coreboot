@@ -37,6 +37,11 @@ full checkouts were returned to their starting branches/commits afterward.
 | `build/UEFIPAYLOAD.fd` | `dec023502f5e6b3fc32fc92eb0977f2ed64114dc69d3bc52a4e2f7531bb02283` |
 | `build/coreboot.rom` (64 MiB) | `3aa199c4f2a99422c9b754bf021a7e0bc5003b089bcf82cbdc36ae2d01bfcd7c` |
 
+An identical copy is retained as ignored build artifact
+`build/coreboot_g4del_topic_integration.rom`. The full checkout's `.config`
+was restored to the original feature branch after the build, so use the
+named ROM and its hash when referring to this integration build.
+
 The coreboot integration commit `834c17729a` selects EDK2
 `d3f653673e6bc70177094b11c1ee1ecd353b0f2e`; the CBFS-embedded
 configuration confirms this pin, `gooxi/g4del`, two sockets, SMMSTORE v2,
