@@ -7,6 +7,12 @@ The older coreboot [DXE notes](dxe.md) and the payload's
 [original SOL timeline](../payloads/external/edk2/workspace/mahdi-sahebi/doc/1405_07_29.md)
 remain historical evidence.
 
+The latest `coreboot_08-02.rom` reportedly fails before host power or any
+firmware output, while the older 07-26 ROM still powers on. See the
+[pre-boot image isolation report](g4del_preboot_failure_isolation.md) for the
+confirmed descriptor difference, generated test ROMs, hashes and board test
+order. Earlier DXE observations belong to older powered-on images.
+
 ## Established platform facts and limits
 
 - The build selects `gooxi/g4del`, `CONFIG_MAX_SOCKET=2`, 64 MiB ROM,
@@ -15,10 +21,9 @@ remain historical evidence.
 - The board owner reports 64 GiB RAM, four fans, BMC and SOL. CPU population,
   physical DIMM-slot count, USB port topology and exact PCIe IIO routing have
   not been verified. The Archer City two-socket IIO table is provisional.
-- The factory 64 MiB `server.bin` was inspected previously. It is absent from
-  the present workspace; factory-region equality can be checked against the
-  previously validated ROM, but cannot now be independently rechecked against
-  `server.bin`.
+- The factory 64 MiB `server.bin` is available at
+  `/home/uefi/workspace/gooxie_bios/server.bin`. The 08-02 ROM's descriptor,
+  GbE, ME and Device Exp1 regions were checked against it byte for byte.
 - The 2026-10-21 text SOL file ends at the old `FTWa-3` marker. A same-date
   SOL screencast continues to EDK2 `DxeCore entry`. No recording proves
   completion of DXE, the menu, USB input, Shell, or the logo on the current
