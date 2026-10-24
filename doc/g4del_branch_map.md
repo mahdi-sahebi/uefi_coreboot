@@ -60,3 +60,11 @@ This is static build evidence. No new host-power, SOL, VGA, menu-input, or
 Shell-interaction result was collected, and the descriptor hypothesis remains
 unresolved. The older 08-02 ROM is not present locally, so its diagnostic
 variants cannot currently be regenerated or flashed from this workspace.
+
+The source review also found a PEI memory-selection risk in EDK2
+`DasharoPayloadPkg/BlSupportPei/BlSupportPei.c`: the callback records the
+highest end of low RAM and later subtracts 64 MiB without checking that the
+entire selected interval is backed by one contiguous usable range. A
+fragmented map could therefore select a hole. The available capture does not
+establish that this happened on G4DEL; the split keeps the original behavior
+and records the risk for the next memory-map trace.
