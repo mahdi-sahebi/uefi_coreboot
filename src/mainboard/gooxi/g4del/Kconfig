@@ -49,4 +49,8 @@ config DIMM_MAX
 	int
 	default 32
 
+config BOOTSPLASH_REGION_LOGO_FILE
+	string
+	default "Documentation/coreboot_logo.bmp"
+
 endif

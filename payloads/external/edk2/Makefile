@@ -63,6 +63,11 @@ BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirection2Def
 endif
 endif
 endif
+
+# G4DEL bring-up: initialize USB before BDS and show an inventory on VGA/SOL.
+ifeq ($(CONFIG_BOARD_GOOXI_G4DEL),y)
+BUILD_STR += -D GOOXI_G4DEL_USB_DIAGNOSTICS=TRUE
+endif
 endif
 
 #

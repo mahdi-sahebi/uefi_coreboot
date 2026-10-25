@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1400" height="820" viewBox="0 0 1400 820" role="img" aria-labelledby="title desc">
+  <title id="title">Gooxi G4DEL factory and rebuilt 64 MiB SPI maps</title>
+  <desc id="desc">Factory and coreboot layouts share the same four lower Intel flash regions and 16 MiB BIOS region. The rebuilt BIOS is expanded to show SMMSTORE, BOOTSPLASH, FMAP and COREBOOT.</desc>
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #152238; }
+      .heading { font-size: 24px; font-weight: 700; }
+      .label { font-size: 16px; font-weight: 600; }
+      .small { font-size: 13px; }
+      .tiny { font-size: 11px; }
+      .box { stroke: #152238; stroke-width: 2; }
+      .call { stroke: #34465e; stroke-width: 1.5; fill: none; }
+    </style>
+  </defs>
+  <rect width="1400" height="820" fill="#f7f9fc"/>
+  <text x="50" y="48" class="heading">G4DEL SPI flash: factory image and open-source rebuild (64 MiB)</text>
+  <text x="50" y="76" class="small">Outer maps use proportional 64 MiB height. Tiny descriptor/GbE/Device Exp1 areas are called out; BIOS detail is enlarged and not to scale.</text>
+
+  <text x="115" y="118" class="label">Factory server.bin</text>
+  <text x="545" y="118" class="label">Rebuilt coreboot + EDK2</text>
+  <text x="1045" y="118" class="label">Rebuilt BIOS area (expanded)</text>
+
+  <!-- Factory and rebuilt outer maps: 64 MiB total, BIOS is 16 MiB (one quarter). -->
+  <rect x="125" y="145" width="250" height="150" fill="#9ec5fe" class="box"/>
+  <text x="145" y="184" class="label">Factory BIOS</text>
+  <text x="145" y="211" class="small">0x03000000–0x03ffffff</text>
+  <text x="145" y="236" class="small">16 MiB vendor firmware</text>
+  <rect x="125" y="295" width="250" height="435" fill="#f4c97a" class="box"/>
+  <text x="145" y="450" class="label">ME region</text>
+  <text x="145" y="477" class="small">0x00003000–0x02feffff</text>
+  <text x="145" y="502" class="small">0x02fed000 bytes</text>
+  <line x1="125" y1="727" x2="375" y2="727" stroke="#152238" stroke-width="5"/>
+  <text x="125" y="756" class="tiny">0x00000000: Descriptor 4 KiB + GbE 8 KiB</text>
+  <path d="M375 720 L410 690 L445 690" class="call"/>
+  <text x="452" y="695" class="tiny">Device Exp1: 0x02ff0000–0x02ffffff (64 KiB)</text>
+  <text x="125" y="778" class="tiny">Factory region bytes are retained at these addresses.</text>
+
+  <rect x="555" y="145" width="250" height="150" fill="#8bd3b0" class="box"/>
+  <text x="575" y="184" class="label">Rebuilt SI_BIOS</text>
+  <text x="575" y="211" class="small">0x03000000–0x03ffffff</text>
+  <text x="575" y="236" class="small">coreboot + EDK2</text>
+  <rect x="555" y="295" width="250" height="435" fill="#f4c97a" class="box"/>
+  <text x="575" y="450" class="label">Preserved ME</text>
+  <text x="575" y="477" class="small">0x00003000–0x02feffff</text>
+  <text x="575" y="502" class="small">same bytes as server.bin</text>
+  <line x1="555" y1="727" x2="805" y2="727" stroke="#152238" stroke-width="5"/>
+  <text x="555" y="756" class="tiny">Descriptor, GbE, ME, and Device Exp1 byte-compare before use.</text>
+
+  <!-- Rebuilt BIOS breakdown; sizes and addresses shown exactly, visual heights enlarged. -->
+  <rect x="1040" y="150" width="320" height="105" fill="#8bd3b0" class="box"/>
+  <text x="1060" y="182" class="label">COREBOOT (CBFS)</text>
+  <text x="1060" y="207" class="small">0x03140800–0x03ffffff</text>
+  <text x="1060" y="231" class="small">0x00ebf800 bytes</text>
+  <rect x="1040" y="255" width="320" height="105" fill="#b9e3cb" class="box"/>
+  <text x="1060" y="287" class="label">FMAP</text>
+  <text x="1060" y="312" class="small">0x03140000–0x031407ff • 2 KiB</text>
+  <text x="1060" y="336" class="tiny">metadata, enlarged for visibility</text>
+  <rect x="1040" y="360" width="320" height="150" fill="#c3b1e1" class="box"/>
+  <text x="1060" y="398" class="label">BOOTSPLASH (CBFS)</text>
+  <text x="1060" y="423" class="small">0x03040000–0x0313ffff • 1 MiB</text>
+  <text x="1060" y="447" class="small">logo.bmp is the open-source coreboot logo</text>
+  <text x="1060" y="475" class="tiny">EDK2 receives the image through the coreboot table/CBMEM.</text>
+  <rect x="1040" y="510" width="320" height="120" fill="#f3a9a9" class="box"/>
+  <text x="1060" y="550" class="label">SMMSTORE (PRESERVE)</text>
+  <text x="1060" y="577" class="small">0x03000000–0x0303ffff • 256 KiB</text>
+  <text x="1060" y="603" class="tiny">64 KiB aligned; separate from factory AMI variable data</text>
+  <path d="M805 210 C900 210 930 240 1038 240" class="call"/>
+  <path d="M805 450 C900 450 925 690 1038 690" class="call"/>
+  <text x="1040" y="680" class="tiny">Unchanged low-address IFD regions</text>
+  <text x="1040" y="714" class="small">Factory BIOS executable code and variable values are not reused.</text>
+</svg>

@@ -85,6 +85,10 @@ static int ast_select_mode(struct drm_connector *connector,
 	bool widescreen;
 	u8 raw[128];
 	bool flags = false;
+	int ret;
+
+	/* Keep a failed DDC read from feeding indeterminate stack data to EDID. */
+	memset(raw, 0, sizeof(raw));
 
 	if (ast->tx_chip_type == AST_TX_DP501) {
 		ast->dp501_maxclk = 0xff;
@@ -92,19 +96,22 @@ static int ast_select_mode(struct drm_connector *connector,
 		if (flags)
 			ast->dp501_maxclk = ast_get_dp501_max_clk(connector->dev);
 		else
-			dev_err(dev->pdev, "I2C transmission error\n");
+			printk(BIOS_ERR, "[GX-GFX] AST DP501 EDID read failed\n");
 	}
 
-	if (!flags)
-		ast_software_i2c_read(ast, raw);
+	if (!flags) {
+		ret = ast_software_i2c_read(ast, raw);
+		printk(BIOS_ERR, "[GX-GFX] AST software-I2C EDID read status=%d\n", ret);
+	}
 
-	if (decode_edid(raw, sizeof(raw), edid) != EDID_CONFORMANT) {
+	ret = decode_edid(raw, sizeof(raw), edid);
+	if (ret != EDID_CONFORMANT) {
 		/*
 		 * Servers often run headless, so a missing EDID is not an error.
 		 * We still need to initialize a framebuffer for KVM, though.
 		 */
-		dev_info(dev->pdev, "Failed to decode EDID\n");
-		printk(BIOS_DEBUG, "Assuming VGA for KVM\n");
+		printk(BIOS_ERR, "[GX-GFX] EDID decode status=%d; using 1024x768 KVM fallback\n",
+		       ret);
 
 		memset(edid, 0, sizeof(*edid));
 
@@ -181,6 +188,7 @@ int ast_driver_framebuffer_init(struct drm_device *dev, int flags)
 	struct drm_framebuffer fb;
 	struct drm_connector connector;
 	struct edid edid;
+	struct fb_info *framebuffer_info;
 	int ret;
 
 	/* Init wrapper structs */
@@ -197,9 +205,11 @@ int ast_driver_framebuffer_init(struct drm_device *dev, int flags)
 	/* Read EDID and find mode */
 	ret = ast_select_mode(&connector, &edid);
 	if (ret) {
-		dev_err(dev->pdev, "Failed to select mode.\n");
+		printk(BIOS_ERR, "[GX-GFX] AST display mode selection failed: %d\n", ret);
 		return ret;
 	}
+	printk(BIOS_ERR, "[GX-GFX] AST selected display mode %ux%u\n",
+	       edid.mode.ha, edid.mode.va);
 
 	/* Updated edid for fb_fill_framebuffer_info */
 	edid.x_resolution = edid.mode.ha;
@@ -221,14 +231,23 @@ int ast_driver_framebuffer_init(struct drm_device *dev, int flags)
 
 	ret = ast_crtc_mode_set(&crtc, &crtc.mode, &adjusted_mode);
 	if (ret) {
-		dev_err(dev->pdev, "Failed to set mode.\n");
+		printk(BIOS_ERR, "[GX-GFX] AST display mode set failed: %d\n", ret);
 		return ret;
 	}
 
 	ast_hide_cursor(&crtc);
 
 	/* Advertise new mode */
-	fb_new_framebuffer_info_from_edid(&edid, fb.mmio_addr);
+	framebuffer_info = fb_new_framebuffer_info_from_edid(&edid, fb.mmio_addr);
+	if (!framebuffer_info) {
+		printk(BIOS_ERR, "[GX-GFX] coreboot framebuffer table registration failed\n");
+		return -ENOMEM;
+	}
+	printk(BIOS_ERR, "[GX-GFX] framebuffer registered base=0x%llx size=0x%llx mode=%ux%u pitch=%u bpp=%u\n",
+	       (unsigned long long)fb.mmio_addr,
+	       (unsigned long long)edid.bytes_per_line * edid.y_resolution,
+	       edid.x_resolution, edid.y_resolution, edid.bytes_per_line,
+	       edid.framebuffer_bits_per_pixel);
 
 	/* Clear display */
 	memset((void *)(uintptr_t)fb.mmio_addr, 0, edid.bytes_per_line * edid.y_resolution);

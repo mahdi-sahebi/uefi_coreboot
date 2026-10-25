@@ -1,29 +1,26 @@
 # G4DEL coreboot topic history
 
-This local branch stack reconstructs the changes after `gooxie-g4del`
-(`d6bba3c96e`). The source was `feature/dxe-log` at `f4fdd5fd82`;
-that branch and its commit hashes were not rewritten.
+The local topic stack is now based on `feature/dxe-log` at `f4fdd5fd82`. The
+original `gooxie-g4del` branch is unchanged. The flash-layout topic adds its
+original commit. The Gooxi board-target change was already present in the
+base, so an empty marker commit preserves its
+position after flash layout. Later topic changes retain their original commits.
+The USB/graphics/menu branch follows the integration tip.
 
-| Branch | Commit | Purpose |
+| Branch | Rebased commit | Purpose |
 | --- | --- | --- |
-| `feature/g4del/01-flash-layout` | `9f04a307af` | 64 MiB FMD, Device Exp1 input, and factory-region inspection |
-| `feature/g4del/02-board-target` | `1db097581e` | Gooxi two-socket board, FSP/IIO inputs, AST SOL, and board configuration |
-| `feature/g4del/03-payload-integration` | `5a4dc9461b` | EDK2 build options and UART/menu/TPM selection |
-| `feature/g4del/04-firmware-diagnostics` | `681809873e` | SPI, FSP, flash-map, and payload handoff checkpoints |
-| `feature/g4del/05-power-isolation` | `72e14ab77b` | Pinned diagnostic ROM generator |
-| `feature/g4del/06-documentation` | `cb736b19e1` | Historical investigation and power-isolation reports |
+| `feature/g4del/01-flash-layout` | `5ec882566d` | Flash layout and factory-region preservation |
+| `feature/g4del/02-board-target` | `8960118800` | Gooxi two-socket board, FSP/IIO inputs, AST SOL, and board configuration (empty marker; changes already in base) |
+| `feature/g4del/03-payload-integration` | `aba30b6c99` | EDK2 build options and UART/menu/TPM selection |
+| `feature/g4del/04-firmware-diagnostics` | `d210871c81` | SPI, FSP, flash-map, and payload handoff checkpoints |
+| `feature/g4del/05-power-isolation` | `aaff54bb7a` | Pinned diagnostic ROM generator |
+| `feature/g4del/06-documentation` | `23bc43da63` | Historical investigation and power-isolation reports |
+| `feature/g4del/integration` | `de66602fcd` | Paired build evidence and integration notes |
+| `feature/g4del/usb-graphics-menu` | this branch | Splash, graphics handoff, and USB/menu payload integration |
 
-The tree at the documentation commit matches `f4fdd5fd82` byte for byte.
-The final integration branch pins the local EDK2 integration commit, so its
-`.config` differs from that original tree. A clean clone cannot resolve this
-unpublished EDK2 commit until the EDK2 branch is made available locally or
-published later.
-
-The factory descriptor, ME, GbE, and Device Exp1 blobs are local ignored
-inputs. The source 08-02 failed ROM and generated isolation candidates are
-currently absent; the descriptor remains a suspected, unproven cause of the
-host power failure. No branch in this series is a hardware-verified menu or
-Shell release.
+The integration build evidence below is historical and remains tied to its
+recorded coreboot and EDK2 source revisions. The current USB/menu branch pins
+EDK2 to `ec2535b47c54d8af04c045cafccec58af2d130ea`, its rebased USB/menu tip.
 
 ## Final paired build, 2026-10-24
 
@@ -42,7 +39,7 @@ An identical copy is retained as ignored build artifact
 was restored to the original feature branch after the build, so use the
 named ROM and its hash when referring to this integration build.
 
-The coreboot integration commit `834c17729a` selects EDK2
+The coreboot integration commit `40d031416f` selects EDK2
 `d3f653673e6bc70177094b11c1ee1ecd353b0f2e`; the CBFS-embedded
 configuration confirms this pin, `gooxi/g4del`, two sockets, SMMSTORE v2,
 SOL at `0x2f8`, the boot menu, and the built-in Shell. It selects the factory
