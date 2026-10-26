@@ -67,6 +67,9 @@ endif
 # G4DEL bring-up: initialize USB before BDS and show an inventory on VGA/SOL.
 ifeq ($(CONFIG_BOARD_GOOXI_G4DEL),y)
 BUILD_STR += -D GOOXI_G4DEL_USB_DIAGNOSTICS=TRUE
+ifeq ($(CONFIG_GENERIC_LINEAR_FRAMEBUFFER),y)
+BUILD_STR += -D GOOXI_G4DEL_LINEAR_GRAPHICS=TRUE
+endif
 endif
 endif
 
