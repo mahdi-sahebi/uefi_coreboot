@@ -1,6 +1,7 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <bootblock_common.h>
+#include <console/console.h>
 #include <device/pci_ops.h>
 #include <intelblocks/lpc_lib.h>
 #include <intelblocks/pcr.h>
@@ -9,6 +10,8 @@
 #include <soc/pcr_ids.h>
 #include <superio/aspeed/ast2400/ast2400.h>
 #include <superio/aspeed/common/aspeed.h>
+
+#include "version.h"
 
 #define PCR_DMI_LPCIOD	0x2770
 #define PCR_DMI_LPCIOE	0x2774
@@ -35,4 +38,10 @@ void bootblock_mainboard_early_init(void)
 	/* The board's captured working SOL setup used SUART1 at 0x2f8. */
 	const pnp_devfn_t ast_serial_dev = PNP_DEV(ASPEED_SIO_PORT, AST2400_SUART1);
 	aspeed_enable_serial(ast_serial_dev, CONFIG_TTYS0_BASE);
+}
+
+void bootblock_mainboard_init(void)
+{
+	printk(BIOS_NOTICE, "[COREBOOT] UEFI_COREBOOT_VERSION=%s BUILD_DATE=%s\n",
+		UEFI_COREBOOT_VERSION_STRING, UEFI_COREBOOT_BUILD_DATE);
 }
