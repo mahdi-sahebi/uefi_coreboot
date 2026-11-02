@@ -3,6 +3,8 @@
 #ifndef GOOXI_G4DEL_VERSION_H
 #define GOOXI_G4DEL_VERSION_H
 
+#include <build.h>
+
 /*
  * Project Manager: Abdol Khaleq Khanduzi
  * Maintainer: Mahdi Sahebi
@@ -15,8 +17,8 @@
 #define UEFI_COREBOOT_MINRO_VER UEFI_COREBOOT_MINOR_VER
 #define UEFI_COREBOOT_PATCH_VER 0
 
-/* Evaluated by the compiler for each firmware build (for example, Oct 29 2026). */
-#define UEFI_COREBOOT_BUILD_DATE __DATE__
+/* Use coreboot's reproducible timestamp for the board firmware banner. */
+#define UEFI_COREBOOT_BUILD_DATE COREBOOT_BUILD
 
 #define UEFI_COREBOOT_STRINGIFY_INNER(value) #value
 #define UEFI_COREBOOT_STRINGIFY(value) UEFI_COREBOOT_STRINGIFY_INNER(value)
