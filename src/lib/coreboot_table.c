@@ -430,10 +430,22 @@ void __weak lb_spi_flash(struct lb_header *header) { /* NOOP */ }
 static void *logo_cbmem_allocator(void *arg, size_t size, const union cbfs_mdata *unused)
 {
 	struct bootlogo_header header;
+	const struct cbmem_entry *entry;
 	void *logo_loc;
 
+	entry = cbmem_entry_add((uintptr_t)arg, size + sizeof(header));
+	if (!entry) {
+		printk(BIOS_ERR, "[GX-LOGO] failed to allocate CBMEM entry size=0x%zx\n", size);
+		return NULL;
+	}
+
+	logo_loc = cbmem_entry_start(entry);
+	if (!logo_loc) {
+		printk(BIOS_ERR, "[GX-LOGO] CBMEM entry has no backing address\n");
+		return NULL;
+	}
+
 	header.size = size;
-	logo_loc = cbmem_entry_start(cbmem_entry_add((uintptr_t)arg, size + sizeof(header)));
 	memcpy(logo_loc, &header, sizeof(header));
 	return logo_loc + sizeof(header);
 }
@@ -444,12 +456,20 @@ static void *logo_cbmem_allocator(void *arg, size_t size, const union cbfs_mdata
 static void tianocore_logo_load(int ignored)
 {
 	size_t logo_size;
+	void *logo;
 
-	cbfs_unverified_area_alloc("BOOTSPLASH",
-				"logo.bmp",
-				logo_cbmem_allocator,
-				(void *)CBMEM_ID_TIANOCORE_LOGO,
-				&logo_size);
+	logo = cbfs_unverified_area_alloc("BOOTSPLASH",
+					 "logo.bmp",
+					 logo_cbmem_allocator,
+					 (void *)CBMEM_ID_TIANOCORE_LOGO,
+					 &logo_size);
+	if (!logo) {
+		printk(BIOS_ERR, "[GX-LOGO] BOOTSPLASH/logo.bmp unavailable to EDK2\n");
+		return;
+	}
+
+	printk(BIOS_ERR, "[GX-LOGO] copied BOOTSPLASH/logo.bmp to CBMEM size=0x%zx\n",
+	       logo_size);
 }
 
 CBMEM_READY_HOOK(tianocore_logo_load);
