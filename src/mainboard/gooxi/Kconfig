@@ -1,0 +1,17 @@
+## SPDX-License-Identifier: GPL-2.0-only
+
+if VENDOR_GOOXI
+
+choice
+	prompt "Mainboard model"
+
+source "src/mainboard/gooxi/*/Kconfig.name"
+
+endchoice
+
+source "src/mainboard/gooxi/*/Kconfig"
+
+config MAINBOARD_VENDOR
+	default "Gooxi"
+
+endif # VENDOR_GOOXI
