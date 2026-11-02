@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1500" height="1010" viewBox="0 0 1500 1010" role="img" aria-labelledby="title desc">
+  <title id="title">Coreboot to EDK2 menu and Shell boot flow</title>
+  <desc id="desc">Flow from reset through coreboot and FSP-M/S into EDK2 SEC, PEI, DXE, BDS, USB inventory, menu, and Shell. Green marks observed completion, amber marks last observed CpuDxe entry, and gray is unverified.</desc>
+  <defs>
+    <style>
+      text { font-family: sans-serif; fill: #152238; }
+      .title { font-size: 25px; font-weight: 700; }
+      .head { font-size: 19px; font-weight: 700; }
+      .label { font-size: 15px; font-weight: 600; }
+      .small { font-size: 12px; }
+      .box { stroke: #24334a; stroke-width: 2; rx: 11; }
+      .arrow { stroke: #34465e; stroke-width: 3; fill: none; marker-end: url(#arrow); }
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#34465e"/>
+    </marker>
+  </defs>
+  <rect width="1500" height="1010" fill="#f7f9fc"/>
+  <text x="42" y="48" class="title">Coreboot → EDK2 → USB inventory → menu → Shell</text>
+  <text x="42" y="78" class="small">08-02 SOL evidence is green through DXE Core dispatch; amber is the last unmatched CpuDxe entry. Gray boxes require a new board capture.</text>
+  <rect x="42" y="105" width="400" height="42" fill="#dbe7f5" class="box"/>
+  <text x="62" y="132" class="head">Coreboot platform stages</text>
+  <rect x="470" y="105" width="988" height="42" fill="#dbe7f5" class="box"/>
+  <text x="490" y="132" class="head">EDK2 payload and user-visible boot path</text>
+
+  <!-- coreboot lane -->
+  <rect x="74" y="175" width="336" height="62" fill="#ccebd9" class="box"/>
+  <text x="95" y="201" class="label">Reset / bootblock</text>
+  <text x="95" y="222" class="small">PCH LPC decode; ASPEED SUART1 at I/O 0x2f8</text>
+  <path d="M242 238 L242 260" class="arrow"/>
+  <rect x="74" y="265" width="336" height="68" fill="#ccebd9" class="box"/>
+  <text x="95" y="292" class="label">Romstage + FSP-M</text>
+  <text x="95" y="315" class="small">Memory init returns HOB; SOL debug UART enabled</text>
+  <path d="M242 334 L242 354" class="arrow"/>
+  <rect x="74" y="359" width="336" height="60" fill="#ccebd9" class="box"/>
+  <text x="95" y="384" class="label">Postcar / cache-as-RAM exit</text>
+  <text x="95" y="405" class="small">Coreboot stages continue after FSP-M</text>
+  <path d="M242 420 L242 440" class="arrow"/>
+  <rect x="74" y="445" width="336" height="68" fill="#ccebd9" class="box"/>
+  <text x="95" y="472" class="label">Ramstage + FSP-S</text>
+  <text x="95" y="495" class="small">PCI / ASPEED init, framebuffer and coreboot table</text>
+  <path d="M242 514 L242 534" class="arrow"/>
+  <rect x="74" y="539" width="336" height="66" fill="#ccebd9" class="box"/>
+  <text x="95" y="566" class="label">Payload loader → EDK2 SEC</text>
+  <text x="95" y="588" class="small">FSP-M and FSP-S return in 08-02 serial capture</text>
+  <path d="M411 572 C450 572 446 205 485 205" class="arrow"/>
+  <text x="416" y="630" class="small">Coreboot reaches payload handoff</text>
+
+  <!-- EDK2 lane -->
+  <rect x="490" y="175" width="270" height="62" fill="#ccebd9" class="box"/>
+  <text x="510" y="201" class="label">SEC → PEI Core</text>
+  <text x="510" y="222" class="small">Temporary/permanent memory; PEIM dispatch</text>
+  <path d="M625 238 L625 260" class="arrow"/>
+  <rect x="490" y="265" width="270" height="74" fill="#ccebd9" class="box"/>
+  <text x="510" y="292" class="label">SMMSTORE HOB → FTW</text>
+  <text x="510" y="314" class="small">08-02 FTW PPI returns; bad workspaces</text>
+  <text x="510" y="330" class="small">remain a separate variable-store risk</text>
+  <path d="M625 340 L625 363" class="arrow"/>
+  <rect x="490" y="368" width="270" height="62" fill="#ccebd9" class="box"/>
+  <text x="510" y="394" class="label">DXE IPL → DXE Core</text>
+  <text x="510" y="416" class="small">PEI dispatch completes; DXE entry is logged</text>
+  <path d="M625 431 L625 454" class="arrow"/>
+  <rect x="490" y="459" width="270" height="78" fill="#f7d98b" class="box"/>
+  <text x="510" y="486" class="label">DXE dispatcher → CpuDxe entry</text>
+  <text x="510" y="508" class="small">Last unmatched entry in 08-02 capture</text>
+  <text x="510" y="526" class="small">No return marker or explicit exception</text>
+  <path d="M761 498 L785 498" class="arrow"/>
+  <rect x="790" y="459" width="240" height="78" fill="#e2e7ef" class="box"/>
+  <text x="810" y="486" class="label">CpuDxe return</text>
+  <text x="810" y="509" class="small">CPU/AP diagnostics added after capture</text>
+  <text x="810" y="526" class="small">Hardware result pending</text>
+  <path d="M910 538 L910 559" class="arrow"/>
+  <rect x="790" y="564" width="240" height="62" fill="#e2e7ef" class="box"/>
+  <text x="810" y="590" class="label">Remaining DXE drivers</text>
+  <text x="810" y="612" class="small">PCI, GOP, console, USB, variables</text>
+  <path d="M910 627 L910 648" class="arrow"/>
+  <rect x="790" y="653" width="240" height="78" fill="#e2e7ef" class="box"/>
+  <text x="810" y="680" class="label">BDS + console</text>
+  <text x="810" y="702" class="small">Connect ConIn/ConOut, install GOP, show logo</text>
+  <text x="810" y="720" class="small">Requires framebuffer HOB and GOP success</text>
+  <path d="M1031 692 L1060 692" class="arrow"/>
+  <rect x="1065" y="653" width="335" height="78" fill="#e2e7ef" class="box"/>
+  <text x="1085" y="680" class="label">Connect USB → inventory page</text>
+  <text x="1085" y="702" class="small">Controller/device descriptors to SOL;</text>
+  <text x="1085" y="720" class="small">scrollable VGA console page, 10-second timeout</text>
+  <path d="M1232 732 L1232 753" class="arrow"/>
+  <rect x="1065" y="758" width="335" height="62" fill="#e2e7ef" class="box"/>
+  <text x="1085" y="784" class="label">Boot Manager Menu</text>
+  <text x="1085" y="806" class="small">Input must change the visible selection</text>
+  <path d="M1232 821 L1232 842" class="arrow"/>
+  <rect x="1065" y="847" width="335" height="62" fill="#e2e7ef" class="box"/>
+  <text x="1085" y="873" class="label">Select built-in EDK2 Shell</text>
+  <text x="1085" y="895" class="small">Run map -r / devices -b / drivers -b / pci -b</text>
+
+  <rect x="58" y="875" width="20" height="20" fill="#ccebd9" stroke="#24334a"/>
+  <text x="87" y="890" class="small">Observed completion in 08-02 log</text>
+  <rect x="320" y="875" width="20" height="20" fill="#f7d98b" stroke="#24334a"/>
+  <text x="349" y="890" class="small">Last observed, no return</text>
+  <rect x="548" y="875" width="20" height="20" fill="#e2e7ef" stroke="#24334a"/>
+  <text x="577" y="890" class="small">Source path/instrumentation only; hardware unverified</text>
+  <text x="58" y="952" class="small">Current code reports the ASPEED PCI vendor/device ID. The 08-02 log does not contain it, so the AST VGA match remains unverified.</text>
+</svg>
