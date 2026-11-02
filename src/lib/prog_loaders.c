@@ -143,7 +143,6 @@ void vga_cb_write_at_offset(unsigned int line, unsigned int offset, const char *
 void vga_cb_print(unsigned int line, const char *string)
 {
 	vga_cb_write_at_offset(line, 0, string);
-	udelay(500000);
 }
 
 void vga_cb_sprintf(
