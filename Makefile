@@ -333,6 +333,25 @@ else
 include $(TOPLEVEL)/tests/Makefile.mk
 endif
 
+# Keep the coreboot-table logo available to EDK2's Logo DXE driver. The EDK2
+# built-in logo is a separate input configured by EDK2_BOOTSPLASH_FILE.
+ifneq ($(strip $(subst ",,$(CONFIG_BOOTSPLASH_REGION_LOGO_FILE))),)
+files_added:: branding_bootsplash_region
+
+.PHONY: branding_bootsplash_region
+branding_bootsplash_region: $(obj)/coreboot.rom $(objutil)/cbfstool/cbfstool \
+	$(subst ",,$(CONFIG_BOOTSPLASH_REGION_LOGO_FILE))
+	@echo " BRANDING Adding logo.bmp to the BOOTSPLASH region"
+	-@$(objutil)/cbfstool/cbfstool $(obj)/coreboot.rom remove \
+		-r BOOTSPLASH -n logo.bmp >/dev/null 2>&1
+	$(objutil)/cbfstool/cbfstool $(obj)/coreboot.rom add \
+		-r BOOTSPLASH \
+		-f $(subst ",,$(CONFIG_BOOTSPLASH_REGION_LOGO_FILE)) \
+		-n logo.bmp \
+		-t raw \
+		-c lzma
+endif
+
 ifeq ($(FAILBUILD),1)
 $(error cannot continue build)
 endif
