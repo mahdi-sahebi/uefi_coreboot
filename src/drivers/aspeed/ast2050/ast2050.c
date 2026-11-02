@@ -21,13 +21,20 @@ static void aspeed_ast2050_read_resources(struct device *dev)
 
 static void aspeed_ast2050_init(struct device *dev)
 {
-	struct drm_device drm_dev;
+	struct drm_device drm_dev = { 0 };
+	int ret;
 
 	drm_dev.pdev = dev;
 
-	printk(BIOS_INFO, "ASpeed AST2050: initializing video device -------------------\n");
-	printk(BIOS_INFO, "ASpeed AST2050: initializing video device --234-----------------\n");
-	ast_driver_load(&drm_dev, 0);
+	printk(BIOS_ERR, "[GX-GFX] ASPEED VGA match vendor=%04x device=%04x class=%06x enabled=%u initialized=%u\n",
+	       dev->vendor, dev->device, dev->class, dev->enabled, dev->initialized);
+	printk(BIOS_ERR, "[GX-GFX] ASPEED VGA driver initialization begin\n");
+	ret = ast_driver_load(&drm_dev, 0);
+	if (ret) {
+		printk(BIOS_ERR, "[GX-GFX] AST2050 driver initialization failed: %d\n", ret);
+		return;
+	}
+	printk(BIOS_ERR, "[GX-GFX] AST2050 driver initialization returned 0\n");
 
 	/* Unlock extended configuration registers */
 	outb(0x80, 0x3d4); outb(0xa8, 0x3d5);
@@ -41,14 +48,16 @@ static void aspeed_ast2050_init(struct device *dev)
 		vga_io_init();
 
 		vga_textmode_init();
-		printk(BIOS_INFO, "ASpeed VGA text mode initialized mmmmmmmmmmmmmmmmmmmmmmmm\n");
-		printk(BIOS_INFO, "ASpeed VGA text mode initialized mmmmmm234234mmmmmmmmmmmmmmmmmm\n");
+		printk(BIOS_ERR, "[GX-GFX] AST VGA text mode initialized\n");
 
 		/* if we don't have console, at least print something... */
 		vga_line_write(0, "ASpeed VGA text mode initialized - sample text sdfgsdfgsdgds");
 	} else if (CONFIG(GENERIC_LINEAR_FRAMEBUFFER)) {
-		ast_driver_framebuffer_init(&drm_dev, 0);
-		printk(BIOS_INFO, "ASpeed high resolution framebuffer initialized dddddddddddddddddddddd\n");
+		ret = ast_driver_framebuffer_init(&drm_dev, 0);
+		if (ret)
+			printk(BIOS_ERR, "[GX-GFX] AST linear framebuffer initialization failed: %d\n", ret);
+		else
+			printk(BIOS_ERR, "[GX-GFX] AST linear framebuffer initialization returned 0\n");
 	}
 }
 
