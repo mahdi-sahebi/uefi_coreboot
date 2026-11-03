@@ -410,6 +410,10 @@ static void do_fsp_memory_init(const struct fspm_context *context, bool s3wake)
 	/* Call FspMemoryInit */
 	fsp_raminit = (void *)(uintptr_t)(hdr->image_base + hdr->fsp_memory_init_entry_offset);
 	fsp_debug_before_memory_init(fsp_raminit, upd, &fspm_upd);
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FSP-M id=%.8s rev=%08x base=%08x size=%08x entry=%p upd=%p\n",
+		       hdr->image_id, hdr->image_revision, hdr->image_base, hdr->image_size,
+		       fsp_raminit, &fspm_upd);
 
 	/* FSP disables the interrupt handler so remove debug exceptions temporarily  */
 	null_breakpoint_remove();
@@ -427,6 +431,9 @@ static void do_fsp_memory_init(const struct fspm_context *context, bool s3wake)
 
 	post_code(POSTCODE_FSP_MEMORY_EXIT);
 	timestamp_add_now(TS_FSP_MEMORY_INIT_END);
+
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		fsp_printk(status, BIOS_ERR, "[GX-FSP] FspMemoryInit raw return");
 
 	/* Handle any errors returned by FspMemoryInit */
 	fspm_return_value_handler("FspMemoryInit", status, true);
