@@ -156,7 +156,7 @@ live capture in `/home/uefi/workspace/log/1405-08-11` reaches GRUB and
 ends after the Linux EFI stub reports that it loaded the initrd.
 
 The same SOL capture contains repeated DXE pool and BDS invalid-parameter
-assertions during the USB inventory page. EDK2 `fix/g4del-usb-inventory`
+assertions during the USB inventory page. EDK2 `fix/usb`
 corrects a non-owned USB language-table free and a row-format argument
 mismatch. This coreboot branch selects that EDK2 branch. Build a new image,
 record its hash, and repeat both Kali tests while capturing SOL and video.
