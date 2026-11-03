@@ -143,7 +143,6 @@ void vga_cb_write_at_offset(unsigned int line, unsigned int offset, const char *
 void vga_cb_print(unsigned int line, const char *string)
 {
 	vga_cb_write_at_offset(line, 0, string);
-	udelay(500000);
 }
 
 void vga_cb_sprintf(
@@ -1293,6 +1292,9 @@ void payload_run(void)
 	*/
 	// mdelay(5000);
 
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT jumping to EDK2 entry=0x%x arg=0x%x cbtables=%p\n",
+		entry, arg, prog_entry_arg(payload));
     protected_mode_call_1arg((void *)(uintptr_t)entry, arg);
+	printk(BIOS_ERR, "[CB-DIAG] ERROR EDK2 payload returned unexpectedly\n");
 }
 #endif

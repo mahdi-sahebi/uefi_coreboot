@@ -27,7 +27,17 @@ void vga_cursor_set(unsigned int line, unsigned int character);
 
 void vga_frame_set(unsigned int line, unsigned int character);
 
+#if CONFIG(VGA_TEXT_FRAMEBUFFER)
 void vga_line_write(unsigned int line, const char *string);
+#else
+/* Several legacy diagnostics call this unconditionally. A linear framebuffer
+ * build must not touch the VGA text aperture at 0xb8000. */
+static inline void vga_line_write(unsigned int line, const char *string)
+{
+	(void)line;
+	(void)string;
+}
+#endif
 
 /*
  * vga_write_text() writes a line of text aligned left/center/right
