@@ -6,8 +6,16 @@ SMMSTORE v2 region. The PCIe IIO table is the Archer City dual-socket table
 until G4DEL routing is verified on hardware. Empty DIMM slots are not reported
 because the physical slot count is unknown; populated DIMMs come from FSP.
 
-The factory image is a local build input. Inspect its descriptor before
-extracting anything:
+The checked-in G4DEL defconfig uses the tracked ASRock SPC741D8 descriptor,
+GbE and ME blobs because this G4DEL image was derived from that platform.
+Their descriptor regions match `board.fmd`. The ME blob fills the beginning
+of its region; the remaining bytes are erased flash. No Device Exp1 blob is
+available, so that region is also left erased. This produces a complete ROM
+for build inspection, but the ASRock data has not been verified on G4DEL
+hardware. Do not flash it without checking against this board's factory ROM.
+
+If a G4DEL factory image is available, inspect its descriptor before
+extracting its board-specific regions:
 
 ```sh
 util/ifdtool/ifdtool -p lbg -d /media/sf_shared/server.bin
@@ -17,8 +25,9 @@ python3 util/g4del_stock.py /media/sf_shared/server.bin \
 ```
 
 The extractor writes `descriptor.bin`, `gbe.bin`, `me.bin` and
-`device_exp1.bin`. Configure their paths in menuconfig if another directory
-is used. These files are local and must not be committed. The stock BIOS
+`device_exp1.bin`. Point the four input paths to those files and enable
+`HAVE_DEVICE_EXP1_BIN` when building from a factory image. These extracted
+files are local and must not be committed. The stock BIOS
 region is intentionally excluded; coreboot and EDK2 replace it. Keep
 `DO_NOT_TOUCH_DESCRIPTOR_REGION` selected, with descriptor unlocking and ME
 disabling off.
