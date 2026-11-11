@@ -552,13 +552,19 @@ $(EDK2_PATH): $(WORKSPACE)
 		git submodule update --init --checkout
 
 logo: $(EDK2_PATH)
+	set -e; \
 	case "$(CONFIG_EDK2_BOOTSPLASH_FILE)" in \
-		"") ;; \
-		/*) convert -background None $(CONFIG_EDK2_BOOTSPLASH_FILE) \
-			BMP3:$(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp;; \
-		*) convert -background None $(top)/$(CONFIG_EDK2_BOOTSPLASH_FILE) \
-			BMP3:$(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp;; \
-	esac \
+		"") exit 0;; \
+		/*) input="$(CONFIG_EDK2_BOOTSPLASH_FILE)";; \
+		*) input="$(top)/$(CONFIG_EDK2_BOOTSPLASH_FILE)";; \
+	esac; \
+	output="$(EDK2_PATH)/MdeModulePkg/Logo/Logo.bmp"; \
+	if command -v convert >/dev/null 2>&1 && \
+		convert -size 1x1 xc: BMP3:- >/dev/null 2>&1; then \
+		convert -background None "$$input" "BMP3:$$output"; \
+	else \
+		python3 "$(top)/payloads/external/edk2/convert_bmp3.py" "$$input" "$$output"; \
+	fi
 
 gop_driver: $(EDK2_PATH)
 	if [ -n "$(CONFIG_EDK2_GOP_DRIVER)" ]; then \
@@ -597,13 +603,15 @@ checktools:
 	echo -n "EDK2: Checking nasm:"
 	type nasm > /dev/null 2>&1 && echo "        Found!" || \
 		( echo "        Not found!"; echo "ERROR: Please install nasm."; exit 1 )
-	echo -n "EDK2: Checking imagemagick:"
-	-convert -size 1x1 xc: test.png &> /dev/null;
-	if [ -f test.png ]; then \
-		rm test.png && echo " Found!"; \
+	echo -n "EDK2: Checking image converter:"
+	if command -v convert >/dev/null 2>&1 && \
+		convert -size 1x1 xc: BMP3:- >/dev/null 2>&1; then \
+		echo " ImageMagick found!"; \
+	elif python3 -c 'from PIL import Image' >/dev/null 2>&1; then \
+		echo " Pillow found!"; \
 	else \
 		echo " Not found!"; \
-		echo "ERROR: Please install imagemagick"; \
+		echo "ERROR: Please install ImageMagick or Python Pillow"; \
 		exit 1; \
 	fi
 
