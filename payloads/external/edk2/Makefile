@@ -43,6 +43,28 @@ endif
 
 BUILD_STR += -D BUILD_ARCH=X64
 
+# The board's SOL UART is shared by SEC, DXE Core, and the PCD-based drivers.
+ifneq ($(filter y,$(CONFIG_BOARD_ASROCK_SPC741D8) $(CONFIG_BOARD_GOOXI_G4DEL)),)
+BUILD_STR += -D SOL_UART_BASE=$(CONFIG_TTYS0_BASE)
+BUILD_STR += --pcd gEfiMdeModulePkgTokenSpaceGuid.PcdSerialRegisterBase=$(CONFIG_TTYS0_BASE)
+ifeq ($(CONFIG_EDK2_SERIAL_SUPPORT),y)
+BUILD_STR += -D DISABLE_SERIAL_TERMINAL=FALSE
+BUILD_STR += -D SERIAL_TERMINAL=TRUE
+ifeq ($(CONFIG_EDK2_SERIAL_ON_SUPERIO),y)
+BUILD_STR += -D UART_ON_SUPERIO=TRUE
+endif
+ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION_DEFAULT_ENABLE),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirectionDefaultState=TRUE
+endif
+ifeq ($(CONFIG_EDK2_HAVE_2ND_UART),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdHave2ndUart=TRUE
+ifeq ($(CONFIG_EDK2_DASHARO_SERIAL_REDIRECTION2_DEFAULT_ENABLE),y)
+BUILD_STR += --pcd gDasharoSystemFeaturesTokenSpaceGuid.PcdSerialRedirection2DefaultState=TRUE
+endif
+endif
+endif
+endif
+
 #
 # EDK II (edk2/master) has the following build options relevant to coreboot:
 #
@@ -139,6 +161,9 @@ endif
 #
 # The MrChromebox repository has the following addition options:
 #
+ifeq ($(CONFIG_EDK2_DISABLE_TPM),y)
+BUILD_STR += -D TPM_ENABLE=FALSE
+endif
 ifeq ($(CONFIG_EDK2_REPO_MRCHROMEBOX),y)
 
 # FOLLOW_BGRT_SPEC		= FALSE
@@ -158,9 +183,6 @@ ifeq ($(CONFIG_EDK2_PRIORITIZE_INTERNAL),y)
 BUILD_STR += -D PRIORITIZE_INTERNAL=TRUE
 endif
 # TPM_ENABLE			= TRUE
-ifeq ($(CONFIG_EDK2_DISABLE_TPM),y)
-BUILD_STR += -D TPM_ENABLE=FALSE
-endif
 # UFS_ENABLE			= FALSE
 ifeq ($(CONFIG_EDK2_UFS_ENABLE),y)
 BUILD_STR += -D UFS_ENABLE=TRUE
@@ -512,7 +534,7 @@ $(EDK2_PATH): $(WORKSPACE)
 			echo "    $(CONFIG_EDK2_TAG_OR_REV) is not a valid git reference"; \
 			exit 1; \
 		fi; \
-		if git status --ignore-submodules=dirty | grep -q -e clean -e "nothing added"; then \
+		if [ -z "$$(git status --porcelain --ignore-submodules=dirty)" ]; then \
 			echo "    Checking out $(project_name) revision $(CONFIG_EDK2_TAG_OR_REV)"; \
 			git checkout --detach $(CONFIG_EDK2_TAG_OR_REV) -f; \
 			git submodule update --checkout --recursive; \

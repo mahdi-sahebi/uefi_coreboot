@@ -242,16 +242,24 @@ bool selfload_mapped(struct prog *payload, void *mapping,
 
 	cbfssegs = &((struct cbfs_payload *)mapping)->segments;
 
-	if (check_payload_segments(cbfssegs, dest_type))
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT validating payload segments\n");
+	if (check_payload_segments(cbfssegs, dest_type)) {
+		printk(BIOS_ERR, "[CB-DIAG] ERROR payload segment validation failed\n");
 		return false;
+	}
 
-	if (load_payload_segments(cbfssegs, &entry))
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT loading payload segments\n");
+	if (load_payload_segments(cbfssegs, &entry)) {
+		printk(BIOS_ERR, "[CB-DIAG] ERROR payload segment loading failed\n");
 		return false;
+	}
 
 	printk(BIOS_SPEW, "Loaded segments\n");
 
 	/* Pass cbtables to payload if architecture desires it. */
 	prog_set_entry(payload, (void *)entry, cbmem_find(CBMEM_ID_CBTABLE));
+	printk(BIOS_ERR, "[CB-DIAG] CHECKPOINT payload loaded entry=%p cbtables=%p\n",
+		prog_entry(payload), prog_entry_arg(payload));
 
 	return true;
 }

@@ -127,6 +127,10 @@ static void do_silicon_init(struct fsp_header *hdr)
 	silicon_init = (void *)(uintptr_t)(hdr->image_base +
 				 hdr->fsp_silicon_init_entry_offset);
 	fsp_debug_before_silicon_init(silicon_init, supd, upd);
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		printk(BIOS_ERR, "[GX-FSP] FSP-S id=%.8s rev=%08x base=%08x size=%08x entry=%p upd=%p\n",
+		       hdr->image_id, hdr->image_revision, hdr->image_base, hdr->image_size,
+		       silicon_init, upd);
 
 	timestamp_add_now(TS_FSP_SILICON_INIT_START);
 	post_code(POSTCODE_FSP_SILICON_INIT);
@@ -141,6 +145,8 @@ static void do_silicon_init(struct fsp_header *hdr)
 	null_breakpoint_init();
 	stack_canary_breakpoint_init();
 
+	if (CONFIG(BOARD_GOOXI_G4DEL))
+		fsp_printk(status, BIOS_ERR, "[GX-FSP] FspSiliconInit raw return");
 	fsp_printk(status, BIOS_INFO, "FSPS");
 
 	timestamp_add_now(TS_FSP_SILICON_INIT_END);
