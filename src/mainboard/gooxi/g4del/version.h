@@ -12,10 +12,14 @@
  */
 
 /* Initial G4DEL coreboot/UEFI diagnostic version. */
-#define UEFI_COREBOOT_MAJOR_VER 0
-#define UEFI_COREBOOT_MINOR_VER 1
+#define MC_VERSION_MAJOR 1
+#define MC_VERSION_MINOR 0
+#define MC_VERSION_PATCH 0
+
+#define UEFI_COREBOOT_MAJOR_VER MC_VERSION_MAJOR
+#define UEFI_COREBOOT_MINOR_VER MC_VERSION_MINOR
 #define UEFI_COREBOOT_MINRO_VER UEFI_COREBOOT_MINOR_VER
-#define UEFI_COREBOOT_PATCH_VER 0
+#define UEFI_COREBOOT_PATCH_VER MC_VERSION_PATCH
 
 /* Use coreboot's reproducible timestamp for the board firmware banner. */
 #define UEFI_COREBOOT_BUILD_DATE COREBOOT_BUILD

@@ -14,6 +14,8 @@
 #include <soc/smmrelocate.h>
 #include <device/i2c_simple.h>
 
+#include "version.h"
+
 /* AST EDID uses its own GPIO bit-banged I2C implementation. Provide the
  * platform fallback required by the shared I2C API; no hardware I2C bus is
  * configured for this VGA path. */
@@ -42,6 +44,8 @@ static void g4del_payload_diagnostics(void *unused)
 	char line[80];
 	size_t i;
 
+	if (CONFIG(VGA_TEXT_FRAMEBUFFER))
+		vga_line_write(11, "Version " UEFI_COREBOOT_VERSION_STRING);
 	printk(BIOS_ERR, "[GX-CONFIG] board=%s sockets=%u rom=0x%x uart=0x%x baud=%u\n",
 	       CONFIG_MAINBOARD_DIR, CONFIG_MAX_SOCKET, CONFIG_ROM_SIZE,
 	       CONFIG_TTYS0_BASE, CONFIG_TTYS0_BAUD);

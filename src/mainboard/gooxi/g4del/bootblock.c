@@ -42,6 +42,7 @@ void bootblock_mainboard_early_init(void)
 
 void bootblock_mainboard_init(void)
 {
+	printk(BIOS_NOTICE, "Version %s\n", UEFI_COREBOOT_VERSION_STRING);
 	printk(BIOS_NOTICE, "[COREBOOT] UEFI_COREBOOT_VERSION=%s BUILD_DATE=%s\n",
 		UEFI_COREBOOT_VERSION_STRING, UEFI_COREBOOT_BUILD_DATE);
 }
