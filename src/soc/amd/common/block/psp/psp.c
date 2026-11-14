@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <amdblocks/psp.h>
 #include <device/mmio.h>
 #include <bootstate.h>
 #include <console/console.h>
@@ -14,7 +13,6 @@ static const char *psp_status_recovery = "error: PSP recovery required";
 static const char *psp_status_errcmd = "error sending command";
 static const char *psp_status_init_timeout = "error: PSP init timeout";
 static const char *psp_status_cmd_timeout = "error: PSP command timeout";
-static const char *psp_status_async_cmd_in_progress = "error: async command in progress";
 static const char *psp_status_noerror = "";
 
 static const char *status_to_string(int err)
@@ -32,8 +30,6 @@ static const char *status_to_string(int err)
 		return psp_status_init_timeout;
 	case -PSPSTS_CMD_TIMEOUT:
 		return psp_status_cmd_timeout;
-	case -PSPSTS_ASYNC_CMD:
-		return psp_status_async_cmd_in_progress;
 	default:
 		return psp_status_noerror;
 	}
@@ -68,7 +64,7 @@ enum cb_err psp_get_ftpm_capabilties(uint32_t *capabilities)
 		},
 	};
 
-	printk(BIOS_DEBUG, "PSP: Querying fTPM capabilities... ");
+	printk(BIOS_DEBUG, "PSP: Querying fTPM capabilities...");
 
 	cmd_status = send_psp_command(MBOX_BIOS_CMD_PSP_FTPM_QUERY, &buffer);
 
@@ -91,7 +87,7 @@ enum cb_err psp_get_hsti_state(uint32_t *state)
 		},
 	};
 
-	printk(BIOS_DEBUG, "PSP: Querying HSTI state... ");
+	printk(BIOS_DEBUG, "PSP: Querying HSTI state...");
 
 	cmd_status = send_psp_command(MBOX_BIOS_CMD_HSTI_QUERY, &buffer);
 
@@ -104,85 +100,6 @@ enum cb_err psp_get_hsti_state(uint32_t *state)
 	*state = read32(&buffer.state);
 	return CB_SUCCESS;
 }
-
-enum cb_err psp_send_generic_command(uint32_t command, const char *msg)
-{
-	int cmd_status;
-	struct mbox_default_buffer buffer = {
-		.header = {
-			.size = sizeof(buffer)
-		},
-	};
-
-	printk(BIOS_DEBUG, "PSP: %s... ", msg);
-
-	cmd_status = send_psp_command(command, &buffer);
-
-	/* buffer's status shouldn't change but report it if it does */
-	psp_print_cmd_status(cmd_status, &buffer.header);
-
-	if (cmd_status)
-		return CB_ERR;
-
-	return CB_SUCCESS;
-}
-
-enum cb_err psp_command_set_config(uint32_t config, uint32_t args[4], const char *msg)
-{
-	int cmd_status;
-	struct mbox_cmd_set_config_buffer buffer = {
-		.header = {
-			.size = sizeof(buffer)
-		},
-		.config = {
-			.config_id = config,
-			.arg0 = args[0],
-			.arg1 = args[1],
-			.arg2 = args[2],
-			.arg3 = args[3]
-		}
-	};
-
-	printk(BIOS_DEBUG, "PSP: %s... ", msg);
-
-	cmd_status = send_psp_command(MBOX_BIOS_CMD_SET_CONFIG, &buffer);
-
-	/* buffer's status shouldn't change but report it if it does */
-	psp_print_cmd_status(cmd_status, &buffer.header);
-
-	if (cmd_status)
-		return CB_ERR;
-
-	return CB_SUCCESS;
-}
-
-/*
- * Returns true if ROM Armor is enforced, that is after PSP command
- * MBOX_BIOS_CMD_ARMOR_ENTER_SMM_MODE has been executed, false otherwise.
- *
- * When ROM Armor is enforced the result will be cached.
- */
-#if ENV_RAMSTAGE || ENV_SMM
-bool psp_get_hsti_state_rom_armor_enforced(void)
-{
-	uint32_t hsti_state;
-	static bool enforced = false;
-
-	/* ROM Armor already enforced, no need to check again */
-	if (enforced)
-		return enforced;
-
-	if (psp_get_hsti_state(&hsti_state) != CB_SUCCESS) {
-		printk(BIOS_EMERG, "PSP: Failed to get HSTI state\n");
-		return false;
-	}
-	enforced = hsti_state & HSTI_STATE_ROM_ARMOR_ENFORCED;
-	if (enforced)
-		printk(BIOS_INFO, "PSP: ROM Armor enforced\n");
-
-	return enforced;
-}
-#endif
 
 /*
  * Notify the PSP that the system is completing the boot process.  Upon

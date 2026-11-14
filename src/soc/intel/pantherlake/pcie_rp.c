@@ -5,28 +5,20 @@
 #include <soc/pcie.h>
 
 /*
- * Document #815002 Panther Lake H Processor - 2.3 Device IDs - Table 8 "Other Device ID"
- * specifies that the first Thunderbolt PCIe root port number is 21. TBT's LCAP registers return
- * port index which starts from 21 (usually for other PCIe root ports index starts from
- * 1). Thus, keeping lcap_port_base 21 for TBT, so that coreboot's PCIe remapping logic can
- * return a correct index (0-based).
-*/
+ * TBT's LCAP registers are returning port index which starts from 0x10 (Usually for other PCIe
+ * root ports index starts from 1). Thus keeping lcap_port_base 0x10 for TBT, so that coreboot's
+ * PCIe remapping logic can return correct index (0-based)
+ */
 
 static const struct pcie_rp_group tbt_rp_groups[] = {
-	{ .slot = PCI_DEV_SLOT_TBT, .count = CONFIG_MAX_TBT_ROOT_PORTS, .lcap_port_base = 21 },
+	{ .slot = PCI_DEV_SLOT_TBT, .count = CONFIG_MAX_TBT_ROOT_PORTS, .lcap_port_base = 0x10 },
 	{ 0 }
 };
 
 static const struct pcie_rp_group ptl_rp_groups[] = {
-#if CONFIG(SOC_INTEL_WILDCATLAKE)
-	{ .slot = PCI_DEV_SLOT_PCIE_1,	.count = 4, .lcap_port_base = 1 },
-#else
 	{ .slot = PCI_DEV_SLOT_PCIE_1,	.count = 8, .lcap_port_base = 1 },
-#endif
 #if CONFIG(SOC_INTEL_PANTHERLAKE_U_H)
 	{ .slot = PCI_DEV_SLOT_PCIE_2,	.count = 4, .lcap_port_base = 1 },
-#elif CONFIG(SOC_INTEL_WILDCATLAKE)
-	{ .slot = PCI_DEV_SLOT_PCIE_2, .count = 2, .lcap_port_base = 5 },
 #else
 	{ .slot = PCI_DEV_SLOT_PCIE_2, .count = 2, .lcap_port_base = 1 },
 #endif

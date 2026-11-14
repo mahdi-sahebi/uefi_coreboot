@@ -5,38 +5,28 @@
 
 #include <commonlib/coreboot_tables.h>
 #include <mipi/panel.h>
-#include <stdbool.h>
 
 enum disp_path_sel {
 	DISP_PATH_NONE = 0,
 	DISP_PATH_EDP,
 	DISP_PATH_MIPI,
-	DISP_PATH_DUAL_MIPI,
 };
-
-#define PANEL_QUIRK_FORCE_MAX_SWING	BIT(0)
 
 struct panel_description {
 	const char *name;
-	void (*configure_backlight)(bool enable);
+	void (*configure_backlight)(void);
 	void (*power_on)(void);
 	int (*get_edid)(struct edid *edid);
 	int (*post_power_on)(const struct edid *edid);
 	enum lb_fb_orientation orientation;
 	enum disp_path_sel disp_path;
 	bool pwm_ctrl_gpio;
-	uint32_t quirks;
 };
 
-struct panel_description *get_active_panel(void);
-void mtk_display_disable_secure_mode(void);
 int mtk_display_init(void);
+struct panel_description *get_active_panel(void);
 
 void mtk_ddp_init(void);
-void mtk_ddp_soc_mode_set(u32 fmt, u32 bpp, u32 width, u32 height, u32 vrefresh,
-			  enum disp_path_sel path, struct dsc_config *dsc_config);
-void mtk_ddp_mode_set(const struct edid *edid, enum disp_path_sel path,
-		      struct dsc_config *dsc_config);
-void mtk_ddp_ovlsys_start(uintptr_t fb_addr);
+void mtk_ddp_mode_set(const struct edid *edid, enum disp_path_sel path);
 
 #endif

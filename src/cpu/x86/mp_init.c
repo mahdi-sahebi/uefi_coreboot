@@ -366,14 +366,12 @@ static atomic_t *load_sipi_vector(struct mp_params *mp_params)
 	ap_count = &sp->ap_count;
 	atomic_set(ap_count, 0);
 
-	if (!self_snooping_supported()) {
-		/* Make sure SIPI data hits RAM so the APs that come up will see the
-		   startup code even if the caches are disabled. */
-		if (clflush_supported())
-			clflush_region((uintptr_t)mod_loc, module_size);
-		else
-			wbinvd();
-	}
+	/* Make sure SIPI data hits RAM so the APs that come up will see the
+	   startup code even if the caches are disabled. */
+	if (clflush_supported())
+		clflush_region((uintptr_t)mod_loc, module_size);
+	else
+		wbinvd();
 
 	return ap_count;
 }
@@ -425,7 +423,8 @@ static enum cb_err apic_wait_timeout(int total_delay, int delay_step)
 	return CB_SUCCESS;
 }
 
-static enum cb_err icr_wait_timeout(void)
+/* Send Startup IPI to APs */
+static enum cb_err send_sipi_to_aps(int ap_count, atomic_t *num_aps, int sipi_vector)
 {
 	if (lapic_busy()) {
 		printk(BIOS_DEBUG, "Waiting for ICR not to be busy...\n");
@@ -436,16 +435,7 @@ static enum cb_err icr_wait_timeout(void)
 		printk(BIOS_DEBUG, "done.\n");
 	}
 
-	return CB_SUCCESS;
-}
-
-/* Send Startup IPI to APs */
-static enum cb_err send_sipi_to_aps(int ap_count, atomic_t *num_aps, int sipi_vector)
-{
-	if (icr_wait_timeout() != CB_SUCCESS)
-		return CB_ERR;
-
-	lapic_send_ipi_others(LAPIC_INT_ASSERT | LAPIC_MT_STARTUP | sipi_vector);
+	lapic_send_ipi_others(LAPIC_INT_ASSERT | LAPIC_DM_STARTUP | sipi_vector);
 	printk(BIOS_DEBUG, "Waiting for SIPI to complete...\n");
 	if (apic_wait_timeout(10000 /* 10 ms */, 50 /* us */) != CB_SUCCESS) {
 		printk(BIOS_ERR, "timed out.\n");
@@ -475,11 +465,17 @@ static enum cb_err start_aps(struct bus *cpu_bus, int ap_count, atomic_t *num_ap
 
 	printk(BIOS_DEBUG, "Attempting to start %d APs\n", ap_count);
 
-	if (icr_wait_timeout() != CB_SUCCESS)
-		return CB_ERR;
+	if (lapic_busy()) {
+		printk(BIOS_DEBUG, "Waiting for ICR not to be busy...\n");
+		if (apic_wait_timeout(1000 /* 1 ms */, 50) != CB_SUCCESS) {
+			printk(BIOS_ERR, "timed out. Aborting.\n");
+			return CB_ERR;
+		}
+		printk(BIOS_DEBUG, "done.\n");
+	}
 
 	/* Send INIT IPI to all but self. */
-	lapic_send_ipi_others(LAPIC_INT_ASSERT | LAPIC_MT_INIT);
+	lapic_send_ipi_others(LAPIC_INT_ASSERT | LAPIC_DM_INIT);
 
 	if (!CONFIG(X86_INIT_NEED_1_SIPI)) {
 		printk(BIOS_DEBUG, "Waiting for 10ms after sending INIT.\n");
@@ -656,10 +652,16 @@ static enum cb_err mp_init(struct bus *cpu_bus, struct mp_params *p)
 
 void smm_initiate_relocation_parallel(void)
 {
-	if (icr_wait_timeout() != CB_SUCCESS)
-		return;
+	if (lapic_busy()) {
+		printk(BIOS_DEBUG, "Waiting for ICR not to be busy...");
+		if (apic_wait_timeout(1000 /* 1 ms */, 50) != CB_SUCCESS) {
+			printk(BIOS_DEBUG, "timed out. Aborting.\n");
+			return;
+		}
+		printk(BIOS_DEBUG, "done.\n");
+	}
 
-	lapic_send_ipi_self(LAPIC_INT_ASSERT | LAPIC_MT_SMI);
+	lapic_send_ipi_self(LAPIC_INT_ASSERT | LAPIC_DM_SMI);
 
 	if (lapic_busy()) {
 		if (apic_wait_timeout(1000 /* 1 ms */, 100 /* us */) != CB_SUCCESS) {
@@ -827,10 +829,8 @@ static void load_smm_handlers(void)
 		smm_disable();
 	}
 
-	if (!self_snooping_supported()) {
-		/* Ensure the SMM handlers hit DRAM before performing first SMI. */
-		wbinvd();
-	}
+	/* Ensure the SMM handlers hit DRAM before performing first SMI. */
+	wbinvd();
 
 	/*
 	 * Indicate that the SMM handlers have been loaded and MP

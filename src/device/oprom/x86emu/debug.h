@@ -40,8 +40,6 @@
 #define __X86EMU_DEBUG_H
 
 #include <console/console.h>
-#include <string.h>
-#include <stdio.h>
 
 /*---------------------- Macros and type definitions ----------------------*/
 

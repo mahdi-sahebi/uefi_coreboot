@@ -3,7 +3,10 @@
 #include <stdint.h>
 #include <device/azalia_device.h>
 
-static const u32 realtek_alc662_verbs[] = {
+const u32 cim_verb_data[] = {
+	0x10ec0662,	/* Realtek ALC662 rev1 */
+	0x18497662,	/* Subsystem ID */
+	11,		/* Number of entries */
 	AZALIA_SUBVENDOR(1, 0x18497662),
 	AZALIA_PIN_CFG(1, 0x14, 0x01014010),
 	AZALIA_PIN_CFG(1, 0x15, 0x40000000),
@@ -18,17 +21,5 @@ static const u32 realtek_alc662_verbs[] = {
 };
 
 const u32 pc_beep_verbs[] = {};
-
-struct azalia_codec mainboard_azalia_codecs[] = {
-	{
-		.name         = "Realtek ALC662",
-		.vendor_id    = 0x10ec0662,
-		.subsystem_id = 0x18497662,
-		.address      = 1,
-		.verbs        = realtek_alc662_verbs,
-		.verb_count   = ARRAY_SIZE(realtek_alc662_verbs),
-	},
-	{ /* terminator */ }
-};
 
 AZALIA_ARRAY_SIZES;

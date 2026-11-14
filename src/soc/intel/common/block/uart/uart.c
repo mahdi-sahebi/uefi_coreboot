@@ -308,7 +308,6 @@ static const char *uart_acpi_hid(const struct device *dev)
 static const char *uart_acpi_name(const struct device *dev)
 {
 	switch (dev->device) {
-	case PCI_DID_INTEL_WCL_UART0:
 	case PCI_DID_INTEL_PTL_H_UART0:
 	case PCI_DID_INTEL_PTL_U_H_UART0:
 	case PCI_DID_INTEL_LNL_UART0:
@@ -319,7 +318,6 @@ static const char *uart_acpi_name(const struct device *dev)
 	case PCI_DID_INTEL_SPT_H_UART0:
 	case PCI_DID_INTEL_CNP_H_UART0:
 		return "UAR0";
-	case PCI_DID_INTEL_WCL_UART1:
 	case PCI_DID_INTEL_PTL_H_UART1:
 	case PCI_DID_INTEL_PTL_U_H_UART1:
 	case PCI_DID_INTEL_LNL_UART1:
@@ -330,7 +328,6 @@ static const char *uart_acpi_name(const struct device *dev)
 	case PCI_DID_INTEL_SPT_H_UART1:
 	case PCI_DID_INTEL_CNP_H_UART1:
 		return "UAR1";
-	case PCI_DID_INTEL_WCL_UART2:
 	case PCI_DID_INTEL_PTL_H_UART2:
 	case PCI_DID_INTEL_PTL_U_H_UART2:
 	case PCI_DID_INTEL_LNL_UART2:
@@ -360,9 +357,6 @@ struct device_operations uart_ops = {
 };
 
 static const unsigned short pci_device_ids[] = {
-	PCI_DID_INTEL_WCL_UART0,
-	PCI_DID_INTEL_WCL_UART1,
-	PCI_DID_INTEL_WCL_UART2,
 	PCI_DID_INTEL_PTL_H_UART0,
 	PCI_DID_INTEL_PTL_H_UART1,
 	PCI_DID_INTEL_PTL_H_UART2,
@@ -375,13 +369,6 @@ static const unsigned short pci_device_ids[] = {
 	PCI_DID_INTEL_MTL_UART0,
 	PCI_DID_INTEL_MTL_UART1,
 	PCI_DID_INTEL_MTL_UART2,
-	PCI_DID_INTEL_ARL_UART0,
-	PCI_DID_INTEL_ARL_UART1,
-	PCI_DID_INTEL_ARL_UART2,
-	PCI_DID_INTEL_ARP_S_UART0,
-	PCI_DID_INTEL_ARP_S_UART1,
-	PCI_DID_INTEL_ARP_S_UART2,
-	PCI_DID_INTEL_ARP_S_UART3,
 	PCI_DID_INTEL_APL_UART0,
 	PCI_DID_INTEL_APL_UART1,
 	PCI_DID_INTEL_APL_UART2,

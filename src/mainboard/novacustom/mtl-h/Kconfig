@@ -1,16 +1,13 @@
 config BOARD_NOVACUSTOM_MTLH_COMMON
 	def_bool n
-	select AZALIA_USE_LEGACY_VERB_TABLE
 	select BOARD_ROMSIZE_KB_32768
 	select DRIVERS_GENERIC_BAYHUB_LV2
-	select DRIVERS_GFX_GENERIC
 	select DRIVERS_I2C_HID
 	select DRIVERS_INTEL_PMC
 	select DRIVERS_INTEL_USB4_RETIMER
 	select DRIVERS_WIFI_GENERIC
 	select EC_ACPI
 	select EC_DASHARO_EC
-	select FSP_TYPE_IOT
 	select HAVE_ACPI_RESUME
 	select HAVE_ACPI_TABLES
 	select HAVE_CMOS_DEFAULT
@@ -47,8 +44,8 @@ config BOARD_NOVACUSTOM_V560TNX
 
 config BOARD_NOVACUSTOM_V5X0TU_BASE
 	bool
-	select BOARD_NOVACUSTOM_MTLH_COMMON
 	select MAINBOARD_USES_IFD_GBE_REGION
+	select BOARD_NOVACUSTOM_MTLH_COMMON
 
 config BOARD_NOVACUSTOM_V540TU
 	bool
@@ -89,7 +86,7 @@ config MAINBOARD_VERSION
 
 config MAINBOARD_FAMILY
 	string
-	default "Not Applicable" # Match Insyde firmware, for Windows Update
+	default "Not Applicable" # Match Insyde firmware
 
 config CBFS_SIZE
 	default 0xA00000
@@ -134,14 +131,14 @@ config TPM_PIRQ
 	default 0x61 # GPP_E01
 
 config FMDFILE
-	default "src/mainboard/$(CONFIG_MAINBOARD_DIR)/vboot-rwa.fmd" if VBOOT && VBOOT_SLOTS_RW_A
-	default "src/mainboard/$(CONFIG_MAINBOARD_DIR)/vboot-rwab.fmd" if VBOOT && VBOOT_SLOTS_RW_AB
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/vboot-rwa.fmd" if VBOOT && VBOOT_SLOTS_RW_A
+	default "src/mainboard/\$(CONFIG_MAINBOARD_DIR)/vboot-rwab.fmd" if VBOOT && VBOOT_SLOTS_RW_AB
 
 config SOC_INTEL_CSE_SEND_EOP_EARLY
 	default n
 
 config VBOOT_FWID_VERSION
-	default "$(CONFIG_LOCALVERSION)"
+	default "\$(CONFIG_LOCALVERSION)"
 
 config EC_DASHARO_EC_FLASH_SIZE
 	default 0x40000
@@ -157,10 +154,6 @@ config INCLUDE_NVIDIA_GPU_ASL
 config PXE_ROM_ID
 	string
 	default "8086,550a" if BOARD_NOVACUSTOM_V5X0TU_BASE
-
-# A terrible workaround for SMI issues when BWP is on until a better solution is found.
-config DEBUG_SMI
-	default y if BOOTMEDIA_SMM_BWP
 
 if PAYLOAD_EDK2
 

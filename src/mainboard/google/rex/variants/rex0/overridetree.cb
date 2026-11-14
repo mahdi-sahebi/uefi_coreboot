@@ -289,7 +289,7 @@ chip soc/intel/meteorlake
 				}"
 
 				## Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 0 alias dptf_policy on end
@@ -380,7 +380,7 @@ chip soc/intel/meteorlake
 					chip drivers/usb/acpi
 						register "desc" = ""USB2 Camera""
 						register "type" = "UPC_TYPE_INTERNAL"
-						register "has_power_resource" = "true"
+						register "has_power_resource" = "1"
 						register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B09)"
 						device ref usb2_port6 on
 							probe UFC UFC_USB
@@ -470,18 +470,14 @@ chip soc/intel/meteorlake
 
 				register "ssdb.lanes_used" = "4"
 				register "ssdb.link_used" = "0"
-				register "ssdb.platform" = "PLAT_MTL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C16"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "560 * MHz" # 560 MHz
 				register "remote_name" = ""IPU0""
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				#Controls
 				register "clk_panel.clks[0].clknum" = "1" # IMGCLKOUT_1
 				register "clk_panel.clks[0].freq" = "1" # FREQ_19_2_MHZ
@@ -519,7 +515,7 @@ chip soc/intel/meteorlake
 
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D0"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				#Controls
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_C04" #EN_WCAM_PWR
@@ -551,7 +547,7 @@ chip soc/intel/meteorlake
 
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D0"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				#Controls
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_C04" #EN_WCAM_PWR
@@ -624,13 +620,10 @@ chip soc/intel/meteorlake
 				register "acpi_name" = ""CAM1""
 				register "chip_name" = ""Hi-556 Camera""
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_MTL"
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C64"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "437 * MHz"
 				register "remote_name" = ""IPU0""
@@ -676,7 +669,7 @@ chip soc/intel/meteorlake
 
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D0"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				#Controls
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_B09" #EN_FCAM_PWR
@@ -823,7 +816,7 @@ chip soc/intel/meteorlake
 				register "compat_string" = ""google,cros-ec-spi""
 				register "irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_E10_IRQ)"
 				register "wake" = "GPE0_DW1_10"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C23)"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B11)"
 				register "enable_delay_ms" = "3"

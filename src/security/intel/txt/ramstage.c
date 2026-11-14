@@ -191,7 +191,7 @@ static void init_intel_txt(void *unused)
 		log_ibb_measurements();
 	}
 
-	bool s3resume = acpi_is_wakeup_s3();
+	int s3resume = acpi_is_wakeup_s3();
 	if (!s3resume && !CONFIG(INTEL_CBNT_SUPPORT)) {
 		printk(BIOS_INFO, "TEE-TXT: Scheck...\n");
 		if (intel_txt_run_bios_acm(ACMINPUT_SCHECK) < 0) {
@@ -306,12 +306,8 @@ static void txt_heap_push_bdr_for_two_acms(u8 **heap_struct)
 	if (CONFIG(INTEL_TXT_LOGGING))
 		txt_dump_acm_info(sinit_base);
 
-	if (CONFIG(INTEL_TOP_SWAP_SEPARATE_REGIONS))
-		data.heap_acm.acm_addrs[0] =
-			(uintptr_t)cbfs_unverified_area_map("BOOTBLOCK", CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
-	else
-		data.heap_acm.acm_addrs[0] =
-			(uintptr_t)cbfs_map(CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
+	data.heap_acm.acm_addrs[0] =
+		(uintptr_t)cbfs_map(CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
 
 	data.heap_acm.header.size = sizeof(data.heap_acm);
 
@@ -347,12 +343,8 @@ static void txt_heap_push_bdr_for_one_acm(u8 **heap_struct)
 
 	/* Extended elements - ACM addresses */
 	data.heap_acm.header.type = HEAP_EXTDATA_TYPE_ACM;
-	if (CONFIG(INTEL_TOP_SWAP_SEPARATE_REGIONS))
-		data.heap_acm.acm_addrs[0] =
-			(uintptr_t)cbfs_unverified_area_map("BOOTBLOCK", CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
-	else
-		data.heap_acm.acm_addrs[0] =
-			(uintptr_t)cbfs_map(CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
+	data.heap_acm.acm_addrs[0] =
+		(uintptr_t)cbfs_map(CONFIG_INTEL_TXT_CBFS_BIOS_ACM, NULL);
 	data.heap_acm.num_acms = 1;
 
 	data.heap_acm.header.size = sizeof(data.heap_acm);
@@ -367,8 +359,6 @@ static void txt_heap_push_bdr_for_one_acm(u8 **heap_struct)
 
 static void txt_initialize_heap(void)
 {
-	bool sinit_exists;
-
 	/* Fill TXT.HEAP.BASE with 4 subregions */
 	u8 *heap_struct = (void *)((uintptr_t)read64p(TXT_HEAP_BASE));
 
@@ -380,12 +370,7 @@ static void txt_initialize_heap(void)
 	 * invalid sizeof BDR. Check if SINIT ACM is present in CBFS and push
 	 * properly formatted BDR region onto the TXT heap.
 	 */
-	if (CONFIG(INTEL_TOP_SWAP_SEPARATE_REGIONS))
-		sinit_exists = cbfs_unverified_area_file_exists("BOOTBLOCK", CONFIG_INTEL_TXT_CBFS_SINIT_ACM);
-	else
-		sinit_exists = cbfs_file_exists(CONFIG_INTEL_TXT_CBFS_SINIT_ACM);
-
-	if (sinit_exists)
+	if (cbfs_file_exists(CONFIG_INTEL_TXT_CBFS_SINIT_ACM))
 		txt_heap_push_bdr_for_two_acms(&heap_struct);
 	else
 		txt_heap_push_bdr_for_one_acm(&heap_struct);

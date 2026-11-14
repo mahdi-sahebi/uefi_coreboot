@@ -40,12 +40,6 @@ end
 
 chip soc/intel/meteorlake
 
-        register "power_limits_config[MTL_P_282_242_CORE]" = "{
-                .tdp_pl1_override = 18,
-                .tdp_pl2_override = 40,
-                .tdp_pl4 = 84,
-        }"
-
 	register "usb2_ports[0]" = "USB2_PORT_TYPE_C(OC_SKIP)"	# USB2_C1
 	register "usb2_ports[1]" = "USB2_PORT_TYPE_C(OC_SKIP)"	# USB2_C0
 	register "usb2_ports[7]" = "USB2_PORT_MID(OC0)"		# Type-A Port A1
@@ -87,16 +81,6 @@ chip soc/intel/meteorlake
 		[PchSerialIoIndexI2C4] = PchSerialIoPci,
 		[PchSerialIoIndexI2C5] = PchSerialIoPci,
 	}"
-
-	# Acoustic Noise settings and slew rate configuration:
-	#  slew rate for IA Domain: Fast/8
-	#  slew rate for GT Domain: Fast/8
-	#  Ignore slew rate configuration for SA Domain
-	register "enable_acoustic_noise_mitigation" = "1"
-	register "disable_fast_pkgc_ramp[VR_DOMAIN_IA]" = "1"
-	register "slow_slew_rate_config[VR_DOMAIN_IA]" = "SLEW_FAST_8"
-	register "disable_fast_pkgc_ramp[VR_DOMAIN_GT]" = "1"
-	register "slow_slew_rate_config[VR_DOMAIN_GT]" = "SLEW_FAST_8"
 
 	# Intel Common SoC Config
 	#+-------------------+---------------------------+
@@ -140,12 +124,7 @@ chip soc/intel/meteorlake
 			.speed = I2C_SPEED_FAST,
 			.rise_time_ns = 900,
 			.fall_time_ns = 400,
-			.speed_config[0] = {
-				.speed = I2C_SPEED_FAST,
-				.scl_lcnt = 163,
-				.scl_hcnt = 85,
-				.sda_hold = 40,
-			}
+			.data_hold_time_ns = 50,
 		},
 	}"
 
@@ -239,15 +218,15 @@ chip soc/intel/meteorlake
 				## Power Limits Control
 				register "controls.power_limits" = "{
 						.pl1 = {
-							.min_power = 12000,
-							.max_power = 18000,
+							.min_power = 15000,
+							.max_power = 15000,
 							.time_window_min = 28 * MSECS_PER_SEC,
 							.time_window_max = 32 * MSECS_PER_SEC,
 							.granularity = 200,
 						},
 						.pl2 = {
-							.min_power = 40000,
-							.max_power = 40000,
+							.min_power = 57000,
+							.max_power = 57000,
 							.time_window_min = 28 * MSECS_PER_SEC,
 							.time_window_max = 32 * MSECS_PER_SEC,
 							.granularity = 1000,
@@ -277,7 +256,7 @@ chip soc/intel/meteorlake
 				}"
 
 				## Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 0 alias dptf_policy on end
@@ -396,16 +375,6 @@ chip soc/intel/meteorlake
 				end
 			end
 		end
-		device ref cnvi_wifi on
-			chip drivers/wifi/generic
-				register "wake" = "GPE0_PME_B0"
-				register "add_acpi_dma_property" = "true"
-				register "enable_cnvi_ddr_rfim" = "true"
-				device generic 0 on
-					probe WIFI_TYPE WIFI_CNVI
-				end
-			end
-		end
 		device ref ipu on
 			chip drivers/intel/mipi_camera
 				register "acpi_uid" = "0x50000"
@@ -459,7 +428,6 @@ chip soc/intel/meteorlake
 				register "generic.stop_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C06)"
 				register "generic.stop_off_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 0x10 on end
 			end
@@ -482,15 +450,6 @@ chip soc/intel/meteorlake
 				register "hid_desc_reg_offset" = "0x20"
 				device i2c 68 on end
 			end
-			chip drivers/i2c/hid
-				register "generic.hid" = ""PNP0C50""
-				register "generic.desc" = ""Synaptics Touchpad""
-				register "generic.irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_B00_IRQ)"
-				register "generic.wake" = "GPE0_DW0_00"
-				register "generic.detect" = "1"
-				register "hid_desc_reg_offset" = "0x20"
-				device i2c 2c on end
-			end
 		end
 		device ref i2c4 on
 			chip drivers/i2c/tpm
@@ -506,13 +465,10 @@ chip soc/intel/meteorlake
 				register "acpi_name" = ""CAM0""
 				register "chip_name" = ""Hi-556 Camera""
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_MTL"
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C64"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "437 * MHz"
 				register "remote_name" = ""IPU0""
@@ -558,7 +514,7 @@ chip soc/intel/meteorlake
 
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D0"
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 
 				#Controls
 				register "gpio_panel.gpio[0].gpio_num" = "GPP_B09" #EN_FCAM_PWR
@@ -601,7 +557,7 @@ chip soc/intel/meteorlake
 				end
 			end
 		end	#PCIE5 WLAN card
-		device ref pcie_rp7 on
+		device ref pcie_rp6 on
 			chip drivers/net
 				register "wake" = "GPE0_DW1_04"
 				register "led_feature" = "0xe0"
@@ -611,10 +567,10 @@ chip soc/intel/meteorlake
 				register "add_acpi_dma_property" = "true"
 				device pci 00.0 on end
 			end
-			# Enable PCIE 7 using clk 2
-			register "pcie_rp[PCH_RP(7)]" = "{
-				.clk_src = 2,
-				.clk_req = 2,
+			# Enable PCIE 6 using clk 6
+			register "pcie_rp[PCH_RP(6)]" = "{
+				.clk_src = 6,
+				.clk_req = 6,
 				.flags = PCIE_RP_LTR | PCIE_RP_AER,
 			}"
 		end # RTL8125 Ethernet NIC
@@ -626,7 +582,7 @@ chip soc/intel/meteorlake
 				register "compat_string" = ""google,cros-ec-spi""
 				register "irq" = "ACPI_IRQ_WAKE_LEVEL_LOW(GPP_E10_IRQ)"
 				register "wake" = "GPE0_DW1_10"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C23)"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_B11)"
 				register "enable_delay_ms" = "3"

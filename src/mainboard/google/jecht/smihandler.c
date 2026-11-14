@@ -2,7 +2,6 @@
 
 #include <acpi/acpi.h>
 #include <cpu/x86/smm.h>
-#include <gpio.h>
 #include <soc/pm.h>
 #include <southbridge/intel/lynxpoint/lp_gpio.h>
 #include <soc/iomap.h>
@@ -22,7 +21,7 @@ void mainboard_smi_sleep(u8 slp_typ)
 
 		/* Enable DCP mode */
 		if (CONFIG(BOARD_GOOGLE_TIDUS)) {
-			gpio_set(GPIO_USB_CTL_1, 0);
+			set_gpio(GPIO_USB_CTL_1, 0);
 		}
 		break;
 	case ACPI_S5:

@@ -14,13 +14,10 @@
 #include <string.h>
 
 #define CONTROL_INTERFACE_OFFSET	0x5
-#define CRASHLOG_NODES_COUNT		0x1
+#define CRASHLOG_NODES_COUNT		0x2
 #define CRASHLOG_PUNIT_STORAGE_OFF_MASK	BIT(24)
 #define CRASHLOG_RE_ARM_STATUS_MASK	BIT(25)
-#define CRASHLOG_CONSUMED_BIOS_MASK	BIT(27)
-#define CRASHLOG_SET_CLEAR_TRIGGER_MASK	BIT(30)
-#define CRASHLOG_SET_CONSUMED_MASK	BIT(18)
-#define CRASHLOG_REARM_TRIGGER_MASK	BIT(28)
+#define CRASHLOG_CONSUMED_MASK		BIT(31)
 
 /* Global crashLog info */
 static bool m_pmc_crash_log_support;
@@ -161,16 +158,11 @@ void cl_get_pmc_sram_data(cl_node_t *head)
 	update_new_pmc_crashlog_size(&pmc_crashLog_size);
 
 pmc_send_re_arm_after_reset:
-	/* Re-arm and clear only if crashlog is present and valid*/
-	if (!pmc_crashLog_size) {
-		printk(BIOS_DEBUG, "No valid crashlog data found in PMC SRAM\n");
-		return;
-	} else {
-		/* When bit 7 of discov cmd resp is set -> bit 2 of size field */
-		cl_pmc_re_arm_after_reset();
-		/* Clear the SSRAM region after copying the error log */
-		cl_pmc_clear();
-	}
+	/* When bit 7 of discov cmd resp is set -> bit 2 of size field */
+	cl_pmc_re_arm_after_reset();
+
+	/* Clear the SSRAM region after copying the error log */
+	cl_pmc_clear();
 }
 
 bool pmc_cl_discovery(void)
@@ -335,7 +327,7 @@ static bool cpu_cl_gen_discovery_table(void)
 			continue;
 
 		u32 dw0 = read32p(disc_tab_addr + cur_offset);
-		if (dw0 & CRASHLOG_CONSUMED_BIOS_MASK) {
+		if (dw0 & CRASHLOG_CONSUMED_MASK) {
 			printk(BIOS_DEBUG, "cpu crashlog records already consumed."
 						"id: 0x%x dw0: 0x%x\n", i, dw0);
 			break;
@@ -391,12 +383,15 @@ int cl_get_total_data_size(void)
 	return m_pmc_crash_log_size + m_cpu_crash_log_size;
 }
 
+static uintptr_t get_control_status_interface(void)
+{
+	if (disc_tab_addr)
+		return (disc_tab_addr + CONTROL_INTERFACE_OFFSET * sizeof(u32));
+	return 0;
+}
+
 int cpu_cl_clear_data(void)
 {
-	/* Clear all crashlog data and CRASHLOG_SET_CONSUMED = 1 -> sets CONSUMED_BIOS bit */
-	setbits64p(cl_get_cpu_bar_addr() + CRASHLOG_WATCHER_CONTROL_OFFSET,
-			CRASHLOG_SET_CLEAR_TRIGGER_MASK | CRASHLOG_SET_CONSUMED_MASK);
-
 	return 0;
 }
 
@@ -416,8 +411,18 @@ static bool wait_and_check(u32 bit_mask)
 
 void cpu_cl_rearm(void)
 {
-	setbits64p(cl_get_cpu_bar_addr() + CRASHLOG_WATCHER_CONTROL_OFFSET,
-			CRASHLOG_REARM_TRIGGER_MASK);
+	uintptr_t ctrl_sts_intfc_addr = get_control_status_interface();
+
+	if (!ctrl_sts_intfc_addr) {
+		printk(BIOS_ERR, "CPU crashlog control and status interface address not valid\n");
+		return;
+	}
+
+	/* Rearm the CPU crashlog. Crashlog does not get collected if rearming fails */
+	cl_punit_control_interface_t punit_ctrl_intfc;
+	memset(&punit_ctrl_intfc, 0, sizeof(cl_punit_control_interface_t));
+	punit_ctrl_intfc.fields.set_re_arm = 1;
+	write32p(ctrl_sts_intfc_addr, punit_ctrl_intfc.data);
 
 	if (!wait_and_check(CRASHLOG_RE_ARM_STATUS_MASK))
 		printk(BIOS_ERR, "CPU crashlog re_arm not asserted\n");
@@ -427,12 +432,32 @@ void cpu_cl_rearm(void)
 
 void cpu_cl_cleanup(void)
 {
-	/*
-	 * Crashlog storage and power management in PTL is changed to a unified
-	 * and persistent model,removing the need for manual SRAM power-down
-	 * commands after crashlog extraction.
+	/* Perform any SOC specific cleanup after reading the crashlog data from SRAM */
+	uintptr_t ctrl_sts_intfc_addr = get_control_status_interface();
+
+	if (!ctrl_sts_intfc_addr) {
+		printk(BIOS_ERR, "CPU crashlog control and status interface address not valid\n");
+		return;
+	}
+
+	/* If storage-off is supported, turn off the PUNIT SRAM
+	 * stroage to save power. This clears crashlog records also.
 	 */
-	/* Does nothing. */
+
+	if (!cpu_cl_disc_tab.header.fields.storage_off_support) {
+		printk(BIOS_INFO, "CPU crashlog storage_off not supported\n");
+		return;
+	}
+
+	cl_punit_control_interface_t punit_ctrl_intfc;
+	memset(&punit_ctrl_intfc, 0, sizeof(cl_punit_control_interface_t));
+	punit_ctrl_intfc.fields.set_storage_off = 1;
+	write32p(ctrl_sts_intfc_addr, punit_ctrl_intfc.data);
+
+	if (!wait_and_check(CRASHLOG_PUNIT_STORAGE_OFF_MASK))
+		printk(BIOS_ERR, "CPU crashlog storage_off not asserted\n");
+	else
+		printk(BIOS_DEBUG, "CPU crashlog storage_off asserted\n");
 }
 
 pmc_ipc_discovery_buf_t cl_get_pmc_discovery_buf(void)

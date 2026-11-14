@@ -4,7 +4,6 @@
 #define __SOC_MEDIATEK_MMINFRA_H__
 
 /* mminfra_ao */
-#define MMINFRA_GCE_DDREN_SEL		(MMINFRA_AO_CONFIG + 0x418)
 #define MMINFRA_GCE_PROT_EN		(MMINFRA_AO_CONFIG + 0x428)
 
 /* mminfra0 */

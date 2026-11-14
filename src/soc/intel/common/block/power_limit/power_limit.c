@@ -91,14 +91,6 @@ void set_power_limits(u8 power_limit_1_time,
 			MCHBAR32(MCH_PKG_POWER_LIMIT_LO) = value & ~(PKG_POWER_LIMIT_EN);
 			value = MCHBAR32(MCH_PKG_POWER_LIMIT_HI);
 			MCHBAR32(MCH_PKG_POWER_LIMIT_HI) = value & ~(PKG_POWER_LIMIT_EN);
-			/* Elkhartlake SoC does not shadow PKG_POWER_LIMIT MCHBAR settings
-			   to MSR correctly. */
-			if (CONFIG(SOC_INTEL_ELKHARTLAKE)) {
-				msr = rdmsr(MSR_PKG_POWER_LIMIT);
-				msr.hi = 0;
-				msr.lo = 0;
-				wrmsr(MSR_PKG_POWER_LIMIT, msr);
-			}
 		} else {
 			msr = rdmsr(MSR_PKG_POWER_LIMIT);
 			msr.lo &= ~PKG_POWER_LIMIT_EN;
@@ -243,7 +235,7 @@ u8 get_cpu_tdp(void)
 
 WEAK_DEV_PTR(dptf_policy);
 
-#if ENV_RAMSTAGE && CONFIG(SOC_INTEL_COMMON_BLOCK_VARIANT_POWER_LIMIT)
+#if CONFIG(SOC_INTEL_COMMON_BLOCK_VARIANT_POWER_LIMIT)
 void variant_update_cpu_power_limits(const struct cpu_tdp_power_limits *limits,
 		size_t num_entries)
 {
@@ -283,7 +275,6 @@ void variant_update_cpu_power_limits(const struct cpu_tdp_power_limits *limits,
 			settings->pl2.min_power = limits[index].pl2_min_power;
 			settings->pl2.max_power = limits[index].pl2_max_power;
 			soc_config->tdp_pl4 = DIV_ROUND_UP(limits[index].pl4_power, MILLIWATTS_TO_WATTS);
-			soc_config->tdp_pl4_fastvmode = soc_config->tdp_pl4;
 			printk(BIOS_INFO, "Overriding power limits PL1 (mW) (%u, %u) PL2 (mW) (%u, %u) PL4 (W) (%u)\n",
 				settings->pl1.min_power,
 				settings->pl1.max_power,

@@ -64,7 +64,7 @@ struct southbridge_intel_bd82x6x_config {
 	/* Override PCIe ASPM */
 	uint8_t pcie_aspm[8];
 
-	bool docking_supported;
+	int docking_supported;
 
 	bool pcie_hotplug_map[8];
 
@@ -72,6 +72,8 @@ struct southbridge_intel_bd82x6x_config {
 	uint32_t xhci_switchable_ports;
 	/* Ports which support SuperSpeed (USB 3.0 additional lanes).  */
 	uint32_t superspeed_capable_ports;
+	/* Overcurrent Mapping for USB 3.0 Ports */
+	uint32_t xhci_overcurrent_mapping;
 
 	uint32_t spi_uvscc;
 	uint32_t spi_lvscc;

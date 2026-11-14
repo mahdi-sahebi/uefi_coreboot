@@ -2,13 +2,13 @@
 
 Method (_Q0D, 0, NotSerialized)			// Event: Lid Opened
 {
-	\LIDS = ECRD(RefOf(LSTE))
+	\LIDS = LSTE
 	Notify (LID0, 0x80)
 }
 
 Method (_Q0C, 0, NotSerialized)			// Event: Lid Closed
 {
-	\LIDS = ECRD(RefOf(LSTE))
+	\LIDS = LSTE
 	Notify (LID0, 0x80)
 }
 

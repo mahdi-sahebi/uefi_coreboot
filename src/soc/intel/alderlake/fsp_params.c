@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <assert.h>
-#include <boot/coreboot_tables.h>
 #include <bootmode.h>
 #include <bootsplash.h>
 #include <console/console.h>
@@ -20,7 +19,6 @@
 #include <fsp/ppi/mp_service_ppi.h>
 #include <fsp/util.h>
 #include <gpio.h>
-#include <intelblocks/aspm.h>
 #include <intelblocks/irq.h>
 #include <intelblocks/lpss.h>
 #include <intelblocks/mp_init.h>
@@ -469,6 +467,123 @@ static const SI_PCH_DEVICE_INTERRUPT_CONFIG *pci_irq_to_fsp(size_t *out_count)
 	return config;
 }
 
+/*
+ * The PCIe RP ASPM and PCIe L1 Substate UPDs follow the PCI Express Base
+ * Specification 1.1. The UPDs and their default values are consistent
+ * from Skylake through Meteor Lake. However, the default for CPU ports
+ * differs from PCH ports. Use auto and maximum unless overwritten
+ * to make the behaviour consistent.
+ *
+ * +-------------------+--------------------------+-----------+-----------+
+ * | Setting           | Option                   | PCH Ports | CPU Ports |
+ * |-------------------|--------------------------|-----------|-----------|
+ * | PcieRpEnableCpm   | Disabled                 | [Default] | [Default] |
+ * |                   | Enabled                  |           |           |
+ * |-------------------|--------------------------|-----------|-----------|
+ * | PcieRpAspm        | PchPcieAspmDisabled      |           |           |
+ * |                   | PchPcieAspmL0s           |           |           |
+ * |                   | PchPcieAspmL1            |           |           |
+ * |                   | PchPcieAspmL0sL1         |           | [Default] |
+ * |                   | PchPcieAspmAutoConfig    | [Default] |           |
+ * |                   | PchPcieAspmMax           |           |           |
+ * |-------------------|--------------------------|-----------|-----------|
+ * | PcieRpL1Substates | Disabled                 |           |           |
+ * |                   | PchPcieL1SubstatesL1_1   |           |           |
+ * |                   | PchPcieL1SubstatesL1_1_2 |           | [Default] |
+ * |                   | PchPcieL1SubstatesMax    | [Default] |           |
+ * |-------------------|--------------------------|-----------|-----------|
+ * | PchPcieRpPcieSpeed| PchPcieRpPcieSpeedAuto   | [Default] |           |
+ * |                   | PchPcieRpPcieSpeedGen1   |           |           |
+ * |                   | PchPcieRpPcieSpeedGen2   |           |           |
+ * |                   | PchPcieRpPcieSpeedGen3   |           |           |
+ * |                   | PchPcieRpPcieSpeedGen4   |           |           |
+ * +-------------------+--------------------------+-----------+-----------+
+ */
+
+static unsigned int adl_aspm_control_to_upd(enum ASPM_control aspm_control)
+{
+	/* Disable without Kconfig selected */
+	if (!CONFIG(PCIEXP_ASPM))
+		return UPD_INDEX(ASPM_DISABLE);
+
+	/* Use auto unless overwritten */
+	if (!aspm_control)
+		return UPD_INDEX(ASPM_AUTO);
+
+	return UPD_INDEX(aspm_control);
+}
+
+static unsigned int adl_l1ss_control_to_upd(enum L1_substates_control l1_substates_control)
+{
+	/* Disable without Kconfig selected */
+	if (!CONFIG(PCIEXP_ASPM))
+		return UPD_INDEX(L1_SS_DISABLED);
+
+	/* Don't enable UPD if Kconfig not set */
+	if (!CONFIG(PCIEXP_L1_SUB_STATE))
+		return UPD_INDEX(L1_SS_DISABLED);
+
+	/* L1 Substate should be disabled in compliance mode */
+	if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
+		return UPD_INDEX(L1_SS_DISABLED);
+
+	/* Use maximum unless overwritten */
+	if (!l1_substates_control)
+		return UPD_INDEX(L1_SS_L1_2);
+
+	return UPD_INDEX(l1_substates_control);
+}
+
+static unsigned int adl_pcie_speed_control_to_upd(enum PCIE_SPEED_control pcie_speed_control)
+{
+	/* Use auto unless overwritten */
+	if (!pcie_speed_control)
+		return UPD_INDEX(SPEED_AUTO);
+
+	return UPD_INDEX(pcie_speed_control);
+}
+
+static void configure_pch_rp_power_management(FSP_S_CONFIG *s_cfg,
+					      const struct pcie_rp_config *rp_cfg,
+					      unsigned int index)
+{
+	s_cfg->PcieRpEnableCpm[index] =
+		get_uint_option("pciexp_clk_pm", CONFIG(PCIEXP_CLK_PM));
+	s_cfg->PcieRpAspm[index] =
+		adl_aspm_control_to_upd(get_uint_option("pciexp_aspm", rp_cfg->pcie_rp_aspm));
+	s_cfg->PcieRpL1Substates[index] =
+		adl_l1ss_control_to_upd(get_uint_option("pciexp_l1ss", rp_cfg->PcieRpL1Substates));
+	s_cfg->PcieRpPcieSpeed[index] =
+		adl_pcie_speed_control_to_upd(get_uint_option("pciexp_speed", rp_cfg->pcie_rp_pcie_speed));
+}
+
+/*
+ * Starting with Alder Lake, UPDs for Clock Power Management were
+ * introduced for the CPU root ports.
+ *
+ * CpuPcieClockGating:
+ *	Disabled
+ *	Enabled		[Default]
+ *
+ * CpuPciePowerGating
+ *	Disabled
+ *	Enabled		[Default]
+ *
+ */
+static void configure_cpu_rp_power_management(FSP_S_CONFIG *s_cfg,
+					      const struct pcie_rp_config *rp_cfg,
+					      unsigned int index)
+{
+	bool pciexp_clk_pm = get_uint_option("pciexp_clk_pm", CONFIG(PCIEXP_CLK_PM));
+	s_cfg->CpuPcieRpEnableCpm[index] = pciexp_clk_pm;
+	s_cfg->CpuPcieClockGating[index] = pciexp_clk_pm;
+	s_cfg->CpuPciePowerGating[index] = pciexp_clk_pm;
+	s_cfg->CpuPcieRpAspm[index] =
+		adl_aspm_control_to_upd(get_uint_option("pciexp_aspm", rp_cfg->pcie_rp_aspm));
+	s_cfg->CpuPcieRpL1Substates[index] =
+		adl_l1ss_control_to_upd(get_uint_option("pciexp_l1ss", rp_cfg->PcieRpL1Substates));
+}
+
 /* This function returns the VccIn Aux Imon IccMax values for ADL and RPL
    SKU's */
 static uint16_t get_vccin_aux_imon_iccmax(const struct soc_intel_alderlake_config *config)
@@ -519,9 +634,6 @@ static uint16_t get_vccin_aux_imon_iccmax(const struct soc_intel_alderlake_confi
 	case PCI_DID_INTEL_ADL_S_ID_10:
 	case PCI_DID_INTEL_ADL_S_ID_11:
 	case PCI_DID_INTEL_ADL_S_ID_12:
-	case PCI_DID_INTEL_ASL_ID_1:
-	case PCI_DID_INTEL_ASL_ID_2:
-	case PCI_DID_INTEL_ASL_ID_3:
 	case PCI_DID_INTEL_RPL_HX_ID_1:
 	case PCI_DID_INTEL_RPL_HX_ID_2:
 	case PCI_DID_INTEL_RPL_HX_ID_3:
@@ -663,13 +775,6 @@ static void fill_fsps_tcss_params(FSP_S_CONFIG *s_cfg,
 			s_cfg->UsbTcPortEn |= BIT(i);
 	}
 
-	for (int i = 0; i < MAX_TYPE_C_PORTS; i++) {
-		if (config->enabletcsscovtypea[i]) {
-			s_cfg->EnableTcssCovTypeA[i] = config->enabletcsscovtypea[i];
-			s_cfg->MappingPchXhciUsbA[i] = config->mappingpchxhciusba[i];
-		}
-	}
-
 	s_cfg->Usb4CmMode = CONFIG(SOFTWARE_CONNECTION_MANAGER);
 }
 
@@ -680,7 +785,7 @@ static void fill_fsps_chipset_lockdown_params(FSP_S_CONFIG *s_cfg,
 	const bool lockdown_by_fsp = get_lockdown_config() == CHIPSET_LOCKDOWN_FSP;
 	s_cfg->PchLockDownGlobalSmi = lockdown_by_fsp;
 	s_cfg->PchLockDownBiosInterface = lockdown_by_fsp;
-	s_cfg->PchUnlockGpioPads = !lockdown_by_fsp;
+	s_cfg->PchUnlockGpioPads = lockdown_by_fsp;
 	s_cfg->RtcMemoryLock = lockdown_by_fsp;
 	s_cfg->SkipPamLock = !lockdown_by_fsp;
 
@@ -725,31 +830,6 @@ static void fill_fsps_xhci_params(FSP_S_CONFIG *s_cfg,
 			s_cfg->Usb3HsioTxDownscaleAmp[i] =
 				config->usb3_ports[i].tx_downscale_amp;
 		}
-		if (config->usb3_ports[i].tx_rate2_uniq_tran) {
-			s_cfg->Usb3HsioTxRate2UniqTranEnable[i] = 1;
-			s_cfg->Usb3HsioTxRate2UniqTran[i] =
-				config->usb3_ports[i].tx_rate2_uniq_tran;
-		}
-		if (config->usb3_ports[i].ctrl_adapt_offset_cfg_enable) {
-			s_cfg->PchUsb3HsioCtrlAdaptOffsetCfgEnable[i] = 1;
-			s_cfg->PchUsb3HsioCtrlAdaptOffsetCfg[i] =
-				config->usb3_ports[i].ctrl_adapt_offset_cfg;
-		}
-		if (config->usb3_ports[i].olfps_cfg_pull_up_dwn_res) {
-			s_cfg->PchUsb3HsioOlfpsCfgPullUpDwnResEnable[i] = 1;
-			s_cfg->PchUsb3HsioOlfpsCfgPullUpDwnRes[i] =
-				config->usb3_ports[i].olfps_cfg_pull_up_dwn_res;
-		}
-		if (config->usb3_ports[i].filter_sel_n) {
-			s_cfg->PchUsb3HsioFilterSelNEnable[i] = 1;
-			s_cfg->PchUsb3HsioFilterSelN[i] =
-				config->usb3_ports[i].filter_sel_n;
-		}
-		if (config->usb3_ports[i].filter_sel_p) {
-			s_cfg->PchUsb3HsioFilterSelPEnable[i] = 1;
-			s_cfg->PchUsb3HsioFilterSelP[i] =
-				config->usb3_ports[i].filter_sel_p;
-		}
 	}
 
 	for (i = 0; i < ARRAY_SIZE(config->tcss_ports); i++) {
@@ -787,7 +867,6 @@ static void fill_fsps_sata_params(FSP_S_CONFIG *s_cfg,
 	if (s_cfg->SataEnable) {
 		s_cfg->SataMode = config->sata_mode;
 		s_cfg->SataSalpSupport = config->sata_salp_support;
-		s_cfg->SataSpeedLimit = config->sata_speed;
 		memcpy(s_cfg->SataPortsEnable, config->sata_ports_enable,
 			sizeof(s_cfg->SataPortsEnable));
 		memcpy(s_cfg->SataPortsDevSlp, config->sata_ports_dev_slp,
@@ -964,7 +1043,7 @@ static void fill_fsps_pcie_params(FSP_S_CONFIG *s_cfg,
 		s_cfg->PcieRpClkReqDetect[i] = !!(rp_cfg->flags & PCIE_RP_CLK_REQ_DETECT);
 		/* PcieRpSlotImplemented default to 1 (slot implemented) in FSP; 0: built-in */
 		if (!!(rp_cfg->flags & PCIE_RP_BUILT_IN))
-			s_cfg->PcieRpSlotImplemented[i] = false;
+			s_cfg->PcieRpSlotImplemented[i] = 0;
 		s_cfg->PcieRpDetectTimeoutMs[i] = rp_cfg->pcie_rp_detect_timeout_ms;
 		configure_pch_rp_power_management(s_cfg, rp_cfg, i);
 	}
@@ -1051,8 +1130,8 @@ static void fill_fsps_misc_power_params(FSP_S_CONFIG *s_cfg,
 	s_cfg->PsOnEnable = 1;
 	s_cfg->PkgCStateLimit = LIMIT_AUTO;
 
-	/* Set Energy Efficient Turbo mode */
-	s_cfg->EnergyEfficientTurbo = config->energy_efficient_turbo;
+	/* Disable Energy Efficient Turbo mode */
+	s_cfg->EnergyEfficientTurbo = 0;
 
 	/* VccIn Aux Imon IccMax. Values are in 1/4 Amp increments and range is 0-512. */
 	s_cfg->VccInAuxImonIccImax =
@@ -1286,9 +1365,6 @@ static void soc_silicon_init_params(FSP_S_CONFIG *s_cfg,
 	/* Override settings per board if required. */
 	mainboard_update_soc_chip_config(config);
 
-	/* Runtime configuration of S0ix */
-	config->s0ix_enable = get_uint_option("s0ix_enable", config->s0ix_enable);
-
 	void (*const fill_fsps_params[])(FSP_S_CONFIG *s_cfg,
 			const struct soc_intel_alderlake_config *config) = {
 		fill_fsps_lpss_params,
@@ -1418,27 +1494,12 @@ __weak void mainboard_silicon_init_params(FSP_S_CONFIG *s_cfg)
 }
 
 /* Handle FSP logo params */
-void soc_load_logo_by_fsp(FSPS_UPD *supd)
+void soc_load_logo(FSPS_UPD *supd)
 {
-	struct soc_intel_common_config *config = chip_get_common_soc_structure();
-	FSP_S_CONFIG *s_cfg = &supd->FspsConfig;
-
-	/*
-	 * Adjusts panel orientation for external display when the lid is closed.
-	 *
-	 * When the lid is closed (LidStatus == 0), indicating the onboard display is inactive,
-	 * this function forces the panel orientation to normal. This ensures proper display
-	 * on an external monitor, as rotated orientations are typically not suitable in
-	 * such state.
-	 */
-	if (s_cfg->LidStatus == 0)
-		config->panel_orientation = LB_FB_ORIENTATION_NORMAL;
-
-	fsp_load_and_convert_bmp_to_gop_blt(&supd->FspsConfig.LogoPtr,
+	fsp_convert_bmp_to_gop_blt(&supd->FspsConfig.LogoPtr,
 			 &supd->FspsConfig.LogoSize,
 			 &supd->FspsConfig.BltBufferAddress,
 			 &supd->FspsConfig.BltBufferSize,
 			 &supd->FspsConfig.LogoPixelHeight,
-			 &supd->FspsConfig.LogoPixelWidth,
-			 config->panel_orientation);
+			 &supd->FspsConfig.LogoPixelWidth);
 }

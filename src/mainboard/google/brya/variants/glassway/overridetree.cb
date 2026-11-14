@@ -326,7 +326,7 @@ chip soc/intel/alderlake
 				}"
 
 				## Fan options
-				register "options.fan.fine_grained_control" = "true"
+				register "options.fan.fine_grained_control" = "1"
 				register "options.fan.step_size" = "2"
 
 				device generic 1 on
@@ -353,8 +353,7 @@ chip soc/intel/alderlake
 				register "stop_off_delay_ms" = "25"
 				register "enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "enable_delay_ms" = "25"
-				register "has_power_resource" = "true"
-				register "use_gpio_for_status" = "true"
+				register "has_power_resource" = "1"
 				device i2c 10 on
 					probe TOUCHSCREEN_SOURCE TOUCHSCREEN_UNPROVISIONED
 					probe TOUCHSCREEN_SOURCE TOUCHSCREEN_ELAN0001
@@ -374,7 +373,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "5"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 40  on
 					probe TOUCHSCREEN_SOURCE TOUCHSCREEN_GTCH7503
@@ -394,7 +392,6 @@ chip soc/intel/alderlake
 				register "generic.stop_delay_ms" = "150"
 				register "generic.stop_off_delay_ms" = "2"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 10 on
 					probe TOUCHSCREEN_SOURCE TOUCHSCREEN_ELAN9004
@@ -414,7 +411,6 @@ chip soc/intel/alderlake
 				register "generic.stop_delay_ms" = "105"
 				register "generic.stop_off_delay_ms" = "5"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 41 on
 					probe TOUCHSCREEN_SOURCE TOUCHSCREEN_ILIT2901
@@ -623,6 +619,7 @@ chip soc/intel/alderlake
 						use tcss_usb3_port2 as usb3_port
 						device generic 1 alias conn1 on
 							probe DB_USB DB_1C
+							probe DB_USB DB_1A
 							probe DB_USB DB_1C_1A
 							probe DB_USB DB_1C_LTE
 						end

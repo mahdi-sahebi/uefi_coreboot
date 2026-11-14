@@ -4,7 +4,7 @@ FLASH 32M {
 #if CONFIG_MAINBOARD_USES_IFD_GBE_REGION
 		SI_GBE 0x1000      # 4K (overlaps with PD)
 #endif
-		SI_ME 0x009fc000   # 10,137,600 bytes = matches IFD exactly
+		SI_ME 0x009ec000   # 10,137,600 bytes = matches IFD exactly
 	}
 
 	SI_BIOS@0x01000000 16M {
@@ -13,13 +13,16 @@ FLASH 32M {
 				RECOVERY_MRC_CACHE 64K
 				RW_MRC_CACHE 64K
 			}
-			SMMSTORE(PRESERVE) 512K
+			SMMSTORE(PRESERVE) 256K
 			RW_ELOG(PRESERVE) 16K
 			RW_SHARED 16K {
 				SHARED_DATA 8K
 				VBLOCK_DEV 8K
 			}
 			RW_NVRAM(PRESERVE) 24K
+
+			CONSOLE(PRESERVE) 128K  # <== SPI flash console region here
+
 			BOOTSPLASH(CBFS) 1M
 		}
 

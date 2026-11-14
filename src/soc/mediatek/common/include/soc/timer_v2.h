@@ -7,7 +7,7 @@
 #include <soc/timer_common.h>
 #include <types.h>
 
-#define TIMER_MHZ	13
+#define GPT_MHZ	13
 
 enum {
 	TIE_0_EN = 1 << 3,
@@ -42,7 +42,5 @@ DEFINE_BITFIELD(GPT6_CON_MODE6, 6, 5)
 #define GPT6_CLOCK_REG(x) x->gpt6_con
 DEFINE_BITFIELD(GPT6_CLK_CLKDIV6, 3, 0)
 DEFINE_BITFIELD(GPT6_CLK_CLK6, 13, 10)
-
-void timer_set_compensation(void);
 
 #endif

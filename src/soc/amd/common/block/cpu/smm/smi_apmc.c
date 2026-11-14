@@ -3,14 +3,11 @@
 #include <acpi/acpi.h>
 #include <amdblocks/acpi.h>
 #include <amdblocks/psp.h>
-#include <amdblocks/smi.h>
 #include <amdblocks/smm.h>
 #include <arch/io.h>
 #include <cpu/amd/amd64_save_state.h>
 #include <cpu/x86/smm.h>
-#include <drivers/tpm/tpm_ppi.h>
 #include <elog.h>
-#include <soc/smi.h>
 #include <smmstore.h>
 #include <types.h>
 
@@ -36,8 +33,6 @@ static void *find_save_state(int cmd)
 	/* Check all nodes looking for the one that issued the IO */
 	for (core = 0; core < CONFIG_MAX_CPUS; core++) {
 		state = smm_get_save_state(core);
-		if (!state)
-			continue;
 		smm_io_trap = state->smm_io_trap_offset;
 		/* Check for Valid IO Trap Word (bit1==1) */
 		if (!(smm_io_trap & SMM_IO_TRAP_VALID))
@@ -94,44 +89,6 @@ void handle_smi_store(void)
 	io_smi->rax = smmstore_exec(sub_command, (void *)(uintptr_t)reg_ebx);
 }
 
-static void handle_smi_rom_armor(void)
-{
-	u8 sub_command;
-	amd64_smm_state_save_area_t *io_smi;
-	u32 reg_ebx;
-
-	io_smi = find_save_state(APM_CNT_ROM_ARMOR);
-	if (!io_smi)
-		return;
-	/* Command and return value in EAX */
-	sub_command = (io_smi->rax >> 8) & 0xff;
-
-	/* Parameter buffer in EBX */
-	reg_ebx = io_smi->rbx;
-
-	/* ROM Armor handler */
-	io_smi->rax = rom_armor_exec(sub_command, (void *)(uintptr_t)reg_ebx);
-}
-
-void handle_smi_tpm_ppi(void)
-{
-	amd64_smm_state_save_area_t *io_smi;
-	u32 reg_ebx;
-
-	io_smi = find_save_state(APM_CNT_TPM_PPI);
-	if (!io_smi)
-		return;
-
-	/* Parameter buffer in EBX */
-	reg_ebx = io_smi->rbx;
-
-	/* drivers/tpm/ppi_smm.c  */
-	tpm_ppi_process_request_smm(reg_ebx);
-	io_smi->rax = 0;
-}
-
-__weak void soc_apmc_finalize(void) {}
-
 void fch_apmc_smi_handler(void)
 {
 	const uint8_t cmd = apm_get_apmc();
@@ -140,7 +97,6 @@ void fch_apmc_smi_handler(void)
 	case APM_CNT_ACPI_ENABLE:
 		acpi_clear_pm_gpe_status();
 		acpi_enable_sci();
-		configure_smi(SMITYPE_PWRBUTTON_UP, SMI_MODE_DISABLE);
 		break;
 	case APM_CNT_ACPI_DISABLE:
 		acpi_disable_sci();
@@ -153,19 +109,8 @@ void fch_apmc_smi_handler(void)
 		if (CONFIG(SMMSTORE))
 			handle_smi_store();
 	break;
-	case APM_CNT_ROM_ARMOR:
-		if (!CONFIG(SOC_AMD_COMMON_BLOCK_PSP_ROM_ARMOR_DISABLED))
-			handle_smi_rom_armor();
-	break;
 	case APM_CNT_SMMINFO:
 		psp_notify_smm();
-		break;
-	case APM_CNT_TPM_PPI:
-		if (CONFIG(TPM_PPI_UEFIVAR_BACKED))
-			handle_smi_tpm_ppi();
-		break;
-	case APM_CNT_FINALIZE:
-		soc_apmc_finalize();
 		break;
 	}
 

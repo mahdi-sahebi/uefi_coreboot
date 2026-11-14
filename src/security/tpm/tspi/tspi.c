@@ -219,14 +219,13 @@ tpm_result_t tpm_clear_and_reenable(void)
 	return TPM_SUCCESS;
 }
 
-tpm_result_t tpm_extend_pcr(int pcr, const struct tpm_digest *digests, const char *name)
+tpm_result_t tpm_extend_pcr(int pcr, enum vb2_hash_algorithm digest_algo,
+			const uint8_t *digest, size_t digest_len, const char *name)
 {
 	tpm_result_t rc;
 
-	if (digests[0].hash_type == VB2_HASH_INVALID) {
-		/* This may be a sign of an absent TPM. */
+	if (!digest)
 		return TPM_IOERROR;
-	}
 
 	if (!tspi_tpm_log_available()) {
 		rc = tspi_init_crtm();
@@ -246,7 +245,7 @@ tpm_result_t tpm_extend_pcr(int pcr, const struct tpm_digest *digests, const cha
 		}
 
 		printk(BIOS_DEBUG, "TPM: Extending digest for `%s` into PCR %d\n", name, pcr);
-		rc = tlcl_extend(pcr, digests);
+		rc = tlcl_extend(pcr, digest, digest_algo);
 		if (rc != TPM_SUCCESS) {
 			printk(BIOS_ERR, "TPM Error (%#x): Extending hash for `%s` into PCR %d failed.\n",
 			       rc, name, pcr);
@@ -255,7 +254,7 @@ tpm_result_t tpm_extend_pcr(int pcr, const struct tpm_digest *digests, const cha
 	}
 
 	if (CONFIG(TPM_MEASURED_BOOT))
-		tpm_log_add_table_entry(name, pcr, digests);
+		tpm_log_add_table_entry(name, pcr, digest_algo, digest, digest_len);
 
 	printk(BIOS_DEBUG, "TPM: Digest of `%s` to PCR %d %s\n",
 	       name, pcr, tspi_tpm_is_setup() ? "measured" : "logged");
@@ -267,84 +266,43 @@ tpm_result_t tpm_extend_pcr(int pcr, const struct tpm_digest *digests, const cha
 tpm_result_t tpm_measure_region(const struct region_device *rdev, uint8_t pcr,
 			    const char *rname)
 {
+	uint8_t digest[TPM_PCR_MAX_LEN], digest_len;
 	uint8_t buf[HASH_DATA_CHUNK_SIZE];
 	uint32_t offset;
-	int i, j;
 	size_t len;
 	struct vb2_digest_context ctx;
-	struct tpm_digests digests;
 
 	if (!rdev || !rname)
 		return TPM_CB_INVALID_ARG;
 
-	for (i = 0, j = 0; i < ENABLED_TPM_ALGS_NUM; ++i) {
-		enum vb2_hash_algorithm alg = enabled_tpm_algs[i];
-		if (!tpm_log_alg_active(alg))
-			continue;
-
-		if (vb2_digest_init(&ctx, vboot_hwcrypto_allowed(), alg,
-				    region_device_sz(rdev))) {
-			printk(BIOS_ERR, "TPM: Error initializing hash.\n");
+	digest_len = vb2_digest_size(tpm_log_alg());
+	assert(digest_len <= sizeof(digest));
+	if (vb2_digest_init(&ctx, vboot_hwcrypto_allowed(), tpm_log_alg(),
+			    region_device_sz(rdev))) {
+		printk(BIOS_ERR, "TPM: Error initializing hash.\n");
+		return TPM_CB_HASH_ERROR;
+	}
+	/*
+	 * Though one can mmap the full needed region on x86 this is not the
+	 * case for e.g. ARM. In order to make this code as universal as
+	 * possible across different platforms read the data to hash in chunks.
+	 */
+	for (offset = 0; offset < region_device_sz(rdev); offset += len) {
+		len = MIN(sizeof(buf), region_device_sz(rdev) - offset);
+		if (rdev_readat(rdev, buf, offset, len) < 0) {
+			printk(BIOS_ERR, "TPM: Not able to read region %s.\n",
+			       rname);
+			return TPM_CB_READ_FAILURE;
+		}
+		if (vb2_digest_extend(&ctx, buf, len)) {
+			printk(BIOS_ERR, "TPM: Error extending hash.\n");
 			return TPM_CB_HASH_ERROR;
 		}
-		/*
-		 * Though one can mmap the full needed region on x86 this is not the
-		 * case for e.g. ARM. In order to make this code as universal as
-		 * possible across different platforms read the data to hash in chunks.
-		 */
-		for (offset = 0; offset < region_device_sz(rdev); offset += len) {
-			len = MIN(sizeof(buf), region_device_sz(rdev) - offset);
-			if (rdev_readat(rdev, buf, offset, len) < 0) {
-				printk(BIOS_ERR, "TPM: Not able to read region %s.\n",
-				       rname);
-				return TPM_CB_READ_FAILURE;
-			}
-			if (vb2_digest_extend(&ctx, buf, len)) {
-				printk(BIOS_ERR, "TPM: Error extending hash.\n");
-				return TPM_CB_HASH_ERROR;
-			}
-		}
-		if (vb2_digest_finalize(&ctx, digests.hashes[j].raw, vb2_digest_size(alg))) {
-			printk(BIOS_ERR, "TPM: Error finalizing hash.\n");
-			return TPM_CB_HASH_ERROR;
-		}
-
-		digests.values[j].hash = digests.hashes[j].raw;
-		digests.values[j].hash_type = alg;
-		++j;
 	}
-
-	digests.values[j].hash_type = VB2_HASH_INVALID;
-	return tpm_extend_pcr(pcr, digests.values, rname);
-}
-
-bool tpm_make_digests(const void *buffer, size_t size, const struct vb2_hash *hash_hint,
-		      struct tpm_digests *digests)
-{
-	int i, j;
-	for (i = 0, j = 0; i < ENABLED_TPM_ALGS_NUM; ++i) {
-		enum vb2_hash_algorithm alg = enabled_tpm_algs[i];
-		if (!tpm_log_alg_active(alg))
-			continue;
-
-		digests->values[j].hash_type = alg;
-
-		if (hash_hint != NULL && hash_hint->algo == alg) {
-			digests->values[j++].hash = hash_hint->raw;
-			continue;
-		}
-
-		if (vb2_hash_calculate(vboot_hwcrypto_allowed(), buffer, size,
-				       alg, &digests->hashes[i])) {
-			printk(BIOS_ERR, "%s: failed to compute %s hash.\n", __func__,
-			       vb2_get_hash_algorithm_name(alg));
-			return false;
-		}
-
-		digests->values[j++].hash = digests->hashes[i].raw;
+	if (vb2_digest_finalize(&ctx, digest, digest_len)) {
+		printk(BIOS_ERR, "TPM: Error finalizing hash.\n");
+		return TPM_CB_HASH_ERROR;
 	}
-
-	digests->values[j].hash_type = VB2_HASH_INVALID;
-	return true;
+	return tpm_extend_pcr(pcr, tpm_log_alg(), digest, digest_len, rname);
 }
 #endif /* VBOOT_LIB */

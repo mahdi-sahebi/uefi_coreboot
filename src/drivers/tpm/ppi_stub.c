@@ -105,9 +105,7 @@ static void (*tpm_mci_callbacks[])(void *) = {
 	tpm_mci_func1_cb,
 };
 
-void tpm_ppi_acpi_fill_ssdt(const struct device *dev,
-			    struct dsm_uuid *extra_dsm_uuid,
-			    size_t extra_dsm_uuid_count)
+void tpm_ppi_acpi_fill_ssdt(const struct device *dev)
 {
 	/*
 	 * _DSM method

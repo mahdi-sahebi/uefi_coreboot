@@ -118,15 +118,6 @@ static struct param {
 	.u64val = -1,
 };
 
-/* Indicates which CBFS is described by an mh_cache. Multiple firmware slots imply multiple
-   hash anchors, necessitating differentiating between them when caching. */
-enum mhc_kind {
-	MHC_NONE,    /* The cache is uninitialized. */
-	MHC_PRIMARY, /* Normal and always-present "COREBOOT" CBFS (separate or embedded
-			bootblock). */
-	MHC_TOPSWAP  /* Top Swap CBFS called "COREBOOT_TS" with bootblock in "TOPSWAP". */
-};
-
 /*
  * This "metadata_hash cache" caches the value and location of the CBFS metadata
  * hash embedded in the bootblock when CBFS verification is enabled. The first
@@ -141,70 +132,38 @@ struct mh_cache {
 	size_t offset;
 	struct vb2_hash cbfs_hash;
 	platform_fixup_func fixup;
-	enum mhc_kind kind;
+	bool initialized;
 };
-
-static bool is_main_cbfs_region(const char *region_name)
-{
-	return strcmp(region_name, SECTION_NAME_PRIMARY_CBFS) == 0 ||
-		strcmp(region_name, SECTION_NAME_TOPSWAP_CBFS) == 0;
-}
-
-static enum mhc_kind derive_mhc_kind(const char *region_name)
-{
-	/* Only these two regions are specific to Top Swap. */
-	if (strcmp(region_name, SECTION_NAME_TOPSWAP_CBFS) == 0 ||
-	    strcmp(region_name, SECTION_NAME_TOPSWAP) == 0)
-		return MHC_TOPSWAP;
-
-	return MHC_PRIMARY;
-}
 
 static struct mh_cache *get_mh_cache(void)
 {
 	static struct mh_cache mhc;
 
-	/*
-	 * A single invocation of cbfstool can process regions that use different CBFS metadata.
-	 * Right now, the only such case is when Top Swap redundancy is in use. Check for Top
-	 * Swap region to decide if the cache can be reused.
-	 *
-	 * This implicitly checks whether the cache is initialized.
-	 */
-	const enum mhc_kind kind = derive_mhc_kind(param.region_name);
-	if (mhc.kind == kind)
+	if (mhc.initialized)
 		return &mhc;
 
-	mhc.kind = kind;
+	mhc.initialized = true;
 
 	const struct fmap *fmap = partitioned_file_get_fmap(param.image_file);
 	if (!fmap)
 		goto no_metadata_hash;
 
-	const char *bootblock_region = SECTION_NAME_BOOTBLOCK;
-	if (kind == MHC_TOPSWAP)
-		bootblock_region = SECTION_NAME_TOPSWAP;
-
 	/* Find the metadata_hash container. If there is a "BOOTBLOCK" FMAP section, it's
 	   there. If not, it's a normal file in the primary CBFS section. */
 	size_t offset, size;
 	struct buffer buffer;
-	if (fmap_find_area(fmap, bootblock_region)) {
-		if (!partitioned_file_read_region(&buffer, param.image_file, bootblock_region))
+	if (fmap_find_area(fmap, SECTION_NAME_BOOTBLOCK)) {
+		if (!partitioned_file_read_region(&buffer, param.image_file,
+						  SECTION_NAME_BOOTBLOCK))
 			goto no_metadata_hash;
-		mhc.region = bootblock_region;
+		mhc.region = SECTION_NAME_BOOTBLOCK;
 		offset = 0;
 		size = buffer.size;
 	} else {
-		if (kind != MHC_PRIMARY) {
-			/* Top Swap requires TOPSWAP region. */
-			ERROR("Malformed image: '%s' region is missing\n", bootblock_region);
-			goto no_metadata_hash;
-		}
-
 		struct cbfs_image cbfs;
 		struct cbfs_file *mh_container;
-		if (!partitioned_file_read_region(&buffer, param.image_file, SECTION_NAME_PRIMARY_CBFS))
+		if (!partitioned_file_read_region(&buffer, param.image_file,
+						  SECTION_NAME_PRIMARY_CBFS))
 			goto no_metadata_hash;
 		mhc.region = SECTION_NAME_PRIMARY_CBFS;
 		if (cbfs_image_from_buffer(&cbfs, &buffer, param.headeroffset))
@@ -286,7 +245,7 @@ static int update_anchor(struct mh_cache *mhc, uint8_t *fmap_hash)
    will recalculate and update the metadata hash in the bootblock if needed. */
 static int maybe_update_metadata_hash(struct cbfs_image *cbfs)
 {
-	if (!is_main_cbfs_region(param.region_name))
+	if (strcmp(param.region_name, SECTION_NAME_PRIMARY_CBFS))
 		return 0;  /* Metadata hash only embedded in primary CBFS. */
 
 	struct mh_cache *mhc = get_mh_cache();
@@ -309,7 +268,6 @@ static int maybe_update_metadata_hash(struct cbfs_image *cbfs)
 static int maybe_update_fmap_hash(void)
 {
 	if (strcmp(param.region_name, SECTION_NAME_BOOTBLOCK) &&
-	    strcmp(param.region_name, SECTION_NAME_TOPSWAP) &&
 	    strcmp(param.region_name, SECTION_NAME_FMAP) &&
 	    param.type != CBFS_TYPE_BOOTBLOCK &&
 	    param.type != CBFS_TYPE_AMDFW)
@@ -394,11 +352,11 @@ static int decode_mmap_arg(char *arg)
 		return 1;
 
 	union {
-		unsigned long array[3];
+		unsigned long int array[3];
 		struct {
-			unsigned long flash_base;
-			unsigned long mmap_base;
-			unsigned long mmap_size;
+			unsigned long int flash_base;
+			unsigned long int mmap_base;
+			unsigned long int mmap_size;
 		};
 	} mmap_args;
 	char *suffix = NULL;
@@ -695,10 +653,8 @@ static int cbfs_add_integer_component(const char *name,
 	}
 
 	if (cbfs_get_entry(&image, name)) {
-		if (cbfs_remove_entry(&image, name) != 0) {
-			ERROR("Removing file '%s' failed.\n", name);
-			goto done;
-		}
+		ERROR("'%s' already in ROM image.\n", name);
+		goto done;
 	}
 
 	header = cbfs_create_file_header(CBFS_TYPE_RAW,
@@ -1645,7 +1601,7 @@ static int cbfs_print(void)
 				vb2_digest_size(real_hash.algo));
 		printf("[METADATA HASH]\t%s:%s",
 		       vb2_get_hash_algorithm_name(real_hash.algo), hash_str);
-		if (is_main_cbfs_region(param.region_name)) {
+		if (!strcmp(param.region_name, SECTION_NAME_PRIMARY_CBFS)) {
 			if (!memcmp(mhc->cbfs_hash.raw, real_hash.raw,
 				    vb2_digest_size(real_hash.algo))) {
 				printf(":valid");
@@ -2012,12 +1968,16 @@ static void usage(char *name)
 	     "  -U               Unprocessed; don't decompress or make ELF\n"
 	     "  -v               Provide verbose output (-v=INFO -vv=DEBUG output)\n"
 	     "  -h               Display this help message\n\n"
+	     "  --ext-win-base   Base of extended decode window in host address\n"
+	     "                   space(x86 only)\n"
+	     "  --ext-win-size   Size of extended decode window in host address\n"
+	     "                   space(x86 only)\n"
 	     "COMMANDs:\n"
 	     " add [-r image,regions] -f FILE -n NAME -t TYPE [-A hash] \\\n"
 	     "        [-c compression] [-b base-address | -a alignment] \\\n"
 	     "        [-p padding size] [-y|--xip if TYPE is FSP]       \\\n"
 	     "        [-j topswap-size] (Intel CPUs only) [--ibb]       \\\n"
-	     "        [--mmap flash-base:mmio-base:size]                    "
+	     "        [--ext-win-base win-base --ext-win-size win-size]     "
 			"Add a component\n"
 	     "                                                         "
 	     "    -j valid size: 0x10000 0x20000 0x40000 0x80000 0x100000 \n"
@@ -2030,7 +1990,7 @@ static void usage(char *name)
 	     "        [-S comma-separated-section(s)-to-ignore] \\\n"
 	     "        [-a alignment] [-Q|--pow2page] \\\n"
 	     "        [-y|--xip] [--ibb]                                \\\n"
-	     "        [--mmap flash-base:mmio-base:size]                    "
+	     "        [--ext-win-base win-base --ext-win-size win-size]     "
 			"Add a stage to the ROM\n"
 	     " add-flat-binary [-r image,regions] -f FILE -n NAME \\\n"
 	     "        [-A hash] -l load-address -e entry-point \\\n"
@@ -2413,8 +2373,8 @@ int main(int argc, char **argv)
 				return 1;
 			}
 
-			// "COREBOOT" CBFS region is a mandatory one.
-			if (strcmp(param.region_name, SECTION_NAME_PRIMARY_CBFS) == 0)
+			if (strcmp(param.region_name, SECTION_NAME_PRIMARY_CBFS)
+									== 0)
 				seen_primary_cbfs = true;
 
 			param.image_region = image_regions + region;

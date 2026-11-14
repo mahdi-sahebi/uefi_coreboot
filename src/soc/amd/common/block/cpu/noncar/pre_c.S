@@ -28,7 +28,7 @@ bootblock_pre_c_entry:
 	post_code(POSTCODE_BOOTBLOCK_PRE_C_ENTRY)
 
 #if ENV_X86_64
-	setup_longmode $PML4E
+	setup_longmode $PM4LE
 #endif
 
 	/* Clear .bss section */
@@ -41,9 +41,6 @@ bootblock_pre_c_entry:
 	rep	stosl
 
 	movl	$_eearlyram_stack, %esp
-
-	/* Copy .data section content */
-#include <cpu/x86/copy_data_section.inc>
 
 	/* Align the stack and keep aligned for call to bootblock_c_entry() */
 	and	$0xfffffff0, %esp

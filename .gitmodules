@@ -54,34 +54,23 @@
 [submodule "3rdparty/intel-sec-tools"]
 	path = 3rdparty/intel-sec-tools
 	url = https://review.coreboot.org/9esec-security-tooling.git
-	ignore = dirty
 [submodule "3rdparty/stm"]
 	path = 3rdparty/stm
 	url = https://review.coreboot.org/STM
 	branch = stmpe
 [submodule "util/goswid"]
 	path = util/goswid
-	url = https://github.com/Dasharo/goswid
+	url = https://review.coreboot.org/goswid
 	branch = trunk
-	ignore = dirty
 [submodule "src/vendorcode/amd/opensil/genoa_poc/opensil"]
 	path = src/vendorcode/amd/opensil/genoa_poc/opensil
 	url = https://review.coreboot.org/opensil_genoa_poc.git
 [submodule "3rdparty/open-power-signing-utils"]
 	path = 3rdparty/open-power-signing-utils
 	url = https://review.coreboot.org/open-power-signing-utils.git
-[submodule "3rdparty/amd_firmwares"]
-	path = 3rdparty/amd_firmwares
-	url = https://github.com/openSIL/amd_firmwares.git
-	branch = turin_poc
-[submodule "src/vendorcode/amd/opensil/phoenix_poc/opensil"]
-	path = src/vendorcode/amd/opensil/phoenix_poc/opensil
-	url = https://github.com/3mdeb/openSIL.git
-	branch = phoenix_poc
-[submodule "src/vendorcode/amd/opensil/turin_poc/opensil"]
-	path = src/vendorcode/amd/opensil/turin_poc/opensil
-	url = https://github.com/3mdeb/openSIL.git
-	branch = turin_poc
 [submodule "3rdparty/dasharo-blobs"]
 	path = 3rdparty/dasharo-blobs
 	url = https://github.com/Dasharo/dasharo-blobs.git
+[submodule "payloads/external/edk2/workspace/dasharo"]
+	path = payloads/external/edk2/workspace/dasharo
+	url = /home/mahdi/backup/dasharo/

@@ -104,7 +104,7 @@ static const acpi_cstate_t cstate_map[NUM_C_STATES] = {
 static int cstate_set_non_s0ix[] = {
 	C_STATE_C1,
 	C_STATE_C6_LONG_LAT,
-	C_STATE_C8
+	C_STATE_C7S_LONG_LAT
 };
 
 static int cstate_set_s0ix[] = {
@@ -211,7 +211,6 @@ static struct min_sleep_state min_pci_sleep_states[] = {
 	{ PCI_DEVFN_ESPI,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCH_DEVFN_PMC,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_HDA,	ACPI_DEVICE_SLEEP_D0 },
-	{ PCI_DEVFN_SMBUS,	ACPI_DEVICE_SLEEP_D0 },
 	{ PCI_DEVFN_SPI,	ACPI_DEVICE_SLEEP_D3 },
 	{ PCI_DEVFN_GBE,	ACPI_DEVICE_SLEEP_D3 },
 };

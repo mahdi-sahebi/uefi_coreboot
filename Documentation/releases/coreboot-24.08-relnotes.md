@@ -1,4 +1,4 @@
-coreboot 24.08 release
+Upcoming release - coreboot 24.08
 ========================================================================
 
 We are pleased to announce the release of coreboot 24.08, another significant

@@ -5,12 +5,9 @@
 #include <device/pnp.h>
 #include <ec/acpi/ec.h>
 #include <option.h>
-#include <pc80/mc146818rtc.h>
-#include <halt.h>
 
-#include "ecdefs.h"
-#include "option_table.h"
 #include "ec.h"
+#include "ecdefs.h"
 
 #define ITE_IT5570	0x5570
 #define ITE_IT8987	0x8987
@@ -20,40 +17,15 @@ uint16_t ec_get_version(void)
 	return (ec_read(ECRAM_MAJOR_VERSION) << 8) | ec_read(ECRAM_MINOR_VERSION);
 }
 
-static uint8_t get_cmos_value(uint32_t bit, uint32_t length)
-{
-	uint32_t byte, byte_bit;
-	uint8_t uchar;
-
-	byte = bit / 8; // find the byte where the data starts
-	byte_bit = bit % 8; // find the bit in the byte where the data starts
-
-	uchar = cmos_read(byte); // load the byte
-	uchar >>= byte_bit;     // shift the bits to byte align
-	// clear unspecified bits
-	return uchar & ((1U << length) - 1);
-}
-
 static uint8_t get_ec_value_from_option(const char *name,
-					uint32_t fallback,
+					unsigned int fallback,
 					const uint8_t *lut,
-					size_t lut_size,
-					uint32_t cmos_start_bit,
-					uint32_t cmos_length)
+					size_t lut_size)
 {
-	uint8_t value;
-
-	if (cmos_start_bit != UINT_MAX)
-		value = get_cmos_value(cmos_start_bit, cmos_length);
-	else
-		value = get_uint_option(name, fallback);
-
-	/* Check if the value exists in the LUT array */
-	for (int i = 0; i < lut_size; i++)
-		if (lut[i] == value)
-			return value;
-
-	return fallback;
+	unsigned int index = get_uint_option(name, fallback);
+	if (index >= lut_size)
+		index = fallback;
+	return lut[index];
 }
 
 static uint16_t ec_get_chip_id(unsigned int port)
@@ -97,9 +69,6 @@ static void merlin_init(struct device *dev)
 	 * trackpad_state
 	 * kbl_brightness
 	 * kbl_state
-	 * charging_speed
-	 * lid_switch
-	 * power_led
 	 */
 
 	/*
@@ -121,11 +90,9 @@ static void merlin_init(struct device *dev)
 
 	ec_write(ECRAM_KBL_TIMEOUT,
 		get_ec_value_from_option("kbl_timeout",
-					 SEC_30,
+					 0,
 					 kbl_timeout,
-					 ARRAY_SIZE(kbl_timeout),
-					 UINT_MAX,
-					 UINT_MAX));
+					 ARRAY_SIZE(kbl_timeout)));
 
 	/*
 	 * Fn Ctrl Reverse
@@ -143,11 +110,9 @@ static void merlin_init(struct device *dev)
 
 	ec_write(ECRAM_FN_CTRL_REVERSE,
 		get_ec_value_from_option("fn_ctrl_swap",
-					 FN_CTRL,
+					 0,
 					 fn_ctrl_swap,
-					 ARRAY_SIZE(fn_ctrl_swap),
-					 UINT_MAX,
-					 UINT_MAX));
+					 ARRAY_SIZE(fn_ctrl_swap)));
 
 	/*
 	 * Maximum Charge Level
@@ -167,36 +132,31 @@ static void merlin_init(struct device *dev)
 	if (CONFIG(EC_STARLABS_MAX_CHARGE))
 		ec_write(ECRAM_MAX_CHARGE,
 			get_ec_value_from_option("max_charge",
-						 CHARGE_100,
+						 0,
 						 max_charge,
-						 ARRAY_SIZE(max_charge),
-						 UINT_MAX,
-						 UINT_MAX));
+						 ARRAY_SIZE(max_charge)));
 
 	/*
 	 * Fan Mode
 	 *
 	 * Setting:	fan_mode
 	 *
-	 * Values:	Disabled, Quiet, Normal, Aggressive
+	 * Values:	Quiet, Normal, Aggressive
 	 * Default:	Normal
 	 *
 	 */
 	const uint8_t fan_mode[] = {
 		FAN_NORMAL,
 		FAN_AGGRESSIVE,
-		FAN_QUIET,
-		FAN_DISABLED
+		FAN_QUIET
 	};
 
 	if (CONFIG(EC_STARLABS_FAN))
 		ec_write(ECRAM_FAN_MODE,
 			get_ec_value_from_option("fan_mode",
-						 FAN_NORMAL,
+						 0,
 						 fan_mode,
-						 ARRAY_SIZE(fan_mode),
-						 UINT_MAX,
-						 UINT_MAX));
+						 ARRAY_SIZE(fan_mode)));
 
 	/*
 	 * Function Lock
@@ -207,7 +167,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Locked
 	 *
 	 */
-#ifdef CMOS_VLEN_fn_lock_state
 	const uint8_t fn_lock_state[] = {
 		UNLOCKED,
 		LOCKED
@@ -215,12 +174,9 @@ static void merlin_init(struct device *dev)
 
 	ec_write(ECRAM_FN_LOCK_STATE,
 		get_ec_value_from_option("fn_lock_state",
-					 UNLOCKED,
+					 1,
 					 fn_lock_state,
-					 ARRAY_SIZE(fn_lock_state),
-					 CMOS_VSTART_fn_lock_state,
-					 CMOS_VLEN_fn_lock_state));
-#endif
+					 ARRAY_SIZE(fn_lock_state)));
 
 	/*
 	 * Trackpad State
@@ -231,7 +187,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Enabled
 	 *
 	 */
-#ifdef CMOS_VSTART_trackpad_state
 	const uint8_t trackpad_state[] = {
 		TRACKPAD_ENABLED,
 		TRACKPAD_DISABLED
@@ -239,12 +194,9 @@ static void merlin_init(struct device *dev)
 
 	ec_write(ECRAM_TRACKPAD_STATE,
 		get_ec_value_from_option("trackpad_state",
-					 TRACKPAD_ENABLED,
+					 0,
 					 trackpad_state,
-					 ARRAY_SIZE(trackpad_state),
-					 CMOS_VSTART_trackpad_state,
-					 CMOS_VLEN_trackpad_state));
-#endif
+					 ARRAY_SIZE(trackpad_state)));
 
 	/*
 	 * Keyboard Backlight Brightness
@@ -255,7 +207,6 @@ static void merlin_init(struct device *dev)
 	 * Default:	Low
 	 *
 	 */
-#ifdef CMOS_VSTART_kbl_brightness
 	const uint8_t kbl_brightness[] = {
 		KBL_ON,
 		KBL_OFF,
@@ -263,16 +214,18 @@ static void merlin_init(struct device *dev)
 		KBL_HIGH
 	};
 
-	ec_write(ECRAM_KBL_BRIGHTNESS,
-		get_ec_value_from_option("kbl_brightness",
-			CONFIG(EC_STARLABS_KBL_LEVELS) ? KBL_LOW : KBL_ON,
-			kbl_brightness,
-			ARRAY_SIZE(kbl_brightness),
-			CMOS_VSTART_kbl_brightness,
-			CMOS_VLEN_kbl_brightness));
-
-#endif
-
+	if (CONFIG(EC_STARLABS_KBL_LEVELS))
+		ec_write(ECRAM_KBL_BRIGHTNESS,
+			get_ec_value_from_option("kbl_brightness",
+						 2,
+						 kbl_brightness,
+						 ARRAY_SIZE(kbl_brightness)));
+	else
+		ec_write(ECRAM_KBL_BRIGHTNESS,
+			get_ec_value_from_option("kbl_brightness",
+						 0,
+						 kbl_brightness,
+						 ARRAY_SIZE(kbl_brightness)));
 
 	/*
 	 * Keyboard Backlight State
@@ -287,78 +240,6 @@ static void merlin_init(struct device *dev)
 	 */
 
 	ec_write(ECRAM_KBL_STATE, KBL_ENABLED);
-
-	/*
-	 * Charging Speed
-	 *
-	 * Setting:	charging_speed
-	 *
-	 * Values:	1.0C, 0.5C, 0.2C
-	 * Default:	0.5C
-	 *
-	 */
-	const uint8_t charging_speed[] = {
-		SPEED_1_0C,
-		SPEED_0_5C,
-		SPEED_0_2C
-	};
-
-	if (CONFIG(EC_STARLABS_CHARGING_SPEED))
-		ec_write(ECRAM_CHARGING_SPEED,
-			get_ec_value_from_option("charging_speed",
-				SPEED_0_5C,
-				charging_speed,
-				ARRAY_SIZE(charging_speed),
-				UINT_MAX,
-				UINT_MAX));
-
-	/*
-	 * Lid Switch
-	 *
-	 * Setting:	lid_switch
-	 *
-	 * Values:	0, 1
-	 * Default:	0
-	 *
-	 */
-	const uint8_t lid_switch[] = {
-		SWITCH_NORMAL,
-		SWITCH_SLEEP_ONLY,
-		SWITCH_DISABLED
-	};
-
-	if (CONFIG(EC_STARLABS_LID_SWITCH))
-		ec_write(ECRAM_LID_SWITCH,
-			get_ec_value_from_option("lid_switch",
-				SWITCH_NORMAL,
-				lid_switch,
-				ARRAY_SIZE(lid_switch),
-				UINT_MAX,
-				UINT_MAX));
-
-	/*
-	 * Power LED Brightness
-	 *
-	 * Setting:	power_led
-	 *
-	 * Values:	0, 1, 2
-	 * Default:	0
-	 *
-	 */
-	const uint8_t power_led[] = {
-		LED_NORMAL,
-		LED_REDUCED,
-		LED_OFF
-	};
-
-	if (CONFIG(EC_STARLABS_POWER_LED))
-		ec_write(ECRAM_POWER_LED,
-			get_ec_value_from_option("power_led",
-				LED_NORMAL,
-				power_led,
-				ARRAY_SIZE(power_led),
-				UINT_MAX,
-				UINT_MAX));
 }
 
 static struct device_operations ops = {

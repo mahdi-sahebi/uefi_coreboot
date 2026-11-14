@@ -28,9 +28,6 @@ chip soc/intel/alderlake
 			register "usb2_ports[5]" = "USB2_PORT_SHORT(OC_SKIP)" # 5G/LTE
 			register "usb3_ports[1]" = "USB3_PORT_EMPTY"
 
-			register "enabletcsscovtypea[1]" = "true"
-			register "mappingpchxhciusba[1]" = "6"
-
 			chip drivers/usb/acpi
 				device ref xhci_root_hub on
 					chip drivers/usb/acpi
@@ -65,7 +62,7 @@ chip soc/intel/alderlake
 		# LAN1
 		device ref pcie_rp7 on
 			register "pch_pcie_rp[PCH_RP(7)]" = "{
-				.flags = PCIE_RP_LTR | PCIE_RP_AER | PCIE_RP_CLK_REQ_UNUSED,
+				.flags = PCIE_RP_LTR | PCIE_RP_AER,
 				.clk_src = 0,
 				.clk_req = 0,
 			}"
@@ -97,7 +94,7 @@ chip soc/intel/alderlake
 		# LAN2
 		device ref pcie_rp12 on
 			register "pch_pcie_rp[PCH_RP(12)]" = "{
-				.flags = PCIE_RP_LTR | PCIE_RP_AER | PCIE_RP_CLK_REQ_UNUSED,
+				.flags = PCIE_RP_LTR | PCIE_RP_AER,
 				.clk_src = 1,
 				.clk_req = 1,
 			}"

@@ -9,7 +9,6 @@
 #include <device/device.h>
 #include <drivers/wifi/generic/wifi.h>
 #include <elog.h>
-#include <fsp/api.h>
 #include <fsp/fsp_debug_event.h>
 #include <fsp/util.h>
 #include <gpio.h>
@@ -19,7 +18,6 @@
 #include <intelblocks/pcie_rp.h>
 #include <option.h>
 #include <soc/cpu.h>
-#include <soc/intel/common/reset.h>
 #include <soc/iomap.h>
 #include <soc/msr.h>
 #include <soc/pci_devs.h>
@@ -57,60 +55,41 @@ static uint8_t clk_src_to_fsp(enum pcie_rp_type type, int rp_number)
 		return CPU_PCIE_BASE + rp_number;
 }
 
-static void configure_cpu_rp_speed(FSP_M_CONFIG *m_cfg,
-			const struct pcie_rp_config *cfg,
-			size_t index)
+static void pcie_rp_init(FSP_M_CONFIG *m_cfg, uint32_t en_mask, enum pcie_rp_type type,
+			const struct pcie_rp_config *cfg, size_t cfg_count)
 {
-	static const char *const speeds[] = {"AUTO", "GEN1", "GEN2", "GEN3", "GEN4"};
-
-	m_cfg->CpuPcieRpPcieSpeed[index] =
-		pcie_speed_control_to_upd(get_uint_option("pciexp_speed",
-			cfg->pcie_rp_pcie_speed));
-	printk(BIOS_DEBUG, "CPU PCIe RP%zu: speed set to %s\n",
-		index + 1, speeds[m_cfg->CpuPcieRpPcieSpeed[index]]);
-}
-
-static void configure_rp_clocks(FSP_M_CONFIG *m_cfg, enum pcie_rp_type type,
-		const struct pcie_rp_config *rp_cfg, size_t index)
-{
+	size_t i;
 	/* bitmask to save the status of clkreq assignment */
 	static unsigned int clk_req_mapping = 0;
 
-	if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
-		return;
-	if (rp_cfg->flags & PCIE_RP_CLK_SRC_UNUSED)
-		return;
-	if (!rp_cfg->flags && rp_cfg->clk_src == 0 && rp_cfg->clk_req == 0) {
-		printk(BIOS_WARNING, "Missing %s root port %zu clock structure definition\n",
-			type == PCIE_RP_CPU ? "CPU" : "PCH", index + 1);
-		return;
-	}
-	if (!(rp_cfg->flags & PCIE_RP_CLK_REQ_UNUSED)) {
-		if (clk_req_mapping & (BIT(rp_cfg->clk_req))) {
-			printk(BIOS_WARNING,
-				"Found overlapped clkreq assignment on clk req %u\n",
-				rp_cfg->clk_req);
+	for (i = 0; i < cfg_count; i++) {
+		if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE)) {
+			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
+			continue;
 		}
-		m_cfg->PcieClkSrcClkReq[rp_cfg->clk_src] = rp_cfg->clk_req;
-		clk_req_mapping |= BIT(rp_cfg->clk_req);
-	}
-	/*
-	 * Override the usage only if the clock is unused, otherwise we lose
-	 * FSP_CLK_FREE_RUNNING and FSP_CLK_LAN setting from fill_fspm_pcie_rp_params.
-	 */
-	if (m_cfg->PcieClkSrcUsage[rp_cfg->clk_src] == FSP_CLK_NOTUSED)
-		m_cfg->PcieClkSrcUsage[rp_cfg->clk_src] = clk_src_to_fsp(type, index);
-}
-
-static void pcie_rp_init(FSP_M_CONFIG *m_cfg, uint32_t en_mask, enum pcie_rp_type type,
-		const struct pcie_rp_config *cfg, size_t cfg_count)
-{
-	for (size_t i = 0; i < cfg_count; i++) {
 		if (!(en_mask & BIT(i)))
 			continue;
-		configure_rp_clocks(m_cfg, type, &cfg[i], i);
-		if (type == PCIE_RP_CPU)
-			configure_cpu_rp_speed(m_cfg, &cfg[i], i);
+		if (cfg[i].flags & PCIE_RP_CLK_SRC_UNUSED)
+			continue;
+		if (!cfg[i].flags && cfg[i].clk_src == 0 && cfg[i].clk_req == 0) {
+			printk(BIOS_WARNING, "Missing root port clock structure definition\n");
+			continue;
+		}
+
+		if (!(cfg[i].flags & PCIE_RP_CLK_REQ_UNUSED)) {
+			if (clk_req_mapping & (1 << cfg[i].clk_req))
+				printk(BIOS_WARNING,
+				       "Found overlapped clkreq assignment on clk req %d\n",
+				       cfg[i].clk_req);
+			m_cfg->PcieClkSrcClkReq[cfg[i].clk_src] = cfg[i].clk_req;
+			clk_req_mapping |= 1 << cfg[i].clk_req;
+		}
+		/*
+		 * Override the usage only if the clock is unused, otherwise we lose
+		 * FSP_CLK_FREE_RUNNING and FSP_CLK_LAN setting from fill_fspm_pcie_rp_params.
+		 */
+		if (m_cfg->PcieClkSrcUsage[cfg[i].clk_src] == FSP_CLK_NOTUSED)
+			m_cfg->PcieClkSrcUsage[cfg[i].clk_src] = clk_src_to_fsp(type, i);
 	}
 }
 
@@ -121,9 +100,7 @@ static void fill_fspm_pcie_rp_params(FSP_M_CONFIG *m_cfg,
 	unsigned int i;
 
 	for (i = 0; i < CONFIG_MAX_PCIE_CLOCK_SRC; i++) {
-		if (CONFIG(SOC_INTEL_COMPLIANCE_TEST_MODE))
-			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
-		else if (config->pcie_clk_config_flag[i] & PCIE_CLK_FREE_RUNNING)
+		if (config->pcie_clk_config_flag[i] & PCIE_CLK_FREE_RUNNING)
 			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_FREE_RUNNING;
 		else if (config->pcie_clk_config_flag[i] & PCIE_CLK_LAN)
 			m_cfg->PcieClkSrcUsage[i] = FSP_CLK_LAN;
@@ -159,11 +136,10 @@ static void fill_fspm_igd_params(FSP_M_CONFIG *m_cfg,
 		[DDI_PORT_3] = {&m_cfg->DdiPort3Ddc, &m_cfg->DdiPort3Hpd},
 		[DDI_PORT_4] = {&m_cfg->DdiPort4Ddc, &m_cfg->DdiPort4Hpd},
 	};
-	m_cfg->InternalGfx = get_uint_option("igd_enabled", !CONFIG(SOC_INTEL_DISABLE_IGD)) && is_devfn_enabled(SA_DEVFN_IGD);
+	m_cfg->InternalGfx = !CONFIG(SOC_INTEL_DISABLE_IGD) && is_devfn_enabled(SA_DEVFN_IGD);
 	if (m_cfg->InternalGfx) {
 		/* IGD is enabled, set IGD stolen size to 60MB. */
-		m_cfg->IgdDvmt50PreAlloc = get_uint_option("igd_dvmt_prealloc", IGD_SM_60MB);
-		m_cfg->ApertureSize = get_uint_option("igd_aperture_size", IGD_AP_SZ_256MB);
+		m_cfg->IgdDvmt50PreAlloc = IGD_SM_60MB;
 		/* DP port config */
 		m_cfg->DdiPortAConfig = config->ddi_portA_config;
 		m_cfg->DdiPortBConfig = config->ddi_portB_config;
@@ -284,7 +260,6 @@ static void fill_fspm_misc_params(FSP_M_CONFIG *m_cfg,
 	m_cfg->GpioOverride = 0x1;
 
 	/* CNVi DDR RFI Mitigation */
-#if (CONFIG(DRIVERS_WIFI_GENERIC))
 	const struct device_path path[] = {
 		{ .type = DEVICE_PATH_PCI, .pci.devfn = PCH_DEVFN_CNVI_WIFI },
 		{ .type = DEVICE_PATH_GENERIC, .generic.id = 0 } };
@@ -292,7 +267,6 @@ static void fill_fspm_misc_params(FSP_M_CONFIG *m_cfg,
 							ARRAY_SIZE(path));
 	if (is_dev_enabled(dev))
 		m_cfg->CnviDdrRfim = wifi_generic_cnvi_ddr_rfim_enabled(dev);
-#endif
 
 	/* Skip MBP HOB */
 	m_cfg->SkipMbpHob = !CONFIG(FSP_PUBLISH_MBP_HOB);
@@ -367,7 +341,7 @@ static void fill_fspm_vtd_params(FSP_M_CONFIG *m_cfg,
 	m_cfg->VtdBaseAddress[VTD_IPU] = IPUVT_BASE_ADDRESS;
 	m_cfg->VtdBaseAddress[VTD_VTVCO] = VTVC0_BASE_ADDRESS;
 
-	m_cfg->VtdDisable = !get_uint_option("vtd", 1);
+	m_cfg->VtdDisable = 0;
 	m_cfg->VtdIopEnable = !m_cfg->VtdDisable;
 	m_cfg->VtdIgdEnable = m_cfg->InternalGfx;
 	m_cfg->VtdIpuEnable = m_cfg->SaIpuEnable;
@@ -468,13 +442,6 @@ static void debug_override_memory_init_params(FSP_M_CONFIG *mupd)
 {
 	debug_get_pch_cpu_tracehub_modes(&mupd->CpuTraceHubMode, &mupd->PchTraceHubMode);
 }
-
-#if CONFIG(PLATFORM_HAS_EARLY_LOW_BATTERY_INDICATOR)
-void platform_display_early_shutdown_notification(void *arg)
-{
-	ux_inform_user_of_poweroff_operation("low-battery shutdown");
-}
-#endif
 
 static void fill_fspm_sign_of_life(FSP_M_CONFIG *m_cfg,
 				   FSPM_ARCH_UPD *arch_upd)

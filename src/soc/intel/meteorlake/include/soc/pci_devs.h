@@ -222,6 +222,8 @@
 #define  PCI_DEV_GBE		_PCI_DEV(ESPI, 6)
 #define  PCI_DEV_NPK		_PCI_DEV(ESPI, 7)
 
+#endif
+
 /* for common code */
 #define MIN_PCH_SLOT		PCI_DEV_SLOT_THC
 #define PCH_DEV_SLOT_CSE	PCI_DEV_SLOT_CSE
@@ -245,5 +247,3 @@
 #define SA_DEV_TBT3		PCI_DEV_TBT3
 #define SA_DEV_IGD		PCI_DEV_IGD
 #define SA_DEVFN_IGD		PCI_DEVFN_IGD
-
-#endif // _SOC_METEORLAKE_PCI_DEVS_H_

@@ -148,7 +148,6 @@ ramstage-y += hexstrtobin.c
 ramstage-y += wrdd.c
 ramstage-$(CONFIG_CONSOLE_CBMEM) += cbmem_console.c
 ramstage-$(CONFIG_BMP_LOGO) += bmp_logo.c
-ramstage-$(CONFIG_BMP_LOGO) += render_bmp.c
 ramstage-$(CONFIG_BOOTSPLASH) += bootsplash.c
 ramstage-$(CONFIG_BOOTSPLASH) += jpeg.c
 ramstage-$(CONFIG_COLLECT_TIMESTAMPS) += timestamp.c
@@ -163,9 +162,6 @@ ramstage-y += b64_decode.c
 ramstage-$(CONFIG_ACPI_NHLT) += nhlt.c
 ramstage-$(CONFIG_PAYLOAD_FIT_SUPPORT) += fit.c
 ramstage-$(CONFIG_PAYLOAD_FIT_SUPPORT) += fit_payload.c
-
-ramstage-$(CONFIG_VGA) += vga_gfx.c
-romstage-$(CONFIG_ROMSTAGE_VGA) += vga_gfx.c
 
 romstage-$(CONFIG_TIMER_QUEUE) += timer_queue.c
 ramstage-$(CONFIG_TIMER_QUEUE) += timer_queue.c
@@ -294,10 +290,6 @@ postcar-y += prog_ops.c
 postcar-y += rmodule.c
 postcar-$(CONFIG_COLLECT_TIMESTAMPS) += timestamp.c
 postcar-$(CONFIG_GENERIC_UDELAY) += timer.c
-
-all-$(CONFIG_ARCH_ARM) += io.c
-all-$(CONFIG_ARCH_ARM64) += io.c
-all-$(CONFIG_ARCH_RISCV) += io.c
 
 # Use program.ld for all the platforms which use C fo the bootblock.
 bootblock-y += program.ld
@@ -428,27 +420,3 @@ header_pointer-position := -4
 header_pointer-type := "cbfs header"
 
 romstage-y += ux_locales.c
-
-# Add logo to the cbfs image
-BMP_LOGO_COMPRESS_FLAG := $(CBFS_COMPRESS_FLAG)
-ifeq ($(CONFIG_BMP_LOGO_COMPRESS_LZMA),y)
-	BMP_LOGO_COMPRESS_FLAG := LZMA
-else ifeq ($(CONFIG_BMP_LOGO_COMPRESS_LZ4),y)
-	BMP_LOGO_COMPRESS_FLAG := LZ4
-endif
-
-define add_bmp_logo_file_to_cbfs
-cbfs-files-$$($(1)) += $(2)
-$(2)-file := $$(call strip_quotes,$$($(3)))
-$(2)-type := raw
-$(2)-compression := $$(BMP_LOGO_COMPRESS_FLAG)
-endef
-
-ifneq ($(CONFIG_HAVE_CUSTOM_BMP_LOGO),y)
-$(eval $(call add_bmp_logo_file_to_cbfs,CONFIG_BMP_LOGO,logo.bmp,CONFIG_BMP_LOGO_FILE_NAME))
-endif
-
-$(eval $(call add_bmp_logo_file_to_cbfs,CONFIG_PLATFORM_HAS_LOW_BATTERY_INDICATOR, \
-	      low_battery.bmp,CONFIG_PLATFORM_LOW_BATTERY_INDICATOR_LOGO_PATH))
-$(eval $(call add_bmp_logo_file_to_cbfs,CONFIG_SPLASH_SCREEN_FOOTER, \
-	      footer_logo.bmp,CONFIG_SPLASH_SCREEN_FOOTER_LOGO_PATH))

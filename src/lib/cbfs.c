@@ -23,18 +23,13 @@
 #if ENV_X86 && (ENV_POSTCAR || ENV_SMM)
 struct mem_pool cbfs_cache = MEM_POOL_INIT(NULL, 0, 0);
 #elif CONFIG(POSTRAM_CBFS_CACHE_IN_BSS) && ENV_RAMSTAGE
-static u8 cache_buffer[CONFIG_RAMSTAGE_CBFS_CACHE_SIZE] __aligned(CONFIG_CBFS_CACHE_ALIGN);
+static u8 cache_buffer[CONFIG_RAMSTAGE_CBFS_CACHE_SIZE];
 struct mem_pool cbfs_cache =
 	MEM_POOL_INIT(cache_buffer, sizeof(cache_buffer), CONFIG_CBFS_CACHE_ALIGN);
 #else
 struct mem_pool cbfs_cache =
 	MEM_POOL_INIT(_cbfs_cache, REGION_SIZE(cbfs_cache), CONFIG_CBFS_CACHE_ALIGN);
 #endif
-
-__weak const char *cbfs_fmap_region_hint(void)
-{
-	return "COREBOOT";
-}
 
 static void switch_to_postram_cache(int unused)
 {
@@ -91,34 +86,6 @@ enum cb_err _cbfs_boot_lookup(const char *name, bool force_ro,
 	}
 
 	if (rdev_chain(rdev, &cbd->rdev, data_offset, be32toh(mdata->h.len)))
-		return CB_ERR;
-
-	return CB_SUCCESS;
-}
-
-enum cb_err _cbfs_unverified_area_lookup(const char *area, const char *name, union cbfs_mdata *mdata, struct region_device *rdev)
-{
-	struct region_device area_dev;
-
-	if (fmap_locate_area_as_rdev(area, &area_dev)) {
-		printk(BIOS_ERR, "CBFS ERROR: Could not find region %s\n", area);
-		return CB_ERR;
-	}
-
-	size_t data_offset;
-	enum cb_err err;
-
-	err = cbfs_lookup(&area_dev, name, mdata, &data_offset, NULL);
-
-	if (err) {
-		if (err == CB_CBFS_NOT_FOUND)
-			printk(BIOS_WARNING, "CBFS: Could not find file %s in region %s\n", name, area);
-		else
-			printk(BIOS_ERR, "CBFS ERROR: Error %d when looking up '%s'\n", err, name);
-		return err;
-	}
-
-	if (rdev_chain(rdev, &area_dev, data_offset, be32toh(mdata->h.len)))
 		return CB_ERR;
 
 	return CB_SUCCESS;
@@ -219,12 +186,21 @@ static bool cbfs_file_hash_mismatch(const void *buffer, size_t size,
 	}
 
 	if (CONFIG(TPM_MEASURED_BOOT) && !ENV_SMM) {
-		tpm_result_t rc = tspi_cbfs_measurement(mdata->h.filename, buffer, size,
-							be32toh(mdata->h.type), hash);
-		if (rc != TPM_SUCCESS)
-			ERROR("failed to measure '%s' into TPM log, error %#x\n",
-			      mdata->h.filename, rc);
-		/* We intentionally continue to boot on measurement errors. */
+		struct vb2_hash calculated_hash;
+
+		/* No need to re-hash file if we already have it from verification. */
+		if (!hash || hash->algo != tpm_log_alg()) {
+			if (vb2_hash_calculate(vboot_hwcrypto_allowed(), buffer, size,
+					       tpm_log_alg(), &calculated_hash))
+				hash = NULL;
+			else
+				hash = &calculated_hash;
+		}
+
+		if (!hash ||
+		    tspi_cbfs_measurement(mdata->h.filename, be32toh(mdata->h.type), hash))
+			ERROR("failed to measure '%s' into TPM log\n", mdata->h.filename);
+			/* We intentionally continue to boot on measurement errors. */
 	}
 
 	return false;
@@ -400,14 +376,6 @@ out:
 	free_cbfs_preload_context(context);
 }
 
-void cbfs_preload_wait_for_all(void)
-{
-	struct cbfs_preload_context *context;
-
-	list_for_each(context, cbfs_preload_context_list, list_node)
-		thread_join(&context->handle);
-}
-
 static struct cbfs_preload_context *find_cbfs_preload_context(const char *name)
 {
 	struct cbfs_preload_context *context;
@@ -507,24 +475,6 @@ static void *do_alloc(union cbfs_mdata *mdata, struct region_device *rdev,
 	return loc;
 }
 
-static enum cb_err check_or_query_type(const union cbfs_mdata *mdata, enum cbfs_type *type)
-{
-	if (type == NULL)
-		return CB_SUCCESS;
-
-	const enum cbfs_type real_type = be32toh(mdata->h.type);
-	if (*type == CBFS_TYPE_QUERY) {
-		*type = real_type;
-		return CB_SUCCESS;
-	}
-
-	if (*type == real_type)
-		return CB_SUCCESS;
-
-	ERROR("'%s' type mismatch (is %u, expected %u)\n", mdata->h.filename, real_type, *type);
-	return CB_ERR;
-}
-
 void *_cbfs_alloc(const char *name, cbfs_allocator_t allocator, void *arg,
 		  size_t *size_out, bool force_ro, enum cbfs_type *type)
 {
@@ -539,8 +489,16 @@ void *_cbfs_alloc(const char *name, cbfs_allocator_t allocator, void *arg,
 	if (_cbfs_boot_lookup(name, force_ro, &mdata, &rdev))
 		return NULL;
 
-	if (check_or_query_type(&mdata, type) != CB_SUCCESS)
-		return NULL;
+	if (type) {
+		const enum cbfs_type real_type = be32toh(mdata.h.type);
+		if (*type == CBFS_TYPE_QUERY)
+			*type = real_type;
+		else if (*type != real_type) {
+			ERROR("'%s' type mismatch (is %u, expected %u)\n",
+			      mdata.h.filename, real_type, *type);
+			return NULL;
+		}
+	}
 
 	/* Update the rdev with the preload content */
 	if (!force_ro && get_preload_rdev(&rdev, name) == CB_SUCCESS)
@@ -564,8 +522,7 @@ void *_cbfs_alloc(const char *name, cbfs_allocator_t allocator, void *arg,
 }
 
 void *_cbfs_unverified_area_alloc(const char *area, const char *name,
-				  cbfs_allocator_t allocator, void *arg, size_t *size_out,
-				  enum cbfs_type *type)
+				  cbfs_allocator_t allocator, void *arg, size_t *size_out)
 {
 	struct region_device area_rdev, file_rdev;
 	union cbfs_mdata mdata;
@@ -580,9 +537,6 @@ void *_cbfs_unverified_area_alloc(const char *area, const char *name,
 		ERROR("'%s' not found in '%s'\n", name, area);
 		return NULL;
 	}
-
-	if (check_or_query_type(&mdata, type) != CB_SUCCESS)
-		return NULL;
 
 	if (rdev_chain(&file_rdev, &area_rdev, data_offset, be32toh(mdata.h.len)))
 		return NULL;
@@ -716,7 +670,6 @@ enum cb_err cbfs_init_boot_device(const struct cbfs_boot_device *cbd,
 
 const struct cbfs_boot_device *cbfs_get_boot_device(bool force_ro)
 {
-	printk(BIOS_DEBUG, "Starting cbfs_boot_device\n");
 	static struct cbfs_boot_device ro;
 
 	/* Ensure we always init RO mcache, even if the first file is from the RW CBFS.
@@ -740,14 +693,8 @@ const struct cbfs_boot_device *cbfs_get_boot_device(bool force_ro)
 	if (region_device_sz(&ro.rdev))
 		return &ro;
 
-	/* Falls back to the default COREBOOT region if no overriding mechanisms are in
-	   place (e.g. Intel Top Swap). */
-	const char *region = cbfs_fmap_region_hint();
-
-	if (fmap_locate_area_as_rdev(region, &ro.rdev))
-		die("Cannot locate %s CBFS", region);
-
-	printk(BIOS_INFO, "Booting from %s region\n", region);
+	if (fmap_locate_area_as_rdev("COREBOOT", &ro.rdev))
+		die("Cannot locate primary CBFS");
 
 	if (ENV_INITIAL_STAGE) {
 		enum cb_err err = cbfs_init_boot_device(&ro, metadata_hash_get());

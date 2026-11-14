@@ -41,8 +41,8 @@ bool storage_open(const char store_file[], struct storage_t *storage, bool rw)
 		storage->region.length = area->size;
 	}
 
-	bool is_auth_var_store;
-	if (!fv_parse(storage->region, &storage->store_area, &is_auth_var_store)) {
+	bool auth_vars;
+	if (!fv_parse(storage->region, &storage->store_area, &auth_vars)) {
 		if (!rw) {
 			fprintf(stderr,
 				"Failed to find variable store in \"%s\"\n",
@@ -63,7 +63,7 @@ bool storage_open(const char store_file[], struct storage_t *storage, bool rw)
 			goto error;
 		}
 
-		if (!fv_parse(storage->region, &storage->store_area, &is_auth_var_store)) {
+		if (!fv_parse(storage->region, &storage->store_area, &auth_vars)) {
 			fprintf(stderr,
 				"Failed to parse newly formatted store in \"%s\"\n",
 				store_file);
@@ -75,7 +75,7 @@ bool storage_open(const char store_file[], struct storage_t *storage, bool rw)
 			store_file);
 	}
 
-	storage->vs = vs_load(storage->store_area, is_auth_var_store);
+	storage->vs = vs_load(storage->store_area, auth_vars);
 	return true;
 
 error:

@@ -21,14 +21,11 @@ fw_config
 		option WFC_MIPI_OVTI5675	1
 		option WFC_MIPI_OVTI8856	2
 	end
-	field ALL_WIFI 19 19
-		option WIFI_ENABLE		1
-	end
 end
 
 chip soc/intel/alderlake
 	# Acoustic settings
-	register "acoustic_noise_mitigation" = "true"
+	register "acoustic_noise_mitigation" = "1"
 	register "slow_slew_rate[VR_DOMAIN_IA]" = "SLEW_FAST_4"
 	register "slow_slew_rate[VR_DOMAIN_GT]" = "SLEW_FAST_4"
 	register "fast_pkg_c_ramp_disable[VR_DOMAIN_IA]" = "1"
@@ -62,7 +59,7 @@ chip soc/intel/alderlake
 	# [22:16] steps of delay for DDR50, each 125ps, range: 0 - 78.
 	# [14:8] steps of delay for SDR25/HS50, each 125ps, range: 0 - 119.
 	# [6:0] steps of delay for SDR12, each 125ps, range: 0 - 119.
-	register "common_soc_config.emmc_dll.emmc_rx_cmd_data_cntl1" = "0x1C1B4F1B"
+	register "common_soc_config.emmc_dll.emmc_rx_cmd_data_cntl1" = "0x1C1B4F3C"
 
 	# EMMC RX CMD/DATA Delay 2
 	# Refer to EDS-Vol2-42.3.12.
@@ -233,7 +230,6 @@ chip soc/intel/alderlake
 				register "enable_cnvi_ddr_rfim" = "true"
 				device generic 0 on
 					probe WIFI_TYPE WIFI_CNVI
-					probe ALL_WIFI WIFI_ENABLE
 				end
 			end
 		end
@@ -252,7 +248,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 10 on end
 			end
@@ -270,7 +265,6 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "1"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 16 on end
 			end
@@ -285,41 +279,8 @@ chip soc/intel/alderlake
 				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
 				register "generic.enable_delay_ms" = "12"
 				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
 				register "hid_desc_reg_offset" = "0x01"
 				device i2c 40 on end
-			end
-			chip drivers/i2c/hid
-				register "generic.hid" = ""FTSC1000""
-				register "generic.desc" = ""Focal Touchscreen""
-				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_C7_IRQ)"
-				register "generic.detect" = "1"
-				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C1)"
-				register "generic.reset_delay_ms" = "20"
-				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
-				register "generic.enable_delay_ms" = "6"
-				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
-				register "hid_desc_reg_offset" = "0x01"
-				device i2c 38 on end
-			end
-			chip drivers/i2c/hid
-				register "generic.hid" = ""PRT3406""
-				register "generic.desc" = ""Parade Touchscreen""
-				register "generic.irq" = "ACPI_IRQ_LEVEL_LOW(GPP_C7_IRQ)"
-				register "generic.detect" = "1"
-				register "generic.reset_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C1)"
-				register "generic.reset_delay_ms" = "20"
-				register "generic.reset_off_delay_ms" = "2"
-				register "generic.stop_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_C6)"
-				register "generic.stop_delay_ms" = "280"
-				register "generic.stop_off_delay_ms" = "2"
-				register "generic.enable_gpio" = "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(GPP_C0)"
-				register "generic.enable_delay_ms" = "1"
-				register "generic.has_power_resource" = "1"
-				register "generic.use_gpio_for_status" = "true"
-				register "hid_desc_reg_offset" = "0x01"
-				device i2c 24 on end
 			end
 			chip drivers/generic/gpio_keys
 				register "name" = ""PENH""
@@ -346,17 +307,13 @@ chip soc/intel/alderlake
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_ADL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "1"
 				register "link_freq[0]" = "DEFAULT_LINK_FREQ"
 				register "remote_name" = ""IPU0""
 
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				#Controls
@@ -392,17 +349,13 @@ chip soc/intel/alderlake
 				register "acpi_name" = ""CAM0""
 				register "chip_name" = ""Ov 8856 Camera""
 				register "device_type" = "INTEL_ACPI_CAMERA_SENSOR"
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				register "ssdb.lanes_used" = "2"
 				register "ssdb.link_used" = "1"
-				register "ssdb.platform" = "PLAT_ADL"
-				register "ssdb.vcm_type" = "VCM_DW9714"
-				register "vcm_address" = "0x0C"
+				register "ssdb.vcm_type" = "0x0C"
 				register "vcm_name" = ""VCM0""
-				register "ssdb.rom_type" = "ROM_EEPROM_CAT24C08"
-				register "rom_address" = "0x50"
 				register "num_freq_entries" = "2"
 				register "link_freq[0]" = "720000000"
 				register "link_freq[1]" = "360000000"
@@ -442,7 +395,7 @@ chip soc/intel/alderlake
 				register "device_type" = "INTEL_ACPI_CAMERA_VCM"
 
 				register "vcm_compat" = ""dongwoon,dw9714""
-				register "has_power_resource" = "true"
+				register "has_power_resource" = "1"
 				register "max_dstate_for_probe" = "ACPI_DEVICE_SLEEP_D3_COLD"
 
 				#Controls
@@ -529,7 +482,6 @@ chip soc/intel/alderlake
 		end
 		device ref pcie_rp4 on
 			probe WIFI_TYPE WIFI_PCIE
-			probe ALL_WIFI WIFI_ENABLE
 			# Enable wlan PCIe 4 using clk 2
 			register "pch_pcie_rp[PCH_RP(4)]" = "{
 				.clk_src = 2,
@@ -543,7 +495,6 @@ chip soc/intel/alderlake
 				use usb2_port8 as bluetooth_companion
 				device pci 00.0 on
 					probe WIFI_TYPE WIFI_PCIE
-					probe ALL_WIFI WIFI_ENABLE
 				end
 			end
 			chip soc/intel/common/block/pcie/rtd3
@@ -552,7 +503,6 @@ chip soc/intel/alderlake
 				register "srcclk_pin" = "2"
 				device generic 0 on
 					probe WIFI_TYPE WIFI_PCIE
-					probe ALL_WIFI WIFI_ENABLE
 				end
 			end
 		end
@@ -674,7 +624,6 @@ chip soc/intel/alderlake
 							"ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_D4)"
 						device ref usb2_port8 on
 							probe WIFI_TYPE WIFI_PCIE
-							probe ALL_WIFI WIFI_ENABLE
 						end
 					end
 					chip drivers/usb/acpi
@@ -684,7 +633,6 @@ chip soc/intel/alderlake
 							"ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_D4)"
 						device ref usb2_port10 on
 							probe WIFI_TYPE WIFI_CNVI
-							probe ALL_WIFI WIFI_ENABLE
 						end
 					end
 					chip drivers/usb/acpi

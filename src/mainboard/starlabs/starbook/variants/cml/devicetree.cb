@@ -1,7 +1,6 @@
 chip soc/intel/cannonlake
 	# FSP UPDs
 	register "eist_enable"			= "true"
-	register "enable_c6dram"		= "1"
 	register "SaGv"				= "SaGv_Enabled"
 
 	# Graphics
@@ -22,22 +21,11 @@ chip soc/intel/cannonlake
 		[PchSerialIoIndexUART2]		= PchSerialIoSkipInit,
 	}"
 
-	register "common_soc_config" = "{
-		.i2c[0] = {
-			.speed				= I2C_SPEED_FAST,
-		},
-	}"
-
 	# Power
-	register "PchPmSlpS3MinAssert"		= "2"				# 1ms
-	register "PchPmSlpS4MinAssert"		= "3"				# 3s
-	register "PchPmSlpSusMinAssert"		= "3"				# 1s
-	register "PchPmSlpAMinAssert"		= "3"				# 98ms
-
-	# GPE configuration
-	register "gpe0_dw0"			= "PMC_GPP_B"
-	register "gpe0_dw1"			= "PMC_GPP_C"
-	register "gpe0_dw2"			= "PMC_GPP_E"
+	register "PchPmSlpS3MinAssert"		= "2"				# 50ms
+	register "PchPmSlpS4MinAssert"		= "3"				# 1s
+	register "PchPmSlpSusMinAssert"		= "3"				# 500ms
+	register "PchPmSlpAMinAssert"		= "3"				# 2s
 
 	# PCIe Clock
 	register "PcieClkSrcClkReq[0]"		= "PCIE_CLK_NOTUSED"
@@ -48,12 +36,10 @@ chip soc/intel/cannonlake
 
 # Actual device tree.
 	device domain 0 on
-		device ref igpu on
-			register "gfx"				= "GMA_DEFAULT_PANEL(0)"
-		end
+		device ref igpu on  end
 		device ref xhci on
 			# Motherboard USB 3.0 Type-C
-			register "usb2_ports[0]"		= "USB2_PORT_MID(OC_SKIP)"
+			register "usb2_ports[0]"		= "USB2_PORT_TYPE_C(OC_SKIP)"
 			register "usb3_ports[0]"		= "USB3_PORT_DEFAULT(OC_SKIP)"
 
 			# Motherboard USB 3.0 Type-A
@@ -127,9 +113,6 @@ chip soc/intel/cannonlake
 						register "desc"		= ""Internal Bluetooth""
 						register "type"		= "UPC_TYPE_INTERNAL"
 						register "group"	= "ACPI_PLD_GROUP(0, 5)"
-						register "is_intel_bluetooth" = "1"
-						register "enable_gpio"	= "ACPI_GPIO_OUTPUT_ACTIVE_HIGH(CNV_BTEN)"
-						register "reset_gpio"	= "ACPI_GPIO_OUTPUT_ACTIVE_LOW(GPP_B4)"
 						device ref usb2_port10 on end
 					end
 				end
@@ -138,8 +121,7 @@ chip soc/intel/cannonlake
 		device ref shared_sram on  end
 		device ref cnvi_wifi on
 			chip drivers/wifi/generic
-				register "add_acpi_dma_property"	= "true"
-				register "enable_cnvi_ddr_rfim"		= "true"
+				register "wake"			= "GPE0_PME_B0"
 				device generic 0 on end
 			end
 		end
@@ -148,6 +130,7 @@ chip soc/intel/cannonlake
 				register "generic.hid"		= ""STAR0001""
 				register "generic.desc"		= ""Touchpad""
 				register "generic.irq"		= "ACPI_IRQ_LEVEL_LOW(GPP_B3_IRQ)"
+				register "generic.detect"	= "1"
 				register "hid_desc_reg_offset"	= "0x20"
 				device i2c 2c on end
 			end
@@ -161,19 +144,22 @@ chip soc/intel/cannonlake
 		device ref i2c4 on  end
 		device ref uart2 on  end
 		device ref pcie_rp9 on						# SSD x4
-			register "PcieRpSlotImplemented[8]"	= "true"
-			register "PcieRpLtrEnable[8]"		= "true"
+			register "PcieRpSlotImplemented[8]"	= "1"
+			register "PcieRpEnable[8]"		= "1"
+			register "PcieRpLtrEnable[8]"		= "1"
 			register "PcieClkSrcUsage[1]"		= "0x08"
 			register "PcieClkSrcClkReq[1]"		= "1"
 			smbios_slot_desc "SlotTypeM2Socket3" "SlotLengthOther" "M.2/M 2280" "SlotDataBusWidth4X"
 		end
 		device ref lpc_espi on
-			register "gen1_dec"			= "0x00040069"
-			register "gen2_dec"			= "0x00fc0201"
-			register "gen3_dec"			= "0x000c0081"
+			register "gen1_dec"			= "0x000c0681"
+			register "gen2_dec"			= "0x000c1641"
+			register "gen3_dec"			= "0x00fc0201"
+			register "gen4_dec"			= "0x000c0081"
 
 			chip ec/starlabs/merlin
 				# Port pair 4Eh/4Fh
+				device pnp 4e.00 on  end			# IO Interface
 				device pnp 4e.01 off end			# Com 1
 				device pnp 4e.02 off end			# Com 2
 				device pnp 4e.04 off end			# System Wake-Up

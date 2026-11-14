@@ -14,8 +14,6 @@
  */
 
 #include <acpi/acpi.h>
-#include <acpi/acpi_apei.h>
-#include <acpi/acpi_gnvs.h>
 #include <acpi/acpi_iort.h>
 #include <acpi/acpi_ivrs.h>
 #include <acpi/acpigen.h>
@@ -27,11 +25,7 @@
 #include <device/device.h>
 #include <device/mmio.h>
 #include <device/pci.h>
-#if CONFIG(AMD_CRB_FTPM)
-#include <drivers/amd/ftpm/tpm.h>
-#else
 #include <drivers/crb/tpm.h>
-#endif
 #include <drivers/uart/pl011.h>
 #include <security/tpm/tss.h>
 #include <string.h>
@@ -143,8 +137,6 @@ static void acpi_create_madt(acpi_header_t *header, void *unused)
 {
 	acpi_madt_t *madt = (acpi_madt_t *)header;
 	unsigned long current = (unsigned long)madt + sizeof(acpi_madt_t);
-
-	memset(madt, 0, sizeof(*madt));
 
 	if (acpi_fill_header(header, "APIC", MADT, sizeof(acpi_madt_t)) != CB_SUCCESS)
 		return;
@@ -274,56 +266,40 @@ static void *get_tpm2_log(u32 *size)
 
 static void acpi_create_tpm2(acpi_header_t *header, void *unused)
 {
-	u64 control_area;
-	u32 start_method;
-
 	if (!should_publish_tpm_log() || tlcl_get_family() != TPM_2)
 		return;
 
-	if ((CONFIG(CRB_TPM) || CONFIG(AMD_CRB_FTPM)) && !(CONFIG(SPI_TPM) || CONFIG(I2C_TPM) || CONFIG(MEMORY_MAPPED_TPM)))
-		if (!crb_tpm_is_active())
-			return;
-
 	acpi_tpm2_t *tpm2 = (acpi_tpm2_t *)header;
 	u32 tpm2_log_len;
+	void *lasa;
 
 	/*
 	 * Some payloads like SeaBIOS depend on log area to use TPM2.
 	 * Get the memory size and address of TPM2 log area or initialize it.
 	 */
-	void *lasa = get_tpm2_log(&tpm2_log_len);
+	lasa = get_tpm2_log(&tpm2_log_len);
 	if (!lasa)
 		tpm2_log_len = 0;
-
-	if (CONFIG(AMD_CRB_FTPM) && crb_tpm_is_active()) {
-		control_area = crb_tpm_base_address() + 0x40;
-		start_method = ACPI_TPM2_SM_ACPI_START;
-	} else if (CONFIG(CRB_TPM) && crb_tpm_is_active()) {
-		control_area = crb_tpm_base_address() + 0x40;
-		start_method = ACPI_TPM2_SM_CRB;
-	} else {
-		control_area = 0;
-		start_method = ACPI_TPM2_SM_MMIO_TIS;
-	}
-	acpi_write_tpm2(tpm2, lasa, tpm2_log_len, control_area, start_method);
-}
-
-void acpi_write_tpm2(acpi_tpm2_t *tpm2, const void *lasa, const u32 tpm2_log_len,
-		     const u64 control_area, const u32 start_method)
-{
-	acpi_header_t *header = &tpm2->header;
-	memset(tpm2, 0, sizeof(acpi_tpm2_t));
 
 	if (acpi_fill_header(header, "TPM2", TPM2, sizeof(acpi_tpm2_t)) != CB_SUCCESS)
 		return;
 
-	tpm2->control_area = control_area;
-	tpm2->start_method = start_method;
+	/* Hard to detect for coreboot. Just set it to 0 */
+	tpm2->platform_class = 0;
+	if (CONFIG(CRB_TPM) && crb_tpm_is_active()) {
+		/* Must be set to 7 for CRB Support */
+		tpm2->control_area = CONFIG_CRB_TPM_BASE_ADDRESS + 0x40;
+		tpm2->start_method = 7;
+	} else {
+		/* Must be set to 0 for FIFO interface support */
+		tpm2->control_area = 0;
+		tpm2->start_method = 6;
+	}
+	memset(tpm2->msp, 0, sizeof(tpm2->msp));
+
+	/* Fill the log area size and start address fields. */
 	tpm2->laml = tpm2_log_len;
 	tpm2->lasa = (uintptr_t)lasa;
-
-	tpm2->header.checksum = 0;
-	tpm2->header.checksum = acpi_checksum((void *)tpm2, tpm2->header.length);
 }
 
 static void acpi_ssdt_write_cbtable(void)
@@ -341,10 +317,7 @@ static void acpi_ssdt_write_cbtable(void)
 	acpigen_write_device("CTBL");
 	acpigen_write_coreboot_hid(COREBOOT_ACPI_ID_CBTABLE);
 	acpigen_write_name_integer("_UID", 0);
-	if (CONFIG(EC_GOOGLE_CHROMEEC))
-		acpigen_write_STA(ACPI_STATUS_DEVICE_ALL_ON);
-	else
-		acpigen_write_STA(ACPI_STATUS_DEVICE_HIDDEN_ON);
+	acpigen_write_STA(ACPI_STATUS_DEVICE_HIDDEN_ON);
 	acpigen_write_name("_CRS");
 	acpigen_write_resourcetemplate_header();
 	acpigen_resource_consumer_mmio(base, base + size - 1,
@@ -417,7 +390,7 @@ int acpi_create_srat_gia_pci(acpi_srat_gia_t *gia, u32 proximity_domain,
 
 /* http://www.microsoft.com/whdc/system/sysinternals/sratdwn.mspx */
 void acpi_create_srat(acpi_srat_t *srat,
-		      unsigned long (*acpi_fill_srat_func)(unsigned long current))
+		      unsigned long (*acpi_fill_srat)(unsigned long current))
 {
 	acpi_header_t *header = &(srat->header);
 	unsigned long current = (unsigned long)srat + sizeof(acpi_srat_t);
@@ -429,7 +402,7 @@ void acpi_create_srat(acpi_srat_t *srat,
 
 	srat->resv = 1; /* Spec: Reserved to 1 for backwards compatibility. */
 
-	current = acpi_fill_srat_func(current);
+	current = acpi_fill_srat(current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)srat;
@@ -493,7 +466,7 @@ int acpi_create_cedt_cfmws(acpi_cedt_cfmws_t *cfmws, u64 base_hpa, u64 window_si
 	return cfmws->length;
 }
 
-void acpi_create_cedt(acpi_cedt_t *cedt, unsigned long (*acpi_fill_cedt_func)(unsigned long current))
+void acpi_create_cedt(acpi_cedt_t *cedt, unsigned long (*acpi_fill_cedt)(unsigned long current))
 {
 	acpi_header_t *header = &(cedt->header);
 	unsigned long current = (unsigned long)cedt + sizeof(acpi_cedt_t);
@@ -503,7 +476,7 @@ void acpi_create_cedt(acpi_cedt_t *cedt, unsigned long (*acpi_fill_cedt_func)(un
 	if (acpi_fill_header(header, "CEDT", CEDT, sizeof(acpi_cedt_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_cedt_func(current);
+	current = acpi_fill_cedt(current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)cedt;
@@ -528,7 +501,7 @@ int acpi_create_hmat_mpda(acpi_hmat_mpda_t *mpda, u32 initiator, u32 memory)
 }
 
 void acpi_create_hmat(acpi_hmat_t *hmat,
-		 unsigned long (*acpi_fill_hmat_func)(unsigned long current))
+		 unsigned long (*acpi_fill_hmat)(unsigned long current))
 {
 	acpi_header_t *header = &(hmat->header);
 	unsigned long current = (unsigned long)hmat + sizeof(acpi_hmat_t);
@@ -538,7 +511,7 @@ void acpi_create_hmat(acpi_hmat_t *hmat,
 	if (acpi_fill_header(header, "HMAT", HMAT, sizeof(acpi_hmat_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_hmat_func(current);
+	current = acpi_fill_hmat(current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)hmat;
@@ -547,7 +520,7 @@ void acpi_create_hmat(acpi_hmat_t *hmat,
 
 /* http://h21007.www2.hp.com/portal/download/files/unprot/Itanium/slit.pdf */
 void acpi_create_slit(acpi_slit_t *slit,
-		      unsigned long (*acpi_fill_slit_func)(unsigned long current))
+		      unsigned long (*acpi_fill_slit)(unsigned long current))
 {
 	acpi_header_t *header = &(slit->header);
 	unsigned long current = (unsigned long)slit + sizeof(acpi_slit_t);
@@ -557,7 +530,7 @@ void acpi_create_slit(acpi_slit_t *slit,
 	if (acpi_fill_header(header, "SLIT", SLIT, sizeof(acpi_slit_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_slit_func(current);
+	current = acpi_fill_slit(current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)slit;
@@ -677,7 +650,7 @@ void acpi_create_einj(acpi_einj_t *einj, uintptr_t addr, u8 actions)
 			.action = SET_ERROR_TYPE_WITH_ADDRESS,
 			.instruction = WRITE_REGISTER,
 			.flags = FLAG_PRESERVE,
-			.reg = EINJ_REG_MEMORY((u64)(uintptr_t)&einj_smi->set_addr_table),
+			.reg = EINJ_REG_MEMORY((u64)(uintptr_t)&einj_smi->setaddrtable),
 			.value = 1,
 			.mask = 0xffffffff
 		}
@@ -706,7 +679,7 @@ void acpi_create_einj(acpi_einj_t *einj, uintptr_t addr, u8 actions)
 
 void acpi_create_vfct(const struct device *device,
 		      acpi_vfct_t *vfct,
-		      unsigned long (*acpi_fill_vfct_func)(const struct device *device,
+		      unsigned long (*acpi_fill_vfct)(const struct device *device,
 		      acpi_vfct_t *vfct_struct, unsigned long current))
 {
 	acpi_header_t *header = &(vfct->header);
@@ -717,13 +690,11 @@ void acpi_create_vfct(const struct device *device,
 	if (acpi_fill_header(header, "VFCT", VFCT, sizeof(acpi_vfct_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_vfct_func(device, vfct, current);
+	current = acpi_fill_vfct(device, vfct, current);
 
 	/* If no BIOS image, return with header->length == 0. */
-	if (!vfct->VBIOSImageOffset) {
-		header->length = 0;
+	if (!vfct->VBIOSImageOffset)
 		return;
-	}
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)vfct;
@@ -776,7 +747,7 @@ void acpi_create_ipmi(const struct device *device,
 }
 
 void acpi_create_ivrs(acpi_ivrs_t *ivrs,
-		      unsigned long (*acpi_fill_ivrs_func)(acpi_ivrs_t *ivrs_struct,
+		      unsigned long (*acpi_fill_ivrs)(acpi_ivrs_t *ivrs_struct,
 		      unsigned long current))
 {
 	acpi_header_t *header = &(ivrs->header);
@@ -787,7 +758,7 @@ void acpi_create_ivrs(acpi_ivrs_t *ivrs,
 	if (acpi_fill_header(header, "IVRS", IVRS, sizeof(acpi_ivrs_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_ivrs_func(ivrs, current);
+	current = acpi_fill_ivrs(ivrs, current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)ivrs;
@@ -795,7 +766,7 @@ void acpi_create_ivrs(acpi_ivrs_t *ivrs,
 }
 
 void acpi_create_crat(struct acpi_crat_header *crat,
-		      unsigned long (*acpi_fill_crat_func)(struct acpi_crat_header *crat_struct,
+		      unsigned long (*acpi_fill_crat)(struct acpi_crat_header *crat_struct,
 		      unsigned long current))
 {
 	acpi_header_t *header = &(crat->header);
@@ -806,7 +777,7 @@ void acpi_create_crat(struct acpi_crat_header *crat,
 	if (acpi_fill_header(header, "CRAT", CRAT, sizeof(struct acpi_crat_header)) != CB_SUCCESS)
 		return;
 
-	current = acpi_fill_crat_func(crat, current);
+	current = acpi_fill_crat(crat, current);
 
 	/* (Re)calculate length and checksum. */
 	header->length = current - (unsigned long)crat;
@@ -967,9 +938,14 @@ static void acpi_create_facs(void *header)
 {
 	acpi_facs_t *facs = header;
 
-	memset(facs, 0, sizeof(acpi_facs_t));
 	memcpy(facs->signature, "FACS", 4);
 	facs->length = sizeof(acpi_facs_t);
+	facs->hardware_signature = 0;
+	facs->firmware_waking_vector = 0;
+	facs->global_lock = 0;
+	facs->flags = 0;
+	facs->x_firmware_waking_vector_l = 0;
+	facs->x_firmware_waking_vector_h = 0;
 	facs->version = get_acpi_table_revision(FACS);
 }
 
@@ -1058,7 +1034,7 @@ unsigned long acpi_create_hest_error_source(acpi_hest_t *hest,
 		memset(pos, 0, sizeof(acpi_hest_hen_t));
 		hen->type = 3;		/* SCI? */
 		hen->length = sizeof(acpi_hest_hen_t);
-		hen->conf_write_enable = 0;
+		hen->conf_we = 0;	/* Configuration Write Enable. */
 		hen->poll_interval = 0;
 		hen->vector = 0;
 		hen->sw2poll_threshold_val = 0;
@@ -1090,32 +1066,20 @@ unsigned long acpi_create_hest_error_source(acpi_hest_t *hest,
 }
 
 /* ACPI 4.0 */
-static void acpi_create_hest(acpi_header_t *header, void *unused)
+void acpi_write_hest(acpi_hest_t *hest,
+		     unsigned long (*acpi_fill_hest)(acpi_hest_t *hest))
 {
-	if (!CONFIG(ACPI_HEST))
-		return;
-
-	/* Reserve memory for Enhanced error logging */
-	void *log_mem = cbmem_add(CBMEM_ID_ACPI_HEST, CONFIG_ACPI_HEST_ERROR_LOG_BUFFER_SIZE);
-	if (!log_mem) {
-		printk(BIOS_ERR, "Unable to allocate HEST memory\n");
-		return;
-	}
-	printk(BIOS_DEBUG, "HEST elog_addr: %p, size:%d\n", log_mem,
-		CONFIG_ACPI_HEST_ERROR_LOG_BUFFER_SIZE);
-
-	acpi_hest_t *hest = (acpi_hest_t *)header;
-	uintptr_t current = (uintptr_t)(hest + 1);
+	acpi_header_t *header = &(hest->header);
 
 	memset(hest, 0, sizeof(acpi_hest_t));
 
 	if (acpi_fill_header(header, "HEST", HEST, sizeof(acpi_hest_t)) != CB_SUCCESS)
 		return;
 
-	current = acpi_soc_fill_hest(hest, current, log_mem);
+	acpi_fill_hest(hest);
 
-	/* (Re)calculate length. */
-	header->length = current - (uintptr_t)hest;
+	/* Calculate checksums. */
+	header->checksum = acpi_checksum((void *)hest, header->length);
 }
 
 /* ACPI 3.0b */
@@ -1389,27 +1353,20 @@ static void acpi_create_spcr(acpi_header_t *header, void *unused)
 	header->checksum = acpi_checksum((void *)spcr, header->length);
 }
 
-void acpi_create_aspt(acpi_aspt_t *aspt,
-		      unsigned long (*acpi_fill_aspt_func)(unsigned long current))
-{
-	acpi_header_t *header = &(aspt->header);
-	unsigned long current = (unsigned long)aspt;
-
-	memset((void *)aspt, 0, sizeof(acpi_aspt_t));
-
-	if (acpi_fill_header(header, "ASPT", ASPT, sizeof(acpi_aspt_t)) != CB_SUCCESS)
-		return;
-
-	current = acpi_fill_aspt_func(current);
-
-	/* (Re)calculate length and checksum. */
-	header->length = current - (unsigned long)aspt;
-	header->checksum = acpi_checksum((void *)aspt, header->length);
-}
-
 unsigned long __weak fw_cfg_acpi_tables(unsigned long start)
 {
 	return 0;
+}
+
+void preload_acpi_dsdt(void)
+{
+	const char *file = CONFIG_CBFS_PREFIX "/dsdt.aml";
+
+	if (!CONFIG(CBFS_PRELOAD))
+		return;
+
+	printk(BIOS_DEBUG, "Preloading %s\n", file);
+	cbfs_preload(file);
 }
 
 static void acpi_create_dsdt(acpi_header_t *header, void *dsdt_file_arg)
@@ -1519,7 +1476,6 @@ unsigned long write_acpi_tables(const unsigned long start)
 		{ acpi_create_tpm2, NULL, sizeof(acpi_tpm2_t) },
 		{ acpi_create_lpit, NULL, sizeof(acpi_lpit_t) },
 		{ acpi_create_madt, NULL, sizeof(acpi_header_t) },
-		{ acpi_create_hest, NULL, sizeof(acpi_hest_t) },
 		{ acpi_create_bert, NULL, sizeof(acpi_bert_t) },
 		{ acpi_create_spcr, NULL, sizeof(acpi_spcr_t) },
 		{ acpi_create_gtdt, NULL, sizeof(acpi_gtdt_t) },
@@ -1889,8 +1845,6 @@ int get_acpi_table_revision(enum acpi_tables table)
 		return 6;
 	case WDAT:
 		return 1;
-	case ASPT:
-		return 2;
 	default:
 		return -1;
 	}

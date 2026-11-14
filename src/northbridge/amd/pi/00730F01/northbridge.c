@@ -1,6 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <acpi/acpi_apei.h>
 #include <commonlib/helpers.h>
 #include <console/console.h>
 #include <device/pci_ops.h>
@@ -92,19 +91,22 @@ static void northbridge_init(struct device *dev)
 	register_new_ioapic(IO_APIC2_ADDR);
 }
 
-uintptr_t acpi_soc_fill_hest(acpi_hest_t *hest, uintptr_t current, void *log_mem)
+static unsigned long acpi_fill_hest(acpi_hest_t *hest)
 {
-	void *addr;
+	void *addr, *current;
+
+	/* Skip the HEST header. */
+	current = (void *)(hest + 1);
 
 	addr = agesawrapper_getlateinitptr(PICK_WHEA_MCE);
 	if (addr != NULL)
-		current += acpi_create_hest_error_source(hest, (acpi_hest_esd_t *)current, 0, (void *)((u32)addr + 2), *(UINT16 *)addr - 2);
+		current += acpi_create_hest_error_source(hest, current, 0, (void *)((u32)addr + 2), *(UINT16 *)addr - 2);
 
 	addr = agesawrapper_getlateinitptr(PICK_WHEA_CMC);
 	if (addr != NULL)
-		current += acpi_create_hest_error_source(hest, (acpi_hest_esd_t *)current, 1, (void *)((u32)addr + 2), *(UINT16 *)addr - 2);
+		current += acpi_create_hest_error_source(hest, current, 1, (void *)((u32)addr + 2), *(UINT16 *)addr - 2);
 
-	return current;
+	return (unsigned long)current;
 }
 
 static unsigned long acpi_fill_ivrs_ioapic(acpi_ivrs_t *ivrs, unsigned long current)
@@ -428,15 +430,19 @@ static unsigned long agesa_write_acpi_tables(const struct device *device,
 	acpi_header_t *alib;
 	acpi_ivrs_t *ivrs;
 
+	/* HEST */
+	current = ALIGN_UP(current, 8);
+	acpi_write_hest((void *)current, acpi_fill_hest);
+	acpi_add_table(rsdp, (void *)current);
+	current += ((acpi_header_t *)current)->length;
+
 	/* IVRS */
-	if (is_dev_enabled(DEV_PTR(iommu))) {
-		current = ALIGN_UP(current, 8);
-		printk(BIOS_DEBUG, "ACPI:   * IVRS at %lx\n", current);
-		ivrs = (acpi_ivrs_t *)current;
-		acpi_create_ivrs(ivrs, acpi_fill_ivrs);
-		current += ivrs->header.length;
-		acpi_add_table(rsdp, ivrs);
-	}
+	current = ALIGN_UP(current, 8);
+	printk(BIOS_DEBUG, "ACPI:   * IVRS at %lx\n", current);
+	ivrs = (acpi_ivrs_t *)current;
+	acpi_create_ivrs(ivrs, acpi_fill_ivrs);
+	current += ivrs->header.length;
+	acpi_add_table(rsdp, ivrs);
 
 	/* SRAT */
 	current = ALIGN_UP(current, 8);

@@ -20,8 +20,8 @@
 
 /* Wait 10 ms between attempts to check if EC's hash is ready */
 #define CROS_EC_HASH_CHECK_DELAY_MS 10
-/* Give the EC 12 seconds to finish calculating its hash */
-#define CROS_EC_HASH_TIMEOUT_MS 12000
+/* Give the EC 2 seconds to finish calculating its hash */
+#define CROS_EC_HASH_TIMEOUT_MS 2000
 
 /* Wait 3 seconds after software sync for EC to clear the limit power flag. */
 #define LIMIT_POWER_WAIT_TIMEOUT_MS 3000
@@ -56,7 +56,7 @@ void vboot_sync_ec(void)
 
 	case VB2_REQUEST_REBOOT_EC_TO_RO:
 		printk(BIOS_INFO, "EC Reboot requested. Doing cold reboot\n");
-		if (google_chromeec_reboot(EC_REBOOT_COLD, EC_REBOOT_FLAG_IMMEDIATE))
+		if (google_chromeec_reboot(EC_REBOOT_COLD, 0))
 			printk(BIOS_EMERG, "Failed to get EC to cold reboot\n");
 
 		halt();
@@ -518,7 +518,6 @@ vb2_error_t vb2ex_ec_disable_jump(void)
  */
 vb2_error_t vb2ex_ec_update_image(enum vb2_firmware_selection select)
 {
-	vboot_show_ec_sync_esol();
 	return ec_update_image(select);
 }
 

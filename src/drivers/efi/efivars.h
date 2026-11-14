@@ -12,6 +12,7 @@
  * conflicting definitions for some orderings of includes.
  */
 #include <efi/efi_datatype.h>
+#include <vendorcode/intel/edk2/UDK2017/MdePkg/Include/Uefi/UefiBaseType.h>
 
 /**
  * efi_fv_get_option

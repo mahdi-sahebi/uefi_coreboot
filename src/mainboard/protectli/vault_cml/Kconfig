@@ -4,7 +4,6 @@ if BOARD_PROTECTLI_VP46XX
 
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
-	select AZALIA_USE_LEGACY_VERB_TABLE
 	select BOARD_ROMSIZE_KB_16384
 	select GFX_GMA_IGNORE_PRESENCE_STRAPS
 	select SOC_INTEL_COMETLAKE_1_2
@@ -74,11 +73,5 @@ config BEEP_ON_BOOT
 	  Make the platform beep using the PC speaker in final coreboot phase.
 	  May serve as a useful indicator in headless mode that platform is
 	  properly booting.
-
-config ENABLE_EMMC
-	bool "Enable eMMC support"
-	default y
-	help
-	  Enable the eMMC storage controller
 
 endif

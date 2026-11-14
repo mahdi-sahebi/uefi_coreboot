@@ -118,8 +118,6 @@ u32 fdt_read_prop(const void *blob, u32 node_offset, const char *prop_name,
 /* Read reg property and save regions inside 'regions'. Returns number of regions read */
 u32 fdt_read_reg_prop(const void *blob, u32 node_offset, u32 addr_cells, u32 size_cells,
 		      struct device_tree_region regions[], size_t regions_count);
-/* Reads value for a fdt_prop, considering the cells */
-uint64_t fdt_read_int_prop(struct fdt_property *prop, u32 cells);
 /* Find a node by a given path and return the offset */
 u32 fdt_find_node_by_path(const void *blob, const char *path, u32 *addrcp, u32 *sizecp);
 /* Find multiple nodes matching a given pattern. Returns number of nodes found */
@@ -156,9 +154,8 @@ void dt_read_cell_props(const struct device_tree_node *node, u32 *addrcp,
 			u32 *sizecp);
 /* Look up or create a node relative to a parent node, through its path
    represented as an array of strings. */
-struct device_tree_node *dt_find_node(struct device_tree_node *parent,
-				      const char *const *path, u32 *addrcp,
-				      u32 *sizecp, int create);
+struct device_tree_node *dt_find_node(struct device_tree_node *parent, const char **path,
+			     u32 *addrcp, u32 *sizecp, int create);
 struct device_tree_node *dt_find_node_by_phandle(struct device_tree_node *root,
 						 uint32_t phandle);
 /* Look up or create a node in the tree, through its path
@@ -189,10 +186,8 @@ void dt_add_string_prop(struct device_tree_node *node, const char *name,
 			const char *str);
 void dt_add_u32_prop(struct device_tree_node *node, const char *name, u32 val);
 void dt_add_u64_prop(struct device_tree_node *node, const char *name, u64 val);
-void dt_add_reg_prop(struct device_tree_node *node, const u64 *addrs, const u64 *sizes,
+void dt_add_reg_prop(struct device_tree_node *node, u64 *addrs, u64 *sizes,
 		     int count, u32 addr_cells, u32 size_cells);
-void dt_add_iommu_addr_prop(struct device_tree_node *node, const u64 *addrs, const u64 *sizes,
-			    int count, u32 addr_cells, u32 size_cells);
 int dt_set_bin_prop_by_path(struct device_tree *tree, const char *path,
 			    void *data, size_t size, int create);
 
@@ -233,8 +228,5 @@ int dt_apply_fixups(struct device_tree *tree);
  * Init/retrieve the /reserved-memory/ node.
  */
 struct device_tree_node *dt_init_reserved_memory_node(struct device_tree *tree);
-
-/* Check whether a devicetree is an overlay device tree */
-bool dt_is_overlay(struct device_tree *tree);
 
 #endif /* __COMMONLIB_DEVICE_TREE_H__ */

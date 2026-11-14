@@ -1,7 +1,5 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
-#include <cpu/x86/gdt.h>
-
 #define WAKEUP_BASE		0x600
 #define RELOCATED(x)	(x - __wakeup + WAKEUP_BASE)
 
@@ -31,7 +29,7 @@ __wakeup:
 	add	$8, %rax
 	push	%rax
 	pushfq
-	push	$GDT_CODE_SEG
+	push	$0x10
 	lea	3(%rip), %rax
 	push	%rax
 	iretq
@@ -60,7 +58,7 @@ __wakeup:
 	movw	%ax, (__wakeup_segment)
 
 	/* Activate the right segment descriptor real mode. */
-	ljmp	$GDT_CODE16_SEG, $RELOCATED(1f)
+	ljmp	$0x28, $RELOCATED(1f)
 1:
 .code16
 	/* 16 bit code from here on... */
@@ -70,7 +68,7 @@ __wakeup:
 	 * configurations (limits, writability, etc.) once
 	 * protected mode is turned off.
 	 */
-	mov	$GDT_DATA16_SEG, %ax
+	mov	$0x30, %ax
 	mov	%ax, %ds
 	mov	%ax, %es
 	mov	%ax, %fs

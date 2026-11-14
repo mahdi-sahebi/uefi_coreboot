@@ -1,0 +1,1370 @@
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ dd if=fallback_payload.elf of=main_fv.bin bs=1 skip=$((0x92000)) count=$((0xDA0000))
+14286848+0 records in
+14286848+0 records out
+14286848 bytes (14 MB, 14 MiB) copied, 47.4421 s, 301 kB/s
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ xxd main_fv.bin | head -5
+00000000: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000010: 78e5 8c8c 3d8a 1c4f 9935 8961 85c3 2dd3  x...=..O.5.a..-.
+00000020: 0000 da00 0000 0000 5f46 5648 fffe 0400  ........_FVH....
+00000030: 4800 55d8 0000 0002 a00d 0000 0010 0000  H.U.............
+00000040: 0000 0000 0000 0000 e70e 51fc dcff d411  ..........Q.....
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ binwalk -e main_fv.bin
+
+DECIMAL       HEXADECIMAL     DESCRIPTION
+--------------------------------------------------------------------------------
+0             0x0             UEFI PI Firmware Volume, volume size: 14286848, header size: 0, revision: 0, EFI Firmware File System v2, GUID: 8C8CE578-8A3D-4F1C-3599-896185C32DD3
+196           0xC4            Microsoft executable, portable (PE)
+157018        0x2655A         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+310760        0x4BDE8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+315952        0x4D230         Microsoft executable, portable (PE)
+336774        0x52386         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+341692        0x536BC         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+348812        0x5528C         Microsoft executable, portable (PE)
+360283        0x57F5B         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+365768        0x594C8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+373548        0x5B32C         Microsoft executable, portable (PE)
+387386        0x5E93A         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+390552        0x5F598         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+394172        0x603BC         Microsoft executable, portable (PE)
+406525        0x633FD         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+411264        0x64680         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+414772        0x65434         Microsoft executable, portable (PE)
+454983        0x6F147         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+465832        0x71BA8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+472220        0x7349C         Microsoft executable, portable (PE)
+535497        0x82BC9         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+565936        0x8A2B0         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+570760        0x8B588         Microsoft executable, portable (PE)
+603942        0x93726         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+614740        0x96154         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+620088        0x97638         Microsoft executable, portable (PE)
+737869        0xB424D         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+780684        0xBE98C         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+788092        0xC067C         Microsoft executable, portable (PE)
+926104        0xE2198         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1012200       0xF71E8         Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1017580       0xF86EC         Microsoft executable, portable (PE)
+1093335       0x10AED7        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1112248       0x10F8B8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1120248       0x1117F8        Microsoft executable, portable (PE)
+1158728       0x11AE48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1171172       0x11DEE4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1177708       0x11F86C        Microsoft executable, portable (PE)
+1191036       0x122C7C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1194664       0x123AA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1202388       0x1258D4        Microsoft executable, portable (PE)
+1210649       0x127919        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1215120       0x128A90        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1222980       0x12A944        Microsoft executable, portable (PE)
+1230566       0x12C6E6        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1235720       0x12DB08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1243564       0x12F9AC        Microsoft executable, portable (PE)
+1254061       0x1322AD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1254604       0x1324CC        CRC32 polynomial table, little endian
+1256456       0x132C08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1264156       0x134A1C        Microsoft executable, portable (PE)
+1276343       0x1379B7        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1281552       0x138E10        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1288880       0x13AAB0        Microsoft executable, portable (PE)
+1297481       0x13CC49        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1301628       0x13DC7C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1305396       0x13EB34        Microsoft executable, portable (PE)
+1317261       0x14198D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1322656       0x142EA0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1330128       0x144BD0        Microsoft executable, portable (PE)
+1345565       0x14881D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1351228       0x149E3C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1354788       0x14AC24        Microsoft executable, portable (PE)
+1371742       0x14EE5E        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1376120       0x14FF78        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1383616       0x151CC0        Microsoft executable, portable (PE)
+1403897       0x156BF9        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1408692       0x157EB4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1412420       0x158D44        Microsoft executable, portable (PE)
+1459539       0x164553        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1473368       0x167B58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1478068       0x168DB4        Microsoft executable, portable (PE)
+1487068       0x16B0DC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1490776       0x16BF58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1498644       0x16DE14        Microsoft executable, portable (PE)
+1538174       0x17787E        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1550824       0x17A9E8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1556092       0x17BE7C        Microsoft executable, portable (PE)
+1564277       0x17DE75        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1568832       0x17F040        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1576684       0x180EEC        Microsoft executable, portable (PE)
+1693821       0x19D87D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1709056       0x1A1400        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1716096       0x1A2F80        Microsoft executable, portable (PE)
+1820386       0x1BC6E2        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1832348       0x1BF59C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1839176       0x1C1048        Microsoft executable, portable (PE)
+1913011       0x1D30B3        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1930348       0x1D746C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1937596       0x1D90BC        Microsoft executable, portable (PE)
+1948602       0x1DBBBA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1954536       0x1DD2E8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1958180       0x1DE124        Microsoft executable, portable (PE)
+1974189       0x1E1FAD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+1979400       0x1E3408        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+1986984       0x1E51A8        Microsoft executable, portable (PE)
+1997369       0x1E7A39        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2003924       0x1E93D4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2568724       0x273214        Microsoft executable, portable (PE)
+2579905       0x275DC1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2586880       0x277900        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2593420       0x27928C        Microsoft executable, portable (PE)
+2617804       0x27F1CC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2627848       0x281908        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2634536       0x283328        Microsoft executable, portable (PE)
+2645389       0x285D8D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2647316       0x286514        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2650996       0x287374        Microsoft executable, portable (PE)
+2660092       0x2896FC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2663904       0x28A5E0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2671588       0x28C3E4        Microsoft executable, portable (PE)
+2745697       0x29E561        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2756040       0x2A0DC8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2761832       0x2A2468        Microsoft executable, portable (PE)
+2808067       0x2AD903        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2821044       0x2B0BB4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2827452       0x2B24BC        Microsoft executable, portable (PE)
+2853823       0x2B8BBF        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2861216       0x2BA8A0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2868492       0x2BC50C        Microsoft executable, portable (PE)
+2880550       0x2BF426        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2885712       0x2C0850        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2893380       0x2C2644        Microsoft executable, portable (PE)
+2914721       0x2C79A1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2918736       0x2C8950        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2926468       0x2CA784        Microsoft executable, portable (PE)
+2938857       0x2CD7E9        bix header, header size: 64 bytes, header CRC: 0x4C8D0D, created: 1991-10-26 23:53:36, image size: 1216971648 bytes, Data Address: 0x48, Entry Point: 0x8D0D6C09, data CRC: 0xC744, image type: Standalone Program, compression type: none, image name: ""
+2940795       0x2CDF7B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2943496       0x2CEA08        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2951116       0x2D07CC        Microsoft executable, portable (PE)
+2966668       0x2D448C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+2972584       0x2D5BA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+2979868       0x2D781C        Microsoft executable, portable (PE)
+3007261       0x2DE31D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3015192       0x2E0218        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3020908       0x2E186C        Microsoft executable, portable (PE)
+3037578       0x2E598A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3048032       0x2E8260        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3054004       0x2E99B4        Microsoft executable, portable (PE)
+3082698       0x2F09CA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3088512       0x2F2080        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3095036       0x2F39FC        Microsoft executable, portable (PE)
+3104748       0x2F5FEC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3107856       0x2F6C10        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3115596       0x2F8A4C        Microsoft executable, portable (PE)
+3133122       0x2FCEC2        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3136936       0x2FDDA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3144356       0x2FFAA4        Microsoft executable, portable (PE)
+3160628       0x303A34        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3165608       0x304DA8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3173100       0x306AEC        Microsoft executable, portable (PE)
+3197733       0x30CB25        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3202544       0x30DDF0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3210044       0x30FB3C        Microsoft executable, portable (PE)
+3218075       0x311A9B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3223672       0x313078        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3230596       0x314B84        Microsoft executable, portable (PE)
+3243196       0x317CBC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3247656       0x318E28        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3255252       0x31ABD4        Microsoft executable, portable (PE)
+3278276       0x3205C4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3285192       0x3220C8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3292188       0x323C1C        Microsoft executable, portable (PE)
+3334027       0x32DF8B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3342608       0x330110        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3349620       0x331C74        Microsoft executable, portable (PE)
+3392655       0x33C48F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3403792       0x33F010        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3411140       0x340CC4        Microsoft executable, portable (PE)
+3426993       0x344AB1        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3432280       0x345F58        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3439876       0x347D04        Microsoft executable, portable (PE)
+3481676       0x35204C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3489904       0x354070        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3497292       0x355D4C        Microsoft executable, portable (PE)
+3527999       0x35D53F        bix header, header size: 64 bytes, header CRC: 0x493946, created: 1991-07-04 14:21:29, image size: 1291976704 bytes, Data Address: 0x49BD0800, Entry Point: 0x0, data CRC: 0x80488B, image name: "D"
+3537020       0x35F87C        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3543368       0x361148        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3550620       0x362D9C        Microsoft executable, portable (PE)
+3591348       0x36CCB4        Microsoft executable, portable (PE)
+3611760       0x371C70        Unix path: /usr/local/edk2-vUDK2018/Build/Refind/RELEASE_GCC5/X64/RefindPkg/filesystems/ext2/DEBUG/ext2.dll
+3612028       0x371D7C        Object signature in DER format (PKCS header length: 4, sequence length: 1596
+3612197       0x371E25        Certificate in DER format (x509 v3), header length: 4, sequence length: 827
+3613716       0x372414        Microsoft executable, portable (PE)
+3660972       0x37DCAC        Microsoft executable, portable (PE)
+3681832       0x382E28        Unix path: /usr/local/edk2-vUDK2018/Build/Refind/RELEASE_GCC5/X64/RefindPkg/filesystems/ext4/DEBUG/ext4.dll
+3682164       0x382F74        Object signature in DER format (PKCS header length: 4, sequence length: 1596
+3682333       0x38301D        Certificate in DER format (x509 v3), header length: 4, sequence length: 827
+3683828       0x3835F4        Microsoft executable, portable (PE)
+3725461       0x38D895        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3734240       0x38FAE0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3741252       0x391644        Microsoft executable, portable (PE)
+3769371       0x39841B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3779144       0x39AA48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3786372       0x39C684        Microsoft executable, portable (PE)
+3807893       0x3A1A95        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3812040       0x3A2AC8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3819444       0x3A47B4        Microsoft executable, portable (PE)
+3845919       0x3AAF1F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3848744       0x3ABA28        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3856612       0x3AD8E4        Microsoft executable, portable (PE)
+3887675       0x3B523B        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3894128       0x3B6B70        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3901972       0x3B8A14        Microsoft executable, portable (PE)
+3948798       0x3C40FE        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+3960136       0x3C6D48        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+3967812       0x3C8B44        Microsoft executable, portable (PE)
+4000538       0x3D0B1A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4009688       0x3D2ED8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4017276       0x3D4C7C        Microsoft executable, portable (PE)
+4039245       0x3DA24D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4044464       0x3DB6B0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4050356       0x3DCDB4        Microsoft executable, portable (PE)
+4064790       0x3E0616        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4067384       0x3E1038        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4075260       0x3E2EFC        Microsoft executable, portable (PE)
+4095993       0x3E7FF9        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4100720       0x3E9270        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4108356       0x3EB044        Microsoft executable, portable (PE)
+4122980       0x3EE964        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4125384       0x3EF2C8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4133036       0x3F10AC        Microsoft executable, portable (PE)
+4146561       0x3F4581        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4147596       0x3F498C        SHA256 hash constants, little endian
+4150160       0x3F5390        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4157716       0x3F7114        Microsoft executable, portable (PE)
+4230729       0x408E49        PEM certificate
+4232095       0x40939F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4232692       0x4095F4        SHA256 hash constants, little endian
+4238224       0x40AB90        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4243852       0x40C18C        Microsoft executable, portable (PE)
+4252532       0x40E374        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4256632       0x40F378        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4260348       0x4101FC        Microsoft executable, portable (PE)
+4270697       0x412A69        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4273160       0x413408        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4280916       0x415254        Microsoft executable, portable (PE)
+4311635       0x41CA53        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4319240       0x41E808        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4326148       0x420304        Microsoft executable, portable (PE)
+4396810       0x43170A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4406404       0x433C84        SHA256 hash constants, little endian
+4415128       0x435E98        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4420584       0x4373E8        Microsoft executable, portable (PE)
+4442381       0x43C90D        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4455044       0x43FA84        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4461804       0x4414EC        Microsoft executable, portable (PE)
+4500522       0x44AC2A        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4518432       0x44F220        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4523452       0x4505BC        Microsoft executable, portable (PE)
+4600788       0x4633D4        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageCoreLi
+4602147       0x463923        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4604982       0x464436        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageCoreLi
+4608685       0x4652AD        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/SecurityPkg/Library/TcgStorageOpalLi
+4624568       0x4690B8        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4630176       0x46A6A0        Microsoft executable, portable (PE)
+4670378       0x4743AA        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4675168       0x475660        SHA256 hash constants, little endian
+4683380       0x477674        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4691884       0x4797AC        Microsoft executable, portable (PE)
+4728000       0x4824C0        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4731148       0x48310C        SHA256 hash constants, little endian
+4740120       0x485418        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+4745288       0x486848        Microsoft executable, portable (PE)
+4785183       0x49041F        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Dasharo/MdePkg/Library/BaseLib/SafeString.c
+4788264       0x491028        CRC32 polynomial table, little endian
+4790748       0x4919DC        Unix path: /home/mahdi/repositories/coreboot/dasharo/coreboot/payloads/external/edk2/workspace/Build/DasharoPayloadPkgX64/RELEASE_COREBOOT/
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ strings main_fv.bin | grep -i "pei" | head -30
+CoreLoadPeImage: Failed to register foreign image with emulator - %r
+PEIM
+PeiDxeSmmCpuException.c
+CoreSetMemoryTypeInformationRange
+mPcdDatabase.PeiDb != ((void *) 0)
+Tcg2MeasurePeImage: Unknown subsystem type %d
+DxeTpm2MeasureBootHandler - Cc MeasurePeImage - %r
+DxeTpm2MeasureBootHandler - Tcg2 MeasurePeImage - %r
+TcgMeasurePeImage: Unknown subsystem type %d
+PeiDxeSmmCpuException.c
+(((BBS_BBS_DEVICE_PATH *)BootOption.FilePath)->DeviceType & 0xF) < (sizeof (DeviceTypeIndex) / sizeof ((DeviceTypeIndex)[0]))
+Descriptor.GcdIoType == EfiGcdIoTypeIo
+(HobStart != ((void *) 0)) && ((UINT16)(((*(EFI_HOB_GENERIC_HEADER **)&(HobStart))->HobLength) - sizeof (EFI_HOB_GUID_TYPE)) == sizeof (EFI_PEI_GRAPHICS_INFO_HOB))
+Tcg2Dxe: PeImage invalid. Cannot retrieve image information.
+MeasurePeImageAndExtend - %r. Disable TPM.
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08$ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Confirmed: fallback_payload.elf Successfully Extracted
+
+Your output shows successful extraction:
+
+### ✅ Extraction Results:
+```
+fallback_payload.elf: ELF 32-bit LSB executable, Intel 80386, version 1 (SYSV), statically linked, stripped
+Size: 14,884,864 bytes (14.8 MB)
+```
+
+### ✅ Key Findings from binwalk:
+1. **UEFI PI Firmware Volume at 0x2000** - Volume size 589,824 bytes
+2. **UEFI PI Firmware Volume at 0x92000** - Volume size 14,286,848 bytes (main FV)
+3. **Multiple Microsoft PE executables** throughout
+4. Build paths show: `DasharoPayloadPkgX64/RELEASE_COREBOOT/`
+
+### ✅ Key Findings from strings:
+- `_FVH` - Firmware Volume Header signature
+- `EDK II SePh2-start` - EDK II Security Phase 2 start (PEI phase indicator)
+- GUID format strings present
+- UEFI status codes (`EFI_NOT_FOUND`, etc.)
+
+### Critical Observation:
+**This is a valid UEFI payload with standard FV structure.** The PEI Core should be inside the UEFI Firmware Volume at offset `0x92000` (598,016 decimal).
+
+---
+
+## Next Step: Extract PEIMs from the Firmware Volume
+
+```bash
+# Extract the main FV starting at 0x92000
+dd if=fallback_payload.elf of=main_fv.bin bs=1 skip=$((0x92000)) count=$((0xDA0000))
+
+# Verify it's a valid FV
+xxd main_fv.bin | head -5
+
+# Use UEFIExtract if available, or binwalk -e
+binwalk -e main_fv.bin
+
+# Search for PEI Core GUID in the FV
+strings main_fv.bin | grep -i "pei" | head -30
+```
+
+**Confirm when ready to extract the PEI Core and individual PEIMs.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Issue: binwalk -e didn't create extracted directory
+
+The `binwalk -e` command didn't extract files because it requires additional options for recursive extraction.
+
+### Extract PE files from main_fv.bin properly:
+
+```bash
+# Method 1: Use binwalk with -M (recursive) and -d (depth)
+binwalk -e -M -d 2 main_fv.bin
+
+# Method 2: Extract specific PE at offset 0xC4
+dd if=main_fv.bin of=peim_first.bin bs=1 skip=$((0xC4)) count=500000
+
+# Method 3: Use binwalk to extract all PE files without recursion
+binwalk --dd=".*" main_fv.bin
+
+# Method 4: Manual extraction of all PE offsets from binwalk output
+# Extract all Microsoft executable sections
+for offset in 0xC4 0x4D230 0x5528C 0x5B32C 0x603BC 0x65434 0x7349C 0x8B588 0x97638 0xC067C 0xF86EC 0x1117F8 0x11F86C 0x1258D4 0x12A944 0x12F9AC 0x134A1C 0x13AAB0 0x13EB34 0x144BD0 0x14AC24 0x151CC0 0x158D44 0x168DB4 0x16DE14 0x17BE7C 0x180EEC 0x1A2F80 0x1C1048 0x1D90BC 0x1DE124 0x1E51A8 0x273214 0x27928C 0x283328 0x287374 0x28C3E4 0x2A2468 0x2B24BC 0x2BC50C 0x2C2644 0x2CA784 0x2D07CC 0x2D781C 0x2E186C 0x2E99B4 0x2F39FC 0x2F8A4C 0x2FFAA4 0x306AEC 0x30FB3C 0x314B84 0x31ABD4 0x323C1C 0x331C74 0x340CC4 0x347D04 0x355D4C 0x362D9C 0x36CCB4 0x372414 0x37DCAC 0x3835F4 0x391644 0x39C684 0x3A47B4 0x3AD8E4 0x3B8A14 0x3C8B44 0x3D4C7C 0x3DCDB4 0x3E2EFC 0x3EB044 0x3F10AC 0x3F7114 0x40C18C 0x4101FC 0x415254 0x420304 0x4373E8 0x4414EC 0x4505BC 0x46A6A0 0x4797AC 0x486848; do
+    dec=$(($offset))
+    dd if=main_fv.bin of=peim_${dec}.bin bs=1 skip=${dec} count=131072 2>/dev/null
+    echo "Extracted: peim_${dec}.bin"
+done
+
+# Check what we extracted
+ls -la peim_*.bin | head -10
+file peim_*.bin | head -5
+```
+
+### Find PEI Core among extracted files:
+
+```bash
+# Search each PE file for PEI Core indicators
+for f in peim_*.bin; do
+    if [ -f "$f" ]; then
+        echo "=== $f ==="
+        strings "$f" 2>/dev/null | grep -iE "(PeiCore|PEI_CORE|_ModuleEntryPoint)" | head -3
+        # Check for DOS header (MZ)
+        xxd "$f" 2>/dev/null | head -1 | grep -q "4d 5a" && echo "  ✓ Valid PE"
+    fi
+done
+
+# Check which file has the smallest size (often PEI Core)
+ls -laS peim_*.bin | head -5
+
+# Check entry point in each PE
+for f in peim_*.bin; do
+    if [ -f "$f" ] && xxd "$f" 2>/dev/null | head -1 | grep -q "4d 5a"; then
+        # Get PE header offset
+        pe_offset=$(xxd -p -l 2 -s 0x3c "$f" 2>/dev/null)
+        if [ -n "$pe_offset" ]; then
+            entry=$(xxd -p -l 4 -s $((0x$pe_offset + 0x28)) "$f" 2>/dev/null)
+            echo "$f: Entry point at 0x${entry:8:2}${entry:6:2}${entry:4:2}${entry:2:2}"
+        fi
+    fi
+done
+```
+
+### Alternative: Use UEFIExtract tool
+
+```bash
+# Install UEFIExtract if available
+which UEFIExtract || echo "UEFIExtract not found"
+
+# Or use Python with uefitool
+pip3 install uefitool-cli
+
+# Extract FV contents
+python3 -c "
+from uefitool import FV
+fv = FV('main_fv.bin')
+for section in fv.sections:
+    print(f'Section: {section.name} - Size: {section.size}')
+    if 'PEI' in str(section.name):
+        section.extract(f'pei_{section.name}.bin')
+"
+```
+
+**Run the extraction commands and confirm the results.**
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Check the smallest PE file (often PEI Core entry)
+ls -laS | head -10
+total 2973916
+-rw-rw-r-- 1 mahdi mahdi 14286848 May 29 21:40 0
+-rw-rw-r-- 1 mahdi mahdi 14286652 May 29 21:40 C4
+-rw-rw-r-- 1 mahdi mahdi 14129830 May 29 21:40 2655A
+-rw-rw-r-- 1 mahdi mahdi 13976088 May 29 21:40 4BDE8
+-rw-rw-r-- 1 mahdi mahdi 13970896 May 29 21:40 4D230
+-rw-rw-r-- 1 mahdi mahdi 13950074 May 29 21:40 52386
+-rw-rw-r-- 1 mahdi mahdi 13945156 May 29 21:40 536BC
+-rw-rw-r-- 1 mahdi mahdi 13938036 May 29 21:40 5528C
+-rw-rw-r-- 1 mahdi mahdi 13926565 May 29 21:40 57F5B
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Check file types
+file C4 4D230 5528C 5B32C 603BC 65434 7349C 8B588 97638 C067C F86EC 1117F8 11F86C
+C4:     MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+4D230:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+5528C:  MS-DOS executable PE32+ executable (EFI runtime driver) x86-64, for MS Windows
+5B32C:  MS-DOS executable PE32+ executable (EFI runtime driver) x86-64, for MS Windows
+603BC:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+65434:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+7349C:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+8B588:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+97638:  MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+C067C:  MS-DOS executable PE32+ executable (EFI application) x86-64, for MS Windows
+F86EC:  MS-DOS executable PE32+ executable (EFI application) x86-64, for MS Windows
+1117F8: MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+11F86C: MS-DOS executable PE32+ executable (EFI boot service driver) x86-64, for MS Windows
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Search for "PeiCore" in all extracted files
+for f in *; do
+    if strings "$f" 2>/dev/null | grep -qi "PeiCore"; then
+        echo "=== FOUND in: $f ==="
+        strings "$f" | grep -i "PeiCore" | head -5
+    fi
+done
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Search for PEI Core GUID
+for f in *; do
+    if strings "$f" 2>/dev/null | grep -qi "52C05B14"; then
+        echo "PEI Core GUID found in: $f"
+    fi
+done
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Check which files have PE entry point
+for f in C4 4D230 5528C 5B32C 603BC; do
+    echo "=== $f ==="
+    xxd "$f" | head -3
+    echo ""
+done
+=== C4 ===
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+
+=== 4D230 ===
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+
+=== 5528C ===
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+
+=== 5B32C ===
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+
+=== 603BC ===
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ # Verify DOS header (MZ) in each
+for f in C4 4D230 5528C 5B32C; do
+    if xxd "$f" 2>/dev/null | head -1 | grep -q "4d 5a"; then
+        echo "$f: Valid PE (MZ header)"
+    else
+        echo "$f: Not PE"
+    fi
+done
+C4: Not PE
+4D230: Not PE
+5528C: Not PE
+5B32C: Not PE
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ 
+
+mahdi@mahdi-pc:~/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/_main_fv.bin.extracted$ xxd C4
+00000000: 4d5a 0000 0000 0000 0000 0000 0000 0000  MZ..............
+00000010: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000020: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000030: 0000 0000 0000 0000 0000 0000 580e 0000  ............X...
+00000040: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000050: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000060: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000070: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000080: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000090: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000000f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000100: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000110: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000120: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000130: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000140: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000150: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000160: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000170: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000180: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000190: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000001f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000200: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000210: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000220: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000230: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000240: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000250: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000260: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000270: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000280: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000290: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000002f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000300: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000310: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000320: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000330: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000340: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000350: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000360: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000370: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000380: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000390: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000003f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000400: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000410: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000420: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000430: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000440: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000450: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000460: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000470: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000480: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000490: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000004f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000500: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000510: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000520: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000530: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000540: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000550: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000560: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000570: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000580: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000590: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000005f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000600: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000610: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000620: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000630: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000640: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000650: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000660: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000670: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000680: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000690: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000006f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000700: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000710: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000720: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000730: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000740: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000750: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000760: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000770: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000780: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000790: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000007f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000800: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000810: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000820: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000830: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000840: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000850: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000860: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000870: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000880: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000890: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000008f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000900: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000910: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000920: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000930: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000940: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000950: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000960: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000970: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000980: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000990: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009a0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009b0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009c0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009d0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009e0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+000009f0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a50: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a60: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a70: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a80: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000a90: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000aa0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ab0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ac0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ad0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ae0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000af0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b50: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b60: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b70: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b80: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000b90: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ba0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000bb0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000bc0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000bd0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000be0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000bf0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c50: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c60: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c70: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c80: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000c90: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ca0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000cb0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000cc0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000cd0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ce0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000cf0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d50: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d60: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d70: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d80: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000d90: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000da0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000db0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000dc0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000dd0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000de0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000df0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e00: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e10: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000e50: 0000 0000 0000 0000 5045 0000 6486 0300  ........PE..d...
+00000e60: 0000 0000 0000 0000 0000 0000 f000 2e00  ................
+00000e70: 0b02 0000 0090 0200 0020 0200 0000 0000  ......... ......
+00000e80: eeba 0100 0010 0000 0000 0000 0000 0000  ................
+00000e90: 0010 0000 0010 0000 0000 0000 0000 0000  ................
+00000ea0: 0000 0000 0000 0000 00d0 0400 0010 0000  ................
+00000eb0: 0000 0000 0b00 0001 0000 0000 0000 0000  ................
+00000ec0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ed0: 0000 0000 0000 0000 0000 0000 1000 0000  ................
+00000ee0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ef0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000f00: 0000 0000 0000 0000 00c0 0400 0010 0000  ................
+00000f10: f8bc 0400 1c00 0000 0000 0000 0000 0000  ................
+00000f20: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000f30: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000f40: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000f50: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000f60: 2e74 6578 7400 0000 0090 0200 0010 0000  .text...........
+00000f70: 0090 0200 0010 0000 0000 0000 0000 0000  ................
+00000f80: 0000 0000 2000 0060 2e64 6174 6100 0000  .... ..`.data...
+00000f90: 0020 0200 00a0 0200 0020 0200 00a0 0200  . ....... ......
+00000fa0: 0000 0000 0000 0000 0000 0000 4000 00c0  ............@...
+00000fb0: 2e72 656c 6f63 0000 0010 0000 00c0 0400  .reloc..........
+00000fc0: 0010 0000 00c0 0400 0000 0000 0000 0000  ................
+00000fd0: 0000 0000 4000 0042 0000 0000 0000 0000  ....@..B........
+00000fe0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00000ff0: 0000 0000 0000 0000 0000 0000 0000 0000  ................
+00001000: 4c8b 0509 af02 004d 85c0 742c 5548 69d1  L......M..t,UHi.
+00001010: 8096 9800 4c89 c148 89e5 4883 ec20 41ff  ....L..H..H.. A.
+00001020: 5008 c948 89c2 48b8 0700 0000 0000 0080  P..H..H.........
+00001030: 48c1 fa3f 4821 d0c3 48b8 0200 0000 0000  H..?H!..H.......
+00001040: 00a0 c331 c048 39d1 7407 4819 c048 83c8  ...1.H9.t.H..H..
+00001050: 01c3 48b8 0e00 0000 0000 0080 4883 7e40  ..H.........H.~@
+00001060: 0075 1248 83ff 2175 053b 5638 eb03 3b4e  .u.H..!u.;V8..;N
+00001070: 3c75 0231 c0c3 5548 89e5 4157 4c8d 3c17  <u.1..UH..AWL.<.
+00001080: 4156 488d 45a8 4c8d 3437 4155 4154 4989  AVH.E.L.47AUATI.
+00001090: d453 4889 fb48 89d7 4883 ec48 4889 4598  .SH..H..H..HH.E.
+000010a0: 4c39 f373 644d 89fd 4d39 f573 5448 8b43  L9.sdM..M9.sTH.C
+000010b0: 0849 3945 0873 4548 8b4d 9848 83ec 2048  .I9E.sEH.M.H.. H
+000010c0: 89da 4889 7d90 41b8 2800 0000 e80d 6301  ..H.}.A.(.....c.
+000010d0: 0041 b828 0000 004c 89ea 4889 d9e8 fc62  .A.(...L..H....b
+000010e0: 0100 488b 5598 41b8 2800 0000 4c89 e9e8  ..H.U.A.(...L...
+000010f0: ea62 0100 488b 7d90 4883 c420 4d01 e5eb  .b..H.}.H.. M...
+00001100: a74c 01e3 4901 ffeb 9748 8d65 d85b 415c  .L..I....H.e.[A\
+00001110: 415d 415e 415f 5dc3 5548 89e5 4155 4154  A]A^A_].UH..AUAT
+00001120: 5756 5348 89d3 4883 ec28 4d85 c00f 94c0  WVSH..H..(M.....
+00001130: 4d85 c90f 94c2 08d0 757b 4889 cf48 85c9  M.......u{H..H..
+00001140: 7473 4531 ed48 89d8 4903 004c 89c6 410f  tsE1.H..I..L..A.
+00001150: 92c5 7261 8a05 e693 0200 4d89 cca8 0174  ..ra......M....t
+00001160: 2148 8139 696d 6766 7418 4c8d 057e 2f02  !H.9imgft.L..~/.
+00001170: 00ba 3901 0000 488d 0dbc 2f02 00e8 5055  ..9...H.../...PU
+00001180: 0100 488b 1648 8b47 1848 01da 4839 d073  ..H..H.G.H..H9.s
+00001190: 0529 d848 8906 483b 5f18 7205 31c0 4889  .).H..H;_.r.1.H.
+000011a0: 0648 035f 104c 8b06 4c89 e148 89da e82b  .H._.L..L..H...+
+000011b0: 6201 00eb 0a49 bd02 0000 0000 0000 8048  b....I.........H
+000011c0: 83c4 284c 89e8 5b5e 5f41 5c41 5d5d c355  ..(L..[^_A\A]].U
+000011d0: 31c9 4889 e541 5541 5453 5248 890e 4c8b  1.H..AUATSRH..L.
+000011e0: 6f08 4d85 ed75 0731 c0e9 b100 0000 8a05  o.M..u.1........
+000011f0: 4c93 0200 4889 fb49 89f4 a801 742a 4981  L...H..I....t*I.
+00001200: 7d00 7072 746e 7420 4883 ec20 4c8d 052e  }.prtnt H.. L...
+00001210: 2f02 00ba 6301 0000 488d 0d71 2f02 00e8  /...c...H..q/...
+00001220: ae54 0100 4883 c420 31c0 4889 4308 498b  .T..H.. 1.H.C.I.
+00001230: 4528 488b 1849 8b45 0848 83c0 2848 39c3  E(H..I.E.H..(H9.
+00001240: 74a5 8a15 f892 0200 488b 43e0 80e2 0174  t.......H.C....t
+00001250: 2a48 3d70 6966 6374 2a48 83ec 204c 8d05  *H=pifct*H.. L..
+00001260: 352f 0200 ba6b 0100 0048 8d0d 202f 0200  5/...k...H.. /..
+00001270: e85d 5401 0048 83c4 20eb 0c48 3d70 6966  .]T..H.. ..H=pif
+00001280: 6375 1248 83eb 2048 8b53 3848 8b43 1849  cu.H.. H.S8H.C.I
+00001290: 8914 24eb 0a48 8b04 2518 0000 000f 0b48  ..$..H..%......H
+000012a0: 8d65 e85b 415c 415d 5dc3 5531 c048 89e5  .e.[A\A]].U1.H..
+000012b0: 4156 4c8d 35d7 2e02 0041 5549 89f5 4154  AVL.5....AUI..AT
+000012c0: 4989 fc53 4889 0649 8b44 2410 488b 1849  I..SH..I.D$.H..I
+000012d0: 8b44 2418 4883 c028 4989 5c24 1048 39c3  .D$.H..(I.\$.H9.
+000012e0: 7460 8a15 5892 0200 488b 43e0 80e2 0174  t`..X...H.C....t
+000012f0: 2648 3d70 6966 6374 2648 83ec 204c 8d05  &H=pifct&H.. L..
+00001300: 952e 0200 ba9d 0100 004c 89f1 e8c1 5301  .........L....S.
+00001310: 0048 83c4 20eb 0c48 3d70 6966 6375 2748  .H.. ..H=pifcu'H
+00001320: 83eb 2048 8b53 3848 8b43 1849 8955 0048  .. H.S8H.C.I.U.H
+00001330: 8b15 8aab 0200 4839 5028 748b 4889 5028  ......H9P(t.H.P(
+00001340: eb0e 31c0 eb0a 488b 0425 1800 0000 0f0b  ..1...H..%......
+00001350: 488d 65e0 5b41 5c41 5d41 5e5d c348 8b47  H.e.[A\A]A^].H.G
+00001360: 1048 8d0d f88e 0200 488b 0048 8947 1031  .H......H..H.G.1
+00001370: c048 8906 488b 5710 31c0 4839 ca74 598a  .H..H.W.1.H9.tY.
+00001380: 05bb 9102 0048 8b4a f8a8 0174 3b48 81f9  .....H.J...t;H..
+00001390: 686e 646c 743d 554c 8d05 fb2d 0200 ba3e  hndlt=UL...-...>
+000013a0: 0100 0048 8d0d e62d 0200 4889 e553 4889  ...H...-..H..SH.
+000013b0: fb48 83ec 28e8 1853 0100 488b 4310 4883  .H..(..S..H.C.H.
+000013c0: c420 488b 5df8 c9c3 31c0 4881 f968 6e64  . H.]...1.H..hnd
+000013d0: 6c75 0548 8d42 f8c3 c355 4889 e541 574c  lu.H.B...UH..AWL
+000013e0: 8d3d c82d 0200 4156 4989 f641 554c 8d6f  .=.-..AVI..AUL.o
+000013f0: 1841 5453 5048 8b5f 184c 39eb 7466 8a15  .ATSPH._.L9.tf..
+00001400: 3c91 0200 488b 43f8 80e2 0174 2948 3d70  <...H.C....t)H=p
+00001410: 6966 6374 2948 83ec 20ba f503 0000 4c89  ifct)H.. .....L.
+00001420: f949 89dc 4c8d 056e 2d02 00e8 a252 0100  .I..L..n-....R..
+00001430: 4883 c420 eb0c 483d 7069 6663 752b 4c8d  H.. ..H=pifcu+L.
+00001440: 63f8 498b 4424 3048 83ec 204c 89f2 488d  c.I.D$0H.. L..H.
+00001450: 4818 e833 7401 0048 83c4 2084 c075 1448  H..3t..H.. ..u.H
+00001460: 8b1b eb95 4531 e4eb 0a48 8b04 2530 0000  ....E1...H..%0..
+00001470: 000f 0b48 8d65 d84c 89e0 5b41 5c41 5d41  ...H.e.L..[A\A]A
+00001480: 5e41 5f5d c355 4889 e541 5749 89d7 4156  ^A_].UH..AWI..AV
+00001490: 4989 ce41 554d 89c5 4154 4989 fc53 4883  I..AUM..ATI..SH.
+000014a0: ec18 8a15 9890 0200 4885 f675 2d80 e201  ........H..u-...
+000014b0: 7428 4883 ec20 ba63 0200 0048 8975 c84c  t(H.. .c...H.u.L
+000014c0: 8d05 f12c 0200 488d 0df6 2c02 00e8 0052  ...,..H...,....R
+000014d0: 0100 488b 75c8 4883 c420 31c0 498d 7434  ..H.u.H.. 1.I.t4
+000014e0: ff49 8907 4989 0649 8b5d 004c 39eb 0f84  .I..I..I.].L9...
+000014f0: 8400 0000 8a0d 4690 0200 488b 53f8 80e1  ......F...H.S...
+00001500: 0174 3648 81fa 6763 646d 7436 4883 ec20  .t6H..gcdmt6H.. 
+00001510: ba6a 0200 0048 8975 c84c 8d05 792c 0200  .j...H.u.L..y,..
+00001520: 488d 0d9c 2c02 00e8 a651 0100 488b 75c8  H...,....Q..H.u.
+00001530: 4883 c420 4889 daeb 0d48 81fa 6763 646d  H.. H....H..gcdm
+00001540: 7542 488d 53f8 4c3b 6218 720b 4c39 6220  uBH.S.L;b.r.L9b 
+00001550: 7205 4989 1feb 0649 833f 0074 1348 3b72  r.I....I.?.t.H;r
+00001560: 1872 0d48 3972 2072 0749 891e 31c0 eb1e  .r.H9r r.I..1...
+00001570: 488b 1be9 73ff ffff 48b8 0e00 0000 0000  H...s...H.......
+00001580: 0080 eb0a 488b 0425 1800 0000 0f0b 488d  ....H..%......H.
+00001590: 65d8 5b41 5c41 5d41 5e41 5f5d c355 b950  e.[A\A]A^A_].U.P
+000015a0: 0000 0048 89e5 4154 4989 f453 4889 fbc6  ...H..ATI..SH...
+000015b0: 05fa a802 0001 4883 ec20 e8e7 6e01 0048  ......H.. ..n..H
+000015c0: 83c4 2048 8903 4885 c075 09c6 05de a802  .. H..H..u......
+000015d0: 0000 eb3b 4883 ec20 b950 0000 00c6 05cc  ...;H.. .P......
+000015e0: a802 0001 e8bd 6e01 00c6 05c0 a802 0000  ......n.........
+000015f0: 4883 c420 31d2 4989 0424 4885 c075 1a48  H.. 1.I..$H..u.H
+00001600: 8b0b 4883 ec20 e8e4 de00 0048 83c4 2048  ..H.. .....H.. H
+00001610: ba09 0000 0000 0000 8048 8d65 f048 89d0  .........H.e.H..
+00001620: 5b41 5c5d c355 4889 e541 5741 564d 89ce  [A\].UH..AWAVM..
+00001630: 4155 4d89 c541 5457 5653 4889 d348 83ec  AUM..ATWVSH..H..
+00001640: 488a 05f9 8e02 0048 85d2 751c a801 7418  H......H..u...t.
+00001650: 4c8d 0572 2b02 00ba 1201 0000 488d 0d83  L..r+.......H...
+00001660: 2b02 00e8 6a50 0100 8a05 d28e 0200 0fb6  +...jP..........
+00001670: 5302 488d 7b04 8a05 c48e 0200 8a05 be8e  S.H.{...........
+00001680: 0200 0fb6 4301 c1e2 10c1 e008 09d0 0fb6  ....C...........
+00001690: 1309 d03d ffff ff00 7504 488d 7b08 31f6  ...=....u.H.{.1.
+000016a0: 3b35 2aa9 0200 7345 4189 f448 89fa 4c89  ;5*...sEA..H..L.
+000016b0: e148 c1e1 0448 030d 24a9 0200 e8c9 7101  .H...H..$.....q.
+000016c0: 0084 c074 2448 8b05 fca8 0200 488d 55bc  ...t$H......H.U.
+000016d0: 4c8d 4db6 4889 d94c 8d45 b842 ff14 e048  L.M.H..L.E.B...H
+000016e0: 89c6 4885 c079 2ceb 0eff c6eb b348 be03  ..H..y,......H..
+000016f0: 0000 0000 0000 80e8 a54b 0100 4989 f048  .........K..I..H
+00001700: 8d15 fd2a 0200 84c0 0f84 9101 0000 e952  ...*...........R
+00001710: 0100 008b 4db8 31ff 85c9 740d e83e 4b01  ....M.1...t..>K.
+00001720: 0048 89c7 4885 c074 218b 4dbc 85c9 742f  .H..H..t!.M...t/
+00001730: e82a 4b01 0049 89c4 4885 c075 1c48 85ff  .*K..I..H..u.H..
+00001740: 7408 4889 f9e8 1a51 0100 48be 0900 0000  t.H....Q..H.....
+00001750: 0000 0080 e946 0100 0049 8945 00eb 0345  .....F...I.E...E
+00001760: 31e4 8a05 d88d 0200 8a05 d28d 0200 4d85  1.............M.
+00001770: ed75 1ca8 0174 184c 8d05 ae2a 0200 ba67  .u...t.L...*...g
+00001780: 0100 0048 8d0d 5c2a 0200 e843 4f01 0048  ...H..\*...CO..H
+00001790: 837d 3000 8a05 a68d 0200 751c a801 7418  .}0.......u...t.
+000017a0: 4c8d 05a2 2a02 00ba 6801 0000 488d 0d33  L...*...h...H..3
+000017b0: 2a02 00e8 1a4f 0100 0fb6 4301 0fb6 5302  *....O....C...S.
+000017c0: c1e0 08c1 e210 09d0 0fb6 1309 d048 8d53  .............H.S
+000017d0: 043d ffff ff00 7504 488d 5308 31f6 3b35  .=....u.H.S.1.;5
+000017e0: eca7 0200 7348 4189 f748 8955 a84c 89f9  ....sHA..H.U.L..
+000017f0: 48c1 e104 4803 0de5 a702 00e8 8a70 0100  H...H........p..
+00001800: 488b 55a8 84c0 7422 488b 05c9 a702 0049  H.U...t"H......I
+00001810: 89f8 4c89 ea48 89d9 4c8b 4d30 42ff 14f8  ..L..H..L.M0B...
+00001820: 4889 c648 85c0 7949 eb0e ffc6 ebb0 48be  H..H..yI......H.
+00001830: 0300 0000 0000 0080 4d85 e474 084c 89e1  ........M..t.L..
+00001840: e8aa dc00 0048 85ff 7408 4889 f9e8 9ddc  .....H..t.H.....
+00001850: 0000 e84a 4a01 0084 c074 4449 89f0 488d  ...JJ....tDI..H.
+00001860: 1509 2a02 00b9 0000 0080 e807 4a01 00eb  ..*.........J...
+00001870: 2e49 8b55 004c 39e2 7410 448b 45bc 4c89  .I.U.L9.t.D.E.L.
+00001880: e1e8 585b 0100 4d89 6500 8b45 bc49 8906  ..X[..M.e..E.I..
+00001890: 4885 ff74 0848 89f9 e852 dc00 0031 f648  H..t.H...R...1.H
+000018a0: 83c4 4848 89f0 5b5e 5f41 5c41 5d41 5e41  ..HH..[^_A\A]A^A
+000018b0: 5f5d c355 4889 e541 554d 89cd 4154 4d89  _].UH..AUM..ATM.
+000018c0: c457 89cf b904 0000 0056 4889 d653 4883  .W.......VH..SH.
+000018d0: ec38 e8ae 9001 0089 c384 c074 17c7 4424  .8.........t..D$
+000018e0: 2003 0000 0045 31c9 4531 c031 d231 c9e8   ....E1.E1.1.1..
+000018f0: 2fc6 0100 4c8b 4d38 4c8b 4530 400f b6ff  /...L.M8L.E0@...
+00001900: 4c89 e94c 89e2 e88d db01 0031 c948 89c7  L..L.......1.H..
+00001910: 4885 c078 0748 8b45 3848 8b08 84db 7415  H..x.H.E8H....t.
+00001920: c744 2420 0400 0000 4531 c945 31c0 31d2  .D$ ....E1.E1.1.
+00001930: e8ee c501 0048 83c4 3848 89f8 5b5e 5f41  .....H..8H..[^_A
+00001940: 5c41 5d5d c355 4889 e541 5449 bc01 0000  \A]].UH..ATI....
+00001950: 00ff ffff ff53 4889 fb48 83ec 20ba 2000  .....SH..H.. . .
+00001960: 0000 4889 d9e8 3450 0100 488b 0da7 a502  ..H...4P..H.....
+00001970: 0048 83c4 2048 89c2 488b 0148 85d2 7412  .H.. H..H..H..t.
+00001980: 4883 ec20 83ca ff4c 01e3 ffd0 4883 c420  H.. ...L....H.. 
+00001990: ebc7 4883 ec20 89da ffd0 4883 c420 488d  ..H.. ....H.. H.
+000019a0: 65f0 5b41 5c5d c348 8b15 6aa5 0200 4885  e.[A\].H..j...H.
+000019b0: d274 7148 b899 9999 9999 9999 1955 4889  .tqH.........UH.
+000019c0: e541 5457 4c8d 45dc 5653 4883 ec30 4839  .ATWL.E.VSH..0H9
+000019d0: c88b 5208 7337 e8ee 5001 00bb 0a00 0000  ..R.s7..P.......
+000019e0: 4989 c44c 89e7 e85a ffff ff48 ffcb 75f3  I..L...Z...H..u.
+000019f0: 837d dc00 740a bf0a 0000 00e8 45ff ffff  .}..t.......E...
+00001a00: 4883 c430 31c0 5b5e 5f41 5c5d c348 6bc9  H..01.[^_A\].Hk.
+00001a10: 0ae8 b350 0100 837d dc00 4889 c774 dc48  ...P...}..H..t.H
+00001a20: ffc7 ebd7 48b8 0200 0000 0000 00a0 c355  ....H..........U
+00001a30: 4889 e541 5741 5641 5541 89f5 4154 5348  H..AWAVAUA..ATSH
+00001a40: 83ec 188a 05f7 8a02 0048 897d c8a8 0174  .........H.}...t
+00001a50: 3648 83ec 20e8 ca47 0100 4883 c420 833d  6H.. ..G..H.. .=
+00001a60: 9b86 0200 0274 2048 83ec 204c 8d05 2028  .....t H.. L.. (
+00001a70: 0200 ba99 0000 0048 8d0d 3027 0200 e84f  .......H..0'...O
+00001a80: 4c01 0048 83c4 204c 8b25 5286 0200 4c8d  L..H.. L.%R...L.
+00001a90: 354b 8602 004c 8d3d 1227 0200 4d39 f474  5K...L.=.'..M9.t
+00001aa0: 678a 1599 8a02 0049 8b44 24f8 80e2 0174  g......I.D$....t
+00001ab0: 2948 3d70 7274 6574 2b48 83ec 20ba a400  )H=prtet+H.. ...
+00001ac0: 0000 4c89 f94c 89e3 4c8d 05ca 2602 00e8  ..L..L..L...&...
+00001ad0: fe4b 0100 4883 c420 eb0f 31db 483d 7072  .K..H.. ..1.H=pr
+00001ae0: 7465 7505 498d 5c24 f848 8b55 c848 83ec  teu.I.\$.H.U.H..
+00001af0: 2048 8d4b 18e8 906d 0100 4883 c420 84c0   H.K...m..H.. ..
+00001b00: 7508 4d8b 2424 eb94 31db 4885 db75 5a41  u.M.$$..1.H..uZA
+00001b10: 83e5 0174 5448 83ec 20b9 4800 0000 e83c  ...tTH.. .H....<
+00001b20: 4701 0048 83c4 2048 89c3 4885 c074 3a48  G..H.. H..H..t:H
+00001b30: c700 7072 7465 488b 55c8 4883 ec20 488d  ..prteH.U.H.. H.
+00001b40: 4818 e8de 6c01 0048 8d4b 28e8 8050 0100  H...l..H.K(..P..
+00001b50: 488d 4b38 e877 5001 0048 8d53 084c 89f1  H.K8.wP..H.S.L..
+00001b60: e8d3 5001 0048 83c4 2048 8d65 d848 89d8  ..P..H.. H.e.H..
+00001b70: 5b41 5c41 5d41 5e41 5f5d c355 4889 e541  [A\A]A^A_].UH..A
+00001b80: 5741 5641 5541 5453 4883 ec58 897d 9c48  WAVAUATSH..X.}.H
+00001b90: 85c9 750f 48b8 0200 0000 0000 0080 e930  ..u.H..........0
+00001ba0: 0100 0048 8339 0048 89f7 4889 d349 89ce  ...H.9.H..H..I..
+00001bb0: 4d89 c574 054d 85c0 74da 488d 059f 8602  M..t.M..t.H.....
+00001bc0: 0083 7d9c 0148 897d b048 895d b848 8945  ..}..H.}.H.].H.E
+00001bd0: c074 1583 7d9c 0274 1d83 7d9c 0075 b54c  .t..}..t..}..u.L
+00001be0: 8d25 77f7 ffff eb41 4c8d 25e0 f5ff ff48  .%w....AL.%....H
+00001bf0: 85db 7535 eb9e 4885 ff74 9931 f6e8 2dfe  ..u5..H..t.1..-.
+00001c00: ffff 4889 45c8 4885 c075 0f48 b80e 0000  ..H.E.H..u.H....
+00001c10: 0000 0000 80e9 b900 0000 4883 c028 4c8d  ..........H..(L.
+00001c20: 2585 f6ff ff48 8945 c048 83ec 2045 31ff  %....H.E.H.. E1.
+00001c30: e8ef 4501 0048 8d45 a848 83c4 2048 ff05  ..E..H.E.H.. H..
+00001c40: 7ca2 0200 4889 4590 488d 45b0 4889 4588  |...H.E.H.E.H.E.
+00001c50: 488b 7590 488b 7d88 41ff d448 85c0 7413  H.u.H.}.A..H..t.
+00001c60: 4983 c708 4d39 3e72 e749 8945 0049 83c5  I...M9>r.I.E.I..
+00001c70: 08eb dd4d 85ff 7493 48b8 0500 0000 0000  ...M..t.H.......
+00001c80: 0080 4d39 3e72 0231 c083 7d9c 014d 893e  ..M9>r.1..}..M.>
+00001c90: 7541 4885 c075 3c8a 05a3 8802 0048 85db  uAH..u<......H..
+00001ca0: 7524 a801 7420 4883 ec20 4c8d 0503 2602  u$..t H.. L...&.
+00001cb0: 00ba f000 0000 488d 0dd3 2402 00e8 104a  ......H...$....J
+00001cc0: 0100 4883 c420 488b 4328 488b 0048 8943  ..H.. H.C(H..H.C
+00001cd0: 2831 c048 8d65 d85b 415c 415d 415e 415f  (1.H.e.[A\A]A^A_
+00001ce0: 5dc3 5548 89e5 4157 4156 4155 4989 d541  ].UH..AWAVAUI..A
+00001cf0: 5449 89f4 5348 89fb 508a 0541 8802 00a8  TI..SH..P..A....
+00001d00: 0174 3648 83ec 20e8 1845 0100 4883 c420  .t6H.. ..E..H.. 
+00001d10: 833d e983 0200 0274 2048 83ec 204c 8d05  .=.....t H.. L..
+00001d20: 6e25 0200 bae0 0000 0048 8d0d 7e24 0200  n%.......H..~$..
+00001d30: e89d 4901 0048 83c4 2031 f64c 89e7 e8ec  ..I..H.. 1.L....
+00001d40: fcff ff49 89c7 4885 c075 0431 c0eb 764c  ...I..H..u.1..vL
+00001d50: 8b63 184c 8d35 5424 0200 4883 c318 4939  .c.L.5T$..H...I9
+00001d60: dc74 e88a 15d7 8702 0049 8b44 24f8 80e2  .t.......I.D$...
+00001d70: 0174 2948 3d70 6966 6374 2948 83ec 204c  .t)H=pifct)H.. L
+00001d80: 8d05 1324 0200 baf0 0000 004c 89f1 e83f  ...$.......L...?
+00001d90: 4901 0048 83c4 204c 89e0 eb0d 483d 7069  I..H.. L....H=pi
+00001da0: 6663 7517 498d 4424 f84c 3968 3875 064c  fcu.I.D$.L9h8u.L
+00001db0: 3978 3074 104d 8b24 24eb a348 8b04 2538  9x0t.M.$$..H..%8
+00001dc0: 0000 000f 0b48 8d65 d85b 415c 415d 415e  .....H.e.[A\A]A^
+00001dd0: 415f 5dc3 5548 89e5 4157 4156 4155 4989  A_].UH..AWAVAUI.
+00001de0: d541 5449 89f4 5348 89fb 508a 054f 8702  .ATI..SH..P..O..
+00001df0: 00a8 0174 3648 83ec 20e8 2644 0100 4883  ...t6H.. .&D..H.
+00001e00: c420 833d f782 0200 0274 2048 83ec 204c  . .=.....t H.. L
+00001e10: 8d05 7c24 0200 ba3a 0000 0048 8d0d 0e42  ..|$...:...H...B
+00001e20: 0200 e8ab 4801 0048 83c4 2048 89df 4c89  ....H..H.. H..L.
+00001e30: ea4c 89e6 e8a9 feff ff48 89c3 4885 c00f  .L.......H..H...
+00001e40: 8492 0000 004c 8b68 304c 8d78 204c 8d35  .....L.h0L.x L.5
+00001e50: dc41 0200 4d8b 6538 4983 c538 4d39 ec74  .A..M.e8I..8M9.t
+00001e60: 5a8a 15d9 8602 0049 8b44 24f0 80e2 0174  Z......I.D$....t
+00001e70: 2948 3d70 7274 6e74 2948 83ec 204c 8d05  )H=prtnt)H.. L..
+00001e80: 1523 0200 ba44 0000 004c 89f1 e841 4801  .#...D...L...AH.
+00001e90: 0048 83c4 204c 89e0 eb0d 483d 7072 746e  .H.. L....H=prtn
+00001ea0: 752b 498d 4424 f04c 3978 2875 0848 8b53  u+I.D$.L9x(u.H.S
+00001eb0: 2848 8950 284d 8b24 24eb a148 83ec 204c  (H.P(M.$$..H.. L
+00001ec0: 89f9 e837 4f01 0048 83c4 20eb 0a48 8b04  ...7O..H.. ..H..
+00001ed0: 2528 0000 000f 0b48 8d65 d848 89d8 5b41  %(.....H.e.H..[A
+00001ee0: 5c41 5d41 5e41 5f5d c348 b802 0000 0000  \A]A^A_].H......
+00001ef0: 0000 8048 85c9 0f84 5801 0000 5548 89e5  ...H....X...UH..
+00001f00: 4156 4531 f641 5549 89d5 4154 4989 cc57  AVE1.AUI..ATI..W
+00001f10: 5653 4883 ec20 488b 0503 a002 0048 8b58  VSH.. H......H.X
+00001f20: 7048 8b05 f89f 0200 4c3b 7068 7314 496b  pH......L;phs.Ik
+00001f30: d618 4c89 e148 0350 70e8 4c69 0100 84c0  ..L..H.Pp.Li....
+00001f40: 7412 488b 05d7 9f02 004c 8b40 684d 39c6  t.H......L.@hM9.
+00001f50: 7207 eb3c 49ff c6eb c849 6bce 1848 8b50  r..<I....Ik..H.P
+00001f60: 704d 85ed 740a 4c89 6c0a 10e9 cb00 0000  pM..t.L.l.......
+00001f70: 49ff c848 8d54 0a18 4801 d94c 8940 684d  I..H.T..H..L.@hM
+00001f80: 29f0 4d6b c018 e853 5401 00e9 9f00 0000  ).Mk...ST.......
+00001f90: 48b8 0e00 0000 0000 0080 4d85 ed0f 84a2  H.........M.....
+00001fa0: 0000 004d 6bf6 1848 8b35 5a9f 0200 4939  ...Mk..H.5Z...I9
+00001fb0: f672 5f48 81c6 8001 0000 bf06 0000 0048  .r_H...........H
+00001fc0: 8935 429f 0200 e863 4201 0048 89c3 48b8  .5B....cB..H..H.
+00001fd0: 0900 0000 0000 0080 4885 db74 6848 8b05  ........H..thH..
+00001fe0: 3c9f 0200 488b 5070 4885 d274 2148 89d9  <...H.PpH..t!H..
+00001ff0: 4d89 f0e8 e653 0100 488b 0521 9f02 0048  M....S..H..!...H
+00002000: 8b48 7048 8958 70e8 e3d4 0000 eb04 4889  .HpH.Xp.......H.
+00002010: 5870 4c01 f34c 89e2 4889 d9e8 0568 0100  XpL..L..H....h..
+00002020: 488b 05f9 9e02 004c 896b 1048 ff40 6848  H......L.k.H.@hH
+00002030: 8b3d ea9e 0200 e838 f900 004c 89e7 e846  .=.....8...L...F
+00002040: b900 0031 c048 83c4 205b 5e5f 415c 415d  ...1.H.. [^_A\A]
+00002050: 415e 5dc3 c355 4889 e541 5541 5449 89fc  A^]..UH..AUATI..
+00002060: 5350 8a05 d884 0200 a801 7436 4883 ec20  SP........t6H.. 
+00002070: e8af 4101 0048 83c4 2083 3d80 8002 0002  ..A..H.. .=.....
+00002080: 7420 4883 ec20 4c8d 0505 2202 00ba 1c00  t H.. L...".....
+00002090: 0000 488d 0d97 3f02 00e8 3446 0100 4883  ..H...?...4F..H.
+000020a0: c420 498b 5c24 384c 8d2d 823f 0200 4983  . I.\$8L.-.?..I.
+000020b0: c438 4c39 e374 648a 1583 8402 0048 8b43  .8L9.td......H.C
+000020c0: f080 e201 7429 483d 7072 746e 7429 4883  ....t)H=prtnt)H.
+000020d0: ec20 4c8d 05c0 2002 00ba 1f00 0000 4c89  . L... .......L.
+000020e0: e9e8 ec45 0100 4883 c420 4889 d8eb 0c48  ...E..H.. H....H
+000020f0: 3d70 7274 6e75 1a48 8d43 f048 8b48 2048  =prtnu.H.C.H.H H
+00002100: 83ec 20e8 0eef 0000 488b 1b48 83c4 20eb  .. .....H..H.. .
+00002110: a148 8b04 2520 0000 000f 0b48 8d65 e85b  .H..% .....H.e.[
+00002120: 415c 415d 5dc3 4885 ff74 7955 4889 e553  A\A]].H..tyUH..S
+00002130: 4889 fb50 8a05 0684 0200 a801 7436 4883  H..P........t6H.
+00002140: ec20 e8dd 4001 0048 83c4 2083 3dae 7f02  . ..@..H.. .=...
+00002150: 0002 7420 4883 ec20 4c8d 0533 2102 00ba  ..t H.. L..3!...
+00002160: 7b00 0000 488d 0d43 2002 00e8 6245 0100  {...H..C ...bE..
+00002170: 4883 c420 488b 0d3d 9d02 0048 83ec 2048  H.. H..=...H.. H
+00002180: 89da e892 9801 0048 83c4 2048 85c0 750c  .......H.. H..u.
+00002190: 48b8 0200 0000 0000 0080 eb02 31c0 488b  H...........1.H.
+000021a0: 5df8 c9c3 48b8 0200 0000 0000 0080 c355  ]...H..........U
+000021b0: 4889 e541 5741 89cf b948 0000 0041 564d  H..AWA...H...AVM
+000021c0: 89c6 4155 4989 f541 5449 89fc 5348 83ec  ..AUI..ATI..SH..
+000021d0: 3889 55cc e886 4001 0048 83c4 2048 85c0  8.U...@..H.. H..
+000021e0: 743b 8b55 cc48 89c3 84d2 745a 4d85 e474  t;.U.H....tZM..t
+000021f0: 4d48 83ec 204c 89e1 e862 4001 0048 83c4  MH.. L...b@..H..
+00002200: 2048 8943 2048 89c1 4885 c075 1c48 83ec   H.C H..H..u.H..
+00002210: 2048 89d9 e8d6 d200 0048 83c4 2048 b809   H.......H.. H..
+00002220: 0000 0000 0000 80eb 7248 83ec 204d 89e0  ........rH.. M..
+00002230: 4c89 eae8 a651 0100 4883 c420 eb0c 31c0  L....Q..H.. ..1.
+00002240: 4889 4320 eb04 4c89 6820 4c89 6328 4883  H.C ..L.h L.c(H.
+00002250: ec20 488d 4b30 c703 5358 5353 4889 5b18  . H.K0..SXSSH.[.
+00002260: e86b 4901 0044 897b 40b9 1000 0000 e893  .kI..D.{@.......
+00002270: 8c00 0048 8d53 0848 8d0d d282 0200 4989  ...H.S.H......I.
+00002280: c4e8 b249 0100 4c89 e1e8 509d 0000 488b  ...I..L...P...H.
+00002290: 4318 4883 c420 4989 0631 c048 8d65 d85b  C.H.. I..1.H.e.[
+000022a0: 415c 415d 415e 415f 5dc3 5548 89e5 4157  A\A]A^A_].UH..AW
+000022b0: 4156 4989 f641 5549 89fd 4154 5348 8d1d  AVI..AUI..ATSH..
+000022c0: 8c82 0200 4889 d948 83ec 28e8 424a 0100  ....H..H..(.BJ..
+000022d0: 4883 c420 84c0 0f85 3601 0000 8a05 5e82  H.. ....6.....^.
+000022e0: 0200 a801 744d 4883 ec20 4889 d9e8 9e49  ....tMH.. H....I
+000022f0: 0100 4883 c420 8178 f853 5853 5374 3448  ..H.. .x.SXSSt4H
+00002300: 8d0d c81f 0200 4883 ec20 ba8e 0400 004c  ......H.. .....L
+00002310: 8d05 831e 0200 e8b7 4301 0048 89d9 e86d  ........C..H...m
+00002320: 4901 0048 83c4 204c 8d3d a01f 0200 e99c  I..H.. L.=......
+00002330: 0000 0048 83ec 2048 89d9 e851 4901 0048  ...H.. H...QI..H
+00002340: 83c4 2048 89c2 31c0 817a f853 5853 5375  .. H..1..z.SXSSu
+00002350: d648 83ec 2048 89d9 e833 4901 0048 83e8  .H.. H...3I..H..
+00002360: 08eb c04c 8d60 0848 83ec 2048 89d9 4c89  ...L.`.H.. H..L.
+00002370: e2e8 294a 0100 4883 c420 84c0 0f85 9000  ..)J..H.. ......
+00002380: 0000 8a05 b881 0200 a801 7450 4883 ec20  ..........tPH.. 
+00002390: 4c89 e248 89d9 e836 4901 0048 83c4 2081  L..H...6I..H.. .
+000023a0: 78f8 5358 5353 7434 ba96 0400 004c 89f9  x.SXSSt4.....L..
+000023b0: 4883 ec20 4c8d 05de 1d02 00e8 1243 0100  H.. L........C..
+000023c0: 4c89 e248 89d9 e806 4901 0048 83c4 204c  L..H....I..H.. L
+000023d0: 3968 1875 8e49 8906 31c0 eb40 4883 ec20  9h.u.I..1..@H.. 
+000023e0: 4c89 e248 89d9 e8e6 4801 0048 83c4 2048  L..H....H..H.. H
+000023f0: 89c2 31c0 817a f853 5853 5375 d248 83ec  ..1..z.SXSSu.H..
+00002400: 204c 89e2 4889 d9e8 c548 0100 4883 e808   L..H....H..H...
+00002410: ebb9 48b8 0e00 0000 0000 0080 488d 65d8  ..H.........H.e.
+00002420: 5b41 5c41 5d41 5e41 5f5d c355 4889 e541  [A\A]A^A_].UH..A
+00002430: 5741 5641 5541 89d5 4154 5748 89cf b910  WAVAUA..ATWH....
+00002440: 0000 0056 488d 75b8 5348 83ec 38e8 b48a  ...VH.u.SH..8...
+00002450: 0000 4989 c4e8 50fe ffff 48be 0200 0000  ..I...P...H.....
+00002460: 0000 0080 4885 c00f 85e8 0000 0048 8b7d  ....H........H.}
+00002470: b848 89c6 4c8d 3d53 1e02 0048 8d4f 084c  .H..L.=S...H.O.L
+00002480: 8d77 30e8 7649 0100 4c89 f1e8 8248 0100  .w0.vI..L....H..
+00002490: 84c0 0f85 a700 0000 4c89 f1e8 f047 0100  ........L....G..
+000024a0: 8a15 9a80 0200 4889 c38b 40f8 80e2 0174  ......H...@....t
+000024b0: 1d3d 5358 4353 741d 4c8d 05da 1c02 00ba  .=SXCSt.L.......
+000024c0: a105 0000 4c89 f9e8 0642 0100 eb0f 3d53  ....L....B....=S
+000024d0: 5843 5375 0648 83eb 08eb 0231 db8a 055d  XCSu.H.....1...]
+000024e0: 8002 00a8 0174 1c81 3b53 5843 5374 144c  .....t..;SXCSt.L
+000024f0: 8d05 f01d 0200 ba62 0500 004c 89f9 e8cf  .......b...L....
+00002500: 4101 0048 8d4b 08e8 f248 0100 488b 4b28  A..H.K...H..H.K(
+00002510: 4885 c974 0aba 0100 0000 e80c ffff ff48  H..t...........H
+00002520: 8b4b 3848 85c9 740a 488b 05b9 9a02 00ff  .K8H..t.H.......
+00002530: 5070 4889 d9e8 b5cf 0000 e949 ffff ff45  PpH........I...E
+00002540: 84ed 7409 488b 4f20 e8a2 cf00 0048 89f9  ..t.H.O .....H..
+00002550: e89a cf00 004c 89e1 e881 9a00 0048 83c4  .....L.......H..
+00002560: 3848 89f0 5b5e 5f41 5c41 5d41 5e41 5f5d  8H..[^_A\A]A^A_]
+00002570: c348 8d15 487f 0200 31c0 4889 d166 393a  .H..H...1.H..f9:
+00002580: 750a 48c1 e004 488b 4401 08c3 48ff c048  u.H...H.D...H..H
+00002590: 83c2 1048 83f8 0775 e448 8d05 d25f 0200  ...H...u.H..._..
+000025a0: c355 41b8 0104 0000 ba04 0000 00b9 0100  .UA.............
+000025b0: 0000 4889 e541 5453 4c8d 4de8 4883 ec40  ..H..ATSL.M.H..@
+000025c0: 48c7 45e8 ffff ffff 4c89 4dd8 e890 da00  H.E.....L.M.....
+000025d0: 0048 83c4 2048 85c0 0f89 8000 0000 4c8b  .H.. H........L.
+000025e0: 4dd8 4883 ec20 41b8 0104 0000 31c9 ba04  M.H.. A.....1...
+000025f0: 0000 00e8 69da 0000 4883 c420 4989 c08a  ....i...H.. I...
+00002600: 053b 7f02 00a8 0174 4c4d 85c0 7950 4883  .;.....tLM..yPH.
+00002610: ec20 4c89 45d8 e886 3c01 0048 83c4 204c  . L.E...<..H.. L
+00002620: 8b45 d884 c074 1948 83ec 2048 8d15 021d  .E...t.H.. H....
+00002630: 0200 b900 0000 80e8 3a3c 0100 4883 c420  ........:<..H.. 
+00002640: 4883 ec20 4c8d 050a 1d02 00ba 5300 0000  H.. L.......S...
+00002650: e903 0200 004d 85c0 0f88 0a02 0000 488b  .....M........H.
+00002660: 4de8 488d 99ff ff3f 0048 81e3 0000 c0ff  M.H....?.H......
+00002670: 4889 d848 29c8 4989 c449 c1ec 0ca9 ff0f  H..H).I..I......
+00002680: 0000 7405 49ff c4eb 054d 85e4 7474 4883  ..t.I....M..ttH.
+00002690: ec20 4c89 e2e8 5ada 0000 4883 c420 4989  . L...Z...H.. I.
+000026a0: c08a 0599 7e02 00a8 0174 574d 85c0 7952  ....~....tWM..yR
+000026b0: 4883 ec20 4c89 45d8 e8e4 3b01 0048 83c4  H.. L.E...;..H..
+000026c0: 204c 8b45 d884 c074 1948 83ec 2048 8d15   L.E...t.H.. H..
+000026d0: 601c 0200 b900 0000 80e8 983b 0100 4883  `..........;..H.
+000026e0: c420 4883 ec20 4c8d 0568 1c02 00ba 6300  . H.. L..h....c.
+000026f0: 0000 488d 0d92 1c02 00e8 d43f 0100 4883  ..H........?..H.
+00002700: c420 488d 8b00 1000 00ba 0004 0000 4889  . H...........H.
+00002710: 4de8 4c29 e274 7148 83ec 20e8 d4d9 0000  M.L).tqH.. .....
+00002720: 4883 c420 4989 c08a 0513 7e02 00a8 0174  H.. I.....~....t
+00002730: 574d 85c0 7952 4883 ec20 4c89 45d8 e85e  WM..yRH.. L.E..^
+00002740: 3b01 0048 83c4 204c 8b45 d884 c074 1948  ;..H.. L.E...t.H
+00002750: 83ec 2048 8d15 da1b 0200 b900 0000 80e8  .. H............
+00002760: 123b 0100 4883 c420 4883 ec20 4c8d 05e2  .;..H.. H.. L...
+00002770: 1b02 00ba 6d00 0000 488d 0d0c 1c02 00e8  ....m...H.......
+00002780: 4e3f 0100 4883 c420 4889 1d99 9702 008a  N?..H.. H.......
+00002790: 05ab 7d02 0048 85db 7524 a801 7420 4883  ..}..H..u$..t H.
+000027a0: ec20 4c8d 05f3 1b02 00ba 7400 0000 488d  . L.......t...H.
+000027b0: 0dd6 1b02 00e8 183f 0100 4883 c420 488b  .......?..H.. H.
+000027c0: 0563 9702 0048 83ec 2048 be49 4249 2053  .c...H.. H.IBI S
+000027d0: 5953 5448 8d0d 767a 0200 4889 3048 8b05  YSTH..vz..H.0H..
+000027e0: 4497 0200 488b 1535 9702 0048 8950 0831  D...H..5...H.P.1
+000027f0: d289 5010 488d 1565 9702 00e8 e9f6 ffff  ..P.H..e........
+00002800: 4883 c420 4989 c08a 0533 7d02 00a8 0174  H.. I....3}....t
+00002810: 574d 85c0 7452 4883 ec20 4c89 45d8 e87e  WM..tRH.. L.E..~
+00002820: 3a01 0048 83c4 204c 8b45 d884 c074 1948  :..H.. L.E...t.H
+00002830: 83ec 2048 8d15 fa1a 0200 b900 0000 80e8  .. H............
+00002840: 323a 0100 4883 c420 4883 ec20 4c8d 0502  2:..H.. H.. L...
+00002850: 1b02 00ba 8200 0000 488d 0d2c 1b02 00e8  ........H..,....
+00002860: 6e3e 0100 4883 c420 488d 65f0 5b41 5c5d  n>..H.. H.e.[A\]
+
+...
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+## Analysis Complete: PEI Core Not Found - This is a UEFI Driver/Application Bundle
+
+### Key Findings from Your Output:
+
+**1. File Types Identified:**
+- `C4`, `4D230`, `5528C`, etc. are **EFI boot service drivers** and **EFI runtime drivers**
+- `C067C`, `F86EC` are **EFI applications**
+- All are **PE32+ executable (x86-64)** for MS Windows (UEFI environment)
+
+**2. What's Missing:**
+- ❌ No `PeiCore` string found in any extracted file
+- ❌ No PEI Core GUID `52C05B14-...` found
+- ❌ No standard PEI Core entry point detected
+
+**3. What This Means:**
+Your Dasharo EDK II implementation does NOT use a standard **separate PEI Core PEIM**. Instead:
+- The PEI phase is likely **built into the main payload** as a library
+- Coreboot passes control directly to **DXE IPL** or **SEC** phase
+- The extracted PE files are **DXE drivers and UEFI applications**, not PEIMs
+
+---
+
+## Verify Coreboot → UEFI Handoff in Logs
+
+```bash
+# Go back to main directory with logs
+cd /home/mahdi/repositories/coreboot/dasharo/coreboot/logs/1405-03-08/
+
+# Search for coreboot to payload handoff
+grep -r "Jumping to payload" . 2>/dev/null
+grep -r "Starting payload" . 2>/dev/null
+grep -r "coreboot table" . 2>/dev/null
+
+# Search for UEFI boot phase indicators
+grep -r "SEC Phase" . 2>/dev/null
+grep -r "DXE Phase" . 2>/dev/null
+grep -r "BDS Phase" . 2>/dev/null
+
+# Look for memory handoff
+grep -r "GetMemoryMap" . 2>/dev/null
+grep -r "EfiMemory" . 2>/dev/null
+
+# Check for crash logs
+grep -r "ASSERT" . 2>/dev/null
+grep -r "!!!" . 2>/dev/null
+grep -r "error" . 2>/dev/null | grep -i "fatal\|exception\|fault"
+```
+
+### Find Actual Boot Logs
+
+```bash
+# List all log files in directory
+ls -la *.log *.txt *.txt.* 2>/dev/null
+
+# Check serial output if exists
+cat serial*.log 2>/dev/null | head -100
+cat console*.log 2>/dev/null | head -100
+
+# Look for coreboot console output
+cbfstool coreboot.rom read -r COREBOOT -f coreboot_dump.bin
+strings coreboot_dump.bin | grep -E "(coreboot|RAM|Memory|Jumping)" | head -50
+```
+
+---
+
+## Summary of Verification Status
+
+| Component | Status | Location |
+|-----------|--------|----------|
+| Flash Descriptor | ❌ Invalid (0xFF) | N/A |
+| Intel ME | ❌ Disabled (zeros) | N/A |
+| Coreboot CBFS | ✅ Valid | 0x0 |
+| FSP-M/FSP-T | ✅ Present | 0x33EA000, 0x3FE0000 |
+| EDK II Payload | ✅ Valid ELF | fallback/payload |
+| UEFI Firmware Volume | ✅ Valid | main_fv.bin (0x92000) |
+| EFI Drivers | ✅ 50+ extracted | _main_fv.bin.extracted/ |
+| PEI Core | ❌ Not found as separate PEIM | Built into payload |
+
+**Conclusion:** Your Dasharo build uses a custom EDK II integration where PEI phase is embedded, not separate PEIMs. To analyze crashes, we need your actual boot logs.
+
+**Do you have serial boot logs from running this firmware?** Please share:
+1. Any `.log` files in the directory
+2. Serial console output from actual boot attempt
+
+
+
+
+
+
+
+
+
+

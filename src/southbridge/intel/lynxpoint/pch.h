@@ -100,7 +100,7 @@ struct usb3_port_config {
 extern const struct usb2_port_config mainboard_usb2_ports[MAX_USB2_PORTS];
 extern const struct usb3_port_config mainboard_usb3_ports[MAX_USB3_PORTS];
 
-static inline bool pch_is_lp(void)
+static inline int pch_is_lp(void)
 {
 	return CONFIG(INTEL_LYNXPOINT_LP);
 }
@@ -116,7 +116,7 @@ void pch_dmi_setup_physical_layer(void);
 void pch_dmi_tc_vc_mapping(u32 vc0, u32 vc1, u32 vcp, u32 vcm);
 void early_usb_init(void);
 void early_thermal_init(void);
-void early_pch_init_native(bool s3resume);
+void early_pch_init_native(int s3resume);
 
 void usb_ehci_sleep_prepare(pci_devfn_t dev, u8 slp_typ);
 void usb_ehci_disable(pci_devfn_t dev);
@@ -586,8 +586,6 @@ void mainboard_config_rcba(void);
 #define ACPIIRQEN	0x31e0	/* 32bit */
 #define OIC		0x31fe	/* 16bit */
 #define PRSTS		0x3310	/* 32bit */
-#define PM_CFG2		0x333c	/* 32bit */
-#define  PM_CFG2_DRAM_RESET_CTL	(1 << 26)	/* ULT only */
 #define PMSYNC_CONFIG	0x33c4	/* 32bit */
 #define PMSYNC_CONFIG2	0x33cc	/* 32bit */
 #define SOFT_RESET_CTRL 0x38f4

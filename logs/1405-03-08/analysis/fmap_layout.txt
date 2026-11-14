@@ -1,0 +1,10 @@
+This image contains the following sections that can be manipulated with this tool:
+
+'SI_DESC' (size 4096, offset 0)
+'SI_ME' (size 50253824, offset 12288)
+'SI_PT' (size 65536, offset 50266112)
+'BOOTSPLASH' (CBFS, size 1048576, offset 50331648)
+'COREBOOT' (CBFS, size 15726592, offset 51382272)
+
+It is possible to perform either the write action or the CBFS add/remove actions on every section listed above.
+To see the image's read-only sections as well, rerun with the -w option.

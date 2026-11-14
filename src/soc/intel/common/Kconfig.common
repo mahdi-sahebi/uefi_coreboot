@@ -23,19 +23,7 @@ config INTEL_TOP_SWAP_BOOTBLOCK_SIZE
 	default 0x10000
 	help
 	  Set this config to a supported topswap size.
-	  Valid sizes: 0x10000/0x20000/0x40000/0x80000/0x100000/
-	  0x200000/0x400000/0x800000. The maximum size
-	  varies depending on the platform.
-
-config INTEL_IFD_SET_TOP_SWAP_BOOTBLOCK_SIZE
-	bool "Replace the TSBS value with INTEL_TOP_SWAP_BOOTBLOCK_SIZE"
-	default n
-	depends on HAVE_IFD_BIN
-	help
-	  Set to use ifdtool to replace the Top Swap Block Size
-	  PCH strap value in the Intel Firmware Descriptor
-	  with INTEL_TOP_SWAP_BOOTBLOCK_SIZE
-
+	  Valid sizes: 0x10000 0x20000 0x40000 0x80000 0x100000
 
 config INTEL_TOP_SWAP_FIT_ENTRY_FMAP_REG
 	string
@@ -47,38 +35,6 @@ config INTEL_TOP_SWAP_FIT_ENTRY_FMAP_REG
 	  than the one in non-topswap bootblock. This string will be passed
 	  onto ifittool (-A -n option). ifittool will not parse the region for MCU
 	  entries, and only locate the region and insert its address into FIT.
-
-config INTEL_TOP_SWAP_SEPARATE_REGIONS
-	bool "Place the regular and Top Swap bootblocks in separate fmap regions"
-	depends on INTEL_ADD_TOP_SWAP_BOOTBLOCK && BOOTBLOCK_IN_CBFS
-	default n
-	help
-	  Place the bootblocks in BOOTBLOCK and TOPSWAP regions for easy access, to
-	  facilitate firmware updates using the Top Swap as Slot A/Slot B redundancy.
-	  Requires a custom .fmd with the regions added at the end.
-
-config INTEL_TOP_SWAP_OPTION_CONTROL
-	bool "Toggle the Top Swap functionality using a CMOS option"
-	depends on INTEL_TOP_SWAP_SEPARATE_REGIONS && USE_OPTION_TABLE && SOC_INTEL_ALDERLAKE
-	default n
-	help
-	  Switch between the Top Swap bootblocks using the "attempt_slot_b" CMOS
-	  option. Note that the option must be present in the board's cmos.layout.
-	  file.
-
-config TOP_SWAP_REDUNDANCY
-	bool "Toggle the Intel Top Swap - based redundancy"
-	depends on HAVE_OPTION_TABLE && INTEL_HAS_TOP_SWAP
-	select INTEL_ADD_TOP_SWAP_BOOTBLOCK
-	select MAINBOARD_NEEDS_CMOS_OPTIONS
-	select INTEL_TOP_SWAP_SEPARATE_REGIONS
-	select INTEL_TOP_SWAP_OPTION_CONTROL
-	help
-	  Toggle the Intel Top Swap based redundancy, where the BOOTBLOCK and COREBOOT
-	  regions form a read-only golden copy and TOPSWAP and COREBOOT_TS are an
-	  update partition. CMOS option "attempt_top_swap" decides which of the slots
-	  gets booted, which means the platform can be reverted to the known-good copy
-	  via CMOS reset.
 
 endif
 
@@ -194,11 +150,6 @@ config SOC_INTEL_CRASHLOG_ON_RESET
 	  Enables the PMC to collect crashlog records on every reset event. NOTE:
 	  This will result in a BERT table being populated containing a PMC
 	  crashlog record on every boot.
-
-config HAS_INTEL_CPU_ROOT_PORTS
-	def_bool n
-	help
-	  Enables helper functions for CPU root ports alongside PCH root ports.
 
 config SOC_INTEL_IOE_DIE_SUPPORT
 	def_bool n

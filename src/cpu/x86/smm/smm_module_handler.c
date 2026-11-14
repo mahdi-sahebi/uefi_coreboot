@@ -1,7 +1,6 @@
 /* SPDX-License-Identifier: GPL-2.0-only */
 
 #include <arch/io.h>
-#include <arch/exception.h>
 #include <commonlib/region.h>
 #include <console/cbmem_console.h>
 #include <console/console.h>
@@ -107,7 +106,7 @@ struct global_nvs *gnvs;
 
 void *smm_get_save_state(int cpu)
 {
-	if (cpu >= smm_runtime.num_cpus)
+	if (cpu > smm_runtime.num_cpus)
 		return NULL;
 
 	return (void *)(smm_runtime.save_state_top[cpu] -
@@ -169,9 +168,6 @@ asmlinkage void smm_handler_start(void *arg)
 	console_init();
 
 	printk(BIOS_SPEW, "\nSMI# #%d\n", cpu);
-
-	if (CONFIG(DEBUG_SMI) && CONFIG(CONSOLE_SERIAL))
-		exception_init();
 
 	/* Allow drivers to initialize variables in SMM context. */
 	if (do_driver_init) {

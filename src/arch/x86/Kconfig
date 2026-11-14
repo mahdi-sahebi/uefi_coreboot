@@ -26,10 +26,6 @@ config ARCH_POSTCAR_X86_32
 config ARCH_RAMSTAGE_X86_32
 	bool
 
-config ARCH_SMM_X86_32
-	bool
-	default ARCH_RAMSTAGE_X86_32 && !NO_SMM
-
 config ARCH_ALL_STAGES_X86_32
 	bool
 	default !ARCH_ALL_STAGES_X86_64
@@ -60,10 +56,6 @@ config ARCH_POSTCAR_X86_64
 config ARCH_RAMSTAGE_X86_64
 	bool
 	select SSE2
-
-config ARCH_SMM_X86_64
-	bool
-	default ARCH_RAMSTAGE_X86_64 && !NO_SMM
 
 config ARCH_ALL_STAGES_X86_64
 	bool
@@ -461,10 +453,4 @@ config SHADOW_ROM_TABLE_TO_EBDA
 	help
 	  For platforms without writable PAM-F segment support. Put ROM table
 	  pointers (e.g. ACPI/SMBIOS low pointers) into EBDA.
-
-config SOC_FILL_CPU_CACHE_INFO
-	bool
-	default n
-	help
-	  SoC selects this if it implements soc_fill_cpu_cache_info.
 endif

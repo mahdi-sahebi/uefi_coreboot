@@ -143,16 +143,11 @@ static void read_spd(spd_ddr3_raw_data *spd, u8 addr, bool id_only)
 {
 	int j;
 	if (id_only) {
-		u8 *dest = &(*spd)[SPD_DDR3_MOD_ID1];
-		if (i2c_eeprom_read(addr, SPD_DDR3_MOD_ID1, 128 - SPD_DDR3_MOD_ID1, dest) < 0) {
-			for (j = SPD_DDR3_MOD_ID1; j < 128; j++)
-				(*spd)[j] = smbus_read_byte(addr, j);
-		}
+		for (j = SPD_DDR3_MOD_ID1; j < 128; j++)
+			(*spd)[j] = smbus_read_byte(addr, j);
 	} else {
-		if (i2c_eeprom_read(addr, 0, SPD_SIZE_MAX_DDR3, *spd) < 0) {
-			for (j = 0; j < SPD_SIZE_MAX_DDR3; j++)
-				(*spd)[j] = smbus_read_byte(addr, j);
-		}
+		for (j = 0; j < SPD_SIZE_MAX_DDR3; j++)
+			(*spd)[j] = smbus_read_byte(addr, j);
 	}
 }
 
@@ -341,10 +336,9 @@ static void reinit_ctrl(ramctr_timing *ctrl, const u32 cpuid)
 			ctrl->ecc_forced ? "yes" : "no");
 }
 
-static void init_dram_ddr3(bool s3resume, const u32 cpuid)
+static void init_dram_ddr3(int s3resume, const u32 cpuid)
 {
-	int me_uma_size, fast_boot, err;
-	bool cbmem_was_inited;
+	int me_uma_size, cbmem_was_inited, fast_boot, err;
 	ramctr_timing ctrl;
 	spd_ddr3_raw_data spds[4];
 	size_t mrc_size = 0;
@@ -411,9 +405,6 @@ static void init_dram_ddr3(bool s3resume, const u32 cpuid)
 	} else {
 		fast_boot = s3resume;
 	}
-
-	if (fast_boot && intel_early_me_cpu_replaced())
-		fast_boot = false;
 
 	if (fast_boot) {
 		printk(BIOS_DEBUG, "Trying stored timings.\n");
@@ -528,7 +519,7 @@ static void init_dram_ddr3(bool s3resume, const u32 cpuid)
 		setup_sdram_meminfo(&ctrl);
 }
 
-void perform_raminit(bool s3resume)
+void perform_raminit(int s3resume)
 {
 	post_code(0x3a);
 	init_dram_ddr3(s3resume, cpu_get_cpuid());

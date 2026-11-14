@@ -177,7 +177,6 @@ static void cb_parse_spi_flash(void *ptr, struct sysinfo_t *info)
 	info->spi_flash.size = flash->flash_size;
 	info->spi_flash.sector_size = flash->sector_size;
 	info->spi_flash.erase_cmd = flash->erase_cmd;
-	info->spi_flash.flags = flash->flags;
 
 	if (flash->mmap_count == 0)
 		return;
@@ -269,13 +268,6 @@ static void cb_parse_cbmem_entry(void *ptr, struct sysinfo_t *info)
 	case CBMEM_ID_CSE_INFO:
 		info->cse_info = cbmem_entry->address;
 		break;
-	case CBMEM_ID_PVMFW:
-		info->pvmfw = cbmem_entry->address;
-		info->pvmfw_size = cbmem_entry->entry_size;
-		break;
-	case CBMEM_ID_MEMINFO:
-		info->memory_info = cbmem_entry->address;
-		break;
 	default:
 		break;
 	}
@@ -286,13 +278,6 @@ static void cb_parse_pcie(void *ptr, struct sysinfo_t *info)
 	const struct cb_pcie *pcie = ptr;
 
 	info->pcie_ctrl_base = pcie->ctrl_base;
-}
-
-static void cb_parse_boot_mode(void *ptr, struct sysinfo_t *info)
-{
-	const struct cb_boot_mode *mode = ptr;
-
-	info->boot_mode = mode->boot_mode;
 }
 
 static void cb_parse_rsdp(void *ptr, struct sysinfo_t *info)
@@ -446,9 +431,6 @@ int cb_parse_header(void *addr, int len, struct sysinfo_t *info)
 			break;
 		case CB_TAG_PCIE:
 			cb_parse_pcie(ptr, info);
-			break;
-		case CB_TAG_BOOT_MODE:
-			cb_parse_boot_mode(ptr, info);
 			break;
 		default:
 			cb_parse_arch_specific(rec, info);

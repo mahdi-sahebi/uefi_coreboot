@@ -1,11 +1,11 @@
 ## SPDX-License-Identifier: GPL-2.0-only
 ifeq ($(CONFIG_SOC_AMD_GENOA_POC),y)
 
+all-y		+= mmap_boot.c
 all-y		+= reset.c
 all-y		+= config.c
 all-y		+= gpio.c
 all-y		+= i2c.c
-all-y		+= i3c.c
 all-y		+= uart.c
 
 bootblock-y	+= early_fch.c
@@ -75,7 +75,7 @@ PSP_APOB_BASE=$(CONFIG_PSP_APOB_DRAM_ADDRESS)
 
 # type = 0x62
 PSP_BIOSBIN_FILE=$(obj)/amd_biospsp.img
-PSP_ELF_FILE=$(objcbfs)/bootblock_fixed_data.elf
+PSP_ELF_FILE=$(objcbfs)/bootblock.elf
 PSP_BIOSBIN_SIZE=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$5}')
 PSP_BIOSBIN_DEST=$(shell $(READELF_bootblock) -Wl $(PSP_ELF_FILE) | grep LOAD | awk '{print $$3}')
 
@@ -127,15 +127,14 @@ AMDFW_COMMON_ARGS=$(OPT_PSP_APCB_FILES) \
 		$(OPT_EFS_SPI_SPEED) \
 		$(OPT_EFS_SPI_MICRON_FLAG) \
 		--config $(CONFIG_AMDFW_CONFIG_FILE) \
-		--flashsize 0x1000000 \
-		$(OPT_SBOM_DIR)
+		--flashsize 0x1000000
 
 $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 			$$(PSP_APCB_FILES) \
 			$(DEP_FILES) \
 			$(AMDFWTOOL) \
 			$(obj)/fmap_config.h \
-			$(objcbfs)/bootblock_fixed_data.elf # this target also creates the .map file
+			$(objcbfs)/bootblock.elf # this target also creates the .map file
 	$(if $(PSP_APCB_FILES), ,$(error APCB_SOURCES is not set))
 	rm -f $@
 	@printf "    AMDFWTOOL  $(subst $(obj)/,,$(@))\n"
@@ -145,13 +144,6 @@ $(obj)/amdfw.rom:	$(call strip_quotes, $(PSP_BIOSBIN_FILE)) \
 		--multilevel \
 		--output $@
 
-#
-# Extracts everything from the ELF's first PT_LOAD area and compresses it.
-# This discards everything before PT_LOAD, every symbol, debug information
-# and relocations. The generated binary is expected to run at PSP_BIOSBIN_DEST
-# with a maximum size of PSP_BIOSBIN_SIZE. The entrypoint is fixed at
-# PSP_BIOSBIN_DEST + PSP_BIOSBIN_SIZE - 0x10.
-#
 $(PSP_BIOSBIN_FILE): $(PSP_ELF_FILE) $(AMDCOMPRESS)
 	rm -f $@
 	@printf "    AMDCOMPRS  $(subst $(obj)/,,$(@))\n"

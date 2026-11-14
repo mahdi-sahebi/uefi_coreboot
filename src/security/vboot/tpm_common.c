@@ -25,7 +25,7 @@ tpm_result_t vboot_setup_tpm(struct vb2_context *ctx)
 tpm_result_t vboot_extend_pcr(struct vb2_context *ctx, int pcr,
 			     enum vb2_pcr_digest which_digest)
 {
-	uint8_t buffer[VB2_MAX_DIGEST_SIZE];
+	uint8_t buffer[VB2_PCR_DIGEST_RECOMMENDED_SIZE];
 	uint32_t size = sizeof(buffer);
 
 	if (vb2api_get_pcr_digest(ctx, which_digest, buffer, &size) != VB2_SUCCESS)
@@ -44,39 +44,22 @@ tpm_result_t vboot_extend_pcr(struct vb2_context *ctx, int pcr,
 	 */
 	_Static_assert(sizeof(buffer) >= VB2_SHA256_DIGEST_SIZE,
 		       "Buffer needs to be able to fit at least a SHA256");
-
-	int i, j;
-	struct tpm_digest digests[ENABLED_TPM_ALGS_NUM + 1];
-	for (i = 0, j = 0; i < ENABLED_TPM_ALGS_NUM; ++i) {
-		enum vb2_hash_algorithm alg = enabled_tpm_algs[i];
-		if (!tpm_log_alg_active(alg))
-			continue;
-
-		if (vb2_digest_size(alg) > sizeof(buffer)) {
-			printk(BIOS_WARNING,
-			       "vboot: Not extending %s digest (buffer in %s is too small).\n",
-			       vb2_get_hash_algorithm_name(alg), __func__);
-			continue;
-		}
-
-		/* Extending the same data to all banks.  It either gets truncated, fits
-		   perfectly or is padded with zeroes. */
-		digests[j].hash = buffer;
-		digests[j].hash_type = alg;
-		++j;
-	}
-	digests[j].hash_type = VB2_HASH_INVALID;
+	enum vb2_hash_algorithm algo = tlcl_get_family() == TPM_1 ?
+		VB2_HASH_SHA1 : VB2_HASH_SHA256;
 
 	switch (which_digest) {
 	/* SHA1 of (devmode|recmode|keyblock) bits */
 	case BOOT_MODE_PCR:
-		return tpm_extend_pcr(pcr, digests, TPM_PCR_BOOT_MODE);
+		return tpm_extend_pcr(pcr, algo, buffer, vb2_digest_size(algo),
+				      TPM_PCR_BOOT_MODE);
 	 /* SHA256 of HWID */
 	case HWID_DIGEST_PCR:
-		return tpm_extend_pcr(pcr, digests, TPM_PCR_GBB_HWID_NAME);
+		return tpm_extend_pcr(pcr, algo, buffer, vb2_digest_size(algo),
+				      TPM_PCR_GBB_HWID_NAME);
 	/* firmware version */
 	case FIRMWARE_VERSION_PCR:
-		return tpm_extend_pcr(pcr, digests, TPM_PCR_FIRMWARE_VERSION);
+		return tpm_extend_pcr(pcr, algo, buffer, vb2_digest_size(algo),
+				      TPM_PCR_FIRMWARE_VERSION);
 	default:
 		return TPM_CB_FAIL;
 	}
