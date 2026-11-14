@@ -73,4 +73,4 @@
 	url = https://github.com/Dasharo/dasharo-blobs.git
 [submodule "payloads/external/edk2/workspace/dasharo"]
 	path = payloads/external/edk2/workspace/dasharo
-	url = https://github.com/mahdi-sahebi/uefi_edk2.git
+	url = /home/mahdi/backup/dasharo/

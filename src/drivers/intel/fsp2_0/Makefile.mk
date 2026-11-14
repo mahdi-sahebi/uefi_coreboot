@@ -109,7 +109,7 @@ endif
 
 ifeq ($(CONFIG_FSP_FULL_FD),y)
 $(obj)/Fsp_M.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH)) $(DOTCONFIG)
-	python3 3rdparty/fsp/Tools/SplitFspBin.py split -f $(CONFIG_FSP_FD_PATH) -o "$(obj)" -n "Fsp.fd"
+	python 3rdparty/fsp/Tools/SplitFspBin.py split -f $(CONFIG_FSP_FD_PATH) -o "$(obj)" -n "Fsp.fd"
 
 $(obj)/Fsp_S.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH)) $(obj)/Fsp_M.fd
 	true
@@ -120,7 +120,7 @@ endif
 
 ifeq ($(CONFIG_PLATFORM_USES_SECOND_FSP)$(CONFIG_FSP_FULL_FD),yy)
 $(obj)/Fsp_2_M.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH_2)) $(DOTCONFIG)
-	python3 3rdparty/fsp/Tools/SplitFspBin.py split -f $(CONFIG_FSP_FD_PATH_2) -o "$(obj)" -n "Fsp_2.fd"
+	python 3rdparty/fsp/Tools/SplitFspBin.py split -f $(CONFIG_FSP_FD_PATH_2) -o "$(obj)" -n "Fsp_2.fd"
 
 $(obj)/Fsp_2_S.fd: $(call strip_quotes,$(CONFIG_FSP_FD_PATH_2)) $(obj)/Fsp_2_M.fd
 	true
