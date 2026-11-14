@@ -559,9 +559,10 @@ int spi_flash_probe(unsigned int bus, unsigned int cs, struct spi_flash *flash)
 		flash->vendor, flash->model, flash->sector_size, flash->size, mode_string);
 	if (bus == CONFIG_BOOT_DEVICE_SPI_FLASH_BUS
 			&& flash->size != CONFIG_ROM_SIZE) {
-		printk(BIOS_ERR, "SF size 0x%x does not correspond to"
-			" CONFIG_ROM_SIZE 0x%x!!\n", flash->size,
-			CONFIG_ROM_SIZE);
+		printk(BIOS_ERR, "SF: bus=%u cs=%u JEDEC=%02x:%04x sector=0x%x "
+			"probed_size=0x%x CONFIG_ROM_SIZE=0x%x\n", bus, cs,
+			flash->vendor, flash->model, flash->sector_size,
+			flash->size, CONFIG_ROM_SIZE);
 	}
 
 	if (CONFIG(SPI_FLASH_EXIT_4_BYTE_ADDR_MODE) && SPI_FLASH_EXIT_4BYTE_STAGE) {
