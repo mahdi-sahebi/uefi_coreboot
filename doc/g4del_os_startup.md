@@ -48,16 +48,41 @@ of the newly reported Kali desktop freeze.
 EDK2 DXE now writes `[GX-DXE]` checkpoints to the configured serial debug
 output and its existing framebuffer diagnostic overlay:
 
-- `OS START begin` records a UEFI application start, including the image name
-  when PE/COFF debug metadata supplies one and the loaded image base.
-- `OS START returned` records applications that return to the caller. A UEFI
-  OS loader that transfers control normally will not return through
-  `StartImage`.
-- `OS EBS begin`, `OS EBS rejected`, and `OS EBS map accepted` bracket the
-  firmware side of `ExitBootServices`, including the map key and EFI status on
-  failure. The accepted marker means the DXE core accepted the current memory
-  map and is completing the handoff; firmware cannot log after control has
-  returned to the OS loader.
+- Each line has a sequence number and elapsed milliseconds from the firmware
+  clock when available. An unavailable or stale clock is labeled; logs do not
+  report a false zero-time interval.
+- Shell execution records the device path, full typed command and load options
+  in serial-safe chunks. It brackets `LoadImage` and `StartImage` and reports
+  protocol setup, image metadata, statuses, and cleanup. The full command and
+  options are visible in the serial capture; VGA retains readable wrapped
+  summaries.
+- During a Shell `LoadImage`, DXE records firmware-volume/filesystem/load-file
+  resolution, file-read begin/return and size, authentication begin/status,
+  PE-load begin/return, and final image status. The trace is explicitly enabled
+  only around the Shell's `LoadImage` call.
+- `OS START BEGIN` reports image name, handle, parent, base, size, machine,
+  entry point, and option size. `OS START ENTRYPOINT begin/returned` brackets
+  applications that return to firmware. `OS EBS BEGIN/REJECTED/MAP ACCEPTED`
+  reports the image and map key. The accepted marker is the firmware handoff
+  boundary; firmware cannot log after control transfers to the OS loader.
+- VGA wraps long entries in a bounded recent-history area and pins the latest
+  Shell execution, image-load, application-start, and ExitBootServices
+  milestones so they remain visible when history wraps.
+
+The trace implementation was built into the configured G4DEL payload with:
+
+```sh
+make -j4 CONFIG_EDK2_TAG_OR_REV=fix/os-startup
+```
+
+The successful build used EDK2 revision `1503285e20cca53c011c0de0991521f20473fc87`.
+The resulting `build/UEFIPAYLOAD.fd` SHA-256 is
+`426d3caed9eab3a949ff95c3e499c48cfd2c6e7dec35d589eda25a7479ea3841`, and the
+embedded `build/coreboot.rom` SHA-256 is
+`8c4ce6a9b63cb6fa9e154f5a3bad8a80c4c2d32e8ceae7bf6d89e1d3c8210a60`. The
+payload binary contains the Shell launch, DXE image-load, `StartImage`, and
+`ExitBootServices` diagnostic format strings. A live server boot and serial/VGA
+capture are still needed to diagnose the observed Kali freeze.
 
 `ExitBootServices` is a useful boundary because the UEFI specification requires
 the OS loader to pass the current `GetMemoryMap` key. An invalid key returns
