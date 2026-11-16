@@ -21,8 +21,8 @@ summary. Path conversion is performed before the handoff callback, so the
 callback does not allocate memory and disturb the map key. The source branches
 are `fix/os-startup` in both repositories. The EDK2 change is
 `f285869ec015115655e1fb6746bebdfa2a6ff85b`; the preceding coreboot logging
-change is `a563369428`. The current coreboot documentation/report commit is
-`474bbeb92375472d06fefdf8d07140852213d82d`.
+change is `a563369428`. The updated reports are committed and pushed on
+coreboot `origin/fix/os-startup`.
 
 The integrated G4DEL build completed with:
 
