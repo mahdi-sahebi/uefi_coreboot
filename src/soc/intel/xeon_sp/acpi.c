@@ -3,6 +3,7 @@
 #include <acpi/acpigen.h>
 #include <acpi/acpigen_pci.h>
 #include <assert.h>
+#include <console/console.h>
 #include <device/pci_ops.h>
 #include <intelblocks/acpi.h>
 #include <soc/chip_common.h>
@@ -113,6 +114,8 @@ void iio_domain_set_acpi_name(struct device *dev, const char *prefix)
 	char *name = xmalloc(ACPI_NAME_BUFFER_SIZE);
 	snprintf(name, ACPI_NAME_BUFFER_SIZE, "%s%02X", prefix, ((dn.socket << 5) + dn.stack));
 	dev->name = name;
+	printk(BIOS_INFO, "ACPI DOMAIN MAP name=%s type=%s socket=%u stack=%u bus=%02x\n",
+		name, prefix, dn.socket, dn.stack, dn.bus);
 }
 
 const char *soc_acpi_name(const struct device *dev)

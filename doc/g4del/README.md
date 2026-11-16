@@ -1,24 +1,32 @@
 # Gooxi G4DEL coreboot and EDK2
 
-## Current status — documentation cutoff 2026-11-16
+## Current status — 2026-11-17
 
-The coreboot `fix/os-startup` branch at `253bdcd0bf46250237f56930d6f05bfd20d9bbfc`
-and paired EDK2 `fix/os-startup` at
-`f285869ec015115655e1fb6746bebdfa2a6ff85b` build the configured G4DEL target.
-The integrated build used:
+The documented 99-commit history cutoff is coreboot
+`253bdcd0bf46250237f56930d6f05bfd20d9bbfc`; its paired EDK2 history cutoff is
+`f285869ec015115655e1fb6746bebdfa2a6ff85b`. EDK2 follow-up
+`e606437817b263d7e2a64374f6f7e63ef83f14cd` clarifies the EBS success marker.
+The current G4DEL build includes that commit and uncommitted coreboot ACPI
+domain-map diagnostics:
 
 ```sh
-make -j4 CONFIG_EDK2_TAG_OR_REV=fix/os-startup
+make -j4
 ```
 
 It produced payload SHA-256
-`3a87c3e9b8c0030a68d2f84ae11522b7ef14f5f9bbd3b294ae66118d07b3ff3b` and ROM
-SHA-256 `bf941aa7617af7ba2ac68811a70806c6e3eff955a1ae5093fd143ae4ac01000b`.
+`18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and ROM
+SHA-256 `beffcba6b235413b2ba80d39f841887dd89635ffb71d90e604c43ee85853bf2f`.
 These are local build artifacts; the server's flashed image is unknown until
-a full-chip readback is hashed. The latest supplied Kali screenshot reaches
-`OS EBS MAP ACCEPTED`, but there is no matching post-EBS Linux trace or new
-physical test using this build. The OS failure and any root cause remain
-unresolved.
+a full-chip readback is hashed. The supplied Kali screenshot reaches the old
+`OS EBS MAP ACCEPTED` marker, printed before EBS cleanup finished. New source
+distinguishes map-key acceptance from `OS EBS CORE RETURNING` immediately
+before the service returns. Coreboot also logs ACPI domain name/socket/stack/
+bus mappings to correlate Linux AML diagnostics without changing generated
+tables. Both changes are present in the rebuilt artifacts; no physical boot
+has yet validated their runtime output. Fedora's separate log reaches 128 CPUs, initramfs unpack,
+ASPEED graphics, and GDM service start, but also records unresolved ACPI names;
+it does not explain Kali behavior or prove an interactive desktop. The OS
+failure and root cause remain unresolved.
 
 The factory image `/home/uefi/Downloads/server.bin` was recorded in the
 [factory inventory](factory_image_inventory.md) with SHA-256

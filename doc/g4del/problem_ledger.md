@@ -1,9 +1,10 @@
 # G4DEL problem and evidence ledger
 
 This ledger separates what was reported from what a source diff, build, or
-board capture establishes. Status is as of coreboot `253bdcd0bf` and EDK2
-`f285869ec0`. “Implemented” means a source change exists; it does not mean the
-hardware result is verified.
+board capture establishes. The historical timeline covers coreboot
+`253bdcd0bf` and EDK2 `f285869ec0`; follow-up working changes described below
+are newer and not yet board-verified. “Implemented” means a source change
+exists; it does not mean the hardware result is verified.
 
 ## Status key
 
@@ -29,9 +30,10 @@ hardware result is verified.
 | P08 | Earlier trace stopped at or near DXE/Core CPU initialization | DXE dispatcher | Historical capture only | Added paired service/driver checkpoints; current G4DEL board completion is not established by this trace. |
 | P09 | USB diagnostics and device inventory correctness | DXE/BDS/USB | Source/build verified; hardware unverified | Inventory and shell inspection path exist; verify actual controllers, devices, keyboard, storage. |
 | P10 | Menu/Shell availability versus actual usable input | BDS/console | Packaged/configured; hardware unverified | Shell and menu are included; require visible menu selection and a successful Shell command. |
-| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | Current trace identifies EBS boundary; one-boot Linux console capture is next. |
-| P12 | EBS screenshot did not identify the launched EFI path/options | EDK2 OS handoff | Fixed in source/build | Human-readable path/options are logged; server has not been booted with this build. |
+| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | Fedora reaches GDM service start; Kali capture stops around EBS; Windows evidence is absent. |
+| P12 | EBS screenshot did not identify the launched EFI path/options or final cleanup | EDK2 OS handoff | Source instrumentation updated; board unverified | Readable path/options and distinct map-key/final-return checkpoints; physical verification pending. |
 | P13 | Captures and source/build image identity do not always align | Evidence/reproduction | Unresolved for older captures | Pair every new trace with firmware revisions, build hashes, and full-chip readback hash. |
+| P14 | ACPICA reports unresolved ACPI namespace references | ACPI tables / Linux AML interpreter | Observed on Fedora; cause and impact unresolved | Add runtime domain-name mapping; preserve full ACPI table dump from the same ROM. |
 
 ## Detailed records
 
@@ -233,17 +235,24 @@ hardware result is verified.
   installer; Windows live media was described as not starting. These are
   operator reports unless tied to the exact capture and ROM.
 - **Observed:** The supplied Fedora Live log (kernel
-  `7.2.11-300.fc45.x86_64`) reaches `Started gdm`. Separate Kali screenshots
-  (kernel `7.0.12+kali-amd64`) show Linux/initial ramdisk loading and an EDK2
-  `OS EBS MAP ACCEPTED` message. The screenshot is earlier than the reported
-  desktop freeze; the discrepancy is not resolved. No matching Windows screen
+  `7.2.11-300.fc45.x86_64`) reports 128 activated processors, about 64 GiB
+  available memory, initramfs unpack, simpledrm and ASPEED graphics, and
+  `Started gdm`. It also reports 24 ACPICA unresolved-name errors involving
+  `DI28`, `HQ28`, `HR28`, `PC21`–`PC26`, `PM28`, `PN28`, `UC2D`, and `UD2D`.
+  Separate Kali screenshots (kernel `7.0.12+kali-amd64`) show Linux and
+  initial ramdisk loading, `OS START ENTRYPOINT BEGIN`, and the older EDK2
+  `OS EBS MAP ACCEPTED` marker. The latter only proved the map key matched;
+  it was emitted before the rest of EBS cleanup. No matching Windows screen
   or stop code is in the supplied bundle.
-- **Change:** EDK2 now logs the EFI image path/options and each EBS attempt.
+- **Change:** EDK2 logs the EFI image path/options and each EBS attempt; a
+  follow-up source change distinguishes map-key acceptance from the final
+  core cleanup checkpoint.
   The Kali report documents a one-boot GRUB edit using `earlycon`, dual
   `console=`, `ignore_loglevel`, `loglevel=8`, `initcall_debug`, and `efi=debug`.
 - **Status/next step:** **OS cause unresolved.** Capture raw SOL and VGA from
-  reset through the stall with the exact ROM readback hash. Keep the GRUB edit
-  one-time; do not change permanent OS or firmware policy before evidence.
+  reset through the stall with the exact ROM readback hash. Confirm whether
+  the system remains responsive over network when video stops. Keep the GRUB
+  edit one-time; do not change permanent OS or firmware policy before evidence.
 - **References:** [OS startup report](../g4del_os_startup.md),
   [Kali capture procedure](../g4del_kali_boot_trace.md),
   [Linux EFI stub](https://docs.kernel.org/6.12/admin-guide/efi-stub.html),
@@ -258,12 +267,44 @@ hardware result is verified.
   readable path and options at `OS START`, then repeats them per EBS attempt.
   It retains path text before EBS so the callback does not allocate memory
   while the OS loader is using a memory-map key.
-- **Status:** **Verified statically and in the integrated build; runtime
-  unverified.** The payload contains the new diagnostic strings; a board boot
-  with this image is still needed.
+- **Follow-up:** EDK2 source now labels successful memory-map-key validation
+  `OS EBS MAP KEY ACCEPTED ... cleanup=IN_PROGRESS` and emits
+  `OS EBS CORE RETURNING status=EFI_SUCCESS` after core cleanup, immediately
+  before returning. This avoids treating a pre-cleanup marker as proof that
+  `ExitBootServices()` returned. Coreboot's Xeon-SP ACPI code also logs
+  generated ACPI domain name/socket/stack/bus tuples; this is diagnostic only
+  and does not alter AML tables.
+- **Status:** The original path/options change is verified in the historical
+  integrated build. Follow-up checkpoints and ACPI mapping are source changes
+  pending a fresh integrated build and board boot. Neither proves an OS fix.
 - **References:** [Kali trace report](../g4del_kali_boot_trace.md),
   [UEFI EBS requirements](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html),
   [UEFI loaded-image information](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html).
+
+### P14 — ACPICA unresolved namespace references
+
+- **Observed:** Fedora's `bootfile.txt` contains 24 ACPICA errors from AML
+  namespace lookup (`dswload2`/`psobject`) for the 13 unique names listed in
+  P11. Despite those errors, this same log continues through Linux CPU and
+  memory initialization, initramfs unpack, graphics initialization, and GDM
+  service start. They are therefore not a demonstrated cause of the reported
+  Kali freeze.
+- **Verified statically:** The checked-out source names Xeon-SP IIO domains
+  from socket and stack identifiers in `src/soc/intel/xeon_sp/acpi.c`; the
+  existing generated DSDT does not contain all reported names. That is
+  insufficient to identify their source: runtime SSDTs are generated
+  separately and the evidence bundle has no full runtime ACPI table dump tied
+  to a readback-identified ROM.
+- **Change:** Coreboot now emits `ACPI DOMAIN MAP` lines with name, type,
+  socket, stack, and bus to correlate firmware topology with Linux table
+  diagnostics. It does not change the generated ACPI namespace or AML.
+- **Status/next step:** **Observed lead; origin and impact unresolved.** On the
+  exact firmware under test, save all ACPI tables with `sudo acpidump -b`,
+  decompile the complete DSDT/SSDT set with ACPICA `iasl`, identify the AML
+  `Scope` and references containing each unresolved name, and compare them to
+  the new domain map. Repeat on Windows only if a table defect is established.
+- **References:** [ACPI specification](https://uefi.org/specs/ACPI/6.5/),
+  [ACPICA tools](https://acpica.org/downloads).
 
 ### P13 — Capture, revision, and flashed-image provenance
 

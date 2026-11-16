@@ -72,11 +72,17 @@ image start and each EBS attempt. Full escaped strings go to serial and
 bounded summaries to VGA. Path conversion is done before the EBS callback so
 the callback does not allocate memory and alter the map key.
 
-The supplied Fedora log reaches a graphical session; it is not the Kali
-failure trace. The Kali screenshot reaches `OS EBS MAP ACCEPTED` but does not
-show the Linux stub/kernel completing. The claimed desktop freeze is not
-reconciled with that earlier-stage screenshot. The cause remains unresolved
-pending a raw SOL/VGA capture from the exact ROM read back from the board.
+The Fedora log records 128 CPUs, initramfs unpack, ASPEED graphics, and GDM
+service startup; it is not the Kali failure trace and does not prove an
+interactive desktop. The Kali screenshot reaches the older
+`OS EBS MAP ACCEPTED` marker, which was emitted before EDK2 completed EBS
+cleanup. A follow-up EDK2 change now separates map-key acceptance from the
+final core-cleanup checkpoint before returning success. Coreboot adds ACPI
+domain-to-socket/stack/bus logging to correlate a set of unresolved AML names
+observed in Fedora. This changes diagnostics only; it neither establishes
+those names as the Kali cause nor alters ACPI tables. The cause remains
+unresolved pending a raw SOL/VGA capture from the exact ROM read back from the
+board.
 See the [Kali trace report](../g4del_kali_boot_trace.md) and
 [OS startup report](../g4del_os_startup.md).
 
@@ -91,6 +97,7 @@ are paired with coreboot commits that select or integrate the payload:
 | [`2ebcc016ac`](https://github.com/mahdi-sahebi/uefi_edk2/commit/2ebcc016acbcb016a590c66782e73726d054d826) | Add OS startup handoff diagnostics. |
 | [`1503285e20`](https://github.com/mahdi-sahebi/uefi_edk2/commit/1503285e20cca53c011c0de0991521f20473fc87) | Trace Shell-launched EFI applications and image loading. |
 | [`f285869ec0`](https://github.com/mahdi-sahebi/uefi_edk2/commit/f285869ec015115655e1fb6746bebdfa2a6ff85b) | Log readable EFI image path and options at OS handoff. |
+| [`e606437817`](https://github.com/mahdi-sahebi/uefi_edk2/commit/e606437817b263d7e2a64374f6f7e63ef83f14cd) | Distinguish EBS map-key acceptance from final core cleanup. |
 
 ## Complete coreboot commit index
 
