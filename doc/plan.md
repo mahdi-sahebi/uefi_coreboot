@@ -2,7 +2,10 @@
 
 This is an earlier planning record. Current implementation status, image
 verification, USB/splash diagnostics and the next hardware test are maintained
-in [G4DEL current status](g4del_status_and_test_plan.md).
+in the [G4DEL guide](g4del/README.md), the
+[problem ledger](g4del/problem_ledger.md), and the
+[engineering timeline](g4del/project_history.md). This plan is retained as a
+historical design record, not a list of remaining implementation tasks.
 
 ## Purpose
 

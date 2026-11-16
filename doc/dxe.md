@@ -1,10 +1,11 @@
 # Gooxie G4DEL DXE, boot menu, and Shell investigation
 
-This records an older capture. For the current `feature/dxe-log` image,
-USB/logo diagnostics, build hash and next board test, see
-[G4DEL current status](g4del_status_and_test_plan.md) and the linked EDK2
-investigation. The old video reaching DXE Core does not prove current-image
-DXE completion or menu/Shell operation.
+This records an October 2026 capture and source investigation. The branch pins,
+build hash, and test status below are historical. For current `fix/os-startup`
+status, see the [G4DEL guide](g4del/README.md),
+[engineering history](g4del/project_history.md), and
+[problem ledger](g4del/problem_ledger.md). The old video reaching DXE Core does
+not prove current-image DXE completion or menu/Shell operation.
 
 ## Evidence and current result
 

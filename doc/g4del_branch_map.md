@@ -1,5 +1,11 @@
 # G4DEL coreboot topic history
 
+> **Historical snapshot:** this topic-map and build record describes the
+> integration state around 2026-10-24. Its rebased topic names/commit IDs are
+> not the current branch map. For the documented current branch and complete
+> history, see the [engineering timeline](g4del/project_history.md),
+> [G4DEL guide](g4del/README.md), and [documentation index](README.md).
+
 The local topic stack is now based on `feature/dxe-log` at `f4fdd5fd82`. The
 original `gooxie-g4del` branch is unchanged. The flash-layout topic adds its
 original commit. The Gooxi board-target change was already present in the

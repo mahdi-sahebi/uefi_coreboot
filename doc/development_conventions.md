@@ -757,7 +757,7 @@ flowchart LR
     ble --> gatt
 ```
 
-UML class diagram: [uml/ble.puml](uml/ble.puml)
+UML class diagram (example path): `uml/ble.puml`
 
 ## Dependencies
 - `hci` — radio transport.
@@ -784,6 +784,8 @@ ble --> hci : transport
 ---
 
 <br><br>
+
+<a id="readme--changelog"></a>
 
 ## README & Changelog
 
@@ -835,21 +837,21 @@ data over BLE. It targets the nRF54L15 DK.
 - nRF54L15 DK
 
 ## Build
-See [How to Build](doc/build.md) for the full setup, build, and flash steps.
+See `doc/build.md` for the full setup, build, and flash steps.
 
 ## Usage
 Power the board and open a serial terminal at 115200 baud.
 
 ## Documentation
-- [How to Build](doc/build.md)
-- [Architecture](doc/architecture.md)
-- [BLE module](doc/ble.md)
+- `doc/build.md` — How to Build
+- `doc/architecture.md` — Architecture
+- `doc/ble.md` — BLE module
 
 ## Versioning
-Semantic Versioning. See [CHANGELOG.md](CHANGELOG.md).
+Semantic Versioning. See `CHANGELOG.md`.
 
 ## License
-Apache-2.0 — see [LICENSE](LICENSE).
+Apache-2.0 — see `LICENSE`.
 ````
 
 <br><br>

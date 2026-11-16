@@ -1,5 +1,11 @@
 # G4DEL power-on failure: controlled ROM comparison
 
+> **Historical report:** this controlled-comparison plan and its candidate
+> hashes describe the October 2026 preboot investigation. The hypotheses and
+> pending candidate results remain unconfirmed unless a named board test says
+> otherwise. See the current [problem ledger](g4del/problem_ledger.md) and
+> [G4DEL guide](g4del/README.md).
+
 Updated 2026-10-24. This report tracks a new failure that occurs before any
 coreboot, VGA, or SOL checkpoint from the latest image. It supersedes the
 earlier assumption that the next board failure must be in EDK2. The earlier
@@ -22,8 +28,8 @@ measurement has been collected for this report.
 
 | Reference | SHA-256 | Reported board result |
 | --- | --- | --- |
-| [Working ROM](/home/uefi/workspace/coreboot/build/coreboot_07-26.rom) | `50001ff4303e7852b14f9e0ec7013d8e0db6cc9737db2f64f94f201bd4a0789d` | Host powers on, fans turn, SOL was available |
-| [Failed ROM](/home/uefi/workspace/test/uefi_coreboot/build/coreboot_08-02.rom) | `cb0aae73fcaefdbf0d80d2e3ce05b6cc21709ea21e2dfb7b7323a7399a345d66` | BMC reachable; host power fails; no fans, SOL, or VGA |
+| `coreboot_07-26.rom` (workspace artifact; unavailable here) | `50001ff4303e7852b14f9e0ec7013d8e0db6cc9737db2f64f94f201bd4a0789d` | Host powers on, fans turn, SOL was available |
+| `coreboot_08-02.rom` (workspace artifact; unavailable here) | `cb0aae73fcaefdbf0d80d2e3ce05b6cc21709ea21e2dfb7b7323a7399a345d66` | BMC reachable; host power fails; no fans, SOL, or VGA |
 
 Both ROMs are exactly 67,108,864 bytes. The failing ROM's descriptor, GbE,
 ME, and Device Exp1 regions each match the 64 MiB factory

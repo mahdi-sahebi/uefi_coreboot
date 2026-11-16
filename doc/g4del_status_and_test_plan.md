@@ -1,4 +1,11 @@
-# Gooxi G4DEL current status and board test
+# Gooxi G4DEL status and board test — historical snapshot
+
+> The findings and test plan below record the evidence available during the
+> earlier `feature/dxe-log` investigation. The cited image hashes and test
+> outcomes are not current branch/build state. Current status is in the
+> [G4DEL guide](g4del/README.md); unresolved issues are in the
+> [problem ledger](g4del/problem_ledger.md). This report is retained as
+> historical evidence.
 
 This is the coreboot-side record for the `feature/dxe-log` G4DEL port. The
 EDK2 source investigation, marker list and USB/splash test are in

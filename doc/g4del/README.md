@@ -1,92 +1,108 @@
-# Gooxi G4DEL coreboot and EDK2 bring-up
+# Gooxi G4DEL coreboot and EDK2
 
-## Goal and current evidence
+## Current status — documentation cutoff 2026-11-16
 
-This project replaces the factory AMI BIOS region with an open-source coreboot
-and EDK2 payload while preserving the board's factory Intel flash descriptor,
-ME, GbE, and Device Exp1 data. The first acceptance target is an interactive
-EDK2 Boot Manager menu with the built-in Shell selectable. The next target is
-USB enumeration visible on the VGA text/graphics console and SOL, followed by
-Shell commands that inspect attached devices and USB storage.
+The coreboot `fix/os-startup` branch at `253bdcd0bf46250237f56930d6f05bfd20d9bbfc`
+and paired EDK2 `fix/os-startup` at
+`f285869ec015115655e1fb6746bebdfa2a6ff85b` build the configured G4DEL target.
+The integrated build used:
 
-The user reports 64 GiB RAM, four fans, a BMC, and SOL. The flash image is
-64 MiB. The target is treated as a two-socket Gooxi G4DEL; the CPU models,
-installed logical CPU count, and physical DIMM slot count remain unmeasured.
-The Archer City dual-socket IIO table is provisional until the G4DEL port map
-is confirmed. The Gooxi SL201-G4 family manual is a platform-family reference,
-not evidence for every G4DEL board revision or PCI device ID.
+```sh
+make -j4 CONFIG_EDK2_TAG_OR_REV=fix/os-startup
+```
 
-Latest hardware evidence is `/home/uefi/workspace/log/1405-08-02/serial.log`.
-It shows FSP-M and FSP-S return, PEI dispatch completes, DXE Core starts
-dispatching, and `CpuDxe` enters without a return marker. It does not show
-GOP, BDS, an interactive menu, USB enumeration, or Shell. Source and package
-checks below are not a substitute for a new reset-to-SOL/VGA board capture.
+It produced payload SHA-256
+`3a87c3e9b8c0030a68d2f84ae11522b7ef14f5f9bbd3b294ae66118d07b3ff3b` and ROM
+SHA-256 `bf941aa7617af7ba2ac68811a70806c6e3eff955a1ae5093fd143ae4ac01000b`.
+These are local build artifacts; the server's flashed image is unknown until
+a full-chip readback is hashed. The latest supplied Kali screenshot reaches
+`OS EBS MAP ACCEPTED`, but there is no matching post-EBS Linux trace or new
+physical test using this build. The OS failure and any root cause remain
+unresolved.
 
-## Documents and diagrams
+The factory image `/home/uefi/Downloads/server.bin` was recorded in the
+[factory inventory](factory_image_inventory.md) with SHA-256
+`db303ef4cefe79372f508f061d4dafe79cb5d98cfcb84127a7297b4c88100465`. It is a
+reference image, not a guarantee about current chip contents. Preserve the
+factory descriptor, ME, GbE, and Device Exp1 regions according to that
+inventory; never commit proprietary factory images or extracted blobs.
 
-- [Factory image, BIOS volume inventory, and offline evidence](factory_image_inventory.md)
-- [Flash map and complete coreboot-to-EDK2 boot flow](boot_flow_memory_map.md)
-- [Factory BIOS metadata tree (3,691 parsed nodes)](server_bios_inventory.csv)
-- [64 MiB flash map diagram](images/flash-map.svg)
-- [Boot flow diagram](images/boot-flow.svg)
+## Read and navigate
 
-The two diagrams use exact addresses in their labels. The internal BIOS
-subregion view is enlarged to keep the 256 KiB SMMSTORE and 2 KiB FMAP visible.
+- [Boot architecture, memory map, SOL, graphics, USB, menu, and Shell](boot_flow_memory_map.md)
+- [Engineering timeline and all coreboot commits since `dasharo`](project_history.md)
+- [Problem/evidence ledger](problem_ledger.md)
+- [Alphabetical glossary and keywords](glossary.md)
+- [Specifications, upstream references, and community channels](references.md)
+- [Factory image and BIOS inventory](factory_image_inventory.md)
+- [OS startup findings and Linux parameters](../g4del_os_startup.md)
+- [Kali trace evidence and next-boot procedure](../g4del_kali_boot_trace.md)
+- [Historical preboot comparison](../g4del_preboot_failure_isolation.md)
 
-## Build and local inputs
+The [coreboot topic map](../g4del_branch_map.md), [DXE investigation](../dxe.md),
+[status/test plan](../g4del_status_and_test_plan.md), and
+[bring-up plan](../plan.md) preserve dated investigation snapshots. Their
+status applies to the evidence available when each was written; current
+branch/build/test status is maintained here and in the problem ledger.
 
-Use `configs/config.gooxi_g4del` as the build interface. It pins EDK2 to
-`ead1df0f527f48955d245a1f50072c6f22f6f007`, enables the linear framebuffer,
-and enables the EDK2 Shell. Coreboot's target configuration sets two sockets,
-64 MiB ROM, SOL UART I/O base `0x2f8` at 115200 baud, SMMSTORE v2, and disables
-descriptor unlocking and ME disabling.
+## Platform and build facts
 
-The local factory input procedure is documented in
-[`factory_image_inventory.md`](factory_image_inventory.md). Extract only the
-four non-BIOS regions into the ignored local `deps/blobs/mainboard/gooxi/g4del`
-directory. Never commit `server.bin`, extracted factory blobs, or the vendor
-BIOS. The coreboot build reconstructs the BIOS region and adds the project's
-open-source `Documentation/coreboot_logo.bmp` to the BOOTSPLASH area.
+`configs/config.gooxi_g4del` selects the G4DEL target. The current configuration
+uses a 64 MiB image, at most two sockets, serial console at 115200 baud on I/O
+base `0x2f8`, a linear framebuffer, and SMMSTORE v2. EDK2 is selected at
+`origin/fix/os-startup` by the tracked configuration; the build command above
+explicitly selected the local branch so the exact commit used was
+`f285869e…`. The dual-socket IIO routing is a porting input and must not be
+treated as hardware-verified without a board trace and PCI inventory.
+
+Build after providing the required local factory inputs as documented in the
+[factory inventory](factory_image_inventory.md):
 
 ```sh
 make defconfig KBUILD_DEFCONFIG=configs/config.gooxi_g4del
-make -j8
+make -j4 CONFIG_EDK2_TAG_OR_REV=fix/os-startup
 python3 util/g4del_stock.py /path/to/server.bin --compare build/coreboot.rom
 python3 util/g4del_stock.py build/coreboot.rom --verify-layout
 build/util/cbfstool/cbfstool build/coreboot.rom print
 ```
 
-The compare command checks the descriptor, GbE, ME, and Device Exp1 byte for
-byte. The layout command checks IFD/FMAP coverage, the BIOS subregions and
-SMMSTORE geometry. Record the build's source commits and ROM hash beside any
-hardware test; a build hash alone does not show what is on the board.
+Record both source revisions, the input FSP/factory image identity, build
+hashes, and full-chip readback hash with every hardware result. Comparison and
+layout checks validate image structure; they do not establish that the board
+boots.
 
-## Source map
+## Boot chain and source map
 
-| Area | Source |
+```text
+SPI flash / Intel descriptor
+  -> coreboot bootblock -> romstage + FSP-M -> postcar -> ramstage + FSP-S
+  -> CBFS payload and coreboot tables
+  -> EDK2 SEC -> PEI / HOBs -> DXE IPL -> DXE dispatcher -> BDS
+  -> console / USB / boot manager -> Shell or EFI OS loader
+  -> ExitBootServices -> OS loader and kernel
+```
+
+| Responsibility | Main source or artifact |
 | --- | --- |
-| G4DEL board target and provisional dual-socket IIO setup | `src/mainboard/gooxi/g4del/{Kconfig,romstage.c,include/sprsp_ac_iio.h}` |
-| 64 MiB flash layout | `src/mainboard/gooxi/g4del/board.fmd` |
-| Early LPC/SUART1 SOL setup | `src/mainboard/gooxi/g4del/bootblock.c` |
-| FSP and payload/flash diagnostics | `src/soc/intel/xeon_sp/{romstage.c,spr/chip.c}` and `src/mainboard/gooxi/g4del/ramstage.c` |
-| ASPEED video and framebuffer handoff | `src/drivers/aspeed/ast2050/ast2050.c`, `src/drivers/aspeed/common/ast_mode_corebootfb.c`, `src/lib/coreboot_table.c` |
-| EDK2 build flags, UART base, and G4DEL USB diagnostic define | `payloads/external/edk2/Makefile` |
-| EDK2 USB page and menu/Shell code | EDK2 pinned EDK2 commit above; details and links are in the EDK2 [08-02 analysis](../../payloads/external/edk2/workspace/mahdi-sahebi/doc/1405-08-02/analysis.md) and [graphics/menu/Shell status](../../payloads/external/edk2/workspace/mahdi-sahebi/doc/1405-08-02/graphics_splash_shell.md) in the local workspace. |
+| Board Kconfig, bootblock and memory/IIO setup | `src/mainboard/gooxi/g4del/` |
+| Flash regions | `src/mainboard/gooxi/g4del/board.fmd` and `doc/g4del/factory_image_inventory.md` |
+| FSP and SoC initialization | `src/soc/intel/xeon_sp/` and `3rdparty/fsp/EagleStreamFspBinPkg/` |
+| Payload packing, UART and EDK2 build flags | `payloads/external/edk2/Makefile` |
+| SEC/PEI/DXE/BDS/Shell implementation | Nested EDK2 checkout at `payloads/external/edk2/workspace/mahdi-sahebi/` |
+| G4DEL evidence and source boundaries | [Boot-flow report](boot_flow_memory_map.md) and [problem ledger](problem_ledger.md) |
 
-## External references
+For firmware-stage concepts see the [glossary](glossary.md); for external
+specifications see [references](references.md). The upstream [coreboot stage
+overview](https://doc.coreboot.org/getting_started/architecture.html) and
+[CBFS documentation](https://doc.coreboot.org/lib/cbfs.html) explain the
+general design but do not replace the board source.
 
-- [Gooxi SL201-G4 family manual](https://www.gooxi.us/uploadfiles/2024/01/20240122163352960.pdf) — family-level background, not exact G4DEL proof.
-- Coreboot [Intel Flash Descriptor layout](https://doc.coreboot.org/util/ifdtool/layout.html) and [FMD/Flashmap](https://doc.coreboot.org/lib/flashmap.html).
-- Coreboot [SMMSTORE](https://doc.coreboot.org/drivers/smmstore.html) and [architecture](https://doc.coreboot.org/getting_started/architecture.html).
-- UEFI 2.11 [USB protocols](https://uefi.org/specs/UEFI/2.11/17_Protocols_USB_Support.html).
-- [UEFITool and UEFIExtract releases](https://github.com/LongSoft/UEFITool/releases).
+## Hardware acceptance
 
-## Hardware acceptance checklist
-
-The goal remains open until a reset-to-SOL/VGA test tied to a readback hash
-shows `CpuDxe` return, DXE dispatcher completion, BDS and GOP/console setup,
-the logo, the inventory page, USB devices on both serial and VGA, menu key
-input, Shell launch, and a Shell command response. The test report should
-include BMC power/POST evidence and the exact ROM hash. See
-[`boot_flow_memory_map.md`](boot_flow_memory_map.md) for the expected marker
-order and evidence boundaries.
+Acceptance requires a reset-to-OS capture tied to a verified ROM readback,
+with serial and VGA recorded together. Verify stage begin/return pairs,
+DXE/BDS console initialization, keyboard/menu interaction, USB inventory,
+Shell commands, and then each OS path separately. For Kali, preserve the raw
+SOL/VGA trace through the EFI handoff and Linux output; use the one-boot
+parameters in the [OS startup report](../g4del_os_startup.md). No OS support or
+root-cause claim is complete until a reproducible board test demonstrates it.

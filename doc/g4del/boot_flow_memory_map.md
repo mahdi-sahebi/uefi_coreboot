@@ -1,5 +1,11 @@
 # Boot flow, SOL, graphics, USB, menu, and Shell
 
+> **Historical capture snapshot:** the observed serial trace and build state
+> below are tied to the 2026-08-02 capture, not to the November `fix/os-startup`
+> build. The diagrams and source explanations remain useful; current status
+> and later boot evidence are indexed in the [G4DEL guide](README.md) and
+> [problem ledger](problem_ledger.md).
+
 ## Evidence labels
 
 - **Observed:** present in `/home/uefi/workspace/log/1405-08-02/serial.log`.
