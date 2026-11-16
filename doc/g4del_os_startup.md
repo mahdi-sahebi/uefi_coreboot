@@ -9,6 +9,11 @@ decompressor, early kernel, device initialization, or graphical session then
 completed. The failure point and root cause remain unconfirmed until a new
 serial/VGA capture is reviewed.
 
+The earlier user report says the installed Kali reaches the desktop and then
+becomes unresponsive. The screenshots currently available capture an earlier
+boot stage, so they are not a trace of that reported desktop freeze and do not
+resolve whether both observations came from the same attempt.
+
 The latest EDK2 trace now prints a readable image device path and available
 load options at `OS START` and on every `ExitBootServices` attempt. Serial
 contains escaped full text in bounded chunks; VGA shows a concise wrapped
@@ -16,8 +21,8 @@ summary. Path conversion is performed before the handoff callback, so the
 callback does not allocate memory and disturb the map key. The source branches
 are `fix/os-startup` in both repositories. The EDK2 change is
 `f285869ec015115655e1fb6746bebdfa2a6ff85b`; the preceding coreboot logging
-change is `a563369428` (the current documentation update is committed
-separately).
+change is `a563369428`. The current coreboot documentation/report commit is
+`474bbeb92375472d06fefdf8d07140852213d82d`.
 
 The integrated G4DEL build completed with:
 

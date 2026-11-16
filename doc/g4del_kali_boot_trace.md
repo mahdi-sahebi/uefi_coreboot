@@ -124,8 +124,9 @@ useful subsystem. Keep all firmware boot policy unchanged until then.
 ## Status
 
 - Instrumentation commit `f285869ec015115655e1fb6746bebdfa2a6ff85b` is pushed
-  to EDK2 `origin/fix/os-startup`. The coreboot documentation update is being
-  committed and pushed on `fix/os-startup`.
+  to EDK2 `origin/fix/os-startup`. Coreboot report commit
+  `474bbeb92375472d06fefdf8d07140852213d82d` is pushed to
+  `origin/fix/os-startup`.
 - The integrated build succeeds and contains the requested path/handoff
   diagnostics.
 - The server has not been flashed or tested with this build.
