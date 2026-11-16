@@ -6,8 +6,9 @@ The documented 99-commit history cutoff is coreboot
 `253bdcd0bf46250237f56930d6f05bfd20d9bbfc`; its paired EDK2 history cutoff is
 `f285869ec015115655e1fb6746bebdfa2a6ff85b`. EDK2 follow-up
 `e606437817b263d7e2a64374f6f7e63ef83f14cd` clarifies the EBS success marker.
-The current G4DEL build includes that commit and uncommitted coreboot ACPI
-domain-map diagnostics:
+The current coreboot source revision is
+`11ab134819afe08493570794397992ab68e82652` (`fix/os-startup`), and the current G4DEL build includes that
+commit and EDK2 `e606437817b263d7e2a64374f6f7e63ef83f14cd`:
 
 ```sh
 make -j4

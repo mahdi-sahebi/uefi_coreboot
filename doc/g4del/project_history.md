@@ -19,6 +19,15 @@ USB, and DXE work. Earlier branch-map context remains in the nested checkout's
 historical `doc/g4del_branch_map.md` and linked reports; this document does
 not copy its general EDK2 history.
 
+The 99-commit index intentionally ends at `253bdcd0bf`; follow-up OS-startup
+diagnostic changes are outside that index. Current follow-up tips are coreboot
+[`11ab134819`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/11ab134819afe08493570794397992ab68e82652)
+and EDK2
+[`e606437817`](https://github.com/mahdi-sahebi/uefi_edk2/commit/e606437817b263d7e2a64374f6f7e63ef83f14cd).
+The coreboot follow-up adds runtime ACPI domain-to-socket/stack/bus mapping
+logs and updates the evidence reports; it does not change generated ACPI
+tables.
+
 ## Topic timeline
 
 ### 1. Dasharo-derived coreboot and payload foundation — August to October 2026
