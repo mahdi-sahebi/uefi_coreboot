@@ -292,3 +292,39 @@ missing-domain warnings replace assertions and preserve valid DRHD entries.
 Keep the historical reports in `doc/` as separate records. Do not treat the
 successful Fedora log, the earlier Kali screenshot, or the current build as a
 reproduction of the same boot attempt.
+
+### Shell nested-load trace update — 2026-11-17
+
+The previous trace stopped at `OS EBS CORE RETURNING status=EFI_SUCCESS` and
+did not include Linux output. EDK2 now leaves Shell-originated load tracing
+active while the launched EFI application runs. The trace records nested
+`LoadImage()` paths and parent paths, image-source sizes, file resolution and
+read results, authentication and PE-load statuses, image entry metadata, and
+the existing options/EBS checkpoints. VGA pins the most recent load stage and
+the parent loader path; serial carries the complete escaped paths and options.
+The CoreStartImage entry message now identifies the image handle, base, size,
+machine, and entry point.
+
+This change makes the pre-handoff trace more specific; it cannot observe or
+repair a stall after successful ExitBootServices. The provided Kali traces
+still do not contain `earlycon` or a Linux serial console, so the Linux failure
+point remains unknown. The next test is a new payload plus the one-time GRUB
+parameters already listed above, with `quiet splash` removed and no persistent
+GRUB or firmware policy changes. See the [Kali trace report](g4del_kali_boot_trace.md#edk2-trace-expansion-and-upstream-references--2026-11-17)
+for the upstream Linux/EDK2 references and evidence limits.
+
+The expanded EDK2 trace is committed and pushed as
+[`5aa16e0dfc7e2c86ca8c575b7ce93ca667d4641a`](https://github.com/mahdi-sahebi/uefi_edk2/commit/5aa16e0dfc7e2c86ca8c575b7ce93ca667d4641a)
+on `origin/fix/os-startup`. The configured `make -j6` build was forced to
+rebuild the EDK2 payload and completed successfully. The payload contains the
+nested `LoadImage` trace, readable parent path, and expanded image-entry
+checkpoint. Local build hashes are:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `build/UEFIPAYLOAD.fd` | `9dfa502448a943b78fbba8b2ee1ff725499748ba02558be0b3c7e3baaa84d455` |
+| `build/coreboot.rom` | `9425434a1c4634cb41ec724986262f82e66276835e5e7c0618c0b72f1bcaeb5b` |
+
+The ROM is not confirmed as flashed: no readback hash or new hardware capture
+is available. Therefore these logs improve the next investigation; they do
+not demonstrate that Kali's reported freeze is fixed.

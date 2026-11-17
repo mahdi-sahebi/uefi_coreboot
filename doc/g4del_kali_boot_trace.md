@@ -153,10 +153,11 @@ useful subsystem. Keep all firmware boot policy unchanged until then.
 
 ## Status
 
-- EDK2 `e606437817b263d7e2a64374f6f7e63ef83f14cd` is pushed to
-  `origin/fix/os-startup`; it adds the final EBS cleanup checkpoint. Coreboot
-  `5e52d8426503d17fb30e55bae27c3f6bb238d90c` is also pushed to that branch;
-  it removes missing VT-d assertions and guards primary DRHD generation.
+- EDK2 `e606437817b263d7e2a64374f6f7e63ef83f14cd` added the final EBS cleanup
+  checkpoint and was superseded on `origin/fix/os-startup` by the nested-load
+  tracing commit `5aa16e0dfc7e2c86ca8c575b7ce93ca667d4641a`. Coreboot
+  `5e52d8426503d17fb30e55bae27c3f6bb238d90c` is pushed to the same branch; it
+  removes missing VT-d assertions and guards primary DRHD generation.
 - The integrated `make -j6` build succeeds and contains the EBS checkpoints,
   ACPI mapping string, and missing-domain diagnostics. The exact artifact
   hashes and source revision are recorded above.
@@ -229,3 +230,80 @@ capture raw SOL and VGA through Linux startup, and record a full-chip readback
 hash. Keep `quiet splash` removed only for that boot; do not change the
 persistent Kali GRUB configuration. Review the first post-EBS kernel line
 and preserve the capture with the exact firmware revisions.
+
+### EDK2 trace expansion and upstream references — 2026-11-17
+
+The previous traces establish that EDK2's `ExitBootServices()` service
+returned `EFI_SUCCESS`; they do not show what Linux did afterward. The code
+now keeps Shell-originated image-load tracing enabled while the Shell-launched
+EFI application runs. This captures nested `LoadImage()` calls made by an EFI
+loader, including the source device path, parent image path, source buffer and
+size, resolution/file-read/authentication checkpoints, PE load result, image
+metadata, and load options. The `CoreStartImage` entry checkpoint now includes
+the image handle, base, size, machine type, and entry point. VGA pins the
+latest nested load checkpoint and the readable parent-loader path; serial
+retains the full escaped path/options and sequence/elapsed-time records.
+
+These are observation changes only. They do not change image loading, EBS
+policy, or Linux execution. A firmware message cannot be emitted after a
+successful EBS handoff because boot services are no longer available. If the
+new trace again ends at successful EBS, a one-boot Linux early console is
+needed to locate the first kernel-side checkpoint.
+
+Upstream references clarify this boundary and the next capture:
+
+- The [Linux EFI stub documentation](https://docs.kernel.org/admin-guide/efi-stub.html)
+  describes Linux kernels booted as EFI applications and how the EFI stub
+  receives command-line options and initrd information.
+- The [EDK2 OVMF runtime configuration notes](https://github.com/tianocore/edk2/blob/master/OvmfPkg/RUNTIME_CONFIG.md)
+  describe OVMF's modern path, where the kernel is loaded as an EFI binary and
+  the Linux stub handles initrd loading and EBS. This is an architectural
+  reference only: G4DEL does not use OVMF, so the page does not prove its exact
+  loader implementation.
+- The [Linux EFI stub helper](https://github.com/torvalds/linux/blob/master/drivers/firmware/efi/libstub/efi-stub-helper.c)
+  shows the Linux-side memory-map / EBS call and retry behavior. EDK2's
+  [ExitBootServices service definition](https://github.com/tianocore/edk2/blob/master/MdePkg/Include/Uefi/UefiSpec.h)
+  documents `EFI_SUCCESS` as termination of boot services and an incorrect map
+  key as `EFI_INVALID_PARAMETER`.
+- The [Linux kernel parameter reference](https://docs.kernel.org/admin-guide/kernel-parameters.html)
+  describes `quiet`, `ignore_loglevel`, `loglevel`, and `earlycon`. The existing
+  one-time GRUB parameters should therefore expose kernel messages on VGA and
+  the configured COM2 UART after firmware logging ends.
+- A targeted [TianoCore EDK2 issue search for ExitBootServices and Linux](https://github.com/tianocore/edk2/issues?q=is%3Aissue+ExitBootServices+Linux)
+  did not reveal a report matching the supplied G4DEL evidence: successful EBS
+  return followed by no captured kernel output. This is not proof that no
+  related upstream issue exists; the current captures lack post-EBS Linux
+  output needed to compare a kernel failure signature.
+- Related reports exist outside the EDK2 tracker, but differ materially:
+  [QEMU issue 1801](https://gitlab.com/qemu-project/qemu/-/work_items/1801)
+  reports an ARM guest with an EDK2 firmware image stopping around Linux's EFI
+  stub/EBS messages, while this server is x86-64 physical hardware and its
+  firmware trace records successful EBS return. A [Linux EFI mailing-list
+  report](https://lkml.rescloud.iu.edu/1908.2/00031.html) describes an early
+  x86 EFI boot freeze in `parse_setup_data()`, and a [ThinkPad T14s EFI-stub
+  patch discussion](https://lkml.iu.edu/2411.3/05044.html) discusses EBS
+  failures. They show that Linux/firmware handoff defects can occur, but are
+  not evidence of the G4DEL cause and do not justify applying their fixes here.
+
+The next capture must use the new EDK2 payload and the one-time verbose Kali
+parameters. Record the exact firmware commits and a full-chip ROM readback
+hash. If Linux messages appear, use their final line and VGA state to direct
+the next diagnosis. If they do not, first verify the UART/console selection
+and compare VGA against the raw SOL capture; an empty serial trace alone does
+not prove a kernel hang.
+
+The implementation is committed and pushed as EDK2
+[`5aa16e0dfc7e2c86ca8c575b7ce93ca667d4641a`](https://github.com/mahdi-sahebi/uefi_edk2/commit/5aa16e0dfc7e2c86ca8c575b7ce93ca667d4641a)
+on `origin/fix/os-startup`. The configured G4DEL build completed with `make -j6`
+after forcing the EDK2 payload dependency to rebuild. The payload contains
+`SHELL IMAGE_TRACE enable nested LoadImage diagnostics`, `LOAD PARENT_PATH`,
+and the expanded `OS START ENTRYPOINT` format. Artifact hashes:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `build/UEFIPAYLOAD.fd` | `9dfa502448a943b78fbba8b2ee1ff725499748ba02558be0b3c7e3baaa84d455` |
+| `build/coreboot.rom` | `9425434a1c4634cb41ec724986262f82e66276835e5e7c0618c0b72f1bcaeb5b` |
+
+These hashes identify local build outputs only. The ROM has not been flashed
+or read back; there is no new server capture yet, so runtime log behavior and
+the OS failure point remain unverified.
