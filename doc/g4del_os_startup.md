@@ -141,6 +141,65 @@ routes them to serial. `earlycon`, `efi=debug`, `ignore_loglevel`,
 `loglevel=8`, and `initcall_debug` expose early EFI and kernel initialization
 messages. See the [Linux 7.2 kernel parameter reference](https://docs.kernel.org/7.2/admin-guide/kernel-parameters.html).
 
+## Captures from 2026-11-17
+
+The supplied files under `/home/uefi/workspace/logs/1405-08-27/` are
+workspace evidence and are not stored in this repository. The reviewed inputs
+were two raw SOL logs and two still images; the video was excluded.
+
+`SOLHostCapture_Archive_1_11172026_19_54_13.log` records FSP memory
+initialization returning success, ASPEED framebuffer setup using EDID
+fallback at 1024x768, and KBC cleanup errors. During Xeon-SP ACPI table
+generation it repeatedly reports assertions at `uncore_acpi.c:390`, `:448`,
+and `:542`. These correspond to domain VT-d lookups in ATSR, RHSA, and DMAR;
+the source immediately skips a missing device after each assertion. The
+capture shows an assertion-noise/source-hardening issue, but it does not show
+that this caused the Kali startup failure. The log is truncated, and the
+assertion capture may be a different boot from the Kali trace below.
+
+`SOLHostCapture_Archive_2_11172026_20_01_32.log` records 76 DXE drivers
+loaded and executed before Shell use. The launched Kali kernel is
+`7.0.12+kali-amd64`; its captured options end in `ro quiet splash`, without
+`console=` or `earlycon`. The firmware records successful memory-map-key
+acceptance and ends with `OS EBS CORE RETURNING status=EFI_SUCCESS`. This
+establishes that EDK2 returned successfully from its EBS core path. It cannot
+show whether Linux EFI-stub or the kernel subsequently made progress because
+the kernel output was suppressed and no serial console was requested. The
+two still images show the firmware overlay but no post-EBS Linux trace. No
+Windows stop screen or boot log is present in this capture set.
+
+### ACPI missing-domain handling
+
+`src/soc/intel/xeon_sp/uncore_acpi.c` no longer asserts when a PCI domain
+lacks a VT-d function. ATSR, RHSA, and DMAR scans now report the missing
+domain and skip its entry. DMAR generation checks the primary domain0 IOMMU
+before creating its final DRHD, preventing a NULL device from reaching DRHD
+generation while keeping entries already created for other detected
+domains. This is a defensive ACPI-generation change; it does not change VT-d
+enablement or establish that absent VT-d functions are the cause of any OS
+issue. The build verifies compilation; runtime DMAR contents still need to be
+checked on the server.
+
+The configured coreboot target was built with `make -j6` on 2026-11-17. The
+build completed as `Built gooxi/g4del (G4DEL)`. The ramstage ELF contains the
+new missing-domain messages for ATSR, RHSA, and DRHD, plus the primary-domain
+guard message. The resulting `build/coreboot.rom` SHA-256 is
+`3a6954cd9196d31745f43dddd73b3eba4b64279eed08efbe8cd64e01a712534a`; the
+EDK2 payload SHA-256 is
+`18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and was
+unchanged by this coreboot-only edit. This verifies build and diagnostic
+strings, not runtime ACPI entries. The ROM has not been flashed or read back.
+
+### Next Kali boot
+
+Use the one-time GRUB edit above: remove `quiet splash` and add the listed
+`earlycon`, VGA/serial console, EFI debug, and initcall parameters. Do not
+save the edit. Capture raw SOL and VGA from reset through Linux startup, and
+include firmware revisions plus a full-chip flashed-ROM readback hash. The
+specific finding needed is the first post-EBS Linux message and the last
+checkpoint before any stall. A later capture should also confirm that VT-d
+missing-domain warnings replace assertions and preserve valid DRHD entries.
+
 ## Next boot capture
 
 1. Before reset, start a raw SOL capture at 115200 baud, 8 data bits, no

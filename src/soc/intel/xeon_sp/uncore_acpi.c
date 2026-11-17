@@ -387,9 +387,12 @@ static unsigned long acpi_create_atsr(unsigned long current)
 		while ((domain = dev_find_path(domain, DEVICE_PATH_DOMAIN))) {
 			dev = pcidev_path_behind(domain->downstream,
 						 PCI_DEVFN(VTD_DEV_NUM, VTD_FUNC_NUM));
-			assert(dev);
-			if (!dev)
+			if (!dev) {
+				printk(BIOS_WARNING, "%s: no VT-d device in PCI domain %s; "
+				       "skipping ATSR scan for this domain\n",
+				       __func__, dev_path(domain));
 				continue;
+			}
 			/* Only add devices for the current socket */
 			if (iio_pci_domain_socket_from_dev(dev) != socket)
 				continue;
@@ -445,9 +448,11 @@ static unsigned long acpi_create_rhsa(unsigned long current)
 	while ((domain = dev_find_path(domain, DEVICE_PATH_DOMAIN))) {
 		dev = pcidev_path_behind(domain->downstream,
 					 PCI_DEVFN(VTD_DEV_NUM, VTD_FUNC_NUM));
-		assert(dev);
-		if (!dev)
+		if (!dev) {
+			printk(BIOS_WARNING, "%s: no VT-d device in PCI domain %s; "
+			       "skipping RHSA entry\n", __func__, dev_path(domain));
 			continue;
+		}
 		/* See if there is a resource with the appropriate index. */
 		resource = probe_resource(dev, VTD_BAR_CSR);
 		if (!resource)
@@ -539,9 +544,11 @@ static unsigned long acpi_fill_dmar(unsigned long current)
 	while ((domain = dev_find_path(domain, DEVICE_PATH_DOMAIN))) {
 		dev = pcidev_path_behind(domain->downstream,
 					 PCI_DEVFN(VTD_DEV_NUM, VTD_FUNC_NUM));
-		assert(dev);
-		if (!dev)
+		if (!dev) {
+			printk(BIOS_WARNING, "%s: no VT-d device in PCI domain %s; "
+			       "skipping DRHD entry\n", __func__, dev_path(domain));
 			continue;
+		}
 		if (is_dev_on_domain0(dev)) {
 			iommu0 = dev;
 			continue;
@@ -549,8 +556,12 @@ static unsigned long acpi_fill_dmar(unsigned long current)
 		current = acpi_create_drhd(current, dev, hob);
 	}
 
-	assert(iommu0);
-	current = acpi_create_drhd(current, iommu0, hob);
+	if (iommu0) {
+		current = acpi_create_drhd(current, iommu0, hob);
+	} else {
+		printk(BIOS_ERR, "%s: no primary domain0 VT-d device; "
+		       "omitting the primary DRHD entry\n", __func__);
+	}
 
 	// RMRR
 	current = acpi_create_rmrr(current);

@@ -30,10 +30,11 @@ exists; it does not mean the hardware result is verified.
 | P08 | Earlier trace stopped at or near DXE/Core CPU initialization | DXE dispatcher | Historical capture only | Added paired service/driver checkpoints; current G4DEL board completion is not established by this trace. |
 | P09 | USB diagnostics and device inventory correctness | DXE/BDS/USB | Source/build verified; hardware unverified | Inventory and shell inspection path exist; verify actual controllers, devices, keyboard, storage. |
 | P10 | Menu/Shell availability versus actual usable input | BDS/console | Packaged/configured; hardware unverified | Shell and menu are included; require visible menu selection and a successful Shell command. |
-| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | Fedora reaches GDM service start; Kali capture stops around EBS; Windows evidence is absent. |
+| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | The 2026-11-17 Kali capture reaches successful EBS return but has no post-EBS Linux output; Windows evidence is absent. |
 | P12 | EBS screenshot did not identify the launched EFI path/options or final cleanup | EDK2 OS handoff | Source instrumentation updated; board unverified | Readable path/options and distinct map-key/final-return checkpoints; physical verification pending. |
 | P13 | Captures and source/build image identity do not always align | Evidence/reproduction | Unresolved for older captures | Pair every new trace with firmware revisions, build hashes, and full-chip readback hash. |
 | P14 | ACPICA reports unresolved ACPI namespace references | ACPI tables / Linux AML interpreter | Observed on Fedora; cause and impact unresolved | Add runtime domain-name mapping; preserve full ACPI table dump from the same ROM. |
+| P15 | Missing per-domain VT-d devices print ACPI assertions | Coreboot ACPI DMAR/ATSR/RHSA generation | Observed; source/build verified, board verification pending | Skip absent domain devices with explicit diagnostics; guard the primary domain0 DRHD pointer. Validate generated table and messages on hardware. |
 
 ## Detailed records
 
@@ -244,20 +245,32 @@ exists; it does not mean the hardware result is verified.
   `OS EBS MAP ACCEPTED` marker. The latter only proved the map key matched;
   it was emitted before the rest of EBS cleanup. No matching Windows screen
   or stop code is in the supplied bundle.
+- **New capture (2026-11-17):** `1405-08-27/SOLHostCapture_Archive_2_11172026_20_01_32.log`
+  records 76 DXE drivers loaded/executed and Kali kernel
+  `7.0.12+kali-amd64` launched with `quiet splash` and no serial console
+  parameters. `OS EBS CORE RETURNING status=EFI_SUCCESS` is the final recorded
+  firmware checkpoint. This proves successful return from EDK2's EBS core to
+  its caller, not Linux initialization or a kernel freeze location. The two
+  supplied still images show the corresponding VGA/SOL overlay; no video was
+  analyzed. A separate log in the same directory records VT-d assertions
+  during ACPI generation (see P15); do not assume it is the same boot attempt.
 - **Change:** EDK2 logs the EFI image path/options and each EBS attempt; a
   follow-up source change distinguishes map-key acceptance from the final
   core cleanup checkpoint.
   The Kali report documents a one-boot GRUB edit using `earlycon`, dual
   `console=`, `ignore_loglevel`, `loglevel=8`, `initcall_debug`, and `efi=debug`.
 - **Status/next step:** **OS cause unresolved.** Capture raw SOL and VGA from
-  reset through the stall with the exact ROM readback hash. Confirm whether
-  the system remains responsive over network when video stops. Keep the GRUB
-  edit one-time; do not change permanent OS or firmware policy before evidence.
+  reset through Linux startup with the exact ROM readback hash. On the next
+  Kali boot, use the one-time verbose GRUB parameters in the Kali trace report
+  and confirm whether the system remains responsive over network when video
+  stops. Keep the GRUB edit one-time; do not change permanent OS or firmware
+  policy before evidence.
 - **References:** [OS startup report](../g4del_os_startup.md),
   [Kali capture procedure](../g4del_kali_boot_trace.md),
   [Linux EFI stub](https://docs.kernel.org/6.12/admin-guide/efi-stub.html),
   [Linux serial console](https://docs.kernel.org/admin-guide/serial-console.html),
-  [Linux kernel parameters](https://docs.kernel.org/7.2/admin-guide/kernel-parameters.html).
+  [Linux kernel parameters](https://docs.kernel.org/7.2/admin-guide/kernel-parameters.html),
+  [2026-11-17 capture analysis](../g4del_os_startup.md#captures-from-2026-11-17).
 
 ### P12 — EBS trace hid image identity
 
@@ -275,8 +288,9 @@ exists; it does not mean the hardware result is verified.
   generated ACPI domain name/socket/stack/bus tuples; this is diagnostic only
   and does not alter AML tables.
 - **Status:** The original path/options change is verified in the historical
-  integrated build. Follow-up checkpoints and ACPI mapping are source changes
-  pending a fresh integrated build and board boot. Neither proves an OS fix.
+  integrated build. Follow-up EBS checkpoints and ACPI mapping are verified
+  in a later build; the ACPI missing-domain handling is now being rebuilt.
+  Board verification is still pending. None of these changes proves an OS fix.
 - **References:** [Kali trace report](../g4del_kali_boot_trace.md),
   [UEFI EBS requirements](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html),
   [UEFI loaded-image information](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html).
@@ -305,6 +319,33 @@ exists; it does not mean the hardware result is verified.
   the new domain map. Repeat on Windows only if a table defect is established.
 - **References:** [ACPI specification](https://uefi.org/specs/ACPI/6.5/),
   [ACPICA tools](https://acpica.org/downloads).
+
+### P15 — Missing VT-d devices during Xeon-SP ACPI generation
+
+- **Observed:** The first SOL log in
+  `/home/uefi/workspace/logs/1405-08-27/` contains repeated assertions at
+  `uncore_acpi.c:390`, `:448`, and `:542` while building ACPI data. In this
+  source these are per-domain VT-d lookups in ATSR, RHSA, and DMAR generation.
+  The subsequent null checks already skipped the missing device, so the
+  assertions reported an expected absent function as an invariant failure.
+  The later capture reaches DXE and Kali EBS success; it may be a separate
+  attempt and does not establish that the ACPI assertions caused a hang.
+- **Change:** Remove those assertions, log the missing PCI domain and the
+  skipped ACPI entry, and continue scanning. In DMAR generation, emit the
+  primary domain0 DRHD only when its device exists; report a missing primary
+  device rather than passing NULL to DRHD generation. Discovered secondary
+  DRHD entries remain in the table. This preserves VT-d configuration and
+  policy; the code does not add or remove platform devices.
+- **Verification status:** **Source and build verified; runtime behavior
+  pending.** `make -j6` completed and the ramstage ELF contains the missing
+  domain, ATSR, RHSA, DRHD, and primary-domain diagnostic strings. This does
+  not inspect runtime DMAR contents. On hardware, confirm absent domains log
+  as warnings without assertions and that present DRHD entries remain. If no
+  domain0 VT-d exists, verify the resulting DMAR contents before drawing a
+  topology conclusion.
+- **References:** [Intel VT-d architecture specification](https://www.intel.com/content/www/us/en/content-details/671081/intel-virtualization-technology-for-directed-io-architecture-specification.html),
+  [ACPI DMAR table definition](https://uefi.org/specs/ACPI/6.5/08_Processor_Configuration_and_Control.html#dma-remapping-reporting-dmar-table),
+  [2026-11-17 capture analysis](../g4del_os_startup.md#captures-from-2026-11-17).
 
 ### P13 — Capture, revision, and flashed-image provenance
 

@@ -1,6 +1,6 @@
 # G4DEL Kali boot trace record
 
-**Updated:** 2026-11-16
+**Updated:** 2026-11-17
 **Purpose:** Preserve the investigation history and provide a repeatable next
 boot capture for the Kali startup failure reported on the Gooxi G4DEL server.
 
@@ -159,3 +159,43 @@ useful subsystem. Keep all firmware boot policy unchanged until then.
 - The server has not been flashed or tested with this build.
 - The exact Linux failure point, root cause, and any required behavioral fix
   remain pending the next raw SOL/VGA capture.
+
+## Follow-up capture and ACPI hardening — 2026-11-17
+
+The next supplied capture set is in the workspace-only directory
+`/home/uefi/workspace/logs/1405-08-27/`. The two SOL logs and two still images
+were reviewed; the video was excluded. `SOLHostCapture_Archive_1_11172026_19_54_13.log`
+shows FSP memory initialization succeeding, ASPEED framebuffer setup with
+EDID fallback, KBC cleanup errors, and repeated assertions in Xeon-SP ACPI
+generation at `uncore_acpi.c:390`, `:448`, and `:542`. The assertions occur
+where ATSR, RHSA, and DMAR scans look for a per-domain VT-d function before
+already skipping a missing device. They indicate noisy assertions around an
+optional/missing domain function; the log does not establish that this
+caused the reported Kali freeze.
+
+`SOLHostCapture_Archive_2_11172026_20_01_32.log` shows 76 DXE drivers loaded
+and executed, followed by Shell launch of Kali kernel `7.0.12+kali-amd64` with
+`quiet splash` and no serial console arguments. The last firmware checkpoint
+is `OS EBS CORE RETURNING status=EFI_SUCCESS`. This is evidence that EDK2
+returned from the EBS core path. Because the kernel output was quiet and had
+no serial console, the capture cannot locate a later Linux stall. The two
+still images show the firmware overlay, not post-EBS Linux output. These
+captures may be from separate attempts and are not tied to a flashed-ROM
+readback hash.
+
+The coreboot fix removes assertions for absent per-domain VT-d devices,
+reports their domain paths, and guards the primary domain0 VT-d pointer
+before DRHD generation. It leaves valid discovered secondary DRHD entries in
+place and does not change VT-d enablement. `make -j6` completed on
+2026-11-17; the ramstage contains all new diagnostics. The ROM SHA-256 is
+`3a6954cd9196d31745f43dddd73b3eba4b64279eed08efbe8cd64e01a712534a`, and
+the unchanged EDK2 payload SHA-256 is
+`18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0`.
+These are local build artifacts, not flashed-image evidence. Runtime ACPI
+table contents and the Kali boot result are unverified.
+
+For the next Kali attempt, use the one-time verbose GRUB parameters above,
+capture raw SOL and VGA through Linux startup, and record a full-chip readback
+hash. Keep `quiet splash` removed only for that boot; do not change the
+persistent Kali GRUB configuration. Review the first post-EBS kernel line
+and preserve the capture with the exact firmware revisions.
