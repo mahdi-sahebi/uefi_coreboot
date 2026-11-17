@@ -2,13 +2,24 @@
 
 ## Current status — 2026-11-17
 
+Current coreboot tip is `5e52d8426503d17fb30e55bae27c3f6bb238d90c` on
+`fix/os-startup`; the paired EDK2 tip is
+`e606437817b263d7e2a64374f6f7e63ef83f14cd`. The coreboot change removes
+assertions for absent per-domain VT-d devices and guards the primary domain0
+DRHD path. `make -j6` completed after the commit was pushed. The resulting
+ROM SHA-256 is
+`f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`.
+This is build evidence only: the ROM has not been flashed/read back and the
+generated DMAR entries have not been inspected on the server.
+
 The older Kali screenshot reaches `OS EBS MAP ACCEPTED`. That marker was
 emitted after the memory-map key was accepted but before EDK2 completed the
-rest of `ExitBootServices()` cleanup. It proves that the key matched, but not
-that the service returned to the Linux EFI stub. The trace now distinguishes
-`OS EBS MAP KEY ACCEPTED` from `OS EBS CORE RETURNING`, the final checkpoint
-immediately before EDK2 returns success to its caller. Neither marker proves
-that Linux completed startup.
+rest of `ExitBootServices()` cleanup. Later SOL logs from 1405-08-26 and
+1405-08-27 each reach `OS EBS CORE RETURNING status=EFI_SUCCESS`, at elapsed
+133 and 121 seconds. This confirms EDK2's EBS core returned to its caller in
+both attempts. Neither log contains subsequent Linux EFI-stub or kernel
+output: both use `quiet splash` and omit serial-console options. The exact
+Linux outcome after handoff is therefore unresolved.
 
 The supplied Fedora Live log is significant: Linux 7.2.11 identifies EDK II,
 consumes the firmware memory map and ACPI tables, reports 128 activated
@@ -22,12 +33,15 @@ shows `7.2.11-300.fc45.x86_64`. The exact failure and cause remain unresolved
 pending a serial/VGA trace from the same Kali boot.
 
 The earlier user report says the installed Kali reaches the desktop and then
-becomes unresponsive. The screenshots currently available capture an earlier
-boot stage, so they are not a trace of that reported desktop freeze and do not
-resolve whether both observations came from the same attempt.
+becomes unresponsive. The supplied 1405-08-26/27 captures end at EBS handoff,
+so they do not reproduce the reported desktop freeze or establish whether
+these are the same boot path and attempt.
 
 The latest EDK2 trace now prints a readable image device path and available
-load options at `OS START` and on every `ExitBootServices` attempt. Serial
+load options at `OS START` and on every `ExitBootServices` attempt. The
+1405-08-26 Shell trace identifies the outer `BOOTX64.EFI` path and GPT
+partition; the nested kernel image has a `MemoryMapped(...)` path, which does
+not independently identify its source disk. Serial
 contains escaped full text in bounded chunks; VGA shows a concise wrapped
 summary. Path conversion is performed before the handoff callback, so the
 callback does not allocate memory and disturb the map key. The source branches
@@ -143,19 +157,54 @@ messages. See the [Linux 7.2 kernel parameter reference](https://docs.kernel.org
 
 ## Captures from 2026-11-17
 
-The supplied files under `/home/uefi/workspace/logs/1405-08-27/` are
-workspace evidence and are not stored in this repository. The reviewed inputs
-were two raw SOL logs and two still images; the video was excluded.
+The supplied captures in `/home/uefi/workspace/logs/1405-08-26/` and
+`/home/uefi/workspace/logs/1405-08-27/` are workspace evidence and are not
+stored in this repository. The serial logs and still images were reviewed;
+the video files were excluded.
 
-`SOLHostCapture_Archive_1_11172026_19_54_13.log` records FSP memory
-initialization returning success, ASPEED framebuffer setup using EDID
-fallback at 1024x768, and KBC cleanup errors. During Xeon-SP ACPI table
-generation it repeatedly reports assertions at `uncore_acpi.c:390`, `:448`,
-and `:542`. These correspond to domain VT-d lookups in ATSR, RHSA, and DMAR;
-the source immediately skips a missing device after each assertion. The
-capture shows an assertion-noise/source-hardening issue, but it does not show
-that this caused the Kali startup failure. The log is truncated, and the
-assertion capture may be a different boot from the Kali trace below.
+### 1405-08-26 capture set
+
+`SOLHostCapture_Archive_1_11172026_14_22_17.log` reports FSP-S status zero,
+ASPEED EDID read failure with 1024x768 fallback, IPMI KCS/device-ID errors,
+and KBC cleanup errors. It shows at least eight complete assertions at
+`uncore_acpi.c:542`, then ends mid-assertion; its ending is truncated and
+cannot establish what happened after the ACPI output. It also reports no
+timestamp table and a flash probe/configuration size mismatch. The separate
+`SOLHostCapture_Archive_3_11172026_14_30_32.log` records a successful Shell
+launch of `FS0:\EFI\BOOT\BOOTX64.EFI`. Its source device path identifies a
+PCI/SCSI path and GPT partition GUID
+`D6F197AA-FA83-4187-8F37-5A199919526A`; the file size is 155,648 bytes. The
+nested Kali kernel is 14,512,128 bytes and has a `MemoryMapped(...)` image
+path rather than a filesystem path. Its options identify Kali 7.0.12, the
+root UUID, and `ro quiet splash`. At elapsed 133 seconds EDK2 logs successful
+EBS core return. No Linux EFI-stub or kernel output follows.
+
+The still images show the Kali GRUB menu, “Loading Linux” and “Loading initial
+ramdisk”, plus the firmware overlay ending at `OS EBS CORE RETURNING`. The
+images corroborate the visible handoff stage but do not show post-EBS Linux
+progress. Their timing is not independently tied to a particular SOL file.
+
+`SOLHostCapture_Archive_1_11172026_19_54_13.log` records FSP-M and FSP-S
+returning status zero. FSP also prints repeated unknown UPI capability-ID
+messages; these do not prevent either FSP call from returning success. The
+AST driver initializes the framebuffer at 1024x768 after EDID reading fails
+and the KVM fallback is selected. KBC buffer cleanup reports status and data
+`0xff`; two `No timestamp table found` notices also appear. These are observed
+warnings/errors, but this truncated capture does not show that any of them
+stopped execution. It also reports a flash-size mismatch
+(`probed_size=0x8000000`, `CONFIG_ROM_SIZE=0x4000000`) alongside JEDEC
+`00:0000`; record this for reconciliation with the actual flash chip and ROM
+configuration, but do not infer it caused the OS issue from this log alone.
+
+The ACPI assertion counts in the 1405-08-27 file are exactly eight at source
+line 542 and three at line 390. In the source revision represented by that capture,
+these sites were the DMAR and ATSR per-domain VT-d lookups, respectively. The
+file contains no assertion at line 448 (the RHSA lookup). The existing null
+checks skipped the absent device after logging an assertion; they therefore
+identified a source-hardening defect, not evidence that the OS freeze came
+from VT-d. The capture ends immediately after the assertion output, so it
+does not itself establish what happened next. A separate capture in this
+directory reaches Kali EBS success; do not combine the two as one boot.
 
 `SOLHostCapture_Archive_2_11172026_20_01_32.log` records 76 DXE drivers
 loaded and executed before Shell use. The launched Kali kernel is
@@ -167,6 +216,25 @@ show whether Linux EFI-stub or the kernel subsequently made progress because
 the kernel output was suppressed and no serial console was requested. The
 two still images show the firmware overlay but no post-EBS Linux trace. No
 Windows stop screen or boot log is present in this capture set.
+
+The nested Kali image metadata reports machine type `34404` (x86-64), size
+14,512,128 bytes, and load options containing the Kali kernel path, root UUID,
+`ro quiet splash`. Its EDK2 device path is `MemoryMapped(...)`, not a readable
+filesystem path, so this log does not identify the disk/partition from which
+the nested kernel image originated. The outer `BOOTX64.EFI` launch and the
+nested kernel launch are distinct `OS START` events. The EBS map key is
+accepted and EDK2's core returns success at 121 seconds; no Linux EFI-stub or
+kernel line follows.
+
+Successful EBS core return is therefore present in two separate serial
+captures: elapsed 133 seconds in the 1405-08-26 log and 121 seconds in the
+1405-08-27 log. Both contain `quiet splash` and neither includes serial
+console/early-console options; both end without a post-EBS Linux line. This
+repeatability establishes that firmware reached its EBS return checkpoint in
+these attempts, but it does not show whether Linux stalled, switched to an
+unseen console, or continued without captured output. The 1405-08-26 Shell
+trace identifies the outer `BOOTX64.EFI` partition; the nested kernel's
+`MemoryMapped(...)` path does not independently identify its source disk.
 
 ### ACPI missing-domain handling
 
@@ -180,11 +248,12 @@ enablement or establish that absent VT-d functions are the cause of any OS
 issue. The build verifies compilation; runtime DMAR contents still need to be
 checked on the server.
 
-The configured coreboot target was built with `make -j6` on 2026-11-17. The
-build completed as `Built gooxi/g4del (G4DEL)`. The ramstage ELF contains the
+The configured coreboot target was built with `make -j6` on 2026-11-17 after
+commit `5e52d8426503d17fb30e55bae27c3f6bb238d90c` was pushed. The build
+completed as `Built gooxi/g4del (G4DEL)`. The ramstage ELF contains the
 new missing-domain messages for ATSR, RHSA, and DRHD, plus the primary-domain
 guard message. The resulting `build/coreboot.rom` SHA-256 is
-`3a6954cd9196d31745f43dddd73b3eba4b64279eed08efbe8cd64e01a712534a`; the
+`f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`; the
 EDK2 payload SHA-256 is
 `18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and was
 unchanged by this coreboot-only edit. This verifies build and diagnostic

@@ -7,25 +7,35 @@ The documented 99-commit history cutoff is coreboot
 `f285869ec015115655e1fb6746bebdfa2a6ff85b`. EDK2 follow-up
 `e606437817b263d7e2a64374f6f7e63ef83f14cd` clarifies the EBS success marker.
 The current coreboot source revision is
-`11ab134819afe08493570794397992ab68e82652` (`fix/os-startup`), and the current G4DEL build includes that
-commit and EDK2 `e606437817b263d7e2a64374f6f7e63ef83f14cd`:
+`5e52d8426503d17fb30e55bae27c3f6bb238d90c` (`fix/os-startup`), and the
+current G4DEL build includes that commit and EDK2
+`e606437817b263d7e2a64374f6f7e63ef83f14cd`:
 
 ```sh
-make -j4
+make -j6
 ```
 
-It produced payload SHA-256
+The build completed on 2026-11-17. It produced payload SHA-256
 `18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and ROM
-SHA-256 `beffcba6b235413b2ba80d39f841887dd89635ffb71d90e604c43ee85853bf2f`.
-These are local build artifacts; the server's flashed image is unknown until
-a full-chip readback is hashed. The supplied Kali screenshot reaches the old
-`OS EBS MAP ACCEPTED` marker, printed before EBS cleanup finished. New source
+SHA-256 `f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`.
+The ramstage contains the new per-domain VT-d missing-device warnings and the
+guard for a missing primary domain0 IOMMU. These are local build artifacts;
+the server's flashed image is unknown until a full-chip readback is hashed.
+The supplied Kali screenshot reaches the old
+`OS EBS MAP ACCEPTED` marker, printed before EBS cleanup finished. Two later
+SOL captures from 1405-08-26 and 1405-08-27 reach
+`OS EBS CORE RETURNING status=EFI_SUCCESS` at elapsed 133 and 121 seconds,
+but neither contains post-EBS Linux output; both use `quiet splash` without
+serial-console parameters. New source
 distinguishes map-key acceptance from `OS EBS CORE RETURNING` immediately
 before the service returns. Coreboot also logs ACPI domain name/socket/stack/
 bus mappings to correlate Linux AML diagnostics without changing generated
-tables. Both changes are present in the rebuilt artifacts; no physical boot
-has yet validated their runtime output. Fedora's separate log reaches 128 CPUs, initramfs unpack,
-ASPEED graphics, and GDM service start, but also records unresolved ACPI names;
+tables. The ACPI hardening skips domains without VT-d and never passes a null
+primary device to DRHD generation; present secondary DRHD entries remain
+eligible for inclusion. The build contains the diagnostics, but only runtime
+ACPI table inspection can confirm the generated entries. The ROM has not
+been flashed or read back. Fedora's separate log reaches 128 CPUs, initramfs
+unpack, ASPEED graphics, and GDM service start, but also records unresolved ACPI names;
 it does not explain Kali behavior or prove an interactive desktop. The OS
 failure and root cause remain unresolved.
 

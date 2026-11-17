@@ -30,7 +30,7 @@ exists; it does not mean the hardware result is verified.
 | P08 | Earlier trace stopped at or near DXE/Core CPU initialization | DXE dispatcher | Historical capture only | Added paired service/driver checkpoints; current G4DEL board completion is not established by this trace. |
 | P09 | USB diagnostics and device inventory correctness | DXE/BDS/USB | Source/build verified; hardware unverified | Inventory and shell inspection path exist; verify actual controllers, devices, keyboard, storage. |
 | P10 | Menu/Shell availability versus actual usable input | BDS/console | Packaged/configured; hardware unverified | Shell and menu are included; require visible menu selection and a successful Shell command. |
-| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | The 2026-11-17 Kali capture reaches successful EBS return but has no post-EBS Linux output; Windows evidence is absent. |
+| P11 | Linux and Windows boot failures or freezes | EFI OS loader/kernel | Reported and partly observed; root cause unresolved | Two 2026-11-17 Kali SOL captures reach successful EBS return but contain no post-EBS Linux output; Windows evidence is absent. |
 | P12 | EBS screenshot did not identify the launched EFI path/options or final cleanup | EDK2 OS handoff | Source instrumentation updated; board unverified | Readable path/options and distinct map-key/final-return checkpoints; physical verification pending. |
 | P13 | Captures and source/build image identity do not always align | Evidence/reproduction | Unresolved for older captures | Pair every new trace with firmware revisions, build hashes, and full-chip readback hash. |
 | P14 | ACPICA reports unresolved ACPI namespace references | ACPI tables / Linux AML interpreter | Observed on Fedora; cause and impact unresolved | Add runtime domain-name mapping; preserve full ACPI table dump from the same ROM. |
@@ -254,6 +254,21 @@ exists; it does not mean the hardware result is verified.
   supplied still images show the corresponding VGA/SOL overlay; no video was
   analyzed. A separate log in the same directory records VT-d assertions
   during ACPI generation (see P15); do not assume it is the same boot attempt.
+  The nested x86-64 image is 14,512,128 bytes and has a `MemoryMapped(...)`
+  device path, so the trace does not identify its source disk or partition.
+  Its options include `/boot/vmlinuz-7.0.12+kali-amd64`, a root UUID, and
+  `ro quiet splash`; EBS returns success at 121 seconds, with no following
+  Linux output.
+- **Repeat capture:** `1405-08-26/SOLHostCapture_Archive_3_11172026_14_30_32.log`
+  independently records the Shell launching `FS0:\EFI\BOOT\BOOTX64.EFI`
+  and EDK2 returning successfully from EBS at 133 seconds, again with Kali's
+  `quiet splash` options and no post-EBS Linux output. The Shell log identifies
+  the outer EFI file's PCI/SCSI path and GPT partition GUID
+  `D6F197AA-FA83-4187-8F37-5A199919526A`; the nested kernel image path is
+  `MemoryMapped(...)` and does not reveal its disk source. Still images from
+  the folder show GRUB, kernel/initramdisk loading, and the EBS overlay. Their
+  exact association with either SOL file is not established. Videos were not
+  analyzed.
 - **Change:** EDK2 logs the EFI image path/options and each EBS attempt; a
   follow-up source change distinguishes map-key acceptance from the final
   core cleanup checkpoint.
@@ -287,10 +302,11 @@ exists; it does not mean the hardware result is verified.
   `ExitBootServices()` returned. Coreboot's Xeon-SP ACPI code also logs
   generated ACPI domain name/socket/stack/bus tuples; this is diagnostic only
   and does not alter AML tables.
-- **Status:** The original path/options change is verified in the historical
-  integrated build. Follow-up EBS checkpoints and ACPI mapping are verified
-  in a later build; the ACPI missing-domain handling is now being rebuilt.
-  Board verification is still pending. None of these changes proves an OS fix.
+- **Status:** Path/options instrumentation, EBS checkpoints, ACPI mapping,
+  and missing-domain hardening are present in source. Coreboot commit
+  `5e52d8426503d17fb30e55bae27c3f6bb238d90c` was pushed, and the `make -j6`
+  build contains the new ACPI diagnostics. Board verification, including
+  runtime DMAR contents, is pending. None of these changes proves an OS fix.
 - **References:** [Kali trace report](../g4del_kali_boot_trace.md),
   [UEFI EBS requirements](https://uefi.org/specs/UEFI/2.11/07_Services_Boot_Services.html),
   [UEFI loaded-image information](https://uefi.org/specs/UEFI/2.11/04_EFI_System_Table.html).
@@ -322,14 +338,24 @@ exists; it does not mean the hardware result is verified.
 
 ### P15 — Missing VT-d devices during Xeon-SP ACPI generation
 
-- **Observed:** The first SOL log in
-  `/home/uefi/workspace/logs/1405-08-27/` contains repeated assertions at
-  `uncore_acpi.c:390`, `:448`, and `:542` while building ACPI data. In this
-  source these are per-domain VT-d lookups in ATSR, RHSA, and DMAR generation.
-  The subsequent null checks already skipped the missing device, so the
-  assertions reported an expected absent function as an invariant failure.
-  The later capture reaches DXE and Kali EBS success; it may be a separate
-  attempt and does not establish that the ACPI assertions caused a hang.
+- **Observed:** The 1405-08-26 ACPI log contains at least eight complete
+  assertions at `uncore_acpi.c:542` and is cut off mid-line. The
+  `SOLHostCapture_Archive_1_11172026_19_54_13.log` file in 1405-08-27 contains
+  eight assertions at `:542` and three at `:390`; neither file contains a
+  `:448` assertion. In the source revision represented by those logs, lines
+  542 and 390 are the per-domain VT-d lookups in DMAR and ATSR, respectively;
+  line 448 is the RHSA lookup. The null checks after the assertions skipped
+  absent devices while printing an invariant-style error. Both log tails are
+  truncated, so neither establishes what happened after the ACPI output.
+  Separate captures in both folders reach Kali EBS success; they do not prove
+  that the ACPI assertions caused the OS hang.
+- **Other observations:** FSP-M/FSP-S return status zero in the 1405-08-27
+  log; the 1405-08-26 capture also shows FSP-S status zero. AST falls back to
+  1024x768 after EDID read failure; KBC buffer cleanup
+  reports `0xff`; there are missing timestamp-table notices and a reported
+  flash probe/configuration size mismatch. These findings are not shown to
+  cause a stop. Investigate the flash-size report against the actual chip
+  identity/configuration if reproducing it.
 - **Change:** Remove those assertions, log the missing PCI domain and the
   skipped ACPI entry, and continue scanning. In DMAR generation, emit the
   primary domain0 DRHD only when its device exists; report a missing primary
@@ -337,12 +363,14 @@ exists; it does not mean the hardware result is verified.
   DRHD entries remain in the table. This preserves VT-d configuration and
   policy; the code does not add or remove platform devices.
 - **Verification status:** **Source and build verified; runtime behavior
-  pending.** `make -j6` completed and the ramstage ELF contains the missing
-  domain, ATSR, RHSA, DRHD, and primary-domain diagnostic strings. This does
-  not inspect runtime DMAR contents. On hardware, confirm absent domains log
-  as warnings without assertions and that present DRHD entries remain. If no
-  domain0 VT-d exists, verify the resulting DMAR contents before drawing a
-  topology conclusion.
+  pending.** Commit `5e52d8426503d17fb30e55bae27c3f6bb238d90c` is pushed to
+  `origin/fix/os-startup`. `make -j6` completed; ROM SHA-256 is
+  `f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`.
+  The ramstage ELF contains the missing-domain and primary-domain diagnostic
+  strings. This does not inspect runtime DMAR contents. On hardware, confirm
+  absent domains log as warnings without assertions and that present DRHD
+  entries remain. If no domain0 VT-d exists, verify the resulting DMAR
+  contents before drawing a topology conclusion.
 - **References:** [Intel VT-d architecture specification](https://www.intel.com/content/www/us/en/content-details/671081/intel-virtualization-technology-for-directed-io-architecture-specification.html),
   [ACPI DMAR table definition](https://uefi.org/specs/ACPI/6.5/08_Processor_Configuration_and_Control.html#dma-remapping-reporting-dmar-table),
   [2026-11-17 capture analysis](../g4del_os_startup.md#captures-from-2026-11-17).
