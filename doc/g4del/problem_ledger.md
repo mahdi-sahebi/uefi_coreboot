@@ -1,10 +1,10 @@
 # G4DEL problem and evidence ledger
 
 This ledger separates what was reported from what a source diff, build, or
-board capture establishes. The historical timeline covers coreboot
-`253bdcd0bf` and EDK2 `f285869ec0`; follow-up working changes described below
-are newer and not yet board-verified. “Implemented” means a source change
-exists; it does not mean the hardware result is verified.
+board capture establishes. The [engineering timeline](project_history.md)
+covers all 105 coreboot commits through `8abea92b96`. “Implemented” means a
+source change exists; it does not mean the hardware result is verified. The
+latest integrated build and physical board evidence are described separately.
 
 ## Status key
 

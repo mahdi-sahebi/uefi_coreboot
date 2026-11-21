@@ -4,29 +4,26 @@
 
 This history starts at the merge base of coreboot `dasharo` and the current
 G4DEL topic line, `7c16974602ba86b18ba4bf767b2b37b64b5d95bf`, and ends at
-coreboot `253bdcd0bf46250237f56930d6f05bfd20d9bbfc` (`fix/os-startup`). The
-range contains 99 commits, including merge commits. A full chronological index
+coreboot `8abea92b9663bffe84bd962344d9acf13f92a146` (`fix/os-startup`). The
+range contains 105 commits, including merge commits. A full chronological index
 appears below; the milestones summarize the engineering story without
 assigning unverified hardware outcomes to source changes.
 
-The paired EDK2 source is the separate
-[`uefi_edk2`](https://github.com/mahdi-sahebi/uefi_edk2) checkout on
-`fix/os-startup` at `f285869ec015115655e1fb6746bebdfa2a6ff85b`. The table at the
-end of the timeline lists all four commits after the EDK2 `gooxie-g4del`
+The paired EDK2 source is maintained in the separate
+[`uefi_edk2`](https://github.com/mahdi-sahebi/uefi_edk2) repository. The table at the
+end of the timeline lists five relevant commits after the EDK2 `gooxie-g4del`
 integration base, `609f681c4d4897d018502eca19fdcaca77265f78` (merge of the
 USB fix). That base already contains the earlier G4DEL porting, graphics,
 USB, and DXE work. Earlier branch-map context remains in the nested checkout's
 historical `doc/g4del_branch_map.md` and linked reports; this document does
 not copy its general EDK2 history.
 
-The 99-commit index intentionally ends at `253bdcd0bf`; follow-up OS-startup
-diagnostic changes are outside that index. Current follow-up tips are coreboot
-[`11ab134819`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/11ab134819afe08493570794397992ab68e82652)
-and EDK2
-[`e606437817`](https://github.com/mahdi-sahebi/uefi_edk2/commit/e606437817b263d7e2a64374f6f7e63ef83f14cd).
-The coreboot follow-up adds runtime ACPI domain-to-socket/stack/bus mapping
-logs and updates the evidence reports; it does not change generated ACPI
-tables.
+The current tree includes six later commits covering updated G4DEL findings,
+Shell-launched EFI image tracing, final `ExitBootServices` checkpoints,
+missing-domain VT-d ACPI handling, and refreshed evidence. The VT-d change
+skips absent per-domain devices safely and guards primary domain-0 DRHD
+generation; it preserves available remapping entries. ACPI domain-to-socket,
+stack, and bus mapping output is diagnostic only and does not change AML.
 
 ## Topic timeline
 
@@ -49,6 +46,10 @@ build invariant. The EDK2 side added SEC/PEI/DXE and Shell/menu tracing, while
 coreboot gained offline image inspection and SPI operation logging. These
 changes made boundaries observable and made the ROM structure checkable; they
 did not by themselves establish successful firmware execution on the server.
+The historical `CpuDxe` stop was not resolved by a recorded DXE fix: the
+follow-up added paired stage and return markers to identify the failing call.
+Likewise, the menu and Shell were packaged and instrumented, but the retained
+captures do not prove a usable Shell session on the G4DEL board.
 
 ### 3. USB inventory, graphics, framebuffer, and menu path
 
@@ -95,6 +96,14 @@ board.
 See the [Kali trace report](../g4del_kali_boot_trace.md) and
 [OS startup report](../g4del_os_startup.md).
 
+The latest paired captures show the Shell launching Kali's
+`FS0:\EFI\BOOT\BOOTX64.EFI` with its kernel options and EDK2 returning from
+the EBS core path with `EFI_SUCCESS`. Neither contains post-EBS Linux output,
+so the firmware handoff is established but the reported Kali stall and its
+cause remain unresolved. Fedora evidence reaches initramfs unpack and GDM
+startup, but does not prove an interactive desktop. The diagnostics improve
+the next capture; they are not a demonstrated OS boot fix.
+
 ## G4DEL EDK2 commit milestones
 
 These commits are in the separate EDK2 repository, after `gooxie-g4del`; they
@@ -111,7 +120,7 @@ are paired with coreboot commits that select or integrate the payload:
 ## Complete coreboot commit index
 
 Each entry links to its immutable GitHub commit. Dates use the commit author date. Merge commits are included so
-the index covers the exact 99-commit range, not only first-parent or
+the index covers the exact 105-commit range, not only first-parent or
 non-merge source changes.
 
 | Date | Commit | Subject |
@@ -215,3 +224,9 @@ non-merge source changes.
 | 2026-11-16 | [`474bbeb923`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/474bbeb92375472d06fefdf8d07140852213d82d) | Document current G4DEL Kali handoff trace |
 | 2026-11-16 | [`e62de5e044`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/e62de5e044a1464afa503e3b72b4cf6a064fad79) | Clarify G4DEL trace evidence and publication status |
 | 2026-11-16 | [`253bdcd0bf`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/253bdcd0bf46250237f56930d6f05bfd20d9bbfc) | Keep G4DEL report branch status current |
+| 2026-11-16 | [`38e6f920b2`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/38e6f920b24a03c2143000efedd692a43e308a51) | Document G4DEL firmware history and diagnostics |
+| 2026-11-17 | [`11ab134819`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/11ab134819afe08493570794397992ab68e82652) | Improve G4DEL OS startup diagnostics and findings |
+| 2026-11-17 | [`44a4d28ede`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/44a4d28ede008b2437c510c05e6541c17a93fc32) | Record current G4DEL diagnostic revisions |
+| 2026-11-17 | [`5e52d84265`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/5e52d8426503d17fb30e55bae27c3f6bb238d90c) | Fix missing Xeon-SP VT-d ACPI devices |
+| 2026-11-17 | [`3adf1ca970`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/3adf1ca97003900d3a3be357d1e052c385b8cb09) | Document latest G4DEL boot captures |
+| 2026-11-17 | [`8abea92b96`](https://github.com/mahdi-sahebi/uefi_coreboot/commit/8abea92b9663bffe84bd962344d9acf13f92a146) | Document expanded OS startup trace and upstream findings |

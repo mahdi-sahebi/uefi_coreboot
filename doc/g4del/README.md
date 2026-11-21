@@ -2,14 +2,12 @@
 
 ## Current status — 2026-11-17
 
-The documented 99-commit history cutoff is coreboot
-`253bdcd0bf46250237f56930d6f05bfd20d9bbfc`; its paired EDK2 history cutoff is
-`f285869ec015115655e1fb6746bebdfa2a6ff85b`. EDK2 follow-up
-`e606437817b263d7e2a64374f6f7e63ef83f14cd` clarifies the EBS success marker.
-The current coreboot source revision is
-`5e52d8426503d17fb30e55bae27c3f6bb238d90c` (`fix/os-startup`), and the
-current G4DEL build includes that commit and EDK2
-`e606437817b263d7e2a64374f6f7e63ef83f14cd`:
+The documentation covers all 105 coreboot commits from the `dasharo` merge
+base through `8abea92b9663bffe84bd962344d9acf13f92a146` (`fix/os-startup`).
+The latest recorded integrated G4DEL build includes coreboot
+`5e52d8426503d17fb30e55bae27c3f6bb238d90c` and EDK2
+`e606437817b263d7e2a64374f6f7e63ef83f14cd`; subsequent commits update
+diagnostics and evidence, and no later build is recorded here:
 
 ```sh
 make -j6

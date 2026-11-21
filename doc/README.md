@@ -9,12 +9,12 @@ as proof of a successful boot.
 ## Revision scope
 
 - Coreboot repository: branch `fix/os-startup`, documentation cutoff
-  `253bdcd0bf46250237f56930d6f05bfd20d9bbfc`.
+  `8abea92b9663bffe84bd962344d9acf13f92a146` (current workspace `HEAD`).
 - History baseline: merge base of `dasharo` and `fix/os-startup`,
   `7c16974602ba86b18ba4bf767b2b37b64b5d95bf`.
-- Paired EDK2 repository: branch `fix/os-startup`, revision
-  `f285869ec015115655e1fb6746bebdfa2a6ff85b`.
-- The coreboot branch contains 99 commits after the baseline. The timeline
+- Paired EDK2 work: the timeline lists five G4DEL-specific commits; the latest
+  recorded integrated build uses EDK2 `e606437817b263d7e2a64374f6f7e63ef83f14cd`.
+- The coreboot branch contains 105 commits after the baseline. The timeline
   summarizes them by engineering topic; the complete commit index preserves
   traceability. EDK2 history includes only G4DEL-relevant work, not inherited
   upstream EDK2 history.
