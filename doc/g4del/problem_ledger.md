@@ -269,6 +269,25 @@ latest integrated build and physical board evidence are described separately.
   the folder show GRUB, kernel/initramdisk loading, and the EBS overlay. Their
   exact association with either SOL file is not established. Videos were not
   analyzed.
+- **2026-11-21 capture and VGA review:** The pre-fix files in
+  `/home/uefi/workspace/logs/1405-08-29/` add a SOL trace and three inspected
+  VGA stills. `SOLHostCapture_Archive_4_11212026_14_03_07.log` records the
+  Shell launching `FS0:\EFI\BOOT\BOOTX64.EFI`, Kali
+  `7.0.12+kali-amd64` with `ro quiet splash`, 76/76 DXE drivers executed
+  without a reported load or execution failure, and
+  `OS EBS CORE RETURNING status=EFI_SUCCESS` at 103 seconds. It contains no
+  later Linux output and has no Linux serial-console options. The 09:32 and
+  09:33 screenshots and the 10:34 BMC-console screenshot show the Kali
+  graphical background under a large opaque black firmware-diagnostics area;
+  handoff text and garbled remnants occupy that area. Thus the screenshots
+  show graphics still present beneath the overlay, but do not prove a completed
+  Linux boot. The framebuffer save/restore change was made after these captures
+  and has not been verified by a new board capture. The sibling
+  `SOLHostCapture_Archive_1_11212026_13_56_09.log` records ASPEED VGA
+  `1a03:2000`, linear framebuffer `0x94000000` / 1024x768 / 32 bpp, an EDID
+  read failure, then selection of the 1024x768 KVM fallback. The logged EDID
+  failure is handled by that fallback and is not, by itself, evidence of the
+  OS boot failure.
 - **Change:** EDK2 logs the EFI image path/options and each EBS attempt; a
   follow-up source change distinguishes map-key acceptance from the final
   core cleanup checkpoint.

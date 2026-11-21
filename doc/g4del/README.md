@@ -1,6 +1,6 @@
 # Gooxi G4DEL coreboot and EDK2
 
-## Current status — 2026-11-17
+## Current status — 2026-11-21
 
 The documentation covers all 105 coreboot commits from the `dasharo` merge
 base through `8abea92b9663bffe84bd962344d9acf13f92a146` (`fix/os-startup`).
@@ -36,6 +36,30 @@ been flashed or read back. Fedora's separate log reaches 128 CPUs, initramfs
 unpack, ASPEED graphics, and GDM service start, but also records unresolved ACPI names;
 it does not explain Kali behavior or prove an interactive desktop. The OS
 failure and root cause remain unresolved.
+
+### 2026-11-21 serial and VGA evidence (pre-fix capture)
+
+The files in `/home/uefi/workspace/logs/1405-08-29/` were captured before the
+later EDK2 framebuffer-restoration change. `SOLHostCapture_Archive_4_11212026_14_03_07.log`
+shows Shell launching `FS0:\EFI\BOOT\BOOTX64.EFI`, the Kali 7.0.12 kernel
+and initrd path/options, 76 of 76 DXE drivers loaded and executed without a
+recorded load/run failure, and `OS EBS CORE RETURNING status=EFI_SUCCESS` at
+103 seconds. The options contain `ro quiet splash` and no Linux serial-console
+parameters. There is no post-EBS Linux output, so this capture does not locate
+a kernel stall or prove Linux startup completed.
+
+The two 09:32/09:33 VGA screenshots show the Kali graphical background still
+visible below a large opaque black diagnostics region. The region contains
+firmware handoff/EBS text and garbled remnants; the 10:34 BMC screenshot shows
+the same overlay. This is consistent with firmware diagnostics obscuring the
+display during handoff, not evidence that the OS is fully booted. The
+framebuffer save/restore fix was committed after these captures; a fresh
+board capture is needed to verify it restores the display and to determine
+whether Linux then progresses. The sibling
+`SOLHostCapture_Archive_1_11212026_13_56_09.log` records ASPEED VGA function
+`1a03:2000`, a 1024x768x32 linear framebuffer at `0x94000000`, and fallback
+to 1024x768 after the EDID read failed; these messages alone do not establish
+a display failure. See [P11](problem_ledger.md#p11--fedora-kali-ubuntu-and-windows-boot-reports).
 
 The factory image `/home/uefi/Downloads/server.bin` was recorded in the
 [factory inventory](factory_image_inventory.md) with SHA-256
