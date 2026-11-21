@@ -13,7 +13,7 @@ diagnostics and evidence, and no later build is recorded here:
 make -j6
 ```
 
-The build completed on 2026-11-17. It produced payload SHA-256
+The recorded 2026-11-17 build produced payload SHA-256
 `18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and ROM
 SHA-256 `f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`.
 The ramstage contains the new per-domain VT-d missing-device warnings and the
@@ -31,11 +31,19 @@ bus mappings to correlate Linux AML diagnostics without changing generated
 tables. The ACPI hardening skips domains without VT-d and never passes a null
 primary device to DRHD generation; present secondary DRHD entries remain
 eligible for inclusion. The build contains the diagnostics, but only runtime
-ACPI table inspection can confirm the generated entries. The ROM has not
-been flashed or read back. Fedora's separate log reaches 128 CPUs, initramfs
-unpack, ASPEED graphics, and GDM service start, but also records unresolved ACPI names;
-it does not explain Kali behavior or prove an interactive desktop. The OS
-failure and root cause remain unresolved.
+ACPI table inspection can confirm the generated entries. The operator flashed
+the previous ROM on 2026-11-21, but no chip readback or image hash was supplied,
+so its contents are not independently identified. The newer local build has
+not been flashed. Fedora's separate log reaches 128 CPUs, initramfs
+unpack, ASPEED graphics, and GDM service start, but also records unresolved
+ACPI names; it does not explain Kali behavior or prove an interactive desktop.
+The OS failure and root cause remain unresolved.
+
+An additional local build completed on 2026-11-21 after the framebuffer
+backup guard was added to the nested EDK2 source. It produced payload SHA-256
+`88086e6f817e7ff6bcb007bbe82d09eb07b794389918d4661da80af830946b1e` and ROM
+SHA-256 `0e30f0628a477d87b9cca14cb5c51c51873b84b56dad1ac46e76368b420b7bf8`.
+This new ROM has not been flashed or hardware-verified.
 
 ### 2026-11-21 serial and VGA evidence (pre-fix capture)
 
@@ -60,6 +68,36 @@ whether Linux then progresses. The sibling
 `1a03:2000`, a 1024x768x32 linear framebuffer at `0x94000000`, and fallback
 to 1024x768 after the EDID read failed; these messages alone do not establish
 a display failure. See [P11](problem_ledger.md#p11--fedora-kali-ubuntu-and-windows-boot-reports).
+
+### 2026-11-21 post-flash capture
+
+The follow-up bundle in `/home/uefi/workspace/logs/1405-08-29/2/` proves the
+UEFI Shell is interactive: the 11:44 screencast shows a Shell prompt, one
+mistyped `FS0:` command, then a successful switch to `FS0:\>`. It does not
+show a Kali launch. `SOLHostCapture_Archive_1_11212026_16_12_06.log` ends at
+the coreboot-to-EDK2 handoff. `SOLHostCapture_Archive_3_11212026_16_19_25.log`
+contains PEI/FTW, GOP setup, DXE memory initialization, and dispatcher start,
+but ends while DXE drivers are still being discovered; it has no Shell, OS
+launch, or EBS-return checkpoint. Repeated 98,344-byte pool allocation
+failures appear before DXE memory services are ready; DXE initialization then
+continues, so these lines alone do not show a fatal allocation failure.
+
+The 11:49 VGA stills show the Kali background beneath the diagnostics overlay
+and an `OS EBS MAP KEY ACCEPTED` message. They do not show the final
+`OS EBS CORE RETURNING` marker or prove the successful EBS cleanup path ran.
+Since the final marker is serial-only, the supplied post-flash SOL capture
+does not verify the framebuffer restoration. The capture also reports both
+FTW workspaces invalid while installing the completion PPI; see
+[P07](problem_ledger.md#p07--smmstore-and-ftw).
+
+The matching SOL log reports seven failed allocations of 98,344 bytes, which
+is the pool request for the 98,304-byte (24 x 1024 x 4) screen backup plus
+allocator overhead. The logger previously drew the overlay despite backup
+failure; once allocation worked, it could save its own text as the background.
+The EDK2 source now skips framebuffer drawing until that backup succeeds.
+The new payload and ROM were rebuilt locally, but not flashed or tested.
+Reflash that build, then capture uninterrupted SOL/VGA through the
+`OS EBS CORE RETURNING` marker and subsequent Linux startup to verify the fix.
 
 The factory image `/home/uefi/Downloads/server.bin` was recorded in the
 [factory inventory](factory_image_inventory.md) with SHA-256

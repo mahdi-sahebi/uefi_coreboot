@@ -126,10 +126,14 @@ latest integrated build and physical board evidence are described separately.
   metadata through coreboot tables/HOBs to EDK2 GOP. Old screenshots do not
   establish that the same path initialized on the current image.
 - **Change:** Framebuffer setup, logo transfer, EDK2 GOP diagnostics, and a
-  bounded VGA logger were added over time.
-- **Status/next step:** **Source configured; current board behavior
-  unresolved.** Record VGA video together with SOL, framebuffer/GOP status,
-  display mode changes, and last serial checkpoint.
+  bounded VGA logger were added over time. The 2026-11-21 capture shows the
+  98,344-byte backup-pool request failing seven times before DXE memory
+  services initialize. The logger drew on screen despite those failures, so
+  a later successful backup could contain its own overlay. EDK2 now skips
+  framebuffer drawing until it has saved the original pixels.
+- **Status/next step:** **Source fix built; current board behavior unresolved.**
+  The updated integrated ROM has not been flashed. Reflash it and capture VGA
+  after EBS return to verify the overlay clears.
 - **References:** [graphics path](boot_flow_memory_map.md#coreboot-and-edk2-graphics-path),
   [coreboot architecture](https://doc.coreboot.org/getting_started/architecture.html),
   [UEFI graphics output protocol](https://uefi.org/specs/UEFI/2.11/12_Protocols_Console_Support.html).
@@ -160,7 +164,9 @@ latest integrated build and physical board evidence are described separately.
 - **Evidence:** The historical report notes that FTW still installed its
   completion PPI and PEI dispatch continued; timer assertions were not shown
   to stop the boot. Source review identified geometry and allocation checks
-  that needed hardening.
+  that needed hardening. The 2026-11-21 post-flash serial capture again reports
+  invalid working and spare FTW workspaces, but successfully installs the
+  completion PPI; variable persistence was not tested.
 - **Change:** EDK2 history added HOB validation, range checks, completion
   status logs, and removal of an artificial debug loop. The flash map reserves
   256 KiB for SMMSTORE v2.
@@ -288,6 +294,28 @@ latest integrated build and physical board evidence are described separately.
   read failure, then selection of the 1024x768 KVM fallback. The logged EDID
   failure is handled by that fallback and is not, by itself, evidence of the
   OS boot failure.
+- **2026-11-21 post-flash follow-up:** In
+  `/home/uefi/workspace/logs/1405-08-29/2/`, the 11:44 screencast demonstrates
+  an interactive Shell and a successful `FS0:\>` drive switch after one
+  mistyped command; it does not show an OS launch. Archive 1 ends at EDK2
+  handoff. Archive 3 reaches DXE dispatcher startup but ends during driver
+  discovery, with no Shell, Linux, or EBS-return markers. It records repeated
+  98,344-byte pool allocation failures before DXE memory services initialize;
+  later DXE initialization proceeds, so fatality is unproven. The 11:49 VGA
+  stills show Kali graphics under the diagnostic overlay and the EBS map-key
+  accepted line, but no final core-return marker. As that marker is serial-only
+  and the supplied SOL captures do not include the corresponding EBS attempt,
+  they cannot establish whether the framebuffer restore ran. The operator
+  reports flashing the ROM; no readback hash ties the capture to a specific
+  image. Review of the failed 98,344-byte allocations identified a framebuffer
+  logger bug: it continued painting when its screen backup could not be
+  allocated, allowing the later backup to include its diagnostic overlay. The
+  logger now leaves the framebuffer untouched until backup allocation and copy
+  succeed. A new integrated ROM was built (payload
+  `88086e6f817e7ff6bcb007bbe82d09eb07b794389918d4661da80af830946b1e`, ROM
+  `0e30f0628a477d87b9cca14cb5c51c51873b84b56dad1ac46e76368b420b7bf8`), but
+  has not been flashed. This explains the overlay-retention bug; Linux startup
+  remains unresolved pending a capture from the new ROM.
 - **Change:** EDK2 logs the EFI image path/options and each EBS attempt; a
   follow-up source change distinguishes map-key acceptance from the final
   core cleanup checkpoint.
