@@ -1,5 +1,8 @@
 # Gooxie G4DEL DXE, boot menu, and Shell investigation
 
+The latest board capture is recorded in the
+[2026-11-22 preboot/HOB capture update](g4del_latest_capture_2026-11-22.md).
+
 This records an October 2026 capture and source investigation. The branch pins,
 build hash, and test status below are historical. For current `fix/os-startup`
 status, see the [G4DEL guide](g4del/README.md),
