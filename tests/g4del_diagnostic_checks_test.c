@@ -20,6 +20,11 @@ static void test_hobs(void)
   assert(!G4delDiagHobHeaderValid(1, 7, 32, 0xffff, 8));
   assert(!G4delDiagHobHeaderValid(1, 33, 32, 0xffff, 8));
   assert(!G4delDiagHobHeaderValid(0xffff, 16, 16, 0xffff, 8));
+  assert(G4delDiagHobHeaderReason(1, 8, 8, 0xffff, 8) == G4delDiagHobHeaderValidReason);
+  assert(G4delDiagHobHeaderReason(1, 7, 32, 0xffff, 8) == G4delDiagHobHeaderTooShort);
+  assert(G4delDiagHobHeaderReason(1, 16, 8, 0xffff, 8) == G4delDiagHobHeaderExceedsRemaining);
+  assert(G4delDiagHobHeaderReason(0xffff, 16, 32, 0xffff, 8) == G4delDiagHobEndMarkerWrongLength);
+  assert(G4delDiagHobHeaderReason(0xffff, 8, 7, 0xffff, 8) == G4delDiagHobHeaderExceedsRemaining);
 }
 
 static void test_acpi_checksum(void)
