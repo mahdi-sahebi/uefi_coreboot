@@ -1,19 +1,31 @@
 # G4DEL Kali boot trace record
 
-**Updated:** 2026-11-17
+**Updated:** 2026-11-22
 **Purpose:** Preserve the investigation history and provide a repeatable next
 boot capture for the Kali startup failure reported on the Gooxi G4DEL server.
 
 ## Scope and current conclusion
 
-The older Kali screenshot reaches the EDK2 memory-map-key acceptance marker,
-but that firmware version logged before the rest of `ExitBootServices()`
-cleanup. Later serial captures from 1405-08-26 and 1405-08-27 both record
-`OS EBS CORE RETURNING status=EFI_SUCCESS`, at elapsed 133 and 121 seconds
-respectively. Neither capture contains a post-EBS Linux line; both launch
-with `quiet splash` and no serial console options. They establish repeated
-firmware return through EBS, but do not locate a Linux stall or prove that
-Linux stopped.
+The 2026-11-21 test in `/home/uefi/workspace/logs/1405-08-29/3/` reaches the
+Kali GRUB menu and displays `OS EBS MAP KEY ACCEPTED` and
+`OS START ENTRYPOINT BEGIN`, but the overlay remains on VGA through the end
+of the 3:31 screencast. Unlike the 1405-08-26 and 1405-08-27 serial captures,
+which recorded `OS EBS CORE RETURNING status=EFI_SUCCESS`, this new set does
+not contain the late SOL trace needed to determine whether EDK2 returned from
+EBS cleanup. The OS is not shown booting fully. The tested ROM's full-chip
+readback hash is not included, so the capture cannot be tied to a specific
+build.
+
+The user reports that the original BIOS boots the OS completely on this
+server. Assuming the same OS installation and hardware, this A/B result
+strongly points to the custom firmware or its OS handoff. It does not by
+itself identify whether the cause is EDK2 EBS cleanup, ACPI/memory-map data,
+GOP/framebuffer handoff, or a different boot entry/path.
+
+The older 1405-08-26 and 1405-08-27 Kali traces still establish EDK2 return
+through EBS for those separate attempts, but neither includes post-EBS Linux
+output. The Fedora Live capture advances into Linux startup and GDM, but does
+not establish the behavior of the Kali kernel or identify a matching ROM.
 
 The accompanying Fedora Live log advances further: Linux 7.2.11 uses EDK II's
 EFI environment, recognizes the ACPI/SPCR data, starts 128 processors, unpacks
@@ -161,9 +173,11 @@ useful subsystem. Keep all firmware boot policy unchanged until then.
 - The integrated `make -j6` build succeeds and contains the EBS checkpoints,
   ACPI mapping string, and missing-domain diagnostics. The exact artifact
   hashes and source revision are recorded above.
-- The server has not been flashed or tested with this build.
-- The exact Linux failure point, root cause, and any required behavioral fix
-  remain pending the next raw SOL/VGA capture.
+- A physical flash/test was reported on 2026-11-21 and the associated captures
+  are analyzed below. The flashed image is not identified by a readback hash.
+- The exact stopping point, root cause, and required behavioral fix remain
+  unresolved; the new screen capture stops at the EBS map-key marker and the
+  SOL logs end before that event.
 
 ## Follow-up capture and ACPI hardening — 2026-11-17
 
@@ -304,6 +318,123 @@ and the expanded `OS START ENTRYPOINT` format. Artifact hashes:
 | `build/UEFIPAYLOAD.fd` | `9dfa502448a943b78fbba8b2ee1ff725499748ba02558be0b3c7e3baaa84d455` |
 | `build/coreboot.rom` | `9425434a1c4634cb41ec724986262f82e66276835e5e7c0618c0b72f1bcaeb5b` |
 
-These hashes identify local build outputs only. The ROM has not been flashed
-or read back; there is no new server capture yet, so runtime log behavior and
-the OS failure point remain unverified.
+At the time of this 2026-11-17 build record, these hashes identified local
+build outputs only; the ROM had not been flashed or read back and no matching
+server capture was available. The later 2026-11-21 test is documented below,
+but it still lacks a full-chip readback hash and late SOL output.
+
+## Post-flash test capture — 2026-11-21
+
+The user reported flashing and testing firmware. The supplied files are in
+`/home/uefi/workspace/logs/1405-08-29/3/`:
+
+- `SOLHostCapture_Archive_1_11212026_20_26_27.log`
+- `SOLHostCapture_Archive_5_11212026_20_32_53.log`
+- `Screenshot from 2026-11-21 19-32-05.png`
+- `Screenshot from 2026-11-21 19-32-13.png`
+- `Screenshot from 2026-11-21 19-32-23.png`
+- `Screencast from 21-11-26 15_59_16.m4v` (3:31)
+
+### What the captures show
+
+The first SOL archive records successful FSP-M memory initialization and
+FSP-S silicon initialization. Coreboot identifies the ASPEED `1a03:2000`
+display device, initializes its linear framebuffer at `0x94000000` in
+1024x768 mode, and falls back to that mode because EDID reading fails. It
+continues into payload loading. The second archive starts at the coreboot to
+EDK2 handoff and records EDK2 PEI activity, including GOP/framebuffer
+information and VGA diagnostic output. Coreboot reports the configured
+reference as `origin/fix/os-startup`; this is not an exact source revision or
+proof of which image was programmed.
+
+The 19:32:05 still shows a clean Kali GRUB menu. In the later stills, after
+starting the kernel EFI entry, a large black firmware diagnostic area appears
+over the Kali background. It includes `OS EBS MAP KEY ACCEPTED` with
+`STATUS=EFI_SUCCESS` and `OS START ENTRYPOINT BEGIN`. The screencast remains
+visually at this state through its final sampled frame at 3:19; it does not
+show Linux kernel output, a panic, a login prompt, or a desktop. Therefore the
+OS is not shown booting fully, and the overlay remains visible in this run.
+Because the flashed ROM is unidentified, this does not establish whether the
+intended screen-cleanup revision was tested.
+
+The map-key marker is evidence that the map-key check succeeded and EBS
+cleanup began. It is not the serial-only `OS EBS CORE RETURNING` marker, which
+would establish that EDK2's core cleanup returned successfully. The SOL files
+are not a continuous capture through the displayed OS-entry event: the first
+ends during payload loading, while the second reaches only early PEI/SEC
+activity and stops before the late OS handoff. As a result, the captures do
+not localize the stall to an EBS cleanup callback, framebuffer restoration,
+the EFI loader, or Linux itself. The persistent overlay is consistent with a
+failure or stall before the display restoration is visible, but does not prove
+which of those occurred.
+
+### Firmware messages that need follow-up
+
+- FTW reports an invalid working workspace and an invalid spare workspace.
+  It nevertheless installs its completion PPI successfully and the PEIM
+  returns, so this capture does not show FTW stopping boot. Variable storage
+  writes and persistence were not tested.
+- A PEIM reports `Error when parsing platform info, Status = Not Found` and
+  returns `Not Found`; subsequent SEC migration checkpoints appear. This is a
+  non-success status worth investigating, but the log does not show it
+  stopping execution or causing the later OS-start screen.
+- EDID read failure is followed by the expected 1024x768 fallback and
+  successful framebuffer initialization.
+- SOL uses `[ERROR]` prefixes for many ordinary begin/success diagnostics as
+  well as actual error reports. Interpret the message text and status rather
+  than treating every prefixed line as a fatal error.
+- VGA text-renderer diagnostics appear as replacement/garbled characters in
+  the serial files. The VGA stills are the readable evidence for what was
+  drawn on screen.
+
+### Limits and next capture
+
+No full-chip readback hash or exact coreboot/EDK2 commit IDs were supplied
+with this test, so its behavior cannot be tied to a specific built ROM. The
+SOL and VGA evidence are also not continuous, synchronized views of the same
+late boot interval. Do not claim that this run reached `OS EBS CORE RETURNING`
+or that Linux entered its kernel based on these files.
+
+For the next attempt, capture raw SOL from reset through the visible stall or
+successful Linux startup while recording continuous VGA at the same time.
+Keep the one-time verbose Kali kernel parameters described above, and record
+the coreboot and EDK2 revisions plus a full-chip readback hash of the flashed
+ROM. Preserve the first post-map-key and `OS EBS CORE RETURNING` lines and the
+first Linux EFI-stub/kernel messages. If the final EBS marker appears, use the
+first Linux line (or the absence of output alongside VGA/network/keyboard
+state) to choose the next diagnosis. If the final marker is absent, instrument
+the EBS cleanup path before changing Linux or ACPI behavior.
+
+## Original BIOS comparison — 2026-11-22
+
+The user reports that the same server boots the OS completely when the
+original BIOS flash is installed, while the custom firmware test above does
+not show completion. This strongly argues against a generally broken OS
+installation or failed core hardware. Treat it as a user report: the
+original-BIOS SOL/VGA trace, exact boot entry, kernel options, and matched ROM
+hashes have not been supplied, so equivalence of the two boot paths is not
+established.
+
+The leading diagnosis is a custom-firmware compatibility/handoff defect. The
+2026-11-21 custom-firmware screen reaches the map-key-accepted marker, but
+matching late SOL output is missing. In the current EDK2 source,
+`CoreExitBootServices()` next notifies ExitBootServices event handlers, runs
+the memory-protection exit callback, disables timer/CPU interrupts, clears
+the boot-services table, logs `OS EBS CORE RETURNING` to serial, and restores
+the saved framebuffer. A hang in that interval could explain a persistent
+overlay; the captures do not prove that this is the failing interval. The
+older successful-EBS traces and the Nov 21 VGA stills are separate attempts
+and must not be combined as one boot.
+
+Next preserve a readback/hash of the working original BIOS and of the custom
+ROM, then repeat a controlled test per image with the same disk, UEFI boot
+entry, kernel, and one-time verbose console options. Capture uninterrupted
+SOL and VGA together. If the custom trace lacks `OS EBS CORE RETURNING`, add
+serial checkpoints around each EBS notification and cleanup operation and
+identify the last callback reached. If it prints the marker, firmware
+returned from EBS; collect early Linux output and compare the custom and
+original BIOS ACPI tables, EFI memory maps, and framebuffer/GOP information.
+Check network reachability or SSH while VGA appears frozen to distinguish a
+graphics-only failure from a kernel/system stall. Avoid changing ACPI, VT-d,
+or Linux boot policy until this comparison identifies the divergent handoff
+data or checkpoint.
