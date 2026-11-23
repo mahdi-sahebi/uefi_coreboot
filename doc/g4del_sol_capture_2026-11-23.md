@@ -2,23 +2,27 @@
 
 ## Evidence reviewed
 
-The capture set in `/home/uefi/workspace/logs/1405-09-02/3/` contains SOL text
-archives, VGA screenshots, and a screen recording. The two SOL archives end
-around the DXE IPL to DXE entry checkpoint and then contain repeated
-`[GX-VGA] row=...` text. The later screenshots are from a later point in the
-boot: they show the preboot dashboard, an interactive UEFI Shell, and a partial
-attempt to load `BOOTX64.EFI`. The screen recording reaches later than either
-text archive. These artifacts therefore do not form one continuous,
-identifiable same-boot trace, and cannot establish the OS loader's final
-failure point.
+The capture set in `/home/uefi/workspace/logs/1405-09-02/3/` contains two SOL
+archives, 131 VGA screenshots, and a screen recording. `Archive_1` is exactly
+the same file as `/home/uefi/workspace/logs/1405-09-02/1/SOLHostCapture_Archive_1_11222026_20_34_02.log`
+(SHA-256 `ef08ad5154b917d490ab519a0a2e4990767becfcf26c060094343bb1c6ead12a`).
+Archive 3 reaches DXE entry/checkpoint 16, then contains repeated
+`[GX-VGA] row=...` messages and ends before HOB diagnostics or BDS. The later
+screenshots show BDS USB inventory, the preboot dashboard, an interactive
+Shell, and a clipped apparent `BOOTX64.EFI` image-load attempt. The recording and
+screens reach later than the SOL text. These artifacts therefore do not form
+one continuous, identifiable same-boot trace, and cannot establish the OS
+loader's final failure point.
 
-In the later screenshots, the HOB-list check is shown as failed with an
-`invalid/truncated list` reason, but the dashboard proceeds to the Shell. The
-last image is clipped around the Shell image-load attempt and does not prove a
-GRUB or Linux kernel handoff. No complete SOL evidence for BDS boot-option
-processing, `OS START`, or `OS EBS` is present in these text files. The OS
-failure cause remains unresolved until these events are captured on SOL from
-the same boot as the VGA evidence.
+In the screenshots, the HOB-list check is shown as failed with an
+`invalid/truncated list` reason, but this VGA sequence proceeds to an
+interactive Shell. Thus the screenshot does not support the HOB check as a
+blocker in this run. The last image is clipped around the Shell image-load
+attempt and does not prove a completed `LoadImage()`, GRUB, or Linux kernel
+handoff. No complete SOL evidence for BDS boot-option processing, `OS START`,
+or `OS EBS` is present in these text files. The OS failure cause remains
+unresolved until these events are captured on SOL from the same boot as the
+VGA evidence.
 
 ## Serial-first change
 

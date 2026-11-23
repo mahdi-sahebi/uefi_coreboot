@@ -31,6 +31,7 @@ boundary.
 4. [Problem and evidence ledger](g4del/problem_ledger.md)
 5. [Glossary and keyword index](g4del/glossary.md)
 6. [Annotated specifications, upstream docs, and community channels](g4del/references.md)
+7. [Serial and VGA capture register with OS boot conclusion](g4del_serial_vga_capture_register.md)
 
 ## Existing technical reports
 
@@ -40,6 +41,7 @@ boundary.
 - [Preboot ROM comparison](g4del_preboot_failure_isolation.md)
 - [Current OS startup findings and one-boot Linux parameters](g4del_os_startup.md)
 - [Kali handoff trace and next capture checklist](g4del_kali_boot_trace.md)
+- [Serial/VGA evidence register across reviewed capture sets](g4del_serial_vga_capture_register.md)
 - [Historical bring-up plan](plan.md)
 - [Development conventions](development_conventions.md)
 

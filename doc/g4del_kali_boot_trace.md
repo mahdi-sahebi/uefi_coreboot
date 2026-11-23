@@ -1,8 +1,13 @@
 # G4DEL Kali boot trace record
 
-**Updated:** 2026-11-22
+**Updated:** 2026-11-23
 **Purpose:** Preserve the investigation history and provide a repeatable next
 boot capture for the Kali startup failure reported on the Gooxi G4DEL server.
+
+For the newer 1405-09-02 serial/VGA bundles and a cross-run evidence table,
+see the [capture register](g4del_serial_vga_capture_register.md) and
+[Shell/OS trace](g4del_shell_gate_and_boot_trace_2026-11-23.md). This report's
+older capture findings remain tied to their named runs.
 
 ## Scope and current conclusion
 

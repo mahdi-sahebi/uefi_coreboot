@@ -42,10 +42,13 @@ checks dashboard. It reports 11 checks, one failure, and no warnings:
 
 The screen is waiting at `REQUIRED CHECKS FAILED. Press B once to override or
 R to rerun.` No screenshot shows either key being pressed, a Shell prompt, or
-an OS handoff. Therefore the immediate reason Shell has not appeared is the
-preboot gate waiting for input, not a demonstrated freeze inside Shell. The
-remaining HOB failure could still be malformed runtime HOB data or an
-incorrect validator assumption; these screenshots do not distinguish them.
+an OS handoff. At the source revision used for this capture, the immediate
+reason Shell had not appeared was the preboot gate waiting for input, not a
+demonstrated freeze inside Shell. A later change made failed/missing
+preboot-diagnostic results continue to Shell registration and BDS without
+changing the HOB validator; see the [Shell/OS trace](g4del_shell_gate_and_boot_trace_2026-11-23.md).
+The HOB failure could still be malformed runtime HOB data or an incorrect
+validator assumption; these screenshots do not distinguish them.
 
 ## Capture gap and next evidence
 

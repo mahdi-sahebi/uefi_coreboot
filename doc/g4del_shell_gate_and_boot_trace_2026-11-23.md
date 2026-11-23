@@ -166,3 +166,29 @@ entry-point return records the EFI status. For Linux, pair the entry marker
 with the `[GX-EBS]` checkpoints to determine whether the EFI stub reached
 ExitBootServices. VGA may retain only the latest event in each pinned row, so
 the uninterrupted serial capture remains necessary for full detail.
+
+## Follow-up capture: Shell and clipped EFI image attempt — 2026-11-23 evening
+
+Reviewed `/home/uefi/workspace/logs/1405-09-02/3/`: SOL archives
+`SOLHostCapture_Archive_1_11232026_20_19_47.log` and
+`SOLHostCapture_Archive_3_11232026_20_24_40.log`, 131 screenshots from
+22:05:41 through 22:17:32, and `Screencast from 23-11-26 15_49_09.m4v`.
+The artifact-by-artifact comparison is in the
+[serial/VGA capture register](g4del_serial_vga_capture_register.md).
+
+The screenshots show BDS USB inventory and the preboot dashboard. The
+dashboard repeats the HOB-list `invalid/truncated list` failure, but this
+screen sequence later shows a working UEFI Shell and an apparent
+`BOOTX64.EFI` load attempt. Therefore this capture does not show the HOB
+failure blocking Shell. The final screenshot is clipped during image-load
+diagnostics; it does not establish a completed `LoadImage()`, GRUB entry, or
+Linux kernel handoff.
+
+The text logs do not provide a continuous serial record of those later
+events. `Archive_1` is byte-for-byte identical to the `/1405-09-02/1/`
+archive 1. Archive 3 reaches DXE entry/checkpoint 16, then fills the SOL
+capture with VGA row redraws and ends before HOB diagnostics, BDS, Shell,
+`OS START`, or `OS EBS`. This confirms the need for the serial-first change
+but does not establish an OS failure cause. See the
+[capture register](g4del_serial_vga_capture_register.md) for the cross-run
+conclusion and next capture requirements.

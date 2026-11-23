@@ -1,19 +1,25 @@
 # Gooxi G4DEL coreboot and EDK2
 
-## Current status — 2026-11-21
+## Current status — 2026-11-23
 
-The documentation covers all 105 coreboot commits from the `dasharo` merge
-base through `8abea92b9663bffe84bd962344d9acf13f92a146` (`fix/os-startup`).
-The latest recorded integrated G4DEL build includes coreboot
-`5e52d8426503d17fb30e55bae27c3f6bb238d90c` and EDK2
-`e606437817b263d7e2a64374f6f7e63ef83f14cd`; subsequent commits update
-diagnostics and evidence, and no later build is recorded here:
+The project history documents all 105 coreboot commits from the `dasharo`
+merge base through `8abea92b9663bffe84bd962344d9acf13f92a146`
+(`fix/os-startup`). Later diagnostics and evidence updates are recorded in
+the dated reports below. The latest integrated build is recorded here:
 
 ```sh
 make -j6
 ```
 
-The recorded 2026-11-17 build produced payload SHA-256
+After the serial-first logging change, `make clean` followed by `make -j6`
+completed on 2026-11-23 using coreboot source `04d4682674` and EDK2 source
+`a80b1ae6d2`. The ROM SHA-256 is
+`957e2a81053e15bfffb2cc08785bb1e5ee4eabf307aed172e2d3c6fd9070decd`; its
+filesystem modification time is `2026-11-23 23:07:12 +04`. Extracting
+`fallback/payload` confirmed the VGA row-echo string is absent and BDS/OS-entry
+markers remain. This is a local build and payload inspection, not a flashed
+image or a hardware boot test. The detailed earlier 2026-11-17 build produced
+payload SHA-256
 `18d59e6aea928f74b13b0862342f131fca3531031cec123a0cbc2a5abe1759d0` and ROM
 SHA-256 `f53971e353dc11143c53dc380b876e7ab53b302c02bc92245b826a303d5c5239`.
 The ramstage contains the new per-domain VT-d missing-device warnings and the
@@ -38,6 +44,14 @@ not been flashed. Fedora's separate log reaches 128 CPUs, initramfs
 unpack, ASPEED graphics, and GDM service start, but also records unresolved
 ACPI names; it does not explain Kali behavior or prove an interactive desktop.
 The OS failure and root cause remain unresolved.
+
+The 2026-11-23 serial/VGA register compares the reviewed capture sets from
+1405-08-25 through 1405-09-02/3. The latest VGA sequence reaches Shell and
+begins a `BOOTX64.EFI` attempt, but its SOL archives stop around DXE checkpoint
+16; one SOL archive is duplicated from an earlier set. The current evidence
+still cannot identify the OS failure point. See the
+[capture register](../g4del_serial_vga_capture_register.md) and the
+[latest Shell/OS trace](../g4del_shell_gate_and_boot_trace_2026-11-23.md).
 
 An additional local build completed on 2026-11-21 after the framebuffer
 backup guard was added to the nested EDK2 source. It produced payload SHA-256
