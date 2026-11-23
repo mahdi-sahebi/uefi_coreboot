@@ -144,3 +144,25 @@ successful `OS EBS core returning status=EFI_SUCCESS` shifts investigation to
 Linux's EFI-stub/kernel handoff and its configured serial or graphical
 console; a missing return marker alone is not proof until the complete SOL
 stream has been captured.
+
+### Additional image-entry visibility
+
+The OS image `CoreStartImage()` begin record, entry-point begin, and
+entry-point return are now sent to both serial and the pinned VGA trace row.
+This lets the screen show whether DXE called the image at all, and whether
+that call returned. Before entry, serial reports explicit rejection reasons
+for a previously started image, a prior load failure, unsupported machine
+type, emulator-registration failure, or jump-buffer allocation failure.
+The existing `GX-BOOT` records still identify the Boot#### option, resolved
+path, `LoadImage()` result, and `StartImage()` return status. These are
+observation-only changes: image-selection, loading, and return behavior are
+unchanged.
+
+Interpret the combined trace as follows: no `OS START ENTRYPOINT begin`
+means DXE rejected or failed to start the application (use its preceding
+`OS START REJECTED` / `GX-BOOT` record); entry-point begin with no return
+means execution passed into that application and did not return to DXE; an
+entry-point return records the EFI status. For Linux, pair the entry marker
+with the `[GX-EBS]` checkpoints to determine whether the EFI stub reached
+ExitBootServices. VGA may retain only the latest event in each pinned row, so
+the uninterrupted serial capture remains necessary for full detail.
