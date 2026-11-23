@@ -134,3 +134,13 @@ defines successful ExitBootServices as termination of boot services and
 transfer of continued system operation to the OS loader; Linux's EFI stub
 then continues the Linux boot path. See [UEFI 2.10 Boot Services](https://uefi.org/specs/UEFI/2.10/07_Services_Boot_Services.html)
 and [Linux EFI stub documentation](https://www.kernel.org/doc/html/latest/admin-guide/efi-stub.html).
+
+The next firmware image adds paired `[GX-EBS]` checkpoints to direct UART and,
+when its preallocated trace backup is available, the pinned VGA log row. The
+checkpoints bracket the EBS callbacks, memory-map validation, interrupt and
+system-table cleanup, runtime-state transition, VGA restoration, and final
+return. The last checkpoint will show which operation failed to return. A
+successful `OS EBS core returning status=EFI_SUCCESS` shifts investigation to
+Linux's EFI-stub/kernel handoff and its configured serial or graphical
+console; a missing return marker alone is not proof until the complete SOL
+stream has been captured.
