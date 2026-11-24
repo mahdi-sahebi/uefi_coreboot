@@ -45,6 +45,21 @@ unpack, ASPEED graphics, and GDM service start, but also records unresolved
 ACPI names; it does not explain Kali behavior or prove an interactive desktop.
 The OS failure and root cause remain unresolved.
 
+### New matched serial/VGA capture — 2026-11-24
+
+The `/home/uefi/workspace/logs/1405-09-02/4/` SOL log and screen recording
+show the manual Shell launch of Kali `7.0.12+kali-amd64`, successful image
+loading, and `OS EBS CORE RETURNING status=EFI_SUCCESS`. The KVM video then
+remains on the Kali `Loading Linux` splash without visible change for about
+two minutes. This places the observed boundary after EDK2's EBS cleanup; it
+does not establish whether Linux is stalled or progressing without visible
+console output because its options include `quiet splash` and no Linux serial
+console. Firmware trace text remains visible even though the VGA-restore
+routine logged that it returned, so this does not prove the framebuffer was
+visually clean. The cause remains unresolved. See the
+[capture register](../g4del_serial_vga_capture_register.md) and
+[detailed Shell/OS trace](../g4del_shell_gate_and_boot_trace_2026-11-23.md).
+
 The 2026-11-23 serial/VGA register compares the reviewed capture sets from
 1405-08-25 through 1405-09-02/3. The latest VGA sequence reaches Shell and
 begins a `BOOTX64.EFI` attempt, but its SOL archives stop around DXE checkpoint

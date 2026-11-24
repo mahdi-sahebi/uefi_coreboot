@@ -192,3 +192,78 @@ capture with VGA row redraws and ends before HOB diagnostics, BDS, Shell,
 but does not establish an OS failure cause. See the
 [capture register](g4del_serial_vga_capture_register.md) for the cross-run
 conclusion and next capture requirements.
+
+## Follow-up capture: Kali EBS return with static splash — 2026-11-24
+
+Reviewed the new pair in `/home/uefi/workspace/logs/1405-09-02/4/`:
+`SOLHostCapture_Archive_11_11242026_13_44_31.log` and
+`Screencast from 24-11-26 09_09_14.m4v`. The recording is 5:13.982 long and
+shows the operator's browser with SOL and remote KVM views in one continuous
+screen recording, allowing the visible Shell and Kali splash to be aligned
+with the same recording session. At the beginning, the KVM reports `No
+Signal`; later it displays Shell storage mappings and an interactive prompt.
+
+The SOL starts with two XHCI control-transfer failures:
+`XhcCheckUrbResult: STALL_ERROR! Completecode = 6`, each followed by
+`XhcControlTransfer: error - Device Error, transfer - 2`. The Shell remains
+usable: `map -b` enumerates `FS0:` on a PCI/SCSI disk, and the log records
+navigation to `FS0:\EFI\BOOT`, a listing with `BOOTX64.EFI` (155,648 bytes),
+and a manual launch of that image. This is a USB/XHCI warning worth retaining
+for comparison, but it did not prevent this disk-based Shell launch and the
+trace does not connect it to the later Linux startup symptom.
+
+The image load trace is successful throughout the path shown:
+
+1. `BOOTX64.EFI` resolves through the filesystem (`LOAD RESOLVE filesystem
+   status=Success`), reads 155,648 bytes, passes Security2 authentication,
+   and returns `LOAD PE ... status=Success`, machine `34404` (x86-64).
+2. That application loads a nested 14,070,272-byte memory-mapped image. The PE
+   load succeeds with image size 14,512,128 bytes, machine `34404`, and entry
+   `0x5CF66337`.
+3. Its options identify `BOOT_IMAGE=/boot/vmlinuz-7.0.12+kali-amd64`, root UUID
+   `dbc71360-463d-4850-b9d8-b1cce9ebe2b4`, `ro quiet splash`. The `quiet
+   splash` options suppress the Linux text diagnostics needed to localize the
+   stall, and there are no Linux early-console or serial-console parameters.
+
+The key EBS sequence is complete in the serial file. Map key `0x5A1D` is
+accepted with `EFI_SUCCESS`; the ExitBootServices notifications, progress
+report, memory-protection callback, timer/interrupt disables, system-table CRC,
+boot-services table zeroing, and runtime-state transition all log that they
+returned. The final marker is `OS EBS CORE RETURNING status=EFI_SUCCESS`,
+followed by successful VGA background restoration. This is direct evidence
+that the firmware's EBS core cleanup returned to the EFI application. It
+rules out the earlier Shell gate, `LoadImage()`, and the logged EBS cleanup as
+the stopping point for this particular attempt. However, the recording still
+shows firmware trace text over the Kali splash after the logged restoration
+routine returns. The return marker proves the routine returned; it does not
+prove the framebuffer contents were clean or that Linux switched display
+modes correctly.
+
+The video later shows `Loading Linux 7.0.12+kali-amd64` over the Kali splash,
+with firmware trace text still overlaid. The displayed image does not visibly
+advance during approximately the final two minutes of the recording. No Linux
+text output, panic, login, or desktop appears. This is evidence of no visible
+OS progress, not proof that the CPU/kernel is frozen: with `quiet splash`, a
+hidden boot, a stuck graphical splash, and an early kernel stall remain
+indistinguishable. The serial capture ends after firmware returns and contains
+no OS messages; this is expected if firmware relinquished control, rather
+than evidence of a serial logging failure in DXE.
+
+### Updated diagnosis and next discriminating capture
+
+For this run, the known-good boundary moves beyond firmware: UEFI Shell,
+filesystem access, both PE loads, accepted ExitBootServices map key, completed
+firmware cleanup, and return from `ExitBootServices()` are all recorded. The
+problem is now bounded to the subsequent EFI-stub/kernel startup or the
+display/console transition that hides its progress. These captures do not
+identify which one, and they do not prove a full OS boot.
+
+On the next boot, select the same Kali entry and use a one-time GRUB edit to
+remove `quiet splash`, then append the early UART and EFI/kernel debug options
+listed in the [Kali boot trace](g4del_kali_boot_trace.md). Record unfiltered
+SOL and VGA continuously from the same reset. Also check reachability (for
+example, ping/SSH) while the visible splash is static, and record the actual
+flashed ROM readback hash. These observations distinguish a live system with a
+stale display from a stall during EFI-stub handoff, decompression, CPU/APIC,
+ACPI, initramfs, or graphics startup. No firmware behavior change is justified
+by the present trace.

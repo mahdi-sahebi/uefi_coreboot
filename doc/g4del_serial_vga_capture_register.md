@@ -27,6 +27,7 @@ summarizes their observed results and evidence limits.
 | `1405-09-02/1/`: two SOL archives and one still | Archive 1 records successful FSP-M/FSP-S and stops during coreboot payload loading. Archive 3 reaches DXE IPL to DXE entry, then emits repeated VGA-row text; it ends around DXE checkpoint 16 before HOB/BDS/OS markers. | `Screenshot from 2026-11-22 16-07-34.png.jpeg` shows the preboot dashboard: PHIT free-memory PASS, HOB-list FAIL, other checks passing, and `Press B once to override or R to rerun`; no keypress is shown. | This image documents the blocking preboot gate, not a demonstrated Shell or OS-loader failure. The row echo obscures the SOL chronology. |
 | `1405-09-02/2/`: one SOL archive, eight stills and recording | The 846-line SOL file reaches DXE entry/checkpoint 16 and repeated VGA-row output, but contains no Shell, GRUB, Linux image, or EBS records. | Screens/recording show an interactive Shell, a manual `FS0:\EFI\BOOT\BOOTX64.EFI` launch, Kali/GRUB, and the EBS map-key-accepted display. | VGA proves the Shell and Linux EFI-stub/kernel launch path progressed farther than SOL captures. The last visible firmware checkpoint is map-key acceptance; EBS return and Linux kernel progress are not shown. |
 | `1405-09-02/3/`: two SOL archives, 131 stills and recording | `Archive_1_11232026_20_19_47.log` is byte-identical to the earlier `/1/` `Archive_1_11222026_20_34_02.log` (SHA-256 `ef08ad5154b917d490ab519a0a2e4990767becfcf26c060094343bb1c6ead12a`). The `/3/` archive 3 is 537 lines and ends around DXE checkpoint 16 amid repeated `[GX-VGA] row=...` messages. It contains no HOB validation details, BDS/Shell, OS entry, or EBS return. | The images progress through BDS USB inventory, the preboot dashboard (HOB-list FAIL), the interactive UEFI Shell and a clipped `BOOTX64.EFI` image-load attempt. The final still does not show a completed `LoadImage`, GRUB, Linux kernel output, or OS boot. | The SOL files do not cover the later VGA events. Archive 1 is a duplicate, not an independent run. The HOB FAIL did not prevent Shell from appearing in the VGA sequence. No OS failure cause is established. |
+| `1405-09-02/4/`: `SOLHostCapture_Archive_11_11242026_13_44_31.log` and `Screencast from 24-11-26 09_09_14.m4v` | SOL records interactive Shell commands, successful filesystem resolution and PE loading of `FS0:\EFI\BOOT\BOOTX64.EFI`, then its nested 14,070,272-byte Kali EFI-stub/kernel image (`machine=34404`, x86-64). Load options identify Kali `7.0.12+kali-amd64`, root UUID `dbc71360-463d-4850-b9d8-b1cce9ebe2b4`, `ro quiet splash`. All logged EBS cleanup steps return and `OS EBS CORE RETURNING status=EFI_SUCCESS` is present. The capture starts with two XHCI USB control-transfer `STALL_ERROR` messages while already at Shell. | The recording shows the remote KVM initially at `No Signal`, then Shell storage mappings and the Shell prompt. It later shows the Kali `Loading Linux 7.0.12+kali-amd64` splash with firmware trace text overlaid. That visible screen does not change through the final roughly two minutes of the 5:14 recording; no login, desktop, panic, or Linux text console is shown. | Strongest matched Shell-to-EBS-return evidence so far: firmware image loading and final EBS cleanup are not the stopping point in this attempt. The apparent stall is after successful EBS return, in Linux EFI-stub/kernel startup or an unobserved display/console transition. `quiet splash` and absent Linux serial-console options hide the decisive Linux progress. Cause remains unresolved. |
 
 For the 1405-09-02/3 sequence, the key retained frames are
 `Screenshot from 2026-11-23 22-15-54.png` (BDS USB inventory),
@@ -63,28 +64,44 @@ These are the exact retained serial archive filenames covered by this register:
 - `1405-09-02/3/`:
   `SOLHostCapture_Archive_1_11232026_20_19_47.log`,
   `SOLHostCapture_Archive_3_11232026_20_24_40.log`.
+- `1405-09-02/4/`:
+  `SOLHostCapture_Archive_11_11242026_13_44_31.log`.
 
 The `1405-08-25/` bundle has `bootfile.txt` rather than an SOL archive. Its
 screen recording is present but was not reviewed frame-by-frame. A separate
 single still in `1405-08-29/1/1405-09-01/1/` is outside the HOB dashboard
-sequence summarized above. VGA filenames and exact observed time ranges for
-the central OS handoff sets are listed in the linked detailed reports.
+sequence summarized above. The `/1405-09-02/4/` recording was decoded at
+five-second intervals and reviewed at the Shell, Linux splash, and end states;
+the capture filename starts at 09:09:14 on 2026-11-24. VGA filenames and exact
+observed states for the central OS handoff sets are listed in the linked
+detailed reports.
 
 ## Overall conclusion
 
 The evidence shows that the apparent stop varies across attempts: some traces
 stop at the inserted preboot gate, other screens reach an interactive Shell,
-and earlier separate SOL runs show successful EBS return. For the latest
+and earlier separate SOL runs show successful EBS return. For the earlier
 `1405-09-02/3/` screen sequence, the Shell is present and an apparent
-`BOOTX64.EFI` attempt is visible, but the serial artifacts are older/incomplete and the last
-still is clipped. We cannot conclude whether that attempt failed in
-`LoadImage()`, `StartImage()`, final EBS cleanup, or early Linux startup.
+`BOOTX64.EFI` attempt is visible, but its SOL artifacts are older/incomplete
+and the last still is clipped. The subsequent `/4/` capture shows that a
+separate attempt completed image loading and EBS cleanup, then remained at the
+Kali splash without visible progress. Neither set yet shows Linux console
+output or a complete OS boot.
 
 The custom-firmware OS failure cause therefore remains **unresolved**. The
-user's report that the original BIOS boots the same OS is evidence for a
-custom-firmware compatibility or handoff difference, but without matched
-original/custom ROM hashes and same-boot SOL/VGA captures it does not identify
-the differing handoff data. The serial-first firmware change removes VGA row
+newer `1405-09-02/4/` serial/video session shows the Shell-launched Kali image
+loading, EBS map-key acceptance, all logged firmware cleanup returning, and
+`OS EBS CORE RETURNING status=EFI_SUCCESS`. The video then remains on the Kali
+`Loading Linux` splash without visible progress for about two minutes, and
+firmware trace text remains visible despite the VGA-restore routine's returned
+marker. This moves the control-flow boundary beyond firmware EBS cleanup, but
+does not prove the framebuffer contents were clean. The kernel was launched
+with `quiet splash` and no Linux serial-console options; a static splash cannot
+distinguish a kernel stall from hidden boot progress or a graphics/console
+problem. The user's report that the original BIOS boots
+the same OS is evidence for a custom-firmware compatibility or handoff
+difference, but without matched original/custom ROM hashes it does not
+identify the differing handoff data. The serial-first firmware change removes VGA row
 redraw spam while retaining VGA output and structured serial markers. Its
 successful build and payload-string check establish packaging only; it has
 not been validated on the board.

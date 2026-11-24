@@ -11,6 +11,18 @@ older capture findings remain tied to their named runs.
 
 ## Scope and current conclusion
 
+**Latest update, 2026-11-24:** The matched SOL and screen recording in
+`/home/uefi/workspace/logs/1405-09-02/4/` show `OS EBS CORE RETURNING
+status=EFI_SUCCESS`, then a Kali `Loading Linux` splash that does not visibly
+advance during the remainder of the video. The current evidence therefore
+places this attempt past EDK2's ExitBootServices cleanup. Linux was started
+with `quiet splash` and no Linux serial-console parameters, so the exact
+post-EBS failure stage remains unknown. The video retains firmware text over
+the Kali splash even after the serial VGA-restore routine reports return; this
+shows the routine returned but does not prove the restored framebuffer was
+clean. See the dated analysis in the
+[Shell/OS trace](g4del_shell_gate_and_boot_trace_2026-11-23.md).
+
 The 2026-11-21 test in `/home/uefi/workspace/logs/1405-08-29/3/` reaches the
 Kali GRUB menu and displays `OS EBS MAP KEY ACCEPTED` and
 `OS START ENTRYPOINT BEGIN`, but the overlay remains on VGA through the end
@@ -37,9 +49,10 @@ EFI environment, recognizes the ACPI/SPCR data, starts 128 processors, unpacks
 initramfs, initializes simple framebuffer and ASPEED graphics, and starts
 GDM. This shows that the captured firmware can boot Linux through those
 stages. It does not diagnose why Kali 7.0.12 behaves differently, and the
-Fedora log has no matching ROM readback hash. The Kali issue remains unresolved
-until a single-attempt SOL and VGA capture continues after the final EBS
-checkpoint.
+Fedora log has no matching ROM readback hash. The Kali issue remains
+unresolved: the 2026-11-24 single-session capture now reaches EBS return and a
+static Kali splash, but lacks verbose Linux output and does not show a
+completed boot.
 
 This work corrects an ambiguous EBS checkpoint and records the evidence. It
 does not change boot policy or permanently alter Kali's GRUB configuration.
