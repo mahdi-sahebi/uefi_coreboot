@@ -72,39 +72,35 @@ This work corrects an ambiguous EBS checkpoint and records the evidence. It
 does not change boot policy or permanently alter Kali's GRUB configuration.
 The evidence does not yet justify claiming an OS startup fix.
 
-**Research update, 2026-11-26:** A recent TianoCore report identifies an
+**Research update, 2026-11-26:** TianoCore issue #13451 reports an
 out-of-bounds memory-statistics lookup in `CoreTerminateMemoryMap()` when an
 OS-reserved EFI memory type (`0x80000000`–`0xffffffff`) is treated as signed.
-The [TianoCore report](https://github.com/tianocore/edk2/issues/13451)'s
-upstream correction was merged as `b9d8871` in
-[PR #13458](https://github.com/tianocore/edk2/pull/13458) and
-casts the type to `UINT32` before the bounds check in both DXE and PEI. This
-EDK2 worktree's DXE path still has the enum comparison without that cast.
-However, the report notes the generated comparison depends on the compiler;
-this integrated payload uses the Coreboot toolchain's
-`x86_64-linux-gnu-gcc`, and the report's Linux GCC reproduction generated an
-unsigned check. No prior G4DEL capture includes the descriptor types from the
-EBS memory map. This is a concrete portability defect to check, but it is not
-yet established as the Kali cause.
+The correction was merged as `b71fb7a` in
+[PR #13458](https://github.com/tianocore/edk2/pull/13458): cast enum values to
+`UINT32` before the array-bound comparison in DXE and a PEI memory-bin path.
+The local G4DEL EDK2 source had the same unsafe DXE comparison in `Page.c`; it
+is now changed to the upstream unsigned comparison. The local PEI branch does
+not contain the affected memory-type-statistics lookup, so no PEI change was
+needed. The integrated build uses `x86_64-linux-gnu-gcc`, for which the
+issue's isolated GCC reproduction generated an unsigned comparison, but the
+explicit cast removes compiler dependence. The G4DEL captures do not establish
+that a high-bit descriptor was present or that this defect caused Kali's
+post-EBS stall.
 
-The next diagnostic build adds `[GX-EBS-MAPCHECK]` serial lines immediately
-before the EDK2 descriptor-type comparison, only for types at or above
-`EfiMaxMemoryType`. Each line prints the internal map index, unsigned 32-bit
-type, and physical bounds. A line with a high-bit OS-reserved type would make
-the upstream issue directly relevant to this boot; no such line means the
-current EBS path did not contain one of those reserved descriptors. This log
-does not change validation or gate behavior. The earlier complete EBS-return
-captures show that this specific hang did not occur on those captured builds,
-but their ROM/compiler identity is not confirmed.
+The serial build logs `[GX-EBS-MAPCHECK]` immediately before the EDK2
+descriptor-type comparison for types at or above `EfiMaxMemoryType`, including
+the internal map index, unsigned type, and physical bounds. A high-bit type
+would demonstrate that the OS-reserved case occurs on this boot; absence of
+the marker means no descriptor reached that branch. The cast changes only the
+out-of-range classification needed to avoid indexing the standard-type
+statistics array. Earlier successful EBS-return traces came from unidentified
+ROM/compiler builds, so they neither prove nor disprove the defect on this
+build.
 
-The new logger was included in a clean integrated `make clean && make -j8`
-build on 2026-11-26. Extracting the `fallback/payload` ELF from the resulting
-ROM confirms the `[GX-EBS-MAPCHECK]` string is packaged alongside the EBS map,
-ACPI, and last-pre-return markers. The local 64 MiB ROM SHA-256 is
-`42840ae85a667e5934c5450b48849ed4319e33c31e30dfac44626458212895f2`; its
-filesystem creation time is 2026-11-26 00:05:02 +04 (Asia/Muscat). This is a
-build artifact, not a chip readback. It has not yet been flashed or tested on
-the server.
+The latest clean integrated build ran `make clean` and `make -j6` after the
+unsigned DXE bounds-check correction. Its final ROM hash and creation time are
+recorded in the capture register. This is a build artifact, not a chip
+readback. It has not yet been flashed or tested on the server.
 
 ## Capture review — 1405-09-02/3/1405-09-04/2 (2026-11-25)
 

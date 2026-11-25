@@ -33,26 +33,39 @@ summarizes their observed results and evidence limits.
 ## New serial check for EBS memory types — 2026-11-26
 
 Research found [TianoCore issue #13451](https://github.com/tianocore/edk2/issues/13451)
-and its merged [fix PR #13458](https://github.com/tianocore/edk2/pull/13458):
-on some compilers, an enum signedness mismatch can let high-bit OS-reserved
-memory types pass an EBS bounds check and index the memory-type statistics
-array out of bounds. The local EDK2 DXE source still has the uncast comparison.
-The report says behavior depends on compiler; this payload is built with
-`x86_64-linux-gnu-gcc`, for which its reproduction used an unsigned check, and
-the G4DEL captures do not yet show whether reserved memory types are present.
-Treat this as a testable lead, not the diagnosed Kali failure.
+and its merged [fix PR #13458](https://github.com/tianocore/edk2/pull/13458),
+merged as `b71fb7a`. On compilers that treat `EFI_MEMORY_TYPE` as signed, a
+high-bit OS-reserved type can pass the EBS bounds check and cause an
+out-of-bounds read from the memory-type statistics array. Source inspection
+confirmed this exact uncast DXE guard existed in the local G4DEL branch. It is
+now explicitly cast to `UINT32`, matching upstream. The local PEI source does
+not have the affected memory-statistics lookup. This fixes a confirmed
+portability defect; existing captures do not establish it as the Kali cause.
 
-The new diagnostic ROM emits `[GX-EBS-MAPCHECK]` before the comparison for
-each descriptor whose type is at least `EfiMaxMemoryType`, including its
-unsigned type and range. No behavior or gating was changed. The marker is not
-present in the prior captures; the new ROM must be flashed and a matched
-SOL/VGA capture made before drawing a hardware conclusion.
+The diagnostic ROM emits `[GX-EBS-MAPCHECK]` before the comparison for each
+descriptor whose type is at least `EfiMaxMemoryType`, including its unsigned
+type and range. Its EBS map snapshot also logs descriptor type, base, page
+count, and attributes; ACPI inventory and a final pre-return marker are
+packaged in the same payload. The corrected comparison preserves valid
+standard types and skips statistics-array indexing for reserved types. These
+markers are absent from prior captures; flash this ROM and capture matched
+SOL/VGA before deciding whether a high-bit type occurred.
 
-The clean integrated build on 2026-11-26 includes the marker in the extracted
-payload. ROM SHA-256:
-`42840ae85a667e5934c5450b48849ed4319e33c31e30dfac44626458212895f2`; file
-creation time: 2026-11-26 00:05:02 +04. This is not a flash readback or a
-hardware-tested result.
+The clean integrated build ran `make clean && make -j6` on 2026-11-26 after
+the DXE correction. Extraction of `fallback/payload` confirms the ROM contains
+`[GX-EBS-MAPCHECK]`, `OS EBS MAP SNAPSHOT`, the ACPI inventory, and
+`OS EBS LAST PRE-RETURN`.
+
+| Artifact | Value |
+| --- | --- |
+| Coreboot commit | `a4b7471345` at build time |
+| EDK2 source | `fix/os-startup` plus the local unsigned-bound correction |
+| ROM size | 67,108,864 bytes |
+| ROM SHA-256 | `b84b70a9bbc29196b23704d1f67e3b9ea3191069b18c3c03400c82c63c42b017` |
+| ROM filesystem creation time | 2026-11-26 00:15:11 +04 (Asia/Muscat) |
+
+This is a build artifact, not a flash readback, and it has not been
+hardware-tested.
 
 The `/4/` log and video above were copied unchanged to
 `1405-09-02/3/1405-09-04/1/`. Their SHA-256 values are respectively
