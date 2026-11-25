@@ -42,6 +42,20 @@ static void test_framebuffer(void)
   assert(!G4delDiagFramebufferValid(0x94000000, 0x1000, 1024, 768, 1024, 4));
   assert(!G4delDiagFramebufferValid(UINT64_MAX - 1, 4, 640, 480, 640, 4));
   assert(!G4delDiagFramebufferValid(0x1000, 0x10000, 640, 480, 639, 4));
+  assert(G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                             0x94000000, 0x300000, 1024, 768, 1024, 1));
+  assert(!G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                              0x95000000, 0x300000, 1024, 768, 1024, 1));
+  assert(!G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                              0x94000000, 0x300000, 800, 600, 800, 1));
+  assert(!G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                              0x94000000, 0x300000, 1024, 768, 1024, 0));
+  assert(!G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                              0x94000000, 0x2fffff, 1024, 768, 1024, 1));
+  assert(!G4delDiagFramebufferIdentityMatches(0x94000000, 0x300000, 1024, 768, 1024, 1,
+                                              0x94000000, 0x300000, 1024, 768, 2048, 1));
+  assert(!G4delDiagFramebufferIdentityMatches(UINT64_MAX - 1, 4, 640, 480, 640, 1,
+                                              UINT64_MAX - 1, 4, 640, 480, 640, 1));
 }
 
 static void test_boot_gate(void)

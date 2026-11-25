@@ -1,6 +1,6 @@
 # G4DEL Kali boot trace record
 
-**Updated:** 2026-11-23
+**Updated:** 2026-11-26
 **Purpose:** Preserve the investigation history and provide a repeatable next
 boot capture for the Kali startup failure reported on the Gooxi G4DEL server.
 
@@ -11,7 +11,21 @@ older capture findings remain tied to their named runs.
 
 ## Scope and current conclusion
 
-**Latest update, 2026-11-24:** The matched SOL and screen recording in
+**Latest update, 2026-11-25:** The SOL and screen recording in
+`/home/uefi/workspace/logs/1405-09-02/3/1405-09-04/2/` show the manually
+launched Kali 7.0.12 EFI stub/kernel image reaching EDK2's ExitBootServices
+cleanup. The map key `0x576B` is accepted, all logged cleanup callbacks
+return, and the final DXE checkpoint says `OS EBS core returning
+status=EFI_SUCCESS`. The 5:31 video ends on the Kali splash without a visible
+login, desktop, panic, or kernel text. The load options still include
+`quiet splash`; there is no Linux serial-console output or reachability check.
+This capture therefore places the apparent stop after DXE's EBS cleanup but
+does not identify the Linux failure stage or prove whether the machine is
+otherwise alive. The SOL also reports a HOB-list failure (`end pointer before
+HOB list`), but continues through Shell and Kali launch, so that diagnostic
+failure is not shown to gate this attempt. See the detailed dated entry below.
+
+The matched SOL and screen recording in
 `/home/uefi/workspace/logs/1405-09-02/4/` show `OS EBS CORE RETURNING
 status=EFI_SUCCESS`, then a Kali `Loading Linux` splash that does not visibly
 advance during the remainder of the video. The current evidence therefore
@@ -50,13 +64,95 @@ initramfs, initializes simple framebuffer and ASPEED graphics, and starts
 GDM. This shows that the captured firmware can boot Linux through those
 stages. It does not diagnose why Kali 7.0.12 behaves differently, and the
 Fedora log has no matching ROM readback hash. The Kali issue remains
-unresolved: the 2026-11-24 single-session capture now reaches EBS return and a
+unresolved: the 2026-11-25 session also reaches EBS return and ends with a
 static Kali splash, but lacks verbose Linux output and does not show a
 completed boot.
 
 This work corrects an ambiguous EBS checkpoint and records the evidence. It
 does not change boot policy or permanently alter Kali's GRUB configuration.
 The evidence does not yet justify claiming an OS startup fix.
+
+**Research update, 2026-11-26:** A recent TianoCore report identifies an
+out-of-bounds memory-statistics lookup in `CoreTerminateMemoryMap()` when an
+OS-reserved EFI memory type (`0x80000000`–`0xffffffff`) is treated as signed.
+The [TianoCore report](https://github.com/tianocore/edk2/issues/13451)'s
+upstream correction was merged as `b9d8871` in
+[PR #13458](https://github.com/tianocore/edk2/pull/13458) and
+casts the type to `UINT32` before the bounds check in both DXE and PEI. This
+EDK2 worktree's DXE path still has the enum comparison without that cast.
+However, the report notes the generated comparison depends on the compiler;
+this integrated payload uses the Coreboot toolchain's
+`x86_64-linux-gnu-gcc`, and the report's Linux GCC reproduction generated an
+unsigned check. No prior G4DEL capture includes the descriptor types from the
+EBS memory map. This is a concrete portability defect to check, but it is not
+yet established as the Kali cause.
+
+The next diagnostic build adds `[GX-EBS-MAPCHECK]` serial lines immediately
+before the EDK2 descriptor-type comparison, only for types at or above
+`EfiMaxMemoryType`. Each line prints the internal map index, unsigned 32-bit
+type, and physical bounds. A line with a high-bit OS-reserved type would make
+the upstream issue directly relevant to this boot; no such line means the
+current EBS path did not contain one of those reserved descriptors. This log
+does not change validation or gate behavior. The earlier complete EBS-return
+captures show that this specific hang did not occur on those captured builds,
+but their ROM/compiler identity is not confirmed.
+
+The new logger was included in a clean integrated `make clean && make -j8`
+build on 2026-11-26. Extracting the `fallback/payload` ELF from the resulting
+ROM confirms the `[GX-EBS-MAPCHECK]` string is packaged alongside the EBS map,
+ACPI, and last-pre-return markers. The local 64 MiB ROM SHA-256 is
+`42840ae85a667e5934c5450b48849ed4319e33c31e30dfac44626458212895f2`; its
+filesystem creation time is 2026-11-26 00:05:02 +04 (Asia/Muscat). This is a
+build artifact, not a chip readback. It has not yet been flashed or tested on
+the server.
+
+## Capture review — 1405-09-02/3/1405-09-04/2 (2026-11-25)
+
+Reviewed `SOLHostCapture_Archive_9_11252026_18_25_44.log`,
+`Screencast from 25-11-26 13_50_04.m4v`, and
+`Screenshot from 2026-11-25 13-55-50.png.jpeg` from the same supplied folder.
+The SOL contains 691 lines. The video is 5:31 long; it starts with the remote
+KVM at `No Signal`, shows Shell and the Kali launch, then ends with the Kali
+splash still visible. The standalone still is only 717 by 32 pixels and is
+not readable enough to establish another boot state.
+
+Observed sequence:
+
+- Preboot validation logs `HOB FAIL reason=end pointer before HOB list`. The
+  dashboard continues, the Shell starts, and Kali is launched; this capture
+  does not show the HOB diagnostic stopping the boot path.
+- At the Shell, two XHCI control-transfer `STALL_ERROR` reports appear. The
+  internal disk is enumerated through the PCI/SCSI path and its EFI loader
+  loads successfully. The trace does not link those USB errors to the later
+  Kali stall.
+- `FS0:\EFI\BOOT\BOOTX64.EFI` and its nested 14,512,128-byte x86-64 Kali
+  image load successfully. The options identify
+  `7.0.12+kali-amd64` and include root UUID
+  `dbc71360-463d-4850-b9d8-b1cce9ebe2b4`, `ro quiet splash`.
+- GOP identity matches the PEI graphics HOB at 1024x768, and the firmware
+  reports restoring its background before entering the non-Shell EFI image.
+  DXE VGA diagnostics are then disabled while serial logging continues.
+- EBS begins with map key `0x576B`; the map key is accepted and all logged
+  notifications and cleanup operations return. The final EDK2 checkpoint is
+  `OS EBS core returning status=EFI_SUCCESS`, followed by a message that VGA
+  restoration is skipped because it was done before OS image entry.
+- The recording subsequently remains on Kali's graphical splash through its
+  end. Neither the SOL nor VGA shows post-EBS Linux console output, a panic,
+  login, desktop, or a reachability test.
+
+The EBS marker moves the observed control-flow boundary beyond DXE's core
+cleanup, but it does not identify whether Linux is stalled, progressing without
+visible output, or experiencing a display/console issue. The capture does not
+include a full-chip readback hash, so the flashed ROM revision is unverified.
+Do not infer that the HOB or USB warnings caused the Kali failure, and do not
+change firmware handoff behavior from this evidence alone.
+
+For the next attempt, follow the one-time GRUB edit below: remove `quiet
+splash`, add the listed early UART/kernel diagnostics, and boot that edit only
+once. Capture raw SOL and VGA together from reset; if the screen remains
+static, check ping or SSH. Record the selected boot entry, coreboot/EDK2
+revisions, and full-chip ROM readback SHA-256 alongside the capture. Use the
+last Linux message or reachability result to choose a targeted fix.
 
 ## Source history
 
@@ -111,7 +207,55 @@ cannot prove those subsystems are correct for Kali's older kernel or different
 loader path. Fedora warnings are not evidence of the Kali cause. Keep the
 historical reports in `doc/` separate from these files.
 
-## Integrated build record
+## Build records
+
+### Read-only EBS, memory-map, and ACPI diagnostics — 2026-11-25
+
+To make the post-EBS boundary more informative on the next board capture,
+EDK2 `MdeModulePkg/Core/Dxe/DxeMain/DxeMain.c` now logs the final map query
+status, submitted and observed keys, descriptor size/version, byte count, and
+up to 512 descriptors (type, physical start, pages, attributes). The snapshot
+uses 32 KiB of storage allocated statically with DXE Core. If the map does not
+fit or the descriptor format is unexpected, serial reports that the snapshot
+is unavailable/truncated. The query and serial output happen before the
+existing `CoreTerminateMemoryMap()` validation; no allocation or protocol
+lookup was added after map-key acceptance.
+
+The ACPI diagnostic now reports the configuration-table RSDP address,
+revision, length, checksum result, and root address, then the RSDT/XSDT
+signature, length, revision, checksum, and up to 128 referenced tables with
+address, signature, length, revision, and checksum result. The existing
+diagnostic pass/fail checks and boot behavior are retained. At the end of both
+the successful and failed EBS return paths, serial emits
+`OS EBS LAST PRE-RETURN` with the status and keys. VGA remains brief; the
+existing handoff path restores the background before the OS EFI image starts
+and disables further DXE VGA diagnostics there.
+
+This instrumentation is observational. It does not change image selection,
+EBS validation, or Kali settings, and it cannot report Linux progress after
+successful EBS. The firmware will still need a one-time verbose GRUB boot to
+locate the Linux-side stop.
+
+The integrated build was run from a clean tree with `make clean` followed by
+`make -j8`. It completed with `Built gooxi/g4del (G4DEL)`. The extracted
+`fallback/payload` ELF contains the new strings `OS EBS MAP SNAPSHOT`,
+`OS EBS MAP[`, `ACPI RSDP config_index`, `ACPI TABLE[`, and
+`OS EBS LAST PRE-RETURN`.
+
+| Build artifact | Value |
+| --- | --- |
+| Coreboot source revision | `e8373ee6ea` (`fix/os-startup`) |
+| EDK2 base revision | `c1b8d43ad6` (`fix/os-startup`), with the diagnostics source modified in the worktree |
+| ROM size | 67,108,864 bytes |
+| ROM SHA-256 | `17961e5d6152fccb38b5609a3f22cb78f0f5d20888c6faf901c1b51dfb0d3da6` |
+| ROM filesystem creation time | 2026-11-25 23:51:48 +04 (Asia/Muscat) |
+
+These identify the local build only. The flashed chip has not been read back,
+and there is no hardware capture from this diagnostic build yet. The Kali
+cause therefore remains unknown; do not mark the OS issue fixed until a
+matched ROM readback and Linux boot capture show progress to a usable OS.
+
+### Earlier integrated build record
 
 The configured G4DEL ROM and EDK2 payload were rebuilt using the tracked
 `origin/fix/os-startup` EDK2 revision, now
@@ -155,8 +299,13 @@ Kali's installed GRUB configuration. `console=tty0` keeps kernel messages on
 VGA; `console=ttyS1,115200n8` selects the typical Linux COM2 device. The
 firmware configuration uses COM2 at I/O `0x2f8`; if serial output does not
 appear, verify the UART mapping from the trace. The options request early UART
-output and verbose EFI, kernel, and initcall diagnostics. See the [Linux 7.2
-kernel parameter reference](https://docs.kernel.org/7.2/admin-guide/kernel-parameters.html).
+output and verbose EFI, kernel, and initcall diagnostics. Before treating
+absent serial output as evidence of an EFI-stub failure, verify that this Kali
+kernel has `CONFIG_SERIAL_8250_CONSOLE=y` built into the kernel, not as a
+module. Linux documents that requirement and confirms these two console
+options print to VGA and COM2. See the [Linux kernel parameter
+reference](https://docs.kernel.org/admin-guide/kernel-parameters.html) and
+[Linux serial console documentation](https://docs.kernel.org/admin-guide/serial-console.html).
 
 ## Next-boot capture checklist
 

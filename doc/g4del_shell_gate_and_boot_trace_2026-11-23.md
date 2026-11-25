@@ -267,3 +267,61 @@ flashed ROM readback hash. These observations distinguish a live system with a
 stale display from a stall during EFI-stub handoff, decompression, CPU/APIC,
 ACPI, initramfs, or graphics startup. No firmware behavior change is justified
 by the present trace.
+
+## Duplicate capture review and framebuffer logging safeguard — 2026-11-25
+
+Reviewed the files copied to
+`/home/uefi/workspace/logs/1405-09-02/3/1405-09-04/1/`. Both are byte-for-byte
+identical to the `/home/uefi/workspace/logs/1405-09-02/4/` pair, so this is
+not a new hardware attempt and adds no new OS progress evidence:
+
+| Artifact | SHA-256 |
+| --- | --- |
+| `SOLHostCapture_Archive_11_11242026_13_44_31.log` | `394dbaf5481745f1b73a55b66a36de495f6199a847b679e3dd763022f2c8125d` |
+| `Screencast from 24-11-26 09_09_14.m4v` | `b5c8e48e57b5732f634fa6c77379ed99b4f1034af5a6421577cf07571d24a58f` |
+
+The duplicate serial trace again shows two USB XHCI control-transfer
+`STALL_ERROR` messages, followed by usable Shell access to `FS0:` and successful
+loading of `BOOTX64.EFI` and its nested Kali 7.0.12 x86-64 image. The image
+options still contain `ro quiet splash`; ExitBootServices accepts map key
+`0x5A1D`, completes the logged callbacks, and reports
+`OS EBS CORE RETURNING status=EFI_SUCCESS`. The video remains at the Kali
+`Loading Linux` splash without a visible panic, text console, login, or desktop.
+This confirms the earlier boundary beyond firmware EBS return but still does
+not distinguish hidden Linux progress from a kernel stall or display issue.
+
+The trace also shows firmware diagnostic text remaining over the Linux splash
+after DXE reports a background restore. The logger saved its framebuffer base
+and geometry from the PEI graphics HOB, and the old EBS restore wrote to that
+saved address without confirming that the active GOP still described the same
+framebuffer and mode. That is a concrete unsafe diagnostic path and a plausible
+explanation for the retained overlay; the capture does not prove it caused the
+Linux boot failure.
+
+The firmware change now validates the PEI framebuffer identity against active
+GOP base, size, resolution, pitch, and pixel format, and checks complete
+framebuffer bounds before drawing or restoring. It restores the saved screen
+before entering a non-Shell EFI application, then keeps DXE diagnostics on
+serial so loader/kernel display output is not overwritten. If GOP lookup,
+identity, or bounds validation fails, it records the values/reason over serial
+and skips framebuffer writes. This changes diagnostic display handling only;
+it does not change boot selection, EBS validation, or kernel arguments. Host
+identity tests and the integrated build are recorded after verification.
+
+For the next physical run, use the one-time GRUB edit in
+`g4del_kali_boot_trace.md` (remove `quiet splash` and add the documented early
+UART/kernel verbosity options), capture raw SOL and VGA from the same reset,
+check network reachability, and hash a full-chip readback. The OS failure cause
+remains unresolved until post-EBS Linux messages or reachability results are
+available.
+
+### Implementation verification
+
+The host framebuffer identity/range validator tests pass. The integrated
+`make clean` followed by `make -j8` completed successfully, and the built DXE
+Core contains the GOP handoff and serial-only diagnostic markers. The packaged
+`build/coreboot.rom` is 67,108,864 bytes, SHA-256
+`62030fcba558ab75bcbf708ed2cc8a9e31201303bedd2fe899ba4b2e723b49ea`, created
+2026-11-25 12:12:58 +04 (Asia/Muscat). This is build/package verification only;
+the ROM has not yet been flashed or validated on the server, so neither the
+framebuffer hypothesis nor OS boot completion is confirmed.
