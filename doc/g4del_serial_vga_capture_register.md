@@ -28,7 +28,7 @@ summarizes their observed results and evidence limits.
 | `1405-09-02/2/`: one SOL archive, eight stills and recording | The 846-line SOL file reaches DXE entry/checkpoint 16 and repeated VGA-row output, but contains no Shell, GRUB, Linux image, or EBS records. | Screens/recording show an interactive Shell, a manual `FS0:\EFI\BOOT\BOOTX64.EFI` launch, Kali/GRUB, and the EBS map-key-accepted display. | VGA proves the Shell and Linux EFI-stub/kernel launch path progressed farther than SOL captures. The last visible firmware checkpoint is map-key acceptance; EBS return and Linux kernel progress are not shown. |
 | `1405-09-02/3/`: two SOL archives, 131 stills and recording | `Archive_1_11232026_20_19_47.log` is byte-identical to the earlier `/1/` `Archive_1_11222026_20_34_02.log` (SHA-256 `ef08ad5154b917d490ab519a0a2e4990767becfcf26c060094343bb1c6ead12a`). The `/3/` archive 3 is 537 lines and ends around DXE checkpoint 16 amid repeated `[GX-VGA] row=...` messages. It contains no HOB validation details, BDS/Shell, OS entry, or EBS return. | The images progress through BDS USB inventory, the preboot dashboard (HOB-list FAIL), the interactive UEFI Shell and a clipped `BOOTX64.EFI` image-load attempt. The final still does not show a completed `LoadImage`, GRUB, Linux kernel output, or OS boot. | The SOL files do not cover the later VGA events. Archive 1 is a duplicate, not an independent run. The HOB FAIL did not prevent Shell from appearing in the VGA sequence. No OS failure cause is established. |
 | `1405-09-02/4/`: `SOLHostCapture_Archive_11_11242026_13_44_31.log` and `Screencast from 24-11-26 09_09_14.m4v` | SOL records interactive Shell commands, successful filesystem resolution and PE loading of `FS0:\EFI\BOOT\BOOTX64.EFI`, then its nested 14,070,272-byte Kali EFI-stub/kernel image (`machine=34404`, x86-64). Load options identify Kali `7.0.12+kali-amd64`, root UUID `dbc71360-463d-4850-b9d8-b1cce9ebe2b4`, `ro quiet splash`. All logged EBS cleanup steps return and `OS EBS CORE RETURNING status=EFI_SUCCESS` is present. The capture starts with two XHCI USB control-transfer `STALL_ERROR` messages while already at Shell. | The recording shows the remote KVM initially at `No Signal`, then Shell storage mappings and the Shell prompt. It later shows the Kali `Loading Linux 7.0.12+kali-amd64` splash with firmware trace text overlaid. That visible screen does not change through the final roughly two minutes of the 5:14 recording; no login, desktop, panic, or Linux text console is shown. | Strongest matched Shell-to-EBS-return evidence so far: firmware image loading and final EBS cleanup are not the stopping point in this attempt. The apparent stall is after successful EBS return, in Linux EFI-stub/kernel startup or an unobserved display/console transition. `quiet splash` and absent Linux serial-console options hide the decisive Linux progress. Cause remains unresolved. |
-| `1405-09-02/3/1405-09-04/2/`: `SOLHostCapture_Archive_9_11252026_18_25_44.log`, 5:31 screencast, and one 717x32 still | The 691-line SOL reports HOB validation failure (`end pointer before HOB list`), then continues through Shell, successful `BOOTX64.EFI` and nested 14,512,128-byte Kali image loading (`machine=34404`, x86-64). The kernel options identify Kali `7.0.12+kali-amd64`, the same root UUID, `ro quiet splash`. Two XHCI control-transfer `STALL_ERROR` reports occur at Shell. EBS map key `0x576B` is accepted; all logged cleanup operations return; final marker is `OS EBS core returning status=EFI_SUCCESS`. The ROM readback hash is absent. | The video starts with KVM `No Signal`, shows Shell and Kali startup, and ends on the Kali splash without visible Linux text, panic, login, or desktop. The narrow still is not legible enough to establish a boot state. | The HOB check did not stop this attempt, and the USB errors are not linked to the Kali stall. The trace reaches beyond DXE EBS cleanup, but `quiet splash`, no Linux serial output, and no reachability result leave Linux progress versus a display/console issue unresolved. The flashed ROM revision is unverified. |
+| `1405-09-02/3/1405-09-04/2/` (duplicate copied to `1405-09-07/`): `SOLHostCapture_Archive_9_11252026_18_25_44.log`, 5:31 screencast, and one 717x32 still | The 691-line SOL reports HOB validation failure (`end pointer before HOB list`), then continues through Shell, successful `BOOTX64.EFI` and nested 14,512,128-byte Kali image loading (`machine=34404`, x86-64). The kernel options identify Kali `7.0.12+kali-amd64`, the same root UUID, `ro quiet splash`. Two XHCI control-transfer `STALL_ERROR` reports occur at Shell. EBS map key `0x576B` is accepted; all logged cleanup operations return; final marker is `OS EBS core returning status=EFI_SUCCESS`. The ROM readback hash is absent. | The video starts with KVM `No Signal`, shows Shell and Kali startup, and ends on the Kali splash without visible Linux text, panic, login, or desktop. The narrow still is not legible enough to establish a boot state. | The HOB check did not stop this attempt, and the USB errors are not linked to the Kali stall. The trace reaches beyond DXE EBS cleanup, but `quiet splash`, no Linux serial output, and no reachability result leave Linux progress versus a display/console issue unresolved. The flashed ROM revision is unverified. The `1405-09-07/` artifacts are byte-identical copies, not a new test. |
 
 ## New serial check for EBS memory types — 2026-11-26
 
@@ -185,6 +185,44 @@ firmware behavior change or identify a Linux fault. Use the documented
 one-time verbose GRUB parameters, capture raw SOL/VGA together, test
 reachability if the splash freezes, and record the boot entry and ROM hash
 before selecting a targeted fix.
+
+### Duplicate capture copied to 1405-09-07 — reviewed 2026-11-28
+
+The supplied `/home/uefi/workspace/logs/1405-09-07/` folder contains the same
+three artifacts as `1405-09-02/3/1405-09-04/2/`. SHA-256 comparison confirms
+that the SOL log, video, and still are byte-identical; treat this folder as a
+duplicate, not as a new boot attempt.
+
+| Artifact | SHA-256 | Observation |
+| --- | --- | --- |
+| `SOLHostCapture_Archive_9_11252026_18_25_44.log` (691 lines) | `9f16cbfedc535edb4b59210c4737be1264e8acfcd7652d9bc65190bef11e0402` | Serial trace reaches Shell, launches Kali's x86-64 EFI image, accepts EBS map key `0x576B`, and ends with `OS EBS core returning status=EFI_SUCCESS`. |
+| `Screencast from 25-11-26 13_50_04.m4v` (5:31) | `64d137639c4bcb5ee40dc3949237cd5bf984560f75397deeec9160882c5b7ed6` | Shows Shell and Kali startup; the Kali splash remains visible through the recording's end. |
+| `Screenshot from 2026-11-25 13-55-50.png.jpeg` (717x32) | `5ceb3f6b380877690ec4f6d932ec32d60d5b0dfd46654b2e8c859c5dff2dbf2d` | Too narrow to read or establish an additional boot state. |
+
+#### Boot status from this capture
+
+| Area | Evidence | Assessment |
+| --- | --- | --- |
+| USB DXE driver entry | All 8 configured USB drivers report load and entry success; the USB status page times out waiting for input and returns to boot flow. | Driver loading/entry succeeded; timeout is not evidence of a driver failure. |
+| DXE dispatch | 77 drivers loaded and executed; 0 load failures, 0 execution failures, 0 pending. | DXE dispatch completed for this run. |
+| USB and storage | One host controller is ready; 6 USB paths and 7 interfaces enumerate. Twelve Block I/O handles are found. Eight USB removable handles report no media; internal SCSI disk/partitions report media present, and one internal filesystem opens successfully. | Internal filesystem is available. USB no-media polling is observed but not tied to the Kali stall. |
+| HOB and preboot checks | HOB validation fails with `end pointer before HOB list`. Dashboard summary is 11 checks, 1 failure, 0 warnings. The log reports passing memory-map, ACPI RSDP/root, CPU topology, GOP, Block I/O, filesystem, console, and BootOrder checks. | HOB validation is a real reported failure, but the same run proceeds to Shell and Kali; causation is not shown. |
+| Shell and EFI image | Shell is reached; `FS0:\EFI\BOOT\BOOTX64.EFI` launches a nested 14,512,128-byte x86-64 Kali image. Options include Kali `7.0.12+kali-amd64`, root UUID `dbc71360-463d-4850-b9d8-b1cce9ebe2b4`, and `ro quiet splash`. | Firmware image discovery/loading and Shell handoff succeeded. |
+| EDK2 ExitBootServices | EBS map key `0x576B` is accepted. Logged notifications and cleanup return, followed by `OS EBS core returning status=EFI_SUCCESS`. | EDK2 reaches its final logged EBS return checkpoint. This does not establish Linux boot completion. |
+| Linux after handoff | VGA remains on the Kali splash through 5:31. No Linux serial messages, panic, login, desktop, or network reachability result are present. | Linux progress and the failure cause remain unknown. `quiet splash` hides useful output. |
+| Tested ROM identity | No full-chip readback hash accompanies the capture. Newer `[GX-EBS-MAPCHECK]`, memory-map snapshot, ACPI inventory, and final pre-return markers are absent from this log. | Cannot verify that the latest diagnostic ROM was flashed or attribute this run to a specific ROM. |
+
+Two XHCI `STALL_ERROR` messages occur at Shell. They are not shown to cause
+the later Kali stall. Likewise, the HOB failure does not stop this run before
+Shell or image launch. The evidence locates the last confirmed firmware point
+at successful EBS cleanup; it does not distinguish a Linux stall from progress
+hidden by `quiet splash` or a graphics/console problem.
+
+For a decisive follow-up, boot once with verbose Linux/early-serial options,
+capture raw SOL and VGA continuously from the same reset, check ping/SSH if
+the display freezes, and record the selected boot entry plus the flashed
+full-chip ROM readback hash. Compare the first Linux output with the final EBS
+marker before selecting a firmware change.
 
 For the next test, capture unfiltered SOL from reset until the OS progresses
 or fails, record VGA continuously during that same reset, and identify the

@@ -102,6 +102,34 @@ unsigned DXE bounds-check correction. Its final ROM hash and creation time are
 recorded in the capture register. This is a build artifact, not a chip
 readback. It has not yet been flashed or tested on the server.
 
+**Capture review, 2026-11-28:** The files supplied under
+`/home/uefi/workspace/logs/1405-09-07/` are byte-identical to the previously
+reviewed `1405-09-02/3/1405-09-04/2/` SOL, video, and still; they are not a new
+boot attempt. In that capture, all 77 DXE drivers report loaded and executed
+with no dispatch failures, and all 8 configured USB drivers report successful
+load and entry. The internal disk is present and its EFI filesystem opens.
+The preboot dashboard reports 11 checks with one failure: HOB validation
+(`end pointer before HOB list`). The same boot continues through Shell and
+Kali image loading, so the HOB failure is not shown to block this path.
+
+Kali's x86-64 EFI image starts with `quiet splash`; EDK2 accepts EBS map key
+`0x576B`, logs its cleanup returns, and emits `OS EBS core returning
+status=EFI_SUCCESS`. VGA remains on the Kali splash through the end of the
+5:31 recording. No Linux serial output, panic, login, desktop, or reachability
+result is captured. Thus, the trace confirms EDK2's logged handoff path through
+its EBS return, but it does not confirm that Linux booted successfully or
+identify why the display stopped advancing. The full-chip readback hash is
+missing, and this older capture lacks the newer EBS map snapshot, ACPI
+inventory, and final pre-return markers, so it cannot verify which diagnostic
+ROM was flashed.
+
+For the next attempt, remove `quiet splash` in a one-time GRUB edit and enable
+the documented Linux early-serial and kernel diagnostics. Capture uninterrupted
+SOL and VGA from the same reset; if VGA freezes, check ping/SSH. Record the boot
+entry, source revisions, and full-chip readback SHA-256 of the flashed ROM.
+Use the first Linux output (or its absence alongside reachability) to decide
+whether a targeted firmware change is justified.
+
 ## Capture review — 1405-09-02/3/1405-09-04/2 (2026-11-25)
 
 Reviewed `SOLHostCapture_Archive_9_11252026_18_25_44.log`,
